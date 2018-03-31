@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fursa</string>
+    <string name="action_settings">Mazingira</string>
+    <string name="login_email_edit_text">Barua Pepe</string>
+    <string name="login_password_edit_text">Nenosiri</string>
+    <string name="login_button">Ingia</string>
+    <string name="login_register_edit_text">Jiandikishe</string>
+</resources>
