@@ -5,4 +5,6 @@
     <string name="login_password_edit_text">Password</string>
     <string name="login_button">Login</string>
     <string name="login_register_edit_text">Register</string>
+    <string name="acc_name_hint">Your name</string>
+    <string name="acc_save_button">Save settings</string>
 </resources>

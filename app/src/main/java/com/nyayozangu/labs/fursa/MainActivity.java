@@ -68,9 +68,18 @@ public class MainActivity extends AppCompatActivity {
             case R.id.actions_logout:
                 logout();
                 return true;
+            case R.id.action_settings:
+                //go to account page
+                goToAccount();
+
             default:
                 return false;
         }
+    }
+
+    private void goToAccount() {
+        //go to Account page
+        startActivity(new Intent(MainActivity.this, AccountActivity.class));
     }
 
     private void logout() {
