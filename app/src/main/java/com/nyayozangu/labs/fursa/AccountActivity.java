@@ -174,13 +174,13 @@ public class AccountActivity extends AppCompatActivity {
                 //get user details
                 final String userName = userNameField.getText().toString();
 
-                //check if data (image) has changed
-                if (imageIsChanged) {
+                //check if userNameField is empty
+                if (!TextUtils.isEmpty(userName) && mainImageUri != null) {
+                    Log.d(TAG, "userName is: " + userName +
+                            "\nimageUri is: " + mainImageUri.toString());
 
-                    //check if userNameField is empty
-                    if (!TextUtils.isEmpty(userName) && mainImageUri != null) {
-                        Log.d(TAG, "userName is: " + userName +
-                                "\nimageUri is: " + mainImageUri.toString());
+                    //check if data (image) has changed
+                    if (imageIsChanged) {
                         //upload the image to firebase
                         userId = mAUth.getCurrentUser().getUid();
                         StorageReference imagePath = mStorageRef.child("profile_images").child(userId + ".jpg");

@@ -4,65 +4,74 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nyayozangu.labs.fursa.AccountActivity">
-
+    tools:context="com.nyayozangu.labs.fursa.NewPostActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/setupToolbar"
+        android:id="@+id/newPostToolBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary" />
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/setupImageCircleImageView"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="120dp"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/Base.ThemeOverlay.AppCompat.Dark.ActionBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/ic_launcher_round" />
+        app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    <ImageView
+        android:id="@+id/newPostImageView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/common_google_signin_btn_text_light_disabled"
+        android:foregroundTint="@android:color/white"
+        android:foregroundTintMode="src_in"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newPostToolBar"
+        app:srcCompat="@android:drawable/ic_input_add" />
 
     <EditText
-        android:id="@+id/accNameEditText"
+        android:id="@+id/newPostDescriptionEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:ems="10"
-        android:hint="@string/acc_name_hint"
-        android:inputType="textPersonName"
+        android:hint="@string/new_post_description_hint"
+        android:inputType="textMultiLine"
+        android:maxLength="300"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/setupImageCircleImageView" />
+        app:layout_constraintTop_toBottomOf="@+id/newPostImageView" />
 
     <Button
-        android:id="@+id/accSaveSettingsButton"
+        android:id="@+id/submitNewPostButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:backgroundTint="@color/colorAccent"
-        android:text="@string/acc_save_button"
+        android:padding="24dp"
+        android:text="@string/submit_new_post_button"
         android:textAllCaps="false"
-        android:textColor="@color/common_google_signin_btn_text_dark_pressed"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/accNameEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/newPostDescriptionEditText" />
 
     <ProgressBar
-        android:id="@+id/accProgressBar"
+        android:id="@+id/newPostProgressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:indeterminate="true"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/setupToolbar"
-        tools:visibility="gone" />
+        app:layout_constraintTop_toTopOf="@+id/newPostImageView" />
 
 
 </android.support.constraint.ConstraintLayout>

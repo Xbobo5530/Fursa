@@ -2,25 +2,38 @@ package com.nyayozangu.labs.fursa;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
 
     private static final String TAG = "Sean";
+    //firebase auth
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
+    //users
+    private String currentUserId;
 
     private Toolbar mainToolbar;
+
+    private FloatingActionButton mNewPost;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,26 +42,27 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.mainToolbar);
-        setSupportActionBar(toolbar);
-
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
+        //initialize firebase storage
+        // Access a Cloud Firestore instance from your Activity
+        db = FirebaseFirestore.getInstance();
 
+        //initiate elements
         mainToolbar = findViewById(R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
         getSupportActionBar().setTitle("Main Feed");
+        mNewPost = findViewById(R.id.newPostFab);
 
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mNewPost.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onClick(View v) {
+                //start the new post activity
+                startActivity(new Intent(MainActivity.this, NewPostActivity.class));
             }
         });
+
     }
 
     @Override
@@ -100,26 +114,59 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
 
+        //check if user is logged in
         if (currentUser == null) {
-
-            Log.d(TAG, "currentUser is: " + currentUser);
-
             //user is not logged in
-            //send to sing log in page
-            Intent loginIntent = new Intent(this, LoginActivity.class);
-            startActivity(loginIntent);
-            finish();
+            Log.d(TAG, "currentUser is: " + currentUser);
+            //send to login page
+            sendToLogin();
+        } else {
+            //user is signed in
+            //check if user exists in db
+            currentUserId = mAuth.getCurrentUser().getUid();
+
+            db.collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    //check if user exists
+                    if (task.isSuccessful()) {
+
+                        //check is user exist
+                        if (!task.getResult().exists()) {
+                            //user does not exist
+                            Log.d(TAG, "user exists");
+                            //send user to login activity
+                            sendToLogin();
+                        } else {
+                            //user exists
+                            Log.d(TAG, "user exists");
+
+                        }
+
+                    } else {
+                        //task was not successful
+                        //handle error
+                        String errorMessage = task.getException().getMessage();
+                        Log.d(TAG, "failed to get user\n error message is: " + errorMessage);
+                        Toast.makeText(MainActivity.this, "Failed to get user detials: " + errorMessage, Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            });
         }
 
     }
 
-    private void updateUI(FirebaseUser currentUser) {
-        // TODO: 3/31/18 sing in current user
+    private void sendToLogin() {
+        Log.d(TAG, "at sendToLogin()");
+        //send to sing log in page
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
+        finish();
     }
 
-
-    public void createAccount(String userName, String password) {
-
+    private void updateUI(FirebaseUser currentUser) {
+        // TODO: 3/31/18 sing in current user
     }
 
 
