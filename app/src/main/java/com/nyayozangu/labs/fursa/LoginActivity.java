@@ -81,7 +81,8 @@ public class LoginActivity extends AppCompatActivity {
                     });
 
                 } else {
-                    // TODO: 4/1/18 alert user to fill in an email and/or a password
+                    //alert empty fields
+                    Toast.makeText(LoginActivity.this, "Fields should not be empty", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -89,9 +90,17 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //launch register activity
-                // TODO: 4/1/18 launch register activity
+                goToRegister();
+
             }
         });
+    }
+
+    private void goToRegister() {
+        //launch register activity
+        Intent goToRegister = new Intent(LoginActivity.this, RegisterActivity.class);
+        startActivity(goToRegister);
+        finish();
     }
 
     //check to see if the user is logged in

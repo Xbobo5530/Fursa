@@ -20,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Sean";
     private FirebaseAuth mAuth;
 
+    private Toolbar mainToolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -27,12 +29,17 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.mainToolbar);
         setSupportActionBar(toolbar);
 
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
+
+        mainToolbar = findViewById(R.id.mainToolbar);
+        setSupportActionBar(mainToolbar);
+        getSupportActionBar().setTitle("Main Feed");
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -56,14 +63,21 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.actions_logout:
+                logout();
+                return true;
+            default:
+                return false;
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    private void logout() {
+        mAuth.signOut();
+        //send user to login page
+        Intent goToLoginIntent = new Intent(this, LoginActivity.class);
+        startActivity(goToLoginIntent);
     }
 
     //check to see if the user is logged in
@@ -98,4 +112,6 @@ public class MainActivity extends AppCompatActivity {
     public void createAccount(String userName, String password) {
 
     }
+
+
 }

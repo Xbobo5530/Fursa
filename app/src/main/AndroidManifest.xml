@@ -3,6 +3,8 @@
     package="com.nyayozangu.labs.fursa">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -25,6 +27,8 @@
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".AccountActivity"></activity>
     </application>
 
 </manifest>
