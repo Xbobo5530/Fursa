@@ -1,24 +1,34 @@
 package com.nyayozangu.labs.fursa;
 
+import java.util.Date;
+
 /**
  * Created by Sean on 4/4/18.
  * Model class for the posts
  */
 
-public class Posts {
+public class Posts extends PostId {
 
     //get all the details from database
     public String user_id, image_url, thumb_url, desc;
+
+    public Date timestamp;
+
+
+    public Posts(Date timestamp) {
+        this.timestamp = timestamp;
+    }
 
     //empty constructor
     public Posts() {
     }
 
-    public Posts(String user_id, String image_url, String thumb_url, String desc) {
+    public Posts(String user_id, String image_url, String thumb_url, String desc, Date timestamp) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
         this.desc = desc;
+        this.timestamp = timestamp;
     }
 
     public String getUser_id() {
@@ -35,6 +45,14 @@ public class Posts {
 
     public void setImage_url(String image_url) {
         this.image_url = image_url;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getThumb_url() {

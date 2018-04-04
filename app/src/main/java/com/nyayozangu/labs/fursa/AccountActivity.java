@@ -179,6 +179,8 @@ public class AccountActivity extends AppCompatActivity {
                     Log.d(TAG, "userName is: " + userName +
                             "\nimageUri is: " + mainImageUri.toString());
 
+
+                    // TODO: 4/4/18 before uploading userImage, compress to get userImageThumb
                     //check if data (image) has changed
                     if (imageIsChanged) {
                         //upload the image to firebase

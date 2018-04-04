@@ -76,33 +76,40 @@ public class MainActivity extends AppCompatActivity {
         mNewPost = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
 
+        //set the homeFragment when home the main activity is loaded
+        if (mAuth.getCurrentUser() != null) {
+            //if the user is logged in set fragment
+            setFragment(homeFragment);
 
-        //set onclick Listener for when the navigation items are selected
-        mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                switch (item.getItemId()) {
-                    case R.id.bottomNavHomeItem:
-                        setFragment(homeFragment);
-                        return true;
-                    case R.id.bottomNavCatItem:
-                        setFragment(categoriesFragment);
-                        return true;
-                    case R.id.bottomNavSavedIted:
-                        setFragment(savedFragment);
-                        return true;
-                    default:
-                        return false;
+            //set onclick Listener for when the navigation items are selected
+            mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                    switch (item.getItemId()) {
+                        case R.id.bottomNavHomeItem:
+                            setFragment(homeFragment);
+                            return true;
+                        case R.id.bottomNavCatItem:
+                            setFragment(categoriesFragment);
+                            return true;
+                        case R.id.bottomNavSavedIted:
+                            setFragment(savedFragment);
+                            return true;
+                        default:
+                            return false;
+                    }
+
                 }
-
-            }
-        });
+            });
+        }
 
 
         mNewPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO: 4/4/18 log in the user here. users can see posts but cant post or interact
                 //start the new post activity
                 startActivity(new Intent(MainActivity.this, NewPostActivity.class));
             }

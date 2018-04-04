@@ -8,12 +8,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -37,6 +40,11 @@ public class HomeFragment extends Fragment {
     //recycler adapter
     private PostsRecyclerAdapter postsRecyclerAdapter;
 
+    private DocumentSnapshot lastVisiblePost;
+
+    private Boolean isFirstPageFirstLoad = true;
+
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -44,7 +52,7 @@ public class HomeFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
@@ -64,36 +72,146 @@ public class HomeFragment extends Fragment {
         //set an adapter for the recycler view
         homeFeedView.setAdapter(postsRecyclerAdapter);
 
-        //initiate the firebase elements
-        db = FirebaseFirestore.getInstance();
-        //get all posts from the database
-        //use snapshotListener to get all the data real time
-        db.collection("Posts").addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+        //initiate firebase auth
+        mAuth = FirebaseAuth.getInstance();
 
-                //create a for loop to check for document changes
-                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                    //check if an item is added
-                    if (doc.getType() == DocumentChange.Type.ADDED) {
-                        //a new item/ post is added
 
-                        //converting database data into objects
-                        //get the newly added post
-                        Posts post = doc.getDocument().toObject(Posts.class);
-                        //add new post to the local postsList
-                        postsList.add(post);
-                        //notify the recycler adapter of the set change
-                        postsRecyclerAdapter.notifyDataSetChanged();
+        //requires permissions
+        //check permissions
+        if (mAuth.getCurrentUser() != null) {
+            //initiate the firebase elements
+            db = FirebaseFirestore.getInstance();
+
+            //listen for scrolling on the homeFeedView
+            homeFeedView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+
+                    Boolean reachedBottom = !homeFeedView.canScrollVertically(1);
+
+                    if (reachedBottom) {
+
+                        String desc = lastVisiblePost.getString("desc");
+                        Toast.makeText(container.getContext(), "reached : " + desc, Toast.LENGTH_SHORT).show();
+                        loadMorePosts();
+
                     }
-                }
 
-            }
-        });
+                }
+            });
+
+
+            Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(3);
+            //get all posts from the database
+            //use snapshotListener to get all the data real time
+            firstQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+
+                    //check if the data is loaded for the first time
+                    /**
+                     * if new data is added it will be added to the first query not the second query
+                     */
+                    if (isFirstPageFirstLoad) {
+
+                        //get the last visible post
+                        lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                                .get(queryDocumentSnapshots.size() - 1);
+
+                    }
+                    //create a for loop to check for document changes
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        //check if an item is added
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
+                            //a new item/ post is added
+
+
+                            //get the post id for likes feature
+                            String postId = doc.getDocument().getId();
+
+                            //converting database data into objects
+                            //get the newly added post
+                            //pass the postId to the post model class Posts.class
+                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+
+                            //add new post to the local postsList
+                            if (isFirstPageFirstLoad) {
+                                //if the first page is loaded the add new post normally
+                                postsList.add(post);
+                            } else {
+                                //add the post at position 0 of the postsList
+                                postsList.add(0, post);
+
+                            }
+                            //notify the recycler adapter of the set change
+                            postsRecyclerAdapter.notifyDataSetChanged();
+                        }
+                    }
+
+                    //the first page has alreadt loaded
+                    isFirstPageFirstLoad = false;
+
+                }
+            });
+
+        }
 
 
         // Inflate the layout for this fragment
         return view;
+    }
+
+    //for loading more posts
+    public void loadMorePosts() {
+
+        Query nextQuery = db.collection("Posts")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .startAfter(lastVisiblePost)
+                .limit(3);
+
+
+        //get all posts from the database
+        //use snapshotListener to get all the data real time
+        nextQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+
+                //check if there area more posts
+                if (!queryDocumentSnapshots.isEmpty()) {
+
+
+                    //get the last visible post
+                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                            .get(queryDocumentSnapshots.size() - 1);
+
+
+                    //create a for loop to check for document changes
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        //check if an item is added
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
+                            //a new item/ post is added
+
+                            //get the post id for likes feature
+                            String postId = doc.getDocument().getId();
+
+                            //converting database data into objects
+                            //get the newly added post
+                            //pass the postId to the post model class Posts.class
+                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+
+                            //add new post to the local postsList
+                            postsList.add(post);
+                            //notify the recycler adapter of the set change
+                            postsRecyclerAdapter.notifyDataSetChanged();
+                        }
+                    }
+
+                }
+            }
+        });
+
+
     }
 
 }
