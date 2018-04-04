@@ -17,6 +17,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+    <!--TODO add a placeholder image -->
+
     <ImageView
         android:id="@+id/newPostImageView"
         android:layout_width="0dp"

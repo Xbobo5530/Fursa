@@ -35,12 +35,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 import id.zelory.compressor.Compressor;
 
 public class NewPostActivity extends AppCompatActivity {
+
+    // TODO: 4/4/18 add a tag field to categorize posts
+    // TODO: 4/4/18 add a title field for posts
 
     private static final String TAG = "Sean";
     private static final int MAX_LENGTH = 100;
@@ -59,24 +61,6 @@ public class NewPostActivity extends AppCompatActivity {
     //user
     private String currentUserId;
 
-    /**
-     * generates a random string
-     *
-     * @returns String a random String
-     */
-
-
-    public static String randomString() {
-        Random generator = new Random();
-        StringBuilder randomStringBuilder = new StringBuilder();
-        int randomLength = generator.nextInt(MAX_LENGTH);
-        char tempChar;
-        for (int i = 0; i < randomLength; i++) {
-            tempChar = (char) (generator.nextInt(96) + 32);
-            randomStringBuilder.append(tempChar);
-        }
-        return randomStringBuilder.toString();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -9,4 +9,7 @@
     <string name="acc_save_button">Save settings</string>
     <string name="submit_new_post_button">Submit</string>
     <string name="new_post_description_hint">Add description</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

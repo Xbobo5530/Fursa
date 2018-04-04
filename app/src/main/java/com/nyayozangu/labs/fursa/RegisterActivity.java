@@ -19,6 +19,12 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    // TODO: 4/4/18 add google sign in
+    // TODO: 4/4/18 add twitter sign in
+    // TODO: 4/4/18 add facebook sign in
+    // TODO: 4/4/18 check phone number sign in
+
+
     private EditText regEmailField;
     private EditText regPasswordField;
     private EditText regConfirmPasswordField;

@@ -3,7 +3,10 @@ package com.nyayozangu.labs.fursa;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,6 +24,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
+    // TODO: 4/4/18 handle read later feature
+    // TODO: 4/4/18  add a floating search bar with user
+    // TODO: 4/4/18 remove action bar
+    // TODO: 4/4/18 add bottom navigation
+    // TODO: 4/4/18 handle feed, categories and read later fragments
 
     private static final String TAG = "Sean";
     //firebase auth
@@ -29,14 +37,21 @@ public class MainActivity extends AppCompatActivity {
 
     //users
     private String currentUserId;
-
     private Toolbar mainToolbar;
-
     private FloatingActionButton mNewPost;
+    private BottomNavigationView mainBottomNav;
+
+    //instances of fragments
+    private HomeFragment homeFragment;
+    private CategoriesFragment categoriesFragment;
+    private SavedFragment savedFragment;
+
+
+
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
 
         Log.d(TAG, "at MainActivity, onCreate()");
 
@@ -49,11 +64,41 @@ public class MainActivity extends AppCompatActivity {
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
 
+        //initiate fragments
+        homeFragment = new HomeFragment();
+        categoriesFragment = new CategoriesFragment();
+        savedFragment = new SavedFragment();
+
         //initiate elements
         mainToolbar = findViewById(R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
         getSupportActionBar().setTitle("Main Feed");
         mNewPost = findViewById(R.id.newPostFab);
+        mainBottomNav = findViewById(R.id.mainBottomNav);
+
+
+        //set onclick Listener for when the navigation items are selected
+        mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch (item.getItemId()) {
+                    case R.id.bottomNavHomeItem:
+                        setFragment(homeFragment);
+                        return true;
+                    case R.id.bottomNavCatItem:
+                        setFragment(categoriesFragment);
+                        return true;
+                    case R.id.bottomNavSavedIted:
+                        setFragment(savedFragment);
+                        return true;
+                    default:
+                        return false;
+                }
+
+            }
+        });
+
 
         mNewPost.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,6 +212,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser currentUser) {
         // TODO: 3/31/18 sing in current user
+    }
+
+
+    private void setFragment(Fragment fragment) {
+
+        //begin transaction
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.mainFrameContainer, fragment);
+        fragmentTransaction.commit();
+
     }
 
 
