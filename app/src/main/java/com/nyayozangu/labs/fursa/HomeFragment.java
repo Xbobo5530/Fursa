@@ -78,84 +78,84 @@ public class HomeFragment extends Fragment {
 
         //requires permissions
         //check permissions
-        if (mAuth.getCurrentUser() != null) {
-            //initiate the firebase elements
-            db = FirebaseFirestore.getInstance();
 
-            //listen for scrolling on the homeFeedView
-            homeFeedView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
+        //initiate the firebase elements
+        db = FirebaseFirestore.getInstance();
 
-                    Boolean reachedBottom = !homeFeedView.canScrollVertically(1);
+        //listen for scrolling on the homeFeedView
+        homeFeedView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
 
-                    if (reachedBottom) {
+                Boolean reachedBottom = !homeFeedView.canScrollVertically(1);
 
-                        String desc = lastVisiblePost.getString("desc");
-                        Toast.makeText(container.getContext(), "reached : " + desc, Toast.LENGTH_SHORT).show();
-                        loadMorePosts();
+                if (reachedBottom) {
 
-                    }
+                    String desc = lastVisiblePost.getString("desc");
+                    Toast.makeText(container.getContext(), "reached : " + desc, Toast.LENGTH_SHORT).show();
+                    loadMorePosts();
 
                 }
-            });
+
+            }
+        });
 
 
-            Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(3);
-            //get all posts from the database
-            //use snapshotListener to get all the data real time
-            firstQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+        Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(3);
+        //get all posts from the database
+        //use snapshotListener to get all the data real time
+        firstQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                    //check if the data is loaded for the first time
-                    /**
-                     * if new data is added it will be added to the first query not the second query
-                     */
-                    if (isFirstPageFirstLoad) {
+                //check if the data is loaded for the first time
+                /**
+                 * if new data is added it will be added to the first query not the second query
+                 */
+                if (isFirstPageFirstLoad) {
 
-                        //get the last visible post
-                        lastVisiblePost = queryDocumentSnapshots.getDocuments()
-                                .get(queryDocumentSnapshots.size() - 1);
+                    //get the last visible post
+                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                            .get(queryDocumentSnapshots.size() - 1);
 
-                    }
-                    //create a for loop to check for document changes
-                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                        //check if an item is added
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
-                            //a new item/ post is added
+                }
+                //create a for loop to check for document changes
+                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                    //check if an item is added
+                    if (doc.getType() == DocumentChange.Type.ADDED) {
+                        //a new item/ post is added
 
 
-                            //get the post id for likes feature
-                            String postId = doc.getDocument().getId();
+                        //get the post id for likes feature
+                        String postId = doc.getDocument().getId();
 
-                            //converting database data into objects
-                            //get the newly added post
-                            //pass the postId to the post model class Posts.class
-                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                        //converting database data into objects
+                        //get the newly added post
+                        //pass the postId to the post model class Posts.class
+                        Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
-                            //add new post to the local postsList
-                            if (isFirstPageFirstLoad) {
-                                //if the first page is loaded the add new post normally
-                                postsList.add(post);
-                            } else {
-                                //add the post at position 0 of the postsList
-                                postsList.add(0, post);
+                        //add new post to the local postsList
+                        if (isFirstPageFirstLoad) {
+                            //if the first page is loaded the add new post normally
+                            postsList.add(post);
+                        } else {
+                            //add the post at position 0 of the postsList
+                            postsList.add(0, post);
 
-                            }
-                            //notify the recycler adapter of the set change
-                            postsRecyclerAdapter.notifyDataSetChanged();
                         }
+                        //notify the recycler adapter of the set change
+                        postsRecyclerAdapter.notifyDataSetChanged();
                     }
-
-                    //the first page has alreadt loaded
-                    isFirstPageFirstLoad = false;
-
                 }
-            });
 
-        }
+                //the first page has already loaded
+                isFirstPageFirstLoad = false;
+
+            }
+        });
+
+
 
 
         // Inflate the layout for this fragment
@@ -212,6 +212,11 @@ public class HomeFragment extends Fragment {
         });
 
 
+    }
+
+    private boolean isLoggedIn() {
+        //determine if user is logged in
+        return mAuth.getCurrentUser() != null;
     }
 
 }

@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -77,44 +76,59 @@ public class MainActivity extends AppCompatActivity {
         mainBottomNav = findViewById(R.id.mainBottomNav);
 
         //set the homeFragment when home the main activity is loaded
-        if (mAuth.getCurrentUser() != null) {
-            //if the user is logged in set fragment
-            setFragment(homeFragment);
+        setFragment(homeFragment);
 
 
-            //set onclick Listener for when the navigation items are selected
-            mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        //set onclick Listener for when the navigation items are selected
+        mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                    switch (item.getItemId()) {
-                        case R.id.bottomNavHomeItem:
-                            setFragment(homeFragment);
-                            return true;
-                        case R.id.bottomNavCatItem:
-                            setFragment(categoriesFragment);
-                            return true;
-                        case R.id.bottomNavSavedIted:
-                            setFragment(savedFragment);
-                            return true;
-                        default:
-                            return false;
-                    }
-
+                switch (item.getItemId()) {
+                    case R.id.bottomNavHomeItem:
+                        setFragment(homeFragment);
+                        return true;
+                    case R.id.bottomNavCatItem:
+                        setFragment(categoriesFragment);
+                        return true;
+                    case R.id.bottomNavSavedIted:
+                        setFragment(savedFragment);
+                        return true;
+                    default:
+                        return false;
                 }
-            });
-        }
+
+            }
+        });
+
+
 
 
         mNewPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: 4/4/18 log in the user here. users can see posts but cant post or interact
+                //only allow the user to post if user is signed in
+                if (isLoggedIn()) {
                 //start the new post activity
-                startActivity(new Intent(MainActivity.this, NewPostActivity.class));
+                    goToNewPost();
+                } else {
+                    //use is not logged in
+                    //send to login page
+                    goToLogin();
+                }
             }
         });
 
+    }
+
+    //go to new post page
+    private void goToNewPost() {
+        startActivity(new Intent(MainActivity.this, NewPostActivity.class));
+    }
+
+    //go to login page
+    private void goToLogin() {
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
     }
 
     @Override
@@ -163,17 +177,15 @@ public class MainActivity extends AppCompatActivity {
 
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+
 
         //check if user is logged in
-        if (currentUser == null) {
+        if (!isLoggedIn()) {
             //user is not logged in
-            Log.d(TAG, "currentUser is: " + currentUser);
-            //send to login page
-            sendToLogin();
+            Log.d(TAG, "user not logged in");
         } else {
             //user is signed in
+            Log.d(TAG, "user not logged in");
             //check if user exists in db
             currentUserId = mAuth.getCurrentUser().getUid();
 
@@ -182,13 +194,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     //check if user exists
                     if (task.isSuccessful()) {
-
+                        Log.d(TAG, "task is successful");
                         //check is user exist
                         if (!task.getResult().exists()) {
                             //user does not exist
                             Log.d(TAG, "user exists");
                             //send user to login activity
-                            sendToLogin();
+//                            sendToLogin();
                         } else {
                             //user exists
                             Log.d(TAG, "user exists");
@@ -197,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
                     } else {
                         //task was not successful
+                        Log.d(TAG, "task not successful");
                         //handle error
                         String errorMessage = task.getException().getMessage();
                         Log.d(TAG, "failed to get user\n error message is: " + errorMessage);
@@ -217,10 +230,6 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void updateUI(FirebaseUser currentUser) {
-        // TODO: 3/31/18 sing in current user
-    }
-
 
     private void setFragment(Fragment fragment) {
 
@@ -229,6 +238,11 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.mainFrameContainer, fragment);
         fragmentTransaction.commit();
 
+    }
+
+    private boolean isLoggedIn() {
+        //determine if user is logged in
+        return mAuth.getCurrentUser() != null;
     }
 
 

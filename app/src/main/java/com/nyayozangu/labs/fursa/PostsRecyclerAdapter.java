@@ -40,7 +40,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
     private static final String TAG = "Sean";
-    //member vatiables for storing posts
+    //member variables for storing posts
     public List<Posts> postsList;
 
     public Context context;
@@ -66,6 +66,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
+
+
         //initialize firebase storage
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
@@ -75,7 +77,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     @Override
     public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder, int position) {
-
+        Log.d(TAG, "at onBindViewHolder");
 
         holder.setIsRecyclable(false);
 
@@ -84,8 +86,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //set the data to the view holder
         holder.setDesc(descData);
 
-        //handling getting the user who cliecked like
-        final String currentUserId = mAuth.getCurrentUser().getUid();
+        String currentUserId;
+
+        //handling getting the user who clicked like
+        if (isLoggedIn()) {
+            currentUserId = mAuth.getCurrentUser().getUid();
+            Log.d(TAG, "user is logged in\n current userId is :" + currentUserId);
+        } else {
+            currentUserId = null;
+            Log.d(TAG, "user is logged in\n current userId is :" + currentUserId);
+        }
 
         //handle post image
         String imageUrl = postsList.get(position).getImage_url();
@@ -102,8 +112,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 //get the result and retrieve userName and Image Url
+                Log.d(TAG, "at getUserId from db query");
                 if (task.isSuccessful()) {
                     //task is successful
+                    Log.d(TAG, "task is successful");
                     //get userName
                     String userName = task.getResult().get("name").toString();
                     Log.d(TAG, "userName is: " + userName);
@@ -115,6 +127,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                 } else {
                     //failed to retrieve the userData
+                    Log.d(TAG, "task not successful");
                     String errorMessage = task.getException().getMessage();
                     Log.d(TAG, "Failed to retrieve userData: " + errorMessage);
                     // TODO: 4/4/18 notify users on errors(maybe use Snackbars)
@@ -129,12 +142,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         String dateString = DateFormat.format("MM/dd/yyyy", new Date(millis)).toString();
         holder.setPostDate(dateString);
 
+
         //get likes count
         //create query to count
         db.collection("Posts/" + postId + "/Likes").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
+                Log.d(TAG, "at onEvent, when likes change");
                 if (!queryDocumentSnapshots.isEmpty()) {
 
                     //post has likes
@@ -150,56 +164,82 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
-        //get likes
-        db.collection("Posts/" + postId + "/Likes").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                //update the like button realtime
-                if (documentSnapshot.exists()) {
-                    //user has liked
-                    holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
-                } else {
-                    //current user has not liked the post
-                    holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
+        if (isLoggedIn()) {
+            //get likes
+            //determine likes by current user
+            /*final String finalCurrentUserId = currentUserId;
+            db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                    //update the like button real time
+                    if (documentSnapshot.exists()) {
+                        Log.d(TAG, "at get likes");
+                        //user has liked
+                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
+                    } else {
+                        //current user has not liked the post
+                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
+                    }
                 }
-            }
-        });
+            });*/
+
+        }
 
 
         //likes feature
+        final String finalCurrentUserId = currentUserId;
         holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                db.collection("Posts/" + postId + "/Likes").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        //get data from teh likes collection
+                if (isLoggedIn()) {
 
-                        //check if current user has already liked post
-                        if (!task.getResult().exists()) {
-                            Map<String, Object> likesMap = new HashMap<>();
-                            likesMap.put("timestamp", FieldValue.serverTimestamp());
+                    db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            //get data from teh likes collection
 
-                            //db.collection("Posts").document(postId).collection("Likes");
-                            //can alternatively ne written
-                            db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
+                            //check if current user has already liked post
+                            if (!task.getResult().exists()) {
+                                Map<String, Object> likesMap = new HashMap<>();
+                                likesMap.put("timestamp", FieldValue.serverTimestamp());
 
-                        } else {
+                                //db.collection("Posts").document(postId).collection("Likes");
+                                //can alternatively ne written
+                                db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).set(likesMap);
 
-                            //delete the like
-                            db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
+                            } else {
 
+                                //delete the like
+                                db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).delete();
+
+
+                            }
 
                         }
+                    });
 
-                    }
-                });
+                } else {
+                    //user is not signed in, send to log in page
+                    goToLogin();
+                }
 
 
             }
         });
 
+    }
+
+    private void goToLogin() {
+        //take user to the login page
+        Log.d(TAG, "at goToLogin");
+        // TODO: 4/5/18 take user to the login activity
+
+    }
+
+    private boolean isLoggedIn() {
+        //determine if user is logged in
+        return mAuth.getCurrentUser() != null;
     }
 
     @Override
@@ -249,6 +289,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postImageView = mView.findViewById(R.id.postImageView);
 
             RequestOptions requestOptions = new RequestOptions();
+            // TODO: 4/5/18 replace postImage placeholder image
             requestOptions.placeholder(R.drawable.common_google_signin_btn_text_dark);
 
             Glide.with(context)

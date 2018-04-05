@@ -3,6 +3,7 @@ package com.nyayozangu.labs.fursa;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -15,13 +16,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    // TODO: 4/4/18 add google sign in
     // TODO: 4/4/18 add twitter sign in
-    // TODO: 4/4/18 add facebook sign in
     // TODO: 4/4/18 check phone number sign in
 
 
@@ -31,6 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button regButton;
     private Button regLoginButton;
     private ProgressBar regProgress;
+    private FloatingActionButton closeRegisterButton;
 
     private FirebaseAuth mAuth;
 
@@ -49,6 +48,14 @@ public class RegisterActivity extends AppCompatActivity {
         regButton = findViewById(R.id.regButton);
         regLoginButton = findViewById(R.id.regLoginButton);
         regProgress = findViewById(R.id.regRrogressBar);
+        closeRegisterButton = findViewById(R.id.reg_close_button);
+
+        closeRegisterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToMain();
+            }
+        });
 
         regLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,18 +124,9 @@ public class RegisterActivity extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        goToMain();
-    }
-
     private void goToMain() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            Intent goToMainIntent = new Intent(this, MainActivity.class);
-            startActivity(goToMainIntent);
-            finish();
-        }
+        Intent goToMainIntent = new Intent(this, MainActivity.class);
+        startActivity(goToMainIntent);
+        finish();
     }
 }
