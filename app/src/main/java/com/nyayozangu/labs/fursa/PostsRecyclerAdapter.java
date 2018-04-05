@@ -280,8 +280,17 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         public void updateLikesCount(int likesCount) {
 
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
-            postLikesCount.setText(String.valueOf(likesCount) + " Likes");
-            // TODO: 4/4/18 manage plurality, 1 like vs 2likes
+
+            //check the number of likes
+            if (likesCount == 1) {
+                //use like
+                postLikesCount.setText(String.valueOf(likesCount) + " Like");
+            } else {
+                //else use likes
+                postLikesCount.setText(String.valueOf(likesCount) + " Likes");
+            }
+
+
 
         }
 
@@ -289,7 +298,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         public void setUserImage(String userImageDownloadUri) {
 
             postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
-            //add the plaeholder image
+            //add the placeholder image
             RequestOptions placeHolderOptions = new RequestOptions();
             placeHolderOptions.placeholder(R.drawable.crop_image_menu_flip);
 

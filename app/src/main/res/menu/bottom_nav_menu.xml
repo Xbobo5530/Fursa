@@ -3,14 +3,14 @@
 
     <item
         android:id="@+id/bottomNavHomeItem"
-        android:icon="@android:drawable/presence_video_busy"
-        android:title="home" />
+        android:icon="@drawable/ic_action_home"
+        android:title="Home" />
     <item
         android:id="@+id/bottomNavCatItem"
-        android:icon="@android:drawable/presence_online"
+        android:icon="@drawable/ic_action_categories"
         android:title="Categories" />
     <item
         android:id="@+id/bottomNavSavedIted"
-        android:icon="@android:drawable/presence_away"
+        android:icon="@drawable/ic_action_bookmark"
         android:title="Saved" />
 </menu>

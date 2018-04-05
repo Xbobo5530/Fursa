@@ -111,7 +111,7 @@ public class NewPostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //start submitting
-                final String desc = newPostDescField.getText().toString();
+                final String desc = newPostDescField.getText().toString().trim();
 
                 //check if description field is empty
                 if (!TextUtils.isEmpty(desc) && postImageUri != null) {
