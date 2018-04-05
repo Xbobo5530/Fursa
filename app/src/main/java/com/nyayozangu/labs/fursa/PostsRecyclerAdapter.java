@@ -137,6 +137,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
         //handle date for posts
+        // TODO: 4/5/18 looking into the timestamp bug; app crashes on creating new post
         long millis = postsList.get(position).getTimestamp().getTime();
         //convert millis to date time format
         String dateString = DateFormat.format("MM/dd/yyyy", new Date(millis)).toString();
@@ -163,11 +164,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         });
 
-
         if (isLoggedIn()) {
             //get likes
             //determine likes by current user
-            /*final String finalCurrentUserId = currentUserId;
+            final String finalCurrentUserId = currentUserId;
             db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
@@ -181,7 +181,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
                     }
                 }
-            });*/
+            });
 
         }
 

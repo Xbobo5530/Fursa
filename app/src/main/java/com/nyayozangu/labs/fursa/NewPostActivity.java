@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -54,6 +55,11 @@ public class NewPostActivity extends AppCompatActivity {
     private Button submitNewPostButon;
     private ProgressBar newPostProgressBar;
     private Uri postImageUri;
+    private EditText newPostTitle;
+
+
+    private ProgressDialog progressDialog;
+
     //Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -94,7 +100,7 @@ public class NewPostActivity extends AppCompatActivity {
         newPostImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //show imagepcker and crop tool
+                //show image picker and crop tool
                 // start picker to get image for cropping and then use the image in cropping activity
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
@@ -116,7 +122,7 @@ public class NewPostActivity extends AppCompatActivity {
                 //check if description field is empty
                 if (!TextUtils.isEmpty(desc) && postImageUri != null) {
                     //description is not empty and image is not null
-                    newPostProgressBar.setVisibility(View.VISIBLE);
+                    showProgress("Posting...");
 
                     //generate randomString name for image based on firebase time stamp
                     final String randomName = UUID.randomUUID().toString();
@@ -196,8 +202,9 @@ public class NewPostActivity extends AppCompatActivity {
                                                     //upload failed
                                                     String errorMessage = task.getException().getMessage();
                                                     Log.d(TAG, "Db Update failed: " + errorMessage);
-                                                    //hide progress bar
-                                                    newPostProgressBar.setVisibility(View.INVISIBLE);
+                                                    /*//hide progress bar
+                                                    newPostProgressBar.setVisibility(View.INVISIBLE);*/
+                                                    progressDialog.dismiss();
                                                 }
 
                                             }
@@ -217,8 +224,9 @@ public class NewPostActivity extends AppCompatActivity {
                                 String errorMessage = task.getException().getMessage();
                                 Toast.makeText(NewPostActivity.this, "Failed to upload image: " + errorMessage, Toast.LENGTH_SHORT).show();
 
-                                //hide progress bar
-                                newPostProgressBar.setVisibility(View.INVISIBLE);
+                                /*//hide progress bar
+                                newPostProgressBar.setVisibility(View.INVISIBLE);*/
+                                progressDialog.dismiss();
                             }
                         }
                     });
@@ -256,4 +264,17 @@ public class NewPostActivity extends AppCompatActivity {
             }
         }
     }
+
+
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+
+
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,8 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -47,6 +46,11 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 public class LoginActivity extends AppCompatActivity {
 
+    // TODO: 4/5/18  Must initialize Twitter before using getInstance()
+
+    // TODO: 4/5/18 when user has types email and pass, then clicks register, send typed details to register page
+
+
     private static final String TAG = "Sean";
     private static final int RC_SIGN_IN = 0;
     //for google sign in
@@ -57,8 +61,10 @@ public class LoginActivity extends AppCompatActivity {
     private EditText loginPasswordText;
     private Button loginButton;
     private Button loginRegistrationButton;
-    private ProgressBar loginProgressBar;
     private FloatingActionButton closeLoginButton;
+
+    private ProgressDialog progressDialog;
+
     //social login buttons
     private SignInButton googleSignInButton;
     private TwitterLoginButton twitterLoginButton;
@@ -80,7 +86,6 @@ public class LoginActivity extends AppCompatActivity {
         loginPasswordText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         loginRegistrationButton = findViewById(R.id.loginRegisterButton);
-        loginProgressBar = findViewById(R.id.loginProgressBar);
         closeLoginButton = findViewById(R.id.login_close_fab);
 
         //social login
@@ -108,9 +113,9 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (!TextUtils.isEmpty(loginEmail) && !TextUtils.isEmpty(loginPassword)) {
                     //login email and password are not empty
-                    //show progress bar
-                    loginProgressBar.setVisibility(View.VISIBLE);
-//                    signInExistingUser(loginEmail, loginPassword);
+
+                    //show progress
+                    showProgress("Loading...");
 
                     mAuth.signInWithEmailAndPassword(loginEmail, loginPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
@@ -122,16 +127,35 @@ public class LoginActivity extends AppCompatActivity {
                             } else {
                                 //login was not successful
                                 String errorMessage = task.getException().getMessage();
-                                Toast.makeText(LoginActivity.this,
+
+                                Snackbar.make(findViewById(R.id.login_activity_layout),
+                                        "Error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                /*Toast.makeText(LoginActivity.this,
                                         "Error: " + errorMessage,
-                                        Toast.LENGTH_LONG).show();
+                                        Toast.LENGTH_LONG).show();*/
+
+                                //hide progress
+                                progressDialog.dismiss();
                             }
                         }
                     });
 
                 } else {
                     //alert empty fields
-                    Toast.makeText(LoginActivity.this, "Fields should not be empty", Toast.LENGTH_LONG).show();
+                    /*Toast.makeText(LoginActivity.this, "Fields should not be empty", Toast.LENGTH_LONG).show();*/
+
+                    if (TextUtils.isEmpty(loginEmail)) {
+                        Snackbar.make(findViewById(R.id.login_activity_layout),
+                                "Enter your email to log in", Snackbar.LENGTH_SHORT).show();
+                    } else if (TextUtils.isEmpty(loginPassword)) {
+
+                        Snackbar.make(findViewById(R.id.login_activity_layout),
+                                "Enter your password to log in", Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        Snackbar.make(findViewById(R.id.login_activity_layout),
+                                "Enter your email and password to log in", Snackbar.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -195,7 +219,8 @@ public class LoginActivity extends AppCompatActivity {
 
         TwitterConfig config = new TwitterConfig.Builder(this)
                 .logger(new DefaultLogger(Log.DEBUG))
-                .twitterAuthConfig(new TwitterAuthConfig("D99HM3hZBaOVTKW6tfUeAtAcQ", "dxQNNNK4q4W32Bpu6RHRI2CNrAiFVqokAJ9t2d9cSCwQxdnY0d"))
+                .twitterAuthConfig(new TwitterAuthConfig("D99HM3hZBaOVTKW6tfUeAtAcQ",
+                        "dxQNNNK4q4W32Bpu6RHRI2CNrAiFVqokAJ9t2d9cSCwQxdnY0d"))
                 .debug(true)
                 .build();
         Twitter.initialize(config);
@@ -380,7 +405,9 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(LoginActivity.this, "Sign in success", Toast.LENGTH_SHORT).show();
+                            /*Toast.makeText(LoginActivity.this, "Sign in success", Toast.LENGTH_SHORT).show();*/
+                            Snackbar.make(findViewById(R.id.login_activity_layout),
+                                    "Sign in success", Snackbar.LENGTH_SHORT).show();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -393,6 +420,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+
+
+    }
 
 
 

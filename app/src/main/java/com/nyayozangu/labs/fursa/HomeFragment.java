@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import java.util.List;
  */
 public class HomeFragment extends Fragment {
 
+    private static final String TAG = "Sean";
     //firebase auth
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -60,11 +62,12 @@ public class HomeFragment extends Fragment {
         //initiate items
         homeFeedView = view.findViewById(R.id.homeFeedView);
 
-        //initiate an arraylist to hold all the posts
+        //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList);
+
 
         //set a layout manager for homeFeedView (recycler view)
         homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -74,7 +77,6 @@ public class HomeFragment extends Fragment {
 
         //initiate firebase auth
         mAuth = FirebaseAuth.getInstance();
-
 
         //requires permissions
         //check permissions
@@ -95,14 +97,13 @@ public class HomeFragment extends Fragment {
                     String desc = lastVisiblePost.getString("desc");
                     Toast.makeText(container.getContext(), "reached : " + desc, Toast.LENGTH_SHORT).show();
                     loadMorePosts();
-
                 }
 
             }
         });
 
 
-        Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(3);
+        Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
         //get all posts from the database
         //use snapshotListener to get all the data real time
         firstQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
@@ -157,7 +158,6 @@ public class HomeFragment extends Fragment {
 
 
 
-
         // Inflate the layout for this fragment
         return view;
     }
@@ -168,7 +168,7 @@ public class HomeFragment extends Fragment {
         Query nextQuery = db.collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
-                .limit(3);
+                .limit(10);
 
 
         //get all posts from the database
@@ -177,36 +177,41 @@ public class HomeFragment extends Fragment {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                //check if there area more posts
-                if (!queryDocumentSnapshots.isEmpty()) {
+                try {
+                    //check if there area more posts
+                    if (!queryDocumentSnapshots.isEmpty()) {
 
 
-                    //get the last visible post
-                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
-                            .get(queryDocumentSnapshots.size() - 1);
+                        //get the last visible post
+                        lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                                .get(queryDocumentSnapshots.size() - 1);
 
 
-                    //create a for loop to check for document changes
-                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                        //check if an item is added
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
-                            //a new item/ post is added
+                        //create a for loop to check for document changes
+                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                            //check if an item is added
+                            if (doc.getType() == DocumentChange.Type.ADDED) {
+                                //a new item/ post is added
 
-                            //get the post id for likes feature
-                            String postId = doc.getDocument().getId();
+                                //get the post id for likes feature
+                                String postId = doc.getDocument().getId();
 
-                            //converting database data into objects
-                            //get the newly added post
-                            //pass the postId to the post model class Posts.class
-                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                                //converting database data into objects
+                                //get the newly added post
+                                //pass the postId to the post model class Posts.class
+                                Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
-                            //add new post to the local postsList
-                            postsList.add(post);
-                            //notify the recycler adapter of the set change
-                            postsRecyclerAdapter.notifyDataSetChanged();
+                                //add new post to the local postsList
+                                postsList.add(post);
+                                //notify the recycler adapter of the set change
+                                postsRecyclerAdapter.notifyDataSetChanged();
+                            }
                         }
-                    }
 
+                    }
+                } catch (NullPointerException nullExeption) {
+                    //the Querry is null
+                    Log.e(TAG, "error: " + nullExeption.getMessage());
                 }
             }
         });

@@ -114,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     //use is not logged in
                     //send to login page
-                    goToLogin();
+//                    goToLogin();
+                    startActivity(new Intent(MainActivity.this, ScrollingActivity.class));
                 }
             }
         });

@@ -1,11 +1,14 @@
 package com.nyayozangu.labs.fursa;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +21,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
+    private static final String TAG = "Sean";
 
     // TODO: 4/4/18 add twitter sign in
     // TODO: 4/4/18 check phone number sign in
@@ -30,6 +34,8 @@ public class RegisterActivity extends AppCompatActivity {
     private Button regLoginButton;
     private ProgressBar regProgress;
     private FloatingActionButton closeRegisterButton;
+
+    private ProgressDialog progressDialog;
 
     private FirebaseAuth mAuth;
 
@@ -78,10 +84,10 @@ public class RegisterActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(confirmPassword)) {
                     //check for confirm password
                     if (password.equals(confirmPassword)) {
-                        //create new user
 
-                        //show progress bar
-                        regProgress.setVisibility(View.VISIBLE);
+                        // show progress
+                        showProgress("Loading...");
+
                         //create new user
                         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
@@ -95,22 +101,40 @@ public class RegisterActivity extends AppCompatActivity {
                                 } else {
                                     //registration failed
                                     String errorMessage = task.getException().getMessage();
-                                    Toast.makeText(RegisterActivity.this, "Error " + errorMessage, Toast.LENGTH_LONG).show();
+
+                                    Snackbar.make(findViewById(R.id.register_activity_layout),
+                                            "Error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                    /*Toast.makeText(RegisterActivity.this, "Error " + errorMessage, Toast.LENGTH_LONG).show();*/
                                 }
                             }
                         });
 
-                        //hide progress bar
-                        regProgress.setVisibility(View.GONE);
+                        progressDialog.dismiss();
+                        /*//hide progress bar
+                        regProgress.setVisibility(View.GONE);*/
 
 
                     } else {
                         //password and confirm pass are a mismatch
                         Toast.makeText(RegisterActivity.this, "Confirmed password does not match", Toast.LENGTH_LONG).show();
                     }
+                } else if (TextUtils.isEmpty(email)) {
+
+                    Snackbar.make(findViewById(R.id.register_activity_layout),
+                            "Enter your email to sign up", Snackbar.LENGTH_SHORT).show();
+                } else if (TextUtils.isEmpty(password)) {
+                    Snackbar.make(findViewById(R.id.register_activity_layout),
+                            "Enter your password to sign up", Snackbar.LENGTH_SHORT).show();
+                } else if (TextUtils.isEmpty(confirmPassword)) {
+                    Snackbar.make(findViewById(R.id.register_activity_layout),
+                            "Confirm your password to sign up", Snackbar.LENGTH_SHORT).show();
                 } else {
-                    //fields are empty
-                    Toast.makeText(RegisterActivity.this, "Please fill in all the fields!!", Toast.LENGTH_LONG).show();
+                    //all fields are empty
+                    Snackbar.make(findViewById(R.id.register_activity_layout),
+                            "Enter your email and password to sign up", Snackbar.LENGTH_SHORT).show();
+
+                    /*Toast.makeText(RegisterActivity.this, "Please fill in all the fields!!", Toast.LENGTH_LONG).show();*/
                 }
             }
         });
@@ -128,5 +152,15 @@ public class RegisterActivity extends AppCompatActivity {
         Intent goToMainIntent = new Intent(this, MainActivity.class);
         startActivity(goToMainIntent);
         finish();
+    }
+
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+
+
     }
 }
