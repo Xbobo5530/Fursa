@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
@@ -28,6 +27,8 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  */
 public class HomeFragment extends Fragment {
+
+    // TODO: 4/6/18 fix the FAB on home fragment hides the last save
 
     private static final String TAG = "Sean";
     //firebase auth
@@ -94,11 +95,9 @@ public class HomeFragment extends Fragment {
 
                 if (reachedBottom) {
 
-                    String desc = lastVisiblePost.getString("desc");
-                    Toast.makeText(container.getContext(), "reached : " + desc, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     loadMorePosts();
                 }
-
             }
         });
 
@@ -117,8 +116,12 @@ public class HomeFragment extends Fragment {
                 if (isFirstPageFirstLoad) {
 
                     //get the last visible post
-                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
-                            .get(queryDocumentSnapshots.size() - 1);
+                    try {
+                        lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                                .get(queryDocumentSnapshots.size() - 1);
+                    } catch (Exception exception) {
+                        Log.d(TAG, "error: " + exception.getMessage());
+                    }
 
                 }
                 //create a for loop to check for document changes
@@ -155,9 +158,6 @@ public class HomeFragment extends Fragment {
 
             }
         });
-
-
-
         // Inflate the layout for this fragment
         return view;
     }
@@ -210,18 +210,13 @@ public class HomeFragment extends Fragment {
 
                     }
                 } catch (NullPointerException nullExeption) {
-                    //the Querry is null
+                    //the Query is null
                     Log.e(TAG, "error: " + nullExeption.getMessage());
                 }
             }
         });
 
 
-    }
-
-    private boolean isLoggedIn() {
-        //determine if user is logged in
-        return mAuth.getCurrentUser() != null;
     }
 
 }

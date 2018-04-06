@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Sean on 4/4/18.
@@ -23,7 +24,8 @@ public class Posts extends PostId {
     public Posts() {
     }
 
-    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp) {
+
+    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp, List saves) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;

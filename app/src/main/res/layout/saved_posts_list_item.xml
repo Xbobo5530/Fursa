@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/postLayout"
+    android:id="@+id/savedPostLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
+
 
     <android.support.v7.widget.CardView
-        android:id="@+id/cardView"
+        android:id="@+id/savedCardView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -25,17 +26,17 @@
             android:background="@color/cardview_light_background">
 
             <ImageView
-                android:id="@+id/postLikeImageView"
+                android:id="@+id/savedPostLikeImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
+                app:layout_constraintTop_toBottomOf="@+id/savedPostDescTextView"
                 app:srcCompat="@drawable/ic_action_like_unclicked" />
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/postUserImageCircleImageView"
+                android:id="@+id/savedPostUserImageCircleImageView"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="8dp"
@@ -45,7 +46,7 @@
                 app:srcCompat="@drawable/ic_thumb_person" />
 
             <TextView
-                android:id="@+id/postDateTextView"
+                android:id="@+id/savedPostDateTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -56,10 +57,10 @@
                 android:textSize="10sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postLikeCountText" />
+                app:layout_constraintTop_toBottomOf="@+id/savedPostLikeCountText" />
 
             <TextView
-                android:id="@+id/postUsernameTextView"
+                android:id="@+id/savedPostUsernameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -67,23 +68,23 @@
                 android:layout_marginTop="16dp"
                 android:text="Username"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/postLocationTextView"
-                app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
+                app:layout_constraintBottom_toTopOf="@+id/savedPostLocationTextView"
+                app:layout_constraintStart_toEndOf="@+id/savedPostUserImageCircleImageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
-                android:id="@+id/postImageView"
+                android:id="@+id/savedPostImageView"
                 android:layout_width="0dp"
                 android:layout_height="200dp"
                 android:layout_marginTop="8dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postUserImageCircleImageView"
+                app:layout_constraintTop_toBottomOf="@+id/savedPostUserImageCircleImageView"
                 app:srcCompat="@color/common_google_signin_btn_text_light_default" />
 
             <TextView
-                android:id="@+id/postDescTextView"
+                android:id="@+id/savedPostDescTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -93,32 +94,32 @@
                 android:text="this is random text for teh placeholder of the image veia hdod lookd i=too maih intteo iwws "
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postTitleTextView" />
+                app:layout_constraintTop_toBottomOf="@+id/savedPostTitleTextView" />
 
             <TextView
-                android:id="@+id/postLikeCountText"
+                android:id="@+id/savedPostLikeCountText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="0 Likes"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postLikeImageView" />
+                app:layout_constraintTop_toBottomOf="@+id/savedPostLikeImageView" />
 
             <TextView
-                android:id="@+id/postLocationTextView"
+                android:id="@+id/savedPostLocationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="Dar es Salaam Tanzania"
-                app:layout_constraintBottom_toTopOf="@+id/postImageView"
-                app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postUsernameTextView" />
+                app:layout_constraintBottom_toTopOf="@+id/savedPostImageView"
+                app:layout_constraintStart_toEndOf="@+id/savedPostUserImageCircleImageView"
+                app:layout_constraintTop_toBottomOf="@+id/savedPostUsernameTextView" />
 
             <TextView
-                android:id="@+id/postTitleTextView"
+                android:id="@+id/savedPostTitleTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -128,40 +129,40 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postImageView" />
+                app:layout_constraintTop_toBottomOf="@+id/savedPostImageView" />
 
             <ImageView
-                android:id="@+id/postCommetnImageView"
+                android:id="@+id/savedPostCommetnImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/postLikeImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
+                app:layout_constraintStart_toEndOf="@+id/savedPostLikeImageView"
+                app:layout_constraintTop_toBottomOf="@+id/savedPostDescTextView"
                 app:srcCompat="@drawable/ic_action_comment" />
 
             <ImageView
-                android:id="@+id/postShareImageView"
+                android:id="@+id/savedPostShareImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/postCommetnImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
+                app:layout_constraintStart_toEndOf="@+id/savedPostCommetnImageView"
+                app:layout_constraintTop_toBottomOf="@+id/savedPostDescTextView"
                 app:srcCompat="@drawable/ic_action_share" />
 
             <ImageView
-                android:id="@+id/postSaveImageView"
+                android:id="@+id/savedPostSaveImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
+                app:layout_constraintTop_toBottomOf="@+id/savedPostDescTextView"
                 app:srcCompat="@drawable/ic_action_bookmark_outline" />
 
             <ImageView
-                android:id="@+id/postMenuImageView"
+                android:id="@+id/savedPostMenuImageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     // TODO: 4/4/18 handle read later feature
     // TODO: 4/4/18  add a floating search bar with user
     // TODO: 4/4/18 remove action bar
-    // TODO: 4/4/18 add bottom navigation
+    // TODO: 4/6/18 add bottom navigation fade in feature
     // TODO: 4/4/18 handle feed, categories and read later fragments
 
     private static final String TAG = "Sean";
@@ -44,9 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private HomeFragment homeFragment;
     private CategoriesFragment categoriesFragment;
     private SavedFragment savedFragment;
-
-
-
+    private AlertFragment alertFragment;
 
 
     @Override
@@ -67,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         homeFragment = new HomeFragment();
         categoriesFragment = new CategoriesFragment();
         savedFragment = new SavedFragment();
+        alertFragment = new AlertFragment();
 
         //initiate elements
         mainToolbar = findViewById(R.id.mainToolbar);
@@ -92,7 +91,20 @@ public class MainActivity extends AppCompatActivity {
                         setFragment(categoriesFragment);
                         return true;
                     case R.id.bottomNavSavedIted:
-                        setFragment(savedFragment);
+                        if (isLoggedIn()) {
+                            setFragment(savedFragment);
+
+                        } else {
+                            setFragment(alertFragment);
+                            Snackbar.make(findViewById(R.id.main_activity_layout),
+                                    "Log in to view saved items", Snackbar.LENGTH_SHORT)
+                                    .setAction("Login", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            goToLogin();
+                                        }
+                                    }).show();
+                        }
                         return true;
                     default:
                         return false;
@@ -100,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
 
 
 
@@ -114,7 +127,15 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     //use is not logged in
                     //send to login page
-                    goToLogin();
+                    Snackbar.make(findViewById(R.id.main_activity_layout),
+                            "Log in to post items...", Snackbar.LENGTH_LONG)
+                            .setAction("Login", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    goToLogin();
+                                }
+                            })
+                            .show();
                 }
             }
         });
@@ -164,9 +185,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void logout() {
         mAuth.signOut();
-        //send user to login page
-        Intent goToLoginIntent = new Intent(this, LoginActivity.class);
-        startActivity(goToLoginIntent);
+        //send alert user is signed out
+        Log.d(TAG, "user has signed out");
+        Snackbar.make(findViewById(R.id.main_activity_layout),
+                "You are now signed out", Snackbar.LENGTH_SHORT).show();
+
+
+        /*Intent goToLoginIntent = new Intent(this, LoginActivity.class);
+        startActivity(goToLoginIntent);*/
     }
 
     //check to see if the user is logged in
@@ -213,7 +239,10 @@ public class MainActivity extends AppCompatActivity {
                         //handle error
                         String errorMessage = task.getException().getMessage();
                         Log.d(TAG, "failed to get user\n error message is: " + errorMessage);
-                        Toast.makeText(MainActivity.this, "Failed to get user detials: " + errorMessage, Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(R.id.main_activity_layout),
+                                "Failed to get user details: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                        /*Toast.makeText(MainActivity.this, "Failed to get user detials: " + errorMessage, Toast.LENGTH_LONG).show();*/
                     }
 
                 }

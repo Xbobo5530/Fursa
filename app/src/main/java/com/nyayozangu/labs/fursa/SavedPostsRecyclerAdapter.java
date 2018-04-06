@@ -1,7 +1,6 @@
 package com.nyayozangu.labs.fursa;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -33,17 +32,15 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by Sean on 4/4/18.
- * <p>
- * Adapter class for the Recycler view
+ * Created by Sean on 4/6/18.
  */
 
-public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
+public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRecyclerAdapter.ViewHolder> {
 
 
     private static final String TAG = "Sean";
     //member variables for storing posts
-    public List<Posts> postsList;
+    public List<Posts> savedPostsList;
 
     public Context context;
 
@@ -52,15 +49,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private FirebaseFirestore db;
 
     //empty constructor for receiving the posts
-    public PostsRecyclerAdapter(List<Posts> postsList) {
+    public SavedPostsRecyclerAdapter(List<Posts> savedPostsList) {
 
         //store received posts
-        this.postsList = postsList;
+        this.savedPostsList = savedPostsList;
     }
 
     @NonNull
     @Override
-    public PostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SavedPostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_item, parent, false);
@@ -74,22 +71,28 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
 
-        return new ViewHolder(view);
+        return new SavedPostsRecyclerAdapter.ViewHolder(view);
     }
 
+   /* @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+    }*/
+
+
     @Override
-    public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final SavedPostsRecyclerAdapter.ViewHolder holder, int position) {
         Log.d(TAG, "at onBindViewHolder");
 
         holder.setIsRecyclable(false);
 
         //get title from holder
-        String titleData = postsList.get(position).getTitle();
+        String titleData = savedPostsList.get(position).getTitle();
         //set the post title
         holder.setTitle(titleData);
 
         //set the data after the viewHolder has been bound
-        String descData = postsList.get(position).getDesc();
+        String descData = savedPostsList.get(position).getDesc();
         //set the description to the view holder
         holder.setDesc(descData);
 
@@ -106,15 +109,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //handle post image
-        String imageUrl = postsList.get(position).getImage_url();
-        String thumbUrl = postsList.get(position).getThumb_url();
+        String imageUrl = savedPostsList.get(position).getImage_url();
+        String thumbUrl = savedPostsList.get(position).getThumb_url();
         holder.setPostImage(imageUrl, thumbUrl);
 
         //receive the post id
-        final String postId = postsList.get(position).PostId;
+        final String postId = savedPostsList.get(position).PostId;
 
         //handle username and userImage
-        final String userId = postsList.get(position).getUser_id();
+        final String userId = savedPostsList.get(position).getUser_id();
         //retrieve username from db
         db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -143,7 +146,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     Log.d(TAG, "task not successful");
                     String errorMessage = task.getException().getMessage();
                     Log.d(TAG, "Failed to retrieve userData: " + errorMessage);
-                    // TODO: 4/4/18 notify users on errors(maybe use Snackbars)
                     // TODO: 4/4/18 load default images
                 }
             }
@@ -151,7 +153,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //handle date for posts
         // TODO: 4/5/18 looking into the timestamp bug; app crashes on creating new post
-        long millis = postsList.get(position).getTimestamp().getTime();
+        long millis = savedPostsList.get(position).getTimestamp().getTime();
         //convert millis to date time format
         String dateString = DateFormat.format("MM/dd/yyyy", new Date(millis)).toString();
         holder.setPostDate(dateString);
@@ -186,10 +188,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     if (documentSnapshot.exists()) {
                         Log.d(TAG, "at get likes, updating likes real time");
                         //user has liked
-                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
+                        holder.savedPostLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
                     } else {
                         //current user has not liked the post
-                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
+                        holder.savedPostLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
                     }
                 }
             });
@@ -202,10 +204,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     if (documentSnapshot.exists()) {
                         Log.d(TAG, "at get saves, updating saves realtime");
                         //user has saved post
-                        holder.postSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmarked));
+                        holder.savedPostSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmarked));
                     } else {
                         //user has not liked post
-                        holder.postSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmark_outline));
+                        holder.savedPostSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmark_outline));
                     }
                 }
             });
@@ -213,12 +215,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
 
-
         //likes feature
         final String finalCurrentUserId = currentUserId;
 
         //set an a click listener to the like button
-        holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
+        holder.savedPostLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -246,18 +247,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     });
 
                 } else {
-                    //user is not logged in
-                    Log.d(TAG, "use is not logged in");
-                    //notify user
-                    Snackbar.make(holder.mView.findViewById(R.id.postLayout),
-                            "Log in to like items...", Snackbar.LENGTH_LONG)
-                            .setAction("Login", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    goToLogin();
-                                }
-                            })
-                            .show();
+                    //user is not signed in, send to log in page
+                    goToLogin();
                 }
 
             }
@@ -265,7 +256,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
         //set a click listener to the save button
-        holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
+        holder.savedPostSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //check if user is logged in
@@ -283,7 +274,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 //save new post
                                 db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).set(savesMap);
                                 //notify user that post has been saved
-                                Snackbar.make(holder.mView.findViewById(R.id.postLayout),
+                                Snackbar.make(holder.mView.findViewById(R.id.savedPostLayout),
                                         "Saved...", Snackbar.LENGTH_SHORT).show();
                             } else {
                                 //delete saved post
@@ -291,19 +282,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                             }
                         }
                     });
-                } else {
-                    //user is not logged in
-                    Log.d(TAG, "use is not logged in");
-                    //notify user
-                    Snackbar.make(holder.mView.findViewById(R.id.postLayout),
-                            "Log in to save items...", Snackbar.LENGTH_LONG)
-                            .setAction("Login", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    goToLogin();
-                                }
-                            })
-                            .show();
                 }
             }
         });
@@ -314,7 +292,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void goToLogin() {
         //take user to the login page
         Log.d(TAG, "at goToLogin");
-        context.startActivity(new Intent(context, LoginActivity.class));
         // TODO: 4/5/18 take user to the login activity
 
     }
@@ -327,11 +304,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     @Override
     public int getItemCount() {
         //the number of posts
-        return postsList.size();
+        return savedPostsList.size();
     }
 
     //implement the viewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
+
 
         //initiate view
         private View mView;
@@ -339,48 +317,48 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //initiate elements in the view holder
         private TextView titleTextView;
         private TextView descTextView;
-        private ImageView postImageView;
-        private TextView postUserNameTextView;
-        private TextView postDateTextView;
-        private CircleImageView postUserImageCircleView;
+        private ImageView savedPostImageView;
+        private TextView savedPostUserNameTextView;
+        private TextView savedPostDateTextView;
+        private CircleImageView savedPostUserImageCircleView;
 
         //likes
-        private ImageView postLikeButton;
-        private TextView postLikesCount;
+        private ImageView savedPostLikeButton;
+        private TextView savedPostLikesCount;
 
         //saves
-        private ImageView postSaveButton;
+        private ImageView savedPostSaveButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
             //use mView to populate other methods
             mView = itemView;
 
-            postLikeButton = mView.findViewById(R.id.postLikeImageView);
-            postLikesCount = mView.findViewById(R.id.postLikeCountText);
+            savedPostLikeButton = mView.findViewById(R.id.savedPostLikeImageView);
+            savedPostLikesCount = mView.findViewById(R.id.savedPostLikeCountText);
 
-            postSaveButton = mView.findViewById(R.id.postSaveImageView);
+            savedPostSaveButton = mView.findViewById(R.id.savedPostSaveImageView);
 
         }
 
         //retrieve the title
         public void setTitle(String title) {
 
-            titleTextView = mView.findViewById(R.id.postTitleTextView);
+            titleTextView = mView.findViewById(R.id.savedPostTitleTextView);
             titleTextView.setText(title);
         }
 
         //retrieves description on post
         public void setDesc(String descText) {
 
-            descTextView = mView.findViewById(R.id.postDescTextView);
+            descTextView = mView.findViewById(R.id.savedPostDescTextView);
             descTextView.setText(descText);
         }
 
         //retrieve the image
         public void setPostImage(String imageDownloadUrl, String thumbDownloadUrl) {
 
-            postImageView = mView.findViewById(R.id.postImageView);
+            savedPostImageView = mView.findViewById(R.id.savedPostImageView);
 
             RequestOptions requestOptions = new RequestOptions();
             // TODO: 4/5/18 replace postImage placeholder image
@@ -390,14 +368,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     .applyDefaultRequestOptions(requestOptions)
                     .load(imageDownloadUrl)
                     .thumbnail(Glide.with(context).load(thumbDownloadUrl))
-                    .into(postImageView);
+                    .into(savedPostImageView);
         }
 
         //add set post username
         public void setPostUserName(String userName) {
 
-            postUserNameTextView = mView.findViewById(R.id.postUsernameTextView);
-            postUserNameTextView.setText(userName);
+            savedPostUserNameTextView = mView.findViewById(R.id.postUsernameTextView);
+            savedPostUserNameTextView.setText(userName);
 
         }
 
@@ -406,25 +384,24 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             // TODO: 4/4/18 show different time status  like one minute ago ++
 
-            postDateTextView = mView.findViewById(R.id.postDateTextView);
-            postDateTextView.setText(date);
+            savedPostDateTextView = mView.findViewById(R.id.savedPostDateTextView);
+            savedPostDateTextView.setText(date);
 
         }
 
         //update the number of likes
         public void updateLikesCount(int likesCount) {
 
-            postLikesCount = mView.findViewById(R.id.postLikeCountText);
+            savedPostLikesCount = mView.findViewById(R.id.postLikeCountText);
 
             //check the number of likes
             if (likesCount == 1) {
                 //use like
-                postLikesCount.setText(String.valueOf(likesCount) + " Like");
+                savedPostLikesCount.setText(String.valueOf(likesCount) + " Like");
             } else {
                 //else use likes
-                postLikesCount.setText(String.valueOf(likesCount) + " Likes");
+                savedPostLikesCount.setText(String.valueOf(likesCount) + " Likes");
             }
-
 
 
         }
@@ -432,13 +409,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //set userImage
         public void setUserImage(String userImageDownloadUri) {
 
-            postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
+            savedPostUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
             //add the placeholder image
             RequestOptions placeHolderOptions = new RequestOptions();
             placeHolderOptions.placeholder(R.drawable.crop_image_menu_flip);
 
-            Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
+            Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(savedPostUserImageCircleView);
 
         }
     }
+
+
 }
