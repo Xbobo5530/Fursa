@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,7 +31,6 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText regConfirmPasswordField;
     private Button regButton;
     private Button regLoginButton;
-    private ProgressBar regProgress;
     private FloatingActionButton closeRegisterButton;
 
     private ProgressDialog progressDialog;
@@ -53,7 +51,6 @@ public class RegisterActivity extends AppCompatActivity {
         regConfirmPasswordField = findViewById(R.id.regConfirmPasswordEditText);
         regButton = findViewById(R.id.regButton);
         regLoginButton = findViewById(R.id.regLoginButton);
-        regProgress = findViewById(R.id.regRrogressBar);
         closeRegisterButton = findViewById(R.id.reg_close_button);
 
         closeRegisterButton.setOnClickListener(new View.OnClickListener() {

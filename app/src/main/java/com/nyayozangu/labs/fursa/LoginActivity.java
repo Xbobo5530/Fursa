@@ -313,7 +313,7 @@ public class LoginActivity extends AppCompatActivity {
             // Signed in successfully, show authenticated UI.
             //go to main
             firebaseAuthWithGoogle(account);
-            goToMain();
+            goToAccSettings();
 
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
@@ -338,7 +338,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            goToMain();
+                            goToAccSettings();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -368,7 +368,7 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             //take user to acc settings after
-                            goToMain();
+                            goToAccSettings();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -429,7 +429,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
-
 
 
 }

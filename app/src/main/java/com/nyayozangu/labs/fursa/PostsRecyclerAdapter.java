@@ -81,10 +81,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         holder.setIsRecyclable(false);
 
+        //get title from holder
+        String titleData = postsList.get(position).getTitle();
+        //set the post title
+        holder.setTitle(titleData);
+
         //set the data after the viewHolder has been bound
         String descData = postsList.get(position).getDesc();
-        //set the data to the view holder
+        //set the description to the view holder
         holder.setDesc(descData);
+
 
         String currentUserId;
 
@@ -155,11 +161,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     //post has likes
                     int numberOfLikes = queryDocumentSnapshots.size();
                     holder.updateLikesCount(numberOfLikes);
-
                 } else {
                     //post has no likes
                     holder.updateLikesCount(0);
-
                 }
             }
         });
@@ -209,13 +213,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).set(likesMap);
 
                             } else {
-
                                 //delete the like
                                 db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).delete();
-
-
                             }
-
                         }
                     });
 
@@ -223,7 +223,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     //user is not signed in, send to log in page
                     goToLogin();
                 }
-
 
             }
         });
@@ -256,6 +255,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         private View mView;
 
         //initiate elements in the view holder
+        private TextView titleTextView;
         private TextView descTextView;
         private ImageView postImageView;
         private TextView postUserNameTextView;
@@ -274,6 +274,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postLikeButton = mView.findViewById(R.id.postLikeImageView);
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
 
+        }
+
+        //retrieve the title
+        public void setTitle(String title) {
+
+            titleTextView = mView.findViewById(R.id.postTitleTextView);
+            titleTextView.setText(title);
         }
 
         //retrieves description on post

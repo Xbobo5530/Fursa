@@ -10,7 +10,7 @@ import java.util.Date;
 public class Posts extends PostId {
 
     //get all the details from database
-    public String user_id, image_url, thumb_url, desc;
+    public String user_id, image_url, thumb_url, desc, title;
 
     public Date timestamp;
 
@@ -23,11 +23,12 @@ public class Posts extends PostId {
     public Posts() {
     }
 
-    public Posts(String user_id, String image_url, String thumb_url, String desc, Date timestamp) {
+    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
         this.desc = desc;
+        this.title = title;
         this.timestamp = timestamp;
     }
 
@@ -69,6 +70,14 @@ public class Posts extends PostId {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
 

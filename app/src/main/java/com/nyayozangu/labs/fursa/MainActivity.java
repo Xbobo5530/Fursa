@@ -114,8 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     //use is not logged in
                     //send to login page
-//                    goToLogin();
-                    startActivity(new Intent(MainActivity.this, ScrollingActivity.class));
+                    goToLogin();
                 }
             }
         });
@@ -124,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
     //go to new post page
     private void goToNewPost() {
-        startActivity(new Intent(MainActivity.this, NewPostActivity.class));
+        startActivity(new Intent(MainActivity.this, CreatePostActivity.class));
     }
 
     //go to login page
