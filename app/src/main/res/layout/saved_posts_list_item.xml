@@ -132,7 +132,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/savedPostImageView" />
 
             <ImageView
-                android:id="@+id/savedPostCommetnImageView"
+                android:id="@+id/savedPostCommentImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
@@ -147,7 +147,7 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/savedPostCommetnImageView"
+                app:layout_constraintStart_toEndOf="@+id/savedPostCommentImageView"
                 app:layout_constraintTop_toBottomOf="@+id/savedPostDescTextView"
                 app:srcCompat="@drawable/ic_action_share" />
 

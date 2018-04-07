@@ -47,7 +47,6 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 public class LoginActivity extends AppCompatActivity {
 
     // TODO: 4/5/18  Must initialize Twitter before using getInstance()
-
     // TODO: 4/5/18 when user has types email and pass, then clicks register, send typed details to register page
 
 
@@ -70,6 +69,7 @@ public class LoginActivity extends AppCompatActivity {
     private TwitterLoginButton twitterLoginButton;
     private FirebaseAuth mAuth;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -91,6 +91,13 @@ public class LoginActivity extends AppCompatActivity {
         //social login
         googleSignInButton = findViewById(R.id.google_sign_in_button);
         twitterLoginButton = findViewById(R.id.twitter_login_button);
+
+
+        //get the sent intent
+        Intent getPostIdIntent = getIntent();
+        String postId = getPostIdIntent.getStringExtra("postId");
+        Log.d(TAG, "postId is: " + postId);
+        // TODO: 4/7/18 when user comes to login form comments, return user to comments after loging in
 
 
         closeLoginButton.setOnClickListener(new View.OnClickListener() {
@@ -130,10 +137,6 @@ public class LoginActivity extends AppCompatActivity {
 
                                 Snackbar.make(findViewById(R.id.login_activity_layout),
                                         "Error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                                /*Toast.makeText(LoginActivity.this,
-                                        "Error: " + errorMessage,
-                                        Toast.LENGTH_LONG).show();*/
 
                                 //hide progress
                                 progressDialog.dismiss();

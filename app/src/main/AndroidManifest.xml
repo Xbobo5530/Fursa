@@ -18,17 +18,26 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="fursa.nyayozangu.com"
+                    android:pathPattern="/posts"
+                    android:scheme="http" />
             </intent-filter>
         </activity>
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan|adjustResize">
-        </activity>
+            android:windowSoftInputMode="adjustPan|adjustResize" />
         <activity
             android:name=".RegisterActivity"
             android:windowSoftInputMode="adjustPan|adjustResize" />
@@ -36,7 +45,6 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
-        <activity android:name=".NewPostActivity" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -59,21 +67,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ScrollingActivity"
+            android:name=".ViewPostActivity"
             android:label="@string/title_activity_scrolling"
-            android:theme="@style/AppTheme">
-
-        </activity>
-        <activity android:name=".ViewPostActivity" />
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".CreatePostActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".CommentsActivity"></activity>
     </application>
 
 </manifest>

@@ -308,6 +308,47 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         });
 
+        //share post
+        //set onclick listener to the share button
+        holder.postSharePostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Sharing post");
+                //create post url
+                String postUrl = context.getResources().getString(R.string.fursa_url_head) + postId;
+                Log.d(TAG, "postUrl is: " + postUrl);
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.app_name));
+                shareIntent.putExtra(Intent.EXTRA_TEXT, postUrl);
+                context.startActivity(Intent.createChooser(shareIntent, "Share this post with"));
+
+            }
+        });
+
+        //clicking the post image to start the ViewPost page
+        holder.postImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d(TAG, "post image is clicked");
+                Intent openPostIntent = new Intent(context, ViewPostActivity.class);
+                openPostIntent.putExtra("postId", postId);
+                context.startActivity(openPostIntent);
+            }
+        });
+
+        //clicking the comment icon to go to the commet page of post
+        holder.postCommentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "post image is clicked");
+                Intent openPostIntent = new Intent(context, CommentsActivity.class);
+                openPostIntent.putExtra("postId", postId);
+                context.startActivity(openPostIntent);
+            }
+        });
+
 
     }
 
@@ -344,12 +385,19 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         private TextView postDateTextView;
         private CircleImageView postUserImageCircleView;
 
+
         //likes
         private ImageView postLikeButton;
         private TextView postLikesCount;
 
         //saves
         private ImageView postSaveButton;
+
+        //share
+        private ImageView postSharePostButton;
+
+        //comment
+        private ImageView postCommentButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -360,6 +408,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
 
             postSaveButton = mView.findViewById(R.id.postSaveImageView);
+
+            postSharePostButton = mView.findViewById(R.id.postShareImageView);
+
+            postImageView = mView.findViewById(R.id.postImageView);
+
+            postCommentButton = mView.findViewById(R.id.postCommetnImageView);
 
         }
 
@@ -384,7 +438,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             RequestOptions requestOptions = new RequestOptions();
             // TODO: 4/5/18 replace postImage placeholder image
-            requestOptions.placeholder(R.drawable.common_google_signin_btn_text_dark);
+            requestOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
             Glide.with(context)
                     .applyDefaultRequestOptions(requestOptions)
@@ -429,6 +483,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         }
 
+        // TODO: 4/7/18 use user thumb instead of user image
         //set userImage
         public void setUserImage(String userImageDownloadUri) {
 

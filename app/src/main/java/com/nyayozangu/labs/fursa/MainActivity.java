@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     // TODO: 4/4/18 remove action bar
     // TODO: 4/6/18 add bottom navigation fade in feature
     // TODO: 4/4/18 handle feed, categories and read later fragments
+    // TODO: 4/7/18 add back twice to exit
 
     private static final String TAG = "Sean";
     //firebase auth
@@ -114,15 +115,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
-
         mNewPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //only allow the user to post if user is signed in
                 if (isLoggedIn()) {
-                //start the new post activity
+                    //start the new post activity
                     goToNewPost();
                 } else {
                     //use is not logged in
@@ -139,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     //go to new post page

@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -81,7 +82,7 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
 
 
     @Override
-    public void onBindViewHolder(@NonNull final SavedPostsRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final SavedPostsRecyclerAdapter.ViewHolder holder, final int position) {
         Log.d(TAG, "at onBindViewHolder");
 
         holder.setIsRecyclable(false);
@@ -97,16 +98,10 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
         holder.setDesc(descData);
 
 
-        String currentUserId;
-
+        final String currentUserId;
         //handling getting the user who clicked like
-        if (isLoggedIn()) {
-            currentUserId = mAuth.getCurrentUser().getUid();
-            Log.d(TAG, "user is logged in\n current userId is :" + currentUserId);
-        } else {
-            currentUserId = null;
-            Log.d(TAG, "user is logged in\n current userId is :" + currentUserId);
-        }
+        currentUserId = mAuth.getCurrentUser().getUid();
+        Log.d(TAG, "user is logged in\n current userId is :" + currentUserId);
 
         //handle post image
         String imageUrl = savedPostsList.get(position).getImage_url();
@@ -177,79 +172,69 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
             }
         });
 
-        if (isLoggedIn()) {
-            //get likes
-            //determine likes by current user
-            final String finalCurrentUserId = currentUserId;
-            db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                    //update the like button real time
-                    if (documentSnapshot.exists()) {
-                        Log.d(TAG, "at get likes, updating likes real time");
-                        //user has liked
-                        holder.savedPostLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
-                    } else {
-                        //current user has not liked the post
-                        holder.savedPostLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
-                    }
-                }
-            });
 
-            //get saves
-            db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                    //update the save button real time
-                    if (documentSnapshot.exists()) {
-                        Log.d(TAG, "at get saves, updating saves realtime");
-                        //user has saved post
-                        holder.savedPostSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmarked));
-                    } else {
-                        //user has not liked post
-                        holder.savedPostSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmark_outline));
-                    }
+        //get likes
+        //determine likes by current user
+        final String finalCurrentUserId = currentUserId;
+        db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                //update the like button real time
+                if (documentSnapshot.exists()) {
+                    Log.d(TAG, "at get likes, updating likes real time");
+                    //user has liked
+                    holder.savedPostLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
+                } else {
+                    //current user has not liked the post
+                    holder.savedPostLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
                 }
-            });
+            }
+        });
 
-        }
+        //get saves
+        db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                //update the save button real time
+                if (documentSnapshot.exists()) {
+                    Log.d(TAG, "at get saves, updating saves realtime");
+                    //user has saved post
+                    holder.savedPostSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmarked));
+                } else {
+                    //user has not liked post
+                    holder.savedPostSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmark_outline));
+                }
+            }
+        });
+
+
 
 
         //likes feature
-        final String finalCurrentUserId = currentUserId;
-
         //set an a click listener to the like button
         holder.savedPostLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                db.collection("Posts/" + postId + "/Likes").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        //get data from teh likes collection
 
-                if (isLoggedIn()) {
+                        //check if current user has already liked post
+                        if (!task.getResult().exists()) {
+                            Map<String, Object> likesMap = new HashMap<>();
+                            likesMap.put("timestamp", FieldValue.serverTimestamp());
 
-                    db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            //get data from teh likes collection
+                            //db.collection("Posts").document(postId).collection("Likes");
+                            //can alternatively ne written
+                            db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).set(likesMap);
 
-                            //check if current user has already liked post
-                            if (!task.getResult().exists()) {
-                                Map<String, Object> likesMap = new HashMap<>();
-                                likesMap.put("timestamp", FieldValue.serverTimestamp());
-
-                                //db.collection("Posts").document(postId).collection("Likes");
-                                //can alternatively ne written
-                                db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).set(likesMap);
-
-                            } else {
-                                //delete the like
-                                db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).delete();
-                            }
+                        } else {
+                            //delete the like
+                            db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).delete();
                         }
-                    });
-
-                } else {
-                    //user is not signed in, send to log in page
-                    goToLogin();
-                }
+                    }
+                });
 
             }
         });
@@ -259,42 +244,47 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
         holder.savedPostSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //check if user is logged in
-                if (isLoggedIn()) {
-
-                    db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            //get data from the saves collections
-
-                            //check if user has already saved the post
-                            if (!task.getResult().exists()) {
-                                Map<String, Object> savesMap = new HashMap<>();
-                                savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                //save new post
-                                db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).set(savesMap);
-                                //notify user that post has been saved
-                                Snackbar.make(holder.mView.findViewById(R.id.savedPostLayout),
-                                        "Saved...", Snackbar.LENGTH_SHORT).show();
-                            } else {
-                                //delete saved post
-                                db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).delete();
-                            }
+                db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        //get data from the saves collections
+                        //check if user has already saved the post
+                        if (!task.getResult().exists()) {
+                            Map<String, Object> savesMap = new HashMap<>();
+                            savesMap.put("timestamp", FieldValue.serverTimestamp());
+                            //save new post
+                            db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).set(savesMap);
+                            //notify user that post has been saved
+                            Snackbar.make(holder.mView.findViewById(R.id.savedPostLayout),
+                                    "Saved...", Snackbar.LENGTH_SHORT).show();
+                        } else {
+                            //delete saved post
+                            db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).delete();
                         }
-                    });
-                }
+                    }
+                });
             }
         });
 
+        //share post
+        //set onclick listener to the share button
+        holder.shareSavedPostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Sharing post");
+                //create post url
+                String savedPostUrl = context.getResources().getString(R.string.fursa_url_head) + postId;
+                Log.d(TAG, "savedPostUrl is: " + savedPostUrl);
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.app_name));
+                shareIntent.putExtra(Intent.EXTRA_TEXT, savedPostUrl);
+                context.startActivity(Intent.createChooser(shareIntent, "Share this post with"));
 
+            }
+        });
     }
 
-    private void goToLogin() {
-        //take user to the login page
-        Log.d(TAG, "at goToLogin");
-        // TODO: 4/5/18 take user to the login activity
-
-    }
 
     private boolean isLoggedIn() {
         //determine if user is logged in
@@ -329,6 +319,9 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
         //saves
         private ImageView savedPostSaveButton;
 
+        //share
+        private ImageView shareSavedPostButton;
+
         public ViewHolder(View itemView) {
             super(itemView);
             //use mView to populate other methods
@@ -338,6 +331,8 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
             savedPostLikesCount = mView.findViewById(R.id.savedPostLikeCountText);
 
             savedPostSaveButton = mView.findViewById(R.id.savedPostSaveImageView);
+
+            shareSavedPostButton = mView.findViewById(R.id.savedPostShareImageView);
 
         }
 
@@ -362,7 +357,7 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
 
             RequestOptions requestOptions = new RequestOptions();
             // TODO: 4/5/18 replace postImage placeholder image
-            requestOptions.placeholder(R.drawable.common_google_signin_btn_text_dark);
+            requestOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
             Glide.with(context)
                     .applyDefaultRequestOptions(requestOptions)
