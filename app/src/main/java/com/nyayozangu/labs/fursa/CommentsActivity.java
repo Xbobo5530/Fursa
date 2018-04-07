@@ -70,7 +70,7 @@ public class CommentsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "login button has clicked");
-                    Intent openPostIntent = new Intent(getApplicationContext(), CommentsActivity.class);
+                    Intent openPostIntent = new Intent(getApplicationContext(), LoginActivity.class);
                     openPostIntent.putExtra("postId", postId);
                     startActivity(openPostIntent);
                 }

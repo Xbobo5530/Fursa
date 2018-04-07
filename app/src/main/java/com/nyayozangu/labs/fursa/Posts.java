@@ -1,7 +1,6 @@
 package com.nyayozangu.labs.fursa;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Sean on 4/4/18.
@@ -11,26 +10,35 @@ import java.util.List;
 public class Posts extends PostId {
 
     //get all the details from database
-    public String user_id, image_url, thumb_url, desc, title;
-
+    public String user_id;
+    public String image_url;
+    public String thumb_url;
+    public String desc;
+    public String title;
+    public String location_name;
+    public String location_address;
     public Date timestamp;
-
-
-    public Posts(Date timestamp) {
-        this.timestamp = timestamp;
-    }
 
     //empty constructor
     public Posts() {
     }
 
-
-    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp, List saves) {
+    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
         this.desc = desc;
         this.title = title;
+        this.timestamp = timestamp;
+    }
+
+    public Posts(String location_name, String location_address) {
+
+        this.location_name = location_name;
+        this.location_address = location_address;
+    }
+
+    public Posts(Date timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -80,6 +88,22 @@ public class Posts extends PostId {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getLocation_name() {
+        return location_name;
+    }
+
+    public void setLocation_name(String location_name) {
+        this.location_name = location_name;
+    }
+
+    public String getLocation_address() {
+        return location_address;
+    }
+
+    public void setLocation_address(String location_address) {
+        this.location_address = location_address;
     }
 
 

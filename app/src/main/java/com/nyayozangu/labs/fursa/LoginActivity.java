@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //user closes the login page ad goes back to home page
-                goToMain();
+                finish();
 
             }
         });
@@ -146,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 } else {
                     //alert empty fields
-                    /*Toast.makeText(LoginActivity.this, "Fields should not be empty", Toast.LENGTH_LONG).show();*/
+                /*Toast.makeText(LoginActivity.this, "Fields should not be empty", Toast.LENGTH_LONG).show();*/
 
                     if (TextUtils.isEmpty(loginEmail)) {
                         Snackbar.make(findViewById(R.id.login_activity_layout),

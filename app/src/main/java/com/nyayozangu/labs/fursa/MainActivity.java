@@ -137,6 +137,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+        //get the sent intent
+        if (getIntent() != null) {
+            Log.d(TAG, "getIntent is not null");
+            Intent getPostIdIntent = getIntent();
+            String errorMessage = getPostIdIntent.getStringExtra("error");
+            if (errorMessage != null) {
+                Snackbar.make(findViewById(R.id.main_activity_layout),
+                        errorMessage, Snackbar.LENGTH_LONG)
+                        .show();
+                Log.d(TAG, "errorMessage is: " + errorMessage);
+            }
+
+        }
+
     }
 
     //go to new post page
@@ -186,10 +202,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "user has signed out");
         Snackbar.make(findViewById(R.id.main_activity_layout),
                 "You are now signed out", Snackbar.LENGTH_SHORT).show();
-
-
-        /*Intent goToLoginIntent = new Intent(this, LoginActivity.class);
-        startActivity(goToLoginIntent);*/
     }
 
     //check to see if the user is logged in
@@ -238,8 +250,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "failed to get user\n error message is: " + errorMessage);
                         Snackbar.make(findViewById(R.id.main_activity_layout),
                                 "Failed to get user details: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                        /*Toast.makeText(MainActivity.this, "Failed to get user detials: " + errorMessage, Toast.LENGTH_LONG).show();*/
                     }
 
                 }
