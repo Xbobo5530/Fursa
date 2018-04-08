@@ -1,12 +1,15 @@
 package com.nyayozangu.labs.fursa;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -43,8 +44,8 @@ public class AccountActivity extends AppCompatActivity {
 
     private Uri mainImageUri = null;
     private EditText userNameField;
-    private Button saveSettingsButton;
-    private ProgressBar accProgressBar;
+    private Button saveButton;
+    private FloatingActionButton editImageFab;
 
     //user
     private String userId;
@@ -57,6 +58,7 @@ public class AccountActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private boolean imageIsChanged = false;
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -69,31 +71,27 @@ public class AccountActivity extends AppCompatActivity {
         mAUth = FirebaseAuth.getInstance();
 
         //initiate elements
-        android.support.v7.widget.Toolbar setupToolbar = findViewById(R.id.setupToolbar);
-        setSupportActionBar(setupToolbar);
-        getSupportActionBar().setTitle("Account Setup");
 
         setupImage = findViewById(R.id.setupImageCircleImageView);
         userNameField = findViewById(R.id.accNameEditText);
-        saveSettingsButton = findViewById(R.id.accSaveSettingsButton);
-        accProgressBar = findViewById(R.id.accProgressBar);
+        saveButton = findViewById(R.id.accSaveButton);
+        editImageFab = findViewById(R.id.accEditFab);
 
         //user
-        try {
-            // TODO: 4/6/18 fix the app crash after sgning with google sign in at account setting page
-            userId = mAUth.getCurrentUser().getUid();
-        } catch (NullPointerException e) {
-            Log.d(TAG, "Error: " + e.getMessage());
-        }
+        // TODO: 4/6/18 fix the app crash after sgning with google sign in at account setting page
+        userId = mAUth.getCurrentUser().getUid();
+
+
 
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
 
 
-        //show progress bar while loading
-        accProgressBar.setVisibility(View.VISIBLE);
+        //show progress
+        showProgress("Loading...");
+
         //disable save button
-        saveSettingsButton.setEnabled(false);
+        saveButton.setEnabled(false);
 
         //retrieve data if any
         db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -125,26 +123,23 @@ public class AccountActivity extends AppCompatActivity {
                         mainImageUri = Uri.parse(image);
 
                     } else {
-                        Toast.makeText(AccountActivity.this, "Data does not exist: ", Toast.LENGTH_LONG).show();
                         Log.d(TAG, "data does not exist");
                     }
 
                 } else {
                     //retrieve data from db unsuccessful
                     String errorMessage = task.getException().getMessage();
-                    Toast.makeText(AccountActivity.this, "Data retrieve error : " +
-                            errorMessage, Toast.LENGTH_LONG).show();
-
+                    Snackbar.make(findViewById(R.id.account_layout),
+                            "Data retrieve error : " + errorMessage, Snackbar.LENGTH_SHORT).show();
                 }
-                //hide progress after loading
-                accProgressBar.setVisibility(View.INVISIBLE);
-                //enable save settings button
-                saveSettingsButton.setEnabled(true);
+                //hide progress
+                progressDialog.dismiss();
+                saveButton.setEnabled(true);
             }
         });
 
 
-        setupImage.setOnClickListener(new View.OnClickListener() {
+        editImageFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -155,7 +150,8 @@ public class AccountActivity extends AppCompatActivity {
                     if (ContextCompat.checkSelfPermission(AccountActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         //permission not yet granted
                         //ask for permission
-                        Toast.makeText(AccountActivity.this, "Permission denied", Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(R.id.account_layout),
+                                "Permission denied", Snackbar.LENGTH_SHORT).show();
                         ActivityCompat.requestPermissions(AccountActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
 
@@ -172,7 +168,7 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
 
-        saveSettingsButton.setOnClickListener(new View.OnClickListener() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -184,7 +180,6 @@ public class AccountActivity extends AppCompatActivity {
                     Log.d(TAG, "userName is: " + userName +
                             "\nimageUri is: " + mainImageUri.toString());
 
-
                     // TODO: 4/4/18 before uploading userImage, compress to get userImageThumb
                     //check if data (image) has changed
                     if (imageIsChanged) {
@@ -194,7 +189,7 @@ public class AccountActivity extends AppCompatActivity {
                         Log.d(TAG, "userId is: " + userId + "imagePath is: " + imagePath);
 
                         //show progress bar
-                        accProgressBar.setVisibility(View.VISIBLE);
+                        showProgress("Loading...");
                         //start handling data with firebase
                         imagePath.putFile(mainImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
@@ -204,22 +199,19 @@ public class AccountActivity extends AppCompatActivity {
 
                                 //check if is complete.
                                 if (task.isSuccessful()) {
-
                                     //update the database
                                     updateDb(task, userName);
-
-
                                 } else {
                                     //upload failed
                                     Log.d(TAG, "upload failed");
                                     String errorMessage = task.getException().getMessage();
-                                    Toast.makeText(AccountActivity.this, "Upload Failed: " +
-                                            errorMessage, Toast.LENGTH_LONG).show();
+
+                                    Snackbar.make(findViewById(R.id.account_layout),
+                                            "Upload failed: " + errorMessage, Snackbar.LENGTH_SHORT).show();
 
                                 }
 
-                                //hide progress bar after finishing
-                                accProgressBar.setVisibility(View.GONE);
+                                progressDialog.dismiss();
 
                             }
                         });
@@ -232,7 +224,9 @@ public class AccountActivity extends AppCompatActivity {
                         updateDb(null, userName);
                     }
                 } else {
-                    //image has not changed, no need to update the umage uri on db
+                    //field are empty
+                    Snackbar.make(findViewById(R.id.account_layout),
+                            "Select a username and an image to continue...", Snackbar.LENGTH_SHORT).show();
 
                 }
             }
@@ -268,19 +262,19 @@ public class AccountActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     //task successful
                     //go to main activity, go to feed
-                    Toast.makeText(AccountActivity.this, "Database update successful", Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "Database update successful");
                     startActivity(new Intent(AccountActivity.this, MainActivity.class));
                     finish();
 
                 } else {
                     //task failed
                     String errorMessage = task.getException().getMessage();
-                    Toast.makeText(AccountActivity.this, "Database error: " +
-                            errorMessage, Toast.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(R.id.account_layout),
+                            "Database error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
 
                 }
-                //hide progress bar after finishing
-                accProgressBar.setVisibility(View.GONE);
+                //hide progress  after finishing
+                progressDialog.dismiss();
             }
         });
     }
@@ -316,5 +310,14 @@ public class AccountActivity extends AppCompatActivity {
                 Exception error = result.getError();
             }
         }
+    }
+
+
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(AccountActivity.this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
     }
 }

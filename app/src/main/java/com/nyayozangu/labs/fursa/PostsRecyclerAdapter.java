@@ -93,6 +93,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //set the description to the view holder
         holder.setDesc(descData);
 
+        //set location
+        String locationName = postsList.get(position).getLocation_name();
+        String locationAddress = postsList.get(position).getLocation_address();
+        holder.setPostLocation(locationName, locationAddress);
+
 
         String currentUserId;
 
@@ -361,7 +366,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //take user to the login page
         Log.d(TAG, "at goToLogin");
         context.startActivity(new Intent(context, LoginActivity.class));
-        // TODO: 4/5/18 take user to the login activity
 
     }
 
@@ -404,6 +408,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //comment
         private ImageView postCommentButton;
 
+        //location
+        private TextView postLocationTextView;
+
         public ViewHolder(View itemView) {
             super(itemView);
             //use mView to populate other methods
@@ -419,6 +426,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postImageView = mView.findViewById(R.id.postImageView);
 
             postCommentButton = mView.findViewById(R.id.postCommetnImageView);
+
+            postLocationTextView = mView.findViewById(R.id.postLocationTextView);
 
         }
 
@@ -452,11 +461,19 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     .into(postImageView);
         }
 
-        //add set post username
+        // set post username
         public void setPostUserName(String userName) {
 
             postUserNameTextView = mView.findViewById(R.id.postUsernameTextView);
             postUserNameTextView.setText(userName);
+
+        }
+
+        //set post location
+        public void setPostLocation(String locationName, String locationAddress) {
+
+            postLocationTextView = mView.findViewById(R.id.postLocationTextView);
+            postLocationTextView.setText(locationName + " \n" + locationAddress);
 
         }
 
@@ -484,8 +501,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 postLikesCount.setText(String.valueOf(likesCount) + " Likes");
             }
 
-
-
         }
 
         // TODO: 4/7/18 use user thumb instead of user image
@@ -495,10 +510,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
             //add the placeholder image
             RequestOptions placeHolderOptions = new RequestOptions();
-            placeHolderOptions.placeholder(R.drawable.crop_image_menu_flip);
+            placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
-
         }
     }
 }

@@ -429,8 +429,6 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
         progressDialog.show();
-
-
     }
 
 
