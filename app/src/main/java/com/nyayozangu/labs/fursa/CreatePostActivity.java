@@ -246,8 +246,8 @@ public class CreatePostActivity extends AppCompatActivity {
                                         postMap.put("desc", desc);
                                         postMap.put("user_id", currentUserId);
                                         postMap.put("timestamp", FieldValue.serverTimestamp());
-                                        postMap.put("locationName", postPlace.getName());
-                                        postMap.put("locationAddress", postPlace.getAddress());
+                                        postMap.put("location_name", postPlace.getName());
+                                        postMap.put("location_address", postPlace.getAddress());
                                         Log.d(TAG, "locationName" + postPlace.getName());
 
                                         //upload

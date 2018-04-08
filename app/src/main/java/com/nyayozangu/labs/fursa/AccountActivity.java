@@ -79,8 +79,12 @@ public class AccountActivity extends AppCompatActivity {
         accProgressBar = findViewById(R.id.accProgressBar);
 
         //user
-        // TODO: 4/6/18 fix the app crash after sgning with google sign in at account setting page
-        userId = mAUth.getCurrentUser().getUid();
+        try {
+            // TODO: 4/6/18 fix the app crash after sgning with google sign in at account setting page
+            userId = mAUth.getCurrentUser().getUid();
+        } catch (NullPointerException e) {
+            Log.d(TAG, "Error: " + e.getMessage());
+        }
 
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();

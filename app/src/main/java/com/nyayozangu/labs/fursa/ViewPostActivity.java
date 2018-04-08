@@ -125,6 +125,11 @@ public class ViewPostActivity extends AppCompatActivity {
                     String desc = post.getDesc();
                     descTextView.setText(desc);
 
+                    //set location
+                    String locationName = post.getLocation_name();
+                    String locationAddress = post.getLocation_address();
+                    locationTextView.setText(locationName + "\n" + locationAddress);
+
                     //set the time
                     long millis = post.getTimestamp().getTime();
                     String dateString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(millis)).toString();
@@ -205,6 +210,20 @@ public class ViewPostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //go back
                 finish();
+            }
+        });
+
+
+        locationTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //launch google maps and serch for location
+                String location = locationTextView.getText().toString();
+                Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + location);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+
             }
         });
 
