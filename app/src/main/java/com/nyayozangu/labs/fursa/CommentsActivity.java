@@ -60,8 +60,10 @@ public class CommentsActivity extends AppCompatActivity {
         Log.d(TAG, "postId is: " + postId);
 
         //inform user to login to comment
+        // TODO: 4/8/18 moce this check to the sendButton.setOnclickListener() then user Alert Dialog to ask user to log in before commenting
         if (mAuth.getCurrentUser() == null) {
             currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_thumb_person));
+            // TODO: 4/8/18 hide chat Edit text replace with notificationt to login
             chatField.setHint("Log in to post a comment, click button to login");
             chatField.setClickable(false);
             sendButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_login));

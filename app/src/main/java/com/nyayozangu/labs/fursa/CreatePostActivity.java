@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,6 +45,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -66,6 +69,8 @@ public class CreatePostActivity extends AppCompatActivity {
     private EditText postTitleField;
     private TextView postDescField;
 
+    private TextView eventDateTextView;
+
     private String desc;
     private String title;
 
@@ -73,6 +78,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private ConstraintLayout categoriesField;
     private ConstraintLayout locationField;
     private ConstraintLayout priceField;
+    private ConstraintLayout eventDateField;
 
     private TextView locationTextView;
     private Place postPlace = null;
@@ -84,6 +90,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private StorageReference mStorageRef;
     //user
     private String currentUserId;
+    private Date eventDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +117,9 @@ public class CreatePostActivity extends AppCompatActivity {
 
         locationField = findViewById(R.id.createPostLocationLayout);
         locationTextView = findViewById(R.id.createPostLocationTextView);
+
+        eventDateField = findViewById(R.id.createEventDateDescLayout);
+        eventDateTextView = findViewById(R.id.createPostEventDateTextView);
 
 
         descField.setOnClickListener(new View.OnClickListener() {
@@ -150,6 +160,8 @@ public class CreatePostActivity extends AppCompatActivity {
             }
         });
 
+
+        //for location
         locationField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -168,10 +180,47 @@ public class CreatePostActivity extends AppCompatActivity {
         });
 
 
+        //for date picker
+        eventDateField.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //open date picker dialog
+
+                //for N and above
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    final DatePickerDialog eventDatePickerDialog = new DatePickerDialog(CreatePostActivity.this);
+                    eventDatePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                            eventDate = new Date(year, month, dayOfMonth);
+                            Log.d(TAG, "date selected is: " + eventDate.toString());
+                            //set selected date to the eventDate textView
+                            eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, ''yy - h:mm a", eventDate).toString());
+                        }
+                    });
+                    eventDatePickerDialog.show();
+
+                }
+
+                // save date to eventDate
+            }
+        });
+
+        //handle close button
+        closeImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //go to main
+                goToMain();
+
+            }
+        });
+
+
 
 
         //on submit
-
+        // TODO: 4/8/18 check if can connect to internet
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -245,10 +294,14 @@ public class CreatePostActivity extends AppCompatActivity {
                                         postMap.put("title", title);
                                         postMap.put("desc", desc);
                                         postMap.put("user_id", currentUserId);
-                                        postMap.put("timestamp", FieldValue.serverTimestamp());
-                                        postMap.put("location_name", postPlace.getName());
-                                        postMap.put("location_address", postPlace.getAddress());
-                                        Log.d(TAG, "locationName" + postPlace.getName());
+                                        try {
+                                            postMap.put("timestamp", FieldValue.serverTimestamp());
+                                            postMap.put("location_name", postPlace.getName());
+                                            postMap.put("location_address", postPlace.getAddress());
+                                            postMap.put("location_event_date", eventDate);
+                                        } catch (NullPointerException e) {
+                                            Log.d(TAG, "Error: " + e.getMessage());
+                                        }
 
                                         //upload
                                         db.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -305,21 +358,14 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 } else {
                     //desc is empty
+                    // TODO: 4/8/18 notifi user when elements are empty
 
                 }
 
             }
         });
 
-        //handle close button
-        closeImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //go to main
-                goToMain();
 
-            }
-        });
 
         //clicking the edit image button
         //set onClickListener for imageView

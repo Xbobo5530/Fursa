@@ -29,6 +29,7 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     // TODO: 4/6/18 fix the FAB on home fragment hides the last save
+    // TODO: 4/8/18 add pull to refresh
 
     private static final String TAG = "Sean";
     //firebase auth

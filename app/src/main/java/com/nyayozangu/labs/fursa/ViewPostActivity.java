@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -35,13 +36,25 @@ public class ViewPostActivity extends AppCompatActivity {
     private ImageView viewPostImage;
     private FloatingActionButton viewPostActionsFAB;
     private ImageView closeButton;
+
     private TextView descTextView;
     private TextView timeTextView;
     private TextView likesTextView;
     private TextView priceTextView;
     private TextView locationTextView;
     private TextView titleTextView;
+    private TextView eventDateTextView;
+
     private CircleImageView userImage; //image of user who posted post
+
+    private ConstraintLayout viewPostTitleLayout;
+    private ConstraintLayout viewPostDescLayout;
+    private ConstraintLayout viewPostLocationLayout;
+    private ConstraintLayout viewPostLikesLayout;
+    private ConstraintLayout viewPostPriceLayout;
+    private ConstraintLayout viewPostTimeLayout;
+    private ConstraintLayout viewPostEventDateLayout;
+
 
     //progress
     private ProgressDialog progressDialog;
@@ -75,13 +88,25 @@ public class ViewPostActivity extends AppCompatActivity {
         //initialize items
         titleTextView = findViewById(R.id.viewPostTitleTextView);
         descTextView = findViewById(R.id.viewPostDescTextView);
-        closeButton = findViewById(R.id.viewPostCloseImageView);
+        eventDateTextView = findViewById(R.id.createPostEventDateTextView);
         timeTextView = findViewById(R.id.viewPostTimeTextView);
         priceTextView = findViewById(R.id.viewPostPriceTextView);
         locationTextView = findViewById(R.id.viewPostLocationcTextView);
         viewPostImage = findViewById(R.id.viewPostImageView);
         likesTextView = findViewById(R.id.viewPostLikesTextView);
+
+        closeButton = findViewById(R.id.viewPostCloseImageView);
         userImage = findViewById(R.id.viewPostUserImage);
+
+
+        viewPostTitleLayout = findViewById(R.id.viewPostTitleLayout);
+        viewPostDescLayout = findViewById(R.id.viewPostDescLayout);
+        viewPostLocationLayout = findViewById(R.id.viewPostLocationLayout);
+        viewPostLikesLayout = findViewById(R.id.viewPostLikesLayout);
+        viewPostPriceLayout = findViewById(R.id.viewPostLikesLayout);
+        viewPostTimeLayout = findViewById(R.id.viewPostTimeLayout);
+        viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -128,7 +153,23 @@ public class ViewPostActivity extends AppCompatActivity {
                     //set location
                     String locationName = post.getLocation_name();
                     String locationAddress = post.getLocation_address();
-                    locationTextView.setText(locationName + "\n" + locationAddress);
+                    if (locationAddress != null && locationAddress != null) {
+                        locationTextView.setText(locationName + "\n" + locationAddress);
+                    } else {
+                        viewPostLocationLayout.setVisibility(View.GONE);
+                    }
+
+                    //set event date
+                    // TODO: 4/8/18 fix setting date to view post view
+                    /*Log.d(TAG,  post.getEvent_date().toString());
+                    if (true) {
+                        long eventDate = post.getEvent_date().getTime();
+                        Log.d(TAG, String.valueOf(eventDate));
+                        String eventDateString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(eventDate)).toString();
+                        eventDateTextView.setText(eventDateString);
+                    }else{
+                        viewPostEventDateLayout.setVisibility(View.GONE);
+                    }*/
 
                     //set the time
                     long millis = post.getTimestamp().getTime();
@@ -166,7 +207,6 @@ public class ViewPostActivity extends AppCompatActivity {
                                 //get ID of user hwo posted
                                 String userId = post.getUser_id();
                                 Log.d(TAG, "UserId is: " + userId);
-                        /*Posts post = documentSnapshot.toObject(Posts.class).withId(postId);*/
                                 Users user = documentSnapshot.toObject(Users.class).withId(userId);
                                 Log.d(TAG, "user is: " + user.toString());
                                 //get user image url

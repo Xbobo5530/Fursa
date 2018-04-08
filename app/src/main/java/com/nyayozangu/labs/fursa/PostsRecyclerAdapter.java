@@ -259,6 +259,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     //user is not logged in
                     Log.d(TAG, "use is not logged in");
                     //notify user
+                    // TODO: 4/8/18 replace Snackbar with AlertDialog with 'go to login' and cancel for options
                     Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                             "Log in to like items...", Snackbar.LENGTH_LONG)
                             .setAction("Login", new View.OnClickListener() {
@@ -472,8 +473,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //set post location
         public void setPostLocation(String locationName, String locationAddress) {
 
-            postLocationTextView = mView.findViewById(R.id.postLocationTextView);
-            postLocationTextView.setText(locationName + " \n" + locationAddress);
+            if (locationName != null && locationAddress != null) {
+                postLocationTextView = mView.findViewById(R.id.postLocationTextView);
+                postLocationTextView.setText(locationName + " \n" + locationAddress);
+            } else {
+                Log.d(TAG, "location details are null");
+                postLocationTextView.setVisibility(View.GONE);
+            }
 
         }
 

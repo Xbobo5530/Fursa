@@ -18,29 +18,25 @@ public class Posts extends PostId {
     public String location_name;
     public String location_address;
     public Date timestamp;
+    public Date event_date;
 
     //empty constructor
     public Posts() {
     }
 
-    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp) {
+    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp, Date event_date) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
         this.desc = desc;
         this.title = title;
         this.timestamp = timestamp;
-    }
-
-    public Posts(String location_name, String location_address) {
-
+        this.event_date = event_date;
         this.location_name = location_name;
         this.location_address = location_address;
-    }
-
-    public Posts(Date timestamp) {
         this.timestamp = timestamp;
     }
+
 
     public String getUser_id() {
         return user_id;
@@ -106,5 +102,11 @@ public class Posts extends PostId {
         this.location_address = location_address;
     }
 
+    public Date getEvent_date() {
+        return event_date;
+    }
 
+    public void setEvent_date(Date event_date) {
+        this.event_date = event_date;
+    }
 }

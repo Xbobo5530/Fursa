@@ -2,6 +2,7 @@ package com.nyayozangu.labs.fursa;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -23,11 +24,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
-    // TODO: 4/4/18 handle read later feature
     // TODO: 4/4/18  add a floating search bar with user
     // TODO: 4/4/18 remove action bar
     // TODO: 4/6/18 add bottom navigation fade in feature
-    // TODO: 4/4/18 handle feed, categories and read later fragments
+    // TODO: 4/4/18 handle feed, categories
     // TODO: 4/7/18 add back twice to exit
 
     private static final String TAG = "Sean";
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private CategoriesFragment categoriesFragment;
     private SavedFragment savedFragment;
     private AlertFragment alertFragment;
+    private boolean doubleBackToExitPressedOnce = false;
 
 
     @Override
@@ -69,9 +70,9 @@ public class MainActivity extends AppCompatActivity {
         alertFragment = new AlertFragment();
 
         //initiate elements
-        mainToolbar = findViewById(R.id.mainToolbar);
-        setSupportActionBar(mainToolbar);
-        getSupportActionBar().setTitle("Main Feed");
+//        mainToolbar = findViewById(R.id.mainToolbar);
+//        setSupportActionBar(mainToolbar);
+//        getSupportActionBar().setTitle("Main Feed");
         mNewPost = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
 
@@ -123,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     //start the new post activity
                     goToNewPost();
                 } else {
+                    // TODO: 4/8/18 use AlertDialog to prompt user to log in
                     //use is not logged in
                     //send to login page
                     Snackbar.make(findViewById(R.id.main_activity_layout),
@@ -258,6 +260,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        doubleBackToExit();
+    }
+
     private void sendToLogin() {
         Log.d(TAG, "at sendToLogin()");
         //send to sing log in page
@@ -281,5 +289,42 @@ public class MainActivity extends AppCompatActivity {
         return mAuth.getCurrentUser() != null;
     }
 
+
+    /**
+     * handles back backButton press when there's no history and/or user is at homescreen
+     */
+    public void doubleBackToExit() {
+        Log.d(TAG, "at doubleBackToExit");
+
+        if (doubleBackToExitPressedOnce) {
+            Log.d(TAG, "pressed once");
+            //back button is pressed for the first time
+            super.onBackPressed();
+            return;
+        }
+        //change the back button pressed once true
+        this.doubleBackToExitPressedOnce = true;
+        promptExit();
+        //create a delay to listen to the second time back is ressed
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //when 2 seconds pass reset the number of counts back is pressed
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
+    }
+
+    public void promptExit() {
+        Snackbar.make(findViewById(R.id.main_activity_layout), "Are you you want to exit?", Snackbar.LENGTH_LONG)
+                .setAction("Exit", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        finish();
+                    }
+                })
+                .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
+                .show();
+    }
 
 }
