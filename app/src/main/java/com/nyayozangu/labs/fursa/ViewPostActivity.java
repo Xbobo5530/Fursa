@@ -1,6 +1,8 @@
 package com.nyayozangu.labs.fursa;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,6 +46,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private TextView locationTextView;
     private TextView titleTextView;
     private TextView eventDateTextView;
+    private TextView contactTextView;
 
     private CircleImageView userImage; //image of user who posted post
 
@@ -54,6 +57,12 @@ public class ViewPostActivity extends AppCompatActivity {
     private ConstraintLayout viewPostPriceLayout;
     private ConstraintLayout viewPostTimeLayout;
     private ConstraintLayout viewPostEventDateLayout;
+    private ConstraintLayout viewPostContactLayout;
+
+
+    private String contactName;
+    private String contactPhone;
+    private String contactEmail;
 
 
     //progress
@@ -94,6 +103,7 @@ public class ViewPostActivity extends AppCompatActivity {
         locationTextView = findViewById(R.id.viewPostLocationcTextView);
         viewPostImage = findViewById(R.id.viewPostImageView);
         likesTextView = findViewById(R.id.viewPostLikesTextView);
+        contactTextView = findViewById(R.id.viewPostContactTextView);
 
         closeButton = findViewById(R.id.viewPostCloseImageView);
         userImage = findViewById(R.id.viewPostUserImage);
@@ -106,6 +116,7 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostPriceLayout = findViewById(R.id.viewPostLikesLayout);
         viewPostTimeLayout = findViewById(R.id.viewPostTimeLayout);
         viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
+        viewPostContactLayout = findViewById(R.id.viewPostContactLayout);
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -150,6 +161,56 @@ public class ViewPostActivity extends AppCompatActivity {
                     String desc = post.getDesc();
                     descTextView.setText(desc);
 
+                    //set the contact info
+                    contactName = post.getContact_name();
+                    contactPhone = post.getContact_phone();
+                    contactEmail = post.getContact_email();
+
+                    if (contactName != null) {
+                        //name is not empty
+                        if (contactPhone != null) {
+                            //name and phone not empty
+                            if (contactEmail != null) {
+                                //phone, email and name are all not empty
+                                contactTextView.setText(contactName + "\n" + contactPhone + "\n" + contactEmail);
+                            } else {
+                                //name and phone are not empty but email is empty
+                                contactTextView.setText(contactName + "\n" + contactPhone);
+                            }
+                        } else {
+                            //name is not empty but phone is empty
+                            if (contactEmail != null) {
+                                //name and email is not empty but phone is empty
+                                contactTextView.setText(contactName + "\n" + "\n" + contactEmail);
+                            } else {
+                                //name is not empty, but email and phone are empty
+                                viewPostContactLayout.setVisibility(View.GONE);
+                            }
+                        }
+                    } else {
+                        //name is empty
+                        if (contactPhone != null) {
+                            //name is empty but phone is not empty
+                            if (contactEmail != null) {
+                                //name is empty but phone and email are not empty
+                                contactTextView.setText(contactPhone + "\n" + contactEmail);
+                            } else {
+                                //name is empty and email are empty but phone is not empty
+                                contactTextView.setText(contactPhone);
+                            }
+                        } else {
+                            //name is empty and phone is also empty
+                            if (contactEmail != null) {
+                                //name and phone are empty but email is not empty
+                                contactTextView.setText(contactEmail);
+                            } else {
+                                //name, phone and email are all empty
+                                viewPostContactLayout.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+
+
                     //set location
                     String locationName = post.getLocation_name();
                     String locationAddress = post.getLocation_address();
@@ -177,7 +238,6 @@ public class ViewPostActivity extends AppCompatActivity {
                     timeTextView.setText(dateString);
 
                     //set post image
-
                     //add the placeholder image
                     String postImageUri = post.getImage_url();
                     String postThumbUrl = post.getThumb_url();
@@ -244,6 +304,59 @@ public class ViewPostActivity extends AppCompatActivity {
         });
 
 
+        //handle contact actions
+        viewPostContactLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder contactActionsDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
+                if (contactName != null) {
+                    contactActionsDialogBuilder.setTitle(contactName);
+                } else {
+                    contactActionsDialogBuilder.setTitle("Contact");
+                }
+                // TODO: 4/9/18 handle the empty string bug
+                contactActionsDialogBuilder.setIcon(getDrawable(R.drawable.ic_action_contact));
+                if (contactPhone != null) {
+                    //phone is not null
+                    if (contactEmail != null) {
+                        //phone and email are available
+                        final String[] values = new String[]{
+                                contactPhone,
+                                contactEmail
+                        };
+                        contactActionsDialogBuilder.setItems(values, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                switch (which) {
+                                    case 0:
+                                        callContact(contactPhone);
+                                        break;
+                                    case 1:
+                                        emailContact(contactEmail);
+                                        break;
+                                    default:
+                                        Log.d(TAG, "at default");
+                                        break;
+                                }
+                            }
+                        });
+                        contactActionsDialogBuilder.show();
+                    }
+                } else {
+                    //phone is null
+                    if (contactEmail != null) {
+                        //phone is null but email is available set email
+                        emailContact(contactEmail);
+                    } else {
+                        //phone is null and email is null
+                        Log.d(TAG, "email and phone are null");
+                    }
+                }
+            }
+        });
+
+
         //close post button
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -267,6 +380,21 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void emailContact(String email) {
+        // TODO: 4/8/18 fix when sending email email address is not forwarded bug
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        intent.putExtra(Intent.EXTRA_EMAIL, email);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void callContact(String phone) {
+        Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+        startActivity(callIntent);
     }
 
     private void goToMain() {

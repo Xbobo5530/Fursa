@@ -15,7 +15,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -68,7 +70,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private Uri postImageUri;
     private EditText postTitleField;
     private TextView postDescField;
-
+    private TextView contactTextView;
     private TextView eventDateTextView;
 
     private String desc;
@@ -79,9 +81,16 @@ public class CreatePostActivity extends AppCompatActivity {
     private ConstraintLayout locationField;
     private ConstraintLayout priceField;
     private ConstraintLayout eventDateField;
+    private ConstraintLayout contactField;
 
     private TextView locationTextView;
     private Place postPlace = null;
+
+
+    private View alertView;
+    private String contactName;
+    private String contactPhone;
+    private String contactEmail;
 
 
     //Firebase
@@ -121,6 +130,9 @@ public class CreatePostActivity extends AppCompatActivity {
         eventDateField = findViewById(R.id.createEventDateDescLayout);
         eventDateTextView = findViewById(R.id.createPostEventDateTextView);
 
+        contactField = findViewById(R.id.createPostContactLayout);
+        contactTextView = findViewById(R.id.createPostContactTextView);
+
 
         descField.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,13 +164,75 @@ public class CreatePostActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
                             }
-                        });
-
+                        })
+                        .setCancelable(false);
                 builder.show();
                 Log.d(TAG, "dialog created");
 
             }
         });
+
+
+        //open a dialog for contact details
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        alertView = inflater.inflate(R.layout.contact_alert_dialog_content_layout, null);
+
+        contactField.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder contactDialogBuilder = new AlertDialog.Builder(CreatePostActivity.this);
+                contactDialogBuilder.setTitle("Contact Details")
+                        .setIcon(R.drawable.ic_action_contact)
+                        .setView(alertView)
+                        .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //user clicks done
+                                EditText contactNameField = alertView.findViewById(R.id.contactNameDialogEditText);
+                                EditText contactPhoneField = alertView.findViewById(R.id.contactPhoneDialogDditText);
+                                EditText contactEmailField = alertView.findViewById(R.id.contactEmailDialogEditText);
+
+                                //get values
+                                contactName = contactNameField.getText().toString().trim();
+                                contactPhone = contactPhoneField.getText().toString().trim();
+                                contactEmail = contactEmailField.getText().toString().trim();
+
+                                if (contactName.isEmpty() && contactPhone.isEmpty() && contactEmail.isEmpty()) {
+                                    //all fields are empty
+                                    dialog.cancel();
+
+                                } else {
+
+                                    //at least one field is filled
+                                    contactTextView.setText("Name: " + contactName +
+                                            "\nPhone: " + contactPhone +
+                                            "\nEmail: " + contactEmail);
+                                }
+
+                                Log.d(TAG, "at positive button clicked: \n contact name: " + contactName +
+                                        "\ncontact phone: " + contactPhone + "\ncontact email: " + contactEmail);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // user clicks cancel
+                                dialog.cancel();
+
+                            }
+                        })
+                        .setCancelable(false);
+
+                //check if view already has parent
+                if (alertView.getParent() != null) {
+                    ((ViewGroup) alertView.getParent()).removeView(alertView);
+                }
+                contactDialogBuilder.show();
+
+
+            }
+        });
+
 
 
         //for location
@@ -299,6 +373,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                             postMap.put("location_name", postPlace.getName());
                                             postMap.put("location_address", postPlace.getAddress());
                                             postMap.put("location_event_date", eventDate);
+                                            postMap.put("contact_name", contactName);
+                                            postMap.put("contact_phone", contactPhone);
+                                            postMap.put("contact_email", contactEmail);
                                         } catch (NullPointerException e) {
                                             Log.d(TAG, "Error: " + e.getMessage());
                                         }

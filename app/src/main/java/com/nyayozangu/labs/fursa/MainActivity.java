@@ -12,15 +12,18 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private AlertFragment alertFragment;
     private boolean doubleBackToExitPressedOnce = false;
 
+    private CircleImageView userProfileImage;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -69,10 +74,12 @@ public class MainActivity extends AppCompatActivity {
         savedFragment = new SavedFragment();
         alertFragment = new AlertFragment();
 
+        userProfileImage = findViewById(R.id.currentUserImageView);
+
         //initiate elements
-//        mainToolbar = findViewById(R.id.mainToolbar);
-//        setSupportActionBar(mainToolbar);
-//        getSupportActionBar().setTitle("Main Feed");
+        mainToolbar = findViewById(R.id.mainToolbar);
+        setSupportActionBar(mainToolbar);
+
         mNewPost = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
 
@@ -112,6 +119,41 @@ public class MainActivity extends AppCompatActivity {
                         return false;
                 }
 
+            }
+        });
+
+        //set the userProfile image
+        if (mAuth.getCurrentUser() != null) {
+            //user is logged in
+            String userId = mAuth.getCurrentUser().getUid();
+            db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    //check if successful
+                    if (task.isSuccessful()) {
+                        //task is successful
+                        String userImageDownloadUri = task.getResult().get("image").toString();
+
+                        RequestOptions placeHolderOptions = new RequestOptions();
+                        placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+
+                        Glide.with(MainActivity.this).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(userProfileImage);
+
+                    } else {
+                        //task unsuccessful handle errors
+                        String errorMessage = task.getException().getMessage();
+                        Log.d(TAG, "Error: " + errorMessage);
+                    }
+                }
+            });
+        }
+
+
+        //set click listener to image view
+        userProfileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToSettings();
             }
         });
 
@@ -157,6 +199,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void goToSettings() {
+        //to to settings page
+        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        finish();
+    }
+
     //go to new post page
     private void goToNewPost() {
         startActivity(new Intent(MainActivity.this, CreatePostActivity.class));
@@ -167,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
     }
 
-    @Override
+   /* @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -191,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return false;
         }
-    }
+    }*/
 
     private void goToAccount() {
         //go to Account page

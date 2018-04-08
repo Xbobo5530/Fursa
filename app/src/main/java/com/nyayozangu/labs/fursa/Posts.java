@@ -17,6 +17,9 @@ public class Posts extends PostId {
     public String title;
     public String location_name;
     public String location_address;
+    public String contact_name;
+    public String contact_phone;
+    public String contact_email;
     public Date timestamp;
     public Date event_date;
 
@@ -24,7 +27,7 @@ public class Posts extends PostId {
     public Posts() {
     }
 
-    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp, Date event_date) {
+    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp, Date event_date, String contact_name, String contact_email, String contact_phone) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
@@ -35,6 +38,9 @@ public class Posts extends PostId {
         this.location_name = location_name;
         this.location_address = location_address;
         this.timestamp = timestamp;
+        this.contact_name = contact_name;
+        this.contact_phone = contact_phone;
+        this.contact_email = contact_email;
     }
 
 
@@ -108,5 +114,29 @@ public class Posts extends PostId {
 
     public void setEvent_date(Date event_date) {
         this.event_date = event_date;
+    }
+
+    public String getContact_name() {
+        return contact_name;
+    }
+
+    public void setContact_name(String contact_name) {
+        this.contact_name = contact_name;
+    }
+
+    public String getContact_phone() {
+        return contact_phone;
+    }
+
+    public void setContact_phone(String contact_phone) {
+        this.contact_phone = contact_phone;
+    }
+
+    public String getContact_email() {
+        return contact_email;
+    }
+
+    public void setContact_email(String contact_email) {
+        this.contact_email = contact_email;
     }
 }
