@@ -24,6 +24,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.sql.Date;
 
@@ -100,7 +101,7 @@ public class ViewPostActivity extends AppCompatActivity {
         eventDateTextView = findViewById(R.id.createPostEventDateTextView);
         timeTextView = findViewById(R.id.viewPostTimeTextView);
         priceTextView = findViewById(R.id.viewPostPriceTextView);
-        locationTextView = findViewById(R.id.viewPostLocationcTextView);
+        locationTextView = findViewById(R.id.viewPostLocationTextView);
         viewPostImage = findViewById(R.id.viewPostImageView);
         likesTextView = findViewById(R.id.viewPostLikesTextView);
         contactTextView = findViewById(R.id.viewPostContactTextView);
@@ -113,7 +114,7 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostDescLayout = findViewById(R.id.viewPostDescLayout);
         viewPostLocationLayout = findViewById(R.id.viewPostLocationLayout);
         viewPostLikesLayout = findViewById(R.id.viewPostLikesLayout);
-        viewPostPriceLayout = findViewById(R.id.viewPostLikesLayout);
+        viewPostPriceLayout = findViewById(R.id.viewPostPriceLayout);
         viewPostTimeLayout = findViewById(R.id.viewPostTimeLayout);
         viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
         viewPostContactLayout = findViewById(R.id.viewPostContactLayout);
@@ -220,6 +221,16 @@ public class ViewPostActivity extends AppCompatActivity {
                         viewPostLocationLayout.setVisibility(View.GONE);
                     }
 
+                    //set price
+                    // TODO: 4/9/18 fix when post.getPrice() is null textView remains
+                    String price = post.getPrice();
+                    if (price != null) {
+                        priceTextView.setText(price);
+                    } else {
+                        Log.d(TAG, "onEvent: price is: " + price);
+                        viewPostPriceLayout.setVisibility(View.GONE);
+                    }
+
                     //set event date
                     // TODO: 4/8/18 fix setting date to view post view
                     /*Log.d(TAG,  post.getEvent_date().toString());
@@ -235,7 +246,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     //set the time
                     long millis = post.getTimestamp().getTime();
                     String dateString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(millis)).toString();
-                    timeTextView.setText(dateString);
+                    timeTextView.setText("Posted on...\n" + dateString);
 
                     //set post image
                     //add the placeholder image
@@ -250,9 +261,7 @@ public class ViewPostActivity extends AppCompatActivity {
                             .thumbnail(Glide.with(getApplicationContext()).load(postThumbUrl))
                             .into(viewPostImage);
 
-                    //set likes
-                    // TODO: 4/7/18 set likes
-                    // TODO: 4/7/18 set price
+
                     // TODO: 4/7/18 set categories
 
                     //set user image
@@ -300,6 +309,30 @@ public class ViewPostActivity extends AppCompatActivity {
                     finish();
                 }
                 progressDialog.dismiss();
+            }
+        });
+
+
+        //set likes
+        db.collection("Posts/" + postId + "/Likes").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                //check if exits
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    //post has likes
+                    int likes = queryDocumentSnapshots.getDocuments().size();
+                    Log.d(TAG, "post has likes");
+                    //set likes to likesTextView
+                    if (likes == 1) {
+                        likesTextView.setText(likes + " Like");
+                    } else {
+                        likesTextView.setText(likes + " Likes");
+                    }
+                } else {
+                    //hide the likes view
+                    likesTextView.setVisibility(View.GONE);
+                    Log.d(TAG, "query returned empty");
+                }
             }
         });
 

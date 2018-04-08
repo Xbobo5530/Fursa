@@ -68,10 +68,11 @@ public class CreatePostActivity extends AppCompatActivity {
     private Button submitButton;
     private ProgressDialog progressDialog;
     private Uri postImageUri;
-    private EditText postTitleField;
-    private TextView postDescField;
+    private EditText postTitleEditText;
+    private TextView postDescTextView;
     private TextView contactTextView;
     private TextView eventDateTextView;
+    private TextView priceTextView;
 
     private String desc;
     private String title;
@@ -100,6 +101,8 @@ public class CreatePostActivity extends AppCompatActivity {
     //user
     private String currentUserId;
     private Date eventDate;
+    private String price;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,8 +121,8 @@ public class CreatePostActivity extends AppCompatActivity {
         closeImageButton = findViewById(R.id.createPostCloseImageView);
         submitButton = findViewById(R.id.createPostSubmitButton);
         editImageFAB = findViewById(R.id.createPostEditImageFab);
-        postTitleField = findViewById(R.id.createPostTileEditText);
-        postDescField = findViewById(R.id.createPostDescTextView);
+        postTitleEditText = findViewById(R.id.createPostTileEditText);
+        postDescTextView = findViewById(R.id.createPostDescTextView);
 
         descField = findViewById(R.id.createPostDescLayout);
         categoriesField = findViewById(R.id.createPostCategoriesLayout);
@@ -132,6 +135,9 @@ public class CreatePostActivity extends AppCompatActivity {
 
         contactField = findViewById(R.id.createPostContactLayout);
         contactTextView = findViewById(R.id.createPostContactTextView);
+
+        priceField = findViewById(R.id.createPostPriceLayout);
+        priceTextView = findViewById(R.id.createPostPriceTextView);
 
 
         descField.setOnClickListener(new View.OnClickListener() {
@@ -149,14 +155,14 @@ public class CreatePostActivity extends AppCompatActivity {
                 input.setLayoutParams(lp);
 
                 builder.setView(input);
-                if (!postDescField.getText().toString().isEmpty()) {
-                    input.setText(postDescField.getText().toString());
+                if (!postDescTextView.getText().toString().isEmpty()) {
+                    input.setText(postDescTextView.getText().toString());
                 }
                 builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         desc = input.getText().toString().trim();
-                        postDescField.setText(desc);
+                        postDescTextView.setText(desc);
                     }
                 })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -280,6 +286,45 @@ public class CreatePostActivity extends AppCompatActivity {
             }
         });
 
+
+        //set the price
+        priceField.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
+                builder.setTitle("Post Description")
+                        .setIcon(R.drawable.ic_action_price);
+
+                final EditText input = new EditText(CreatePostActivity.this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+
+                builder.setView(input);
+                if (!priceTextView.getText().toString().isEmpty()) {
+                    input.setText(priceTextView.getText().toString());
+                }
+                builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        price = input.getText().toString().trim();
+                        priceTextView.setText(price);
+                    }
+                })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .setCancelable(false);
+                builder.show();
+                Log.d(TAG, "dialog created");
+
+            }
+        });
+
         //handle close button
         closeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -301,9 +346,9 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 //start submitting
                 //get desc
-                desc = postDescField.getText().toString().trim();
+                desc = postDescTextView.getText().toString().trim();
                 //get title
-                title = postTitleField.getText().toString().trim();
+                title = postTitleEditText.getText().toString().trim();
 
 
                 //check if description field is empty
@@ -376,6 +421,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                             postMap.put("contact_name", contactName);
                                             postMap.put("contact_phone", contactPhone);
                                             postMap.put("contact_email", contactEmail);
+                                            postMap.put("price", price);
                                         } catch (NullPointerException e) {
                                             Log.d(TAG, "Error: " + e.getMessage());
                                         }

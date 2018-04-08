@@ -126,7 +126,7 @@
                 app:srcCompat="@drawable/ic_action_location" />
 
             <TextView
-                android:id="@+id/viewPostLocationcTextView"
+                android:id="@+id/viewPostLocationTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"

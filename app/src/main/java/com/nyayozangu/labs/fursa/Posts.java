@@ -15,6 +15,7 @@ public class Posts extends PostId {
     public String thumb_url;
     public String desc;
     public String title;
+    public String price;
     public String location_name;
     public String location_address;
     public String contact_name;
@@ -23,11 +24,15 @@ public class Posts extends PostId {
     public Date timestamp;
     public Date event_date;
 
+
     //empty constructor
     public Posts() {
     }
 
-    public Posts(String user_id, String image_url, String thumb_url, String desc, String title, Date timestamp, Date event_date, String contact_name, String contact_email, String contact_phone) {
+    public Posts(String user_id, String image_url, String thumb_url,
+                 String desc, String title, String price,
+                 Date timestamp, Date event_date,
+                 String contact_name, String contact_email, String contact_phone) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
@@ -138,5 +143,13 @@ public class Posts extends PostId {
 
     public void setContact_email(String contact_email) {
         this.contact_email = contact_email;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
     }
 }
