@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -77,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
         userProfileImage = findViewById(R.id.currentUserImageView);
 
         //initiate elements
-        mainToolbar = findViewById(R.id.mainToolbar);
-        setSupportActionBar(mainToolbar);
+        /*mainToolbar = findViewById(R.id.mainToolbar);
+        setSupportActionBar(mainToolbar);*/
 
         mNewPost = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
@@ -123,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //set the userProfile image
+        // TODO: 4/9/18 make having a profile image optional
         if (mAuth.getCurrentUser() != null) {
             //user is logged in
             String userId = mAuth.getCurrentUser().getUid();
@@ -132,13 +135,21 @@ public class MainActivity extends AppCompatActivity {
                     //check if successful
                     if (task.isSuccessful()) {
                         //task is successful
-                        String userImageDownloadUri = task.getResult().get("image").toString();
+                        try {
+                            String userImageDownloadUri = task.getResult().get("image").toString();
 
-                        RequestOptions placeHolderOptions = new RequestOptions();
-                        placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+                            RequestOptions placeHolderOptions = new RequestOptions();
+                            placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
 
-                        Glide.with(MainActivity.this).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(userProfileImage);
+                            Glide.with(MainActivity.this).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(userProfileImage);
 
+                        } catch (NullPointerException imageNotFoundException) {
+
+                            //user image not found
+                            userProfileImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+                            Log.d(TAG, "onComplete: user has no profile image");
+
+                        }
                     } else {
                         //task unsuccessful handle errors
                         String errorMessage = task.getException().getMessage();
@@ -166,18 +177,10 @@ public class MainActivity extends AppCompatActivity {
                     //start the new post activity
                     goToNewPost();
                 } else {
-                    // TODO: 4/8/18 use AlertDialog to prompt user to log in
-                    //use is not logged in
-                    //send to login page
-                    Snackbar.make(findViewById(R.id.main_activity_layout),
-                            "Log in to post items...", Snackbar.LENGTH_LONG)
-                            .setAction("Login", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    goToLogin();
-                                }
-                            })
-                            .show();
+                    String message = "Log in to post items";
+
+                    //user is not logged in show dialog
+                    showLoginAlertDialog(message);
                 }
             }
         });
@@ -197,6 +200,29 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void showLoginAlertDialog(String message) {
+        //Prompt user to log in
+        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(MainActivity.this);
+        loginAlertBuilder.setTitle("Login")
+                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setMessage("You are not logged in\n" + message)
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //send user to login activity
+                        goToLogin();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //cancel
+                        dialog.cancel();
+                    }
+                })
+                .show();
     }
 
     private void goToSettings() {
@@ -285,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
                             //user does not exist
                             Log.d(TAG, "user exists");
                             //send user to login activity
-//                            sendToLogin();
                         } else {
                             //user exists
                             Log.d(TAG, "user exists");

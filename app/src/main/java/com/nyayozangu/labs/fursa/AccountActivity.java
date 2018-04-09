@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,8 +23,11 @@ import android.widget.EditText;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -32,21 +36,26 @@ import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 public class AccountActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
+    Bitmap compressedImageFile;
     private CircleImageView setupImage;
-
     private Uri mainImageUri = null;
     private EditText userNameField;
+    private EditText userBioField;
     private Button saveButton;
     private FloatingActionButton editImageFab;
-
     //user
     private String userId;
 
@@ -76,16 +85,14 @@ public class AccountActivity extends AppCompatActivity {
         userNameField = findViewById(R.id.accNameEditText);
         saveButton = findViewById(R.id.accSaveButton);
         editImageFab = findViewById(R.id.accEditFab);
+        userBioField = findViewById(R.id.accSettingAboutEditText);
 
         //user
         // TODO: 4/6/18 fix the app crash after sgning with google sign in at account setting page
         userId = mAUth.getCurrentUser().getUid();
 
-
-
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
-
 
         //show progress
         showProgress("Loading...");
@@ -107,17 +114,18 @@ public class AccountActivity extends AppCompatActivity {
 
                         //retrieve data
                         String name = task.getResult().getString("name");
+                        String bio = task.getResult().getString("bio");
                         String image = task.getResult().getString("image");
 
                         //set the data
                         userNameField.setText(name);
+                        userBioField.setText(bio);
 
-                        // TODO: 4/3/18 set image
                         RequestOptions placeHolderRequest = new RequestOptions();
-                        placeHolderRequest.placeholder(R.mipmap.ic_launcher);
+                        placeHolderRequest.placeholder(R.drawable.ic_thumb_person);
 
                         //loading the string for url to the image view
-                        Glide.with(AccountActivity.this).setDefaultRequestOptions(placeHolderRequest).load(image).into(setupImage);
+                        Glide.with(getApplicationContext()).setDefaultRequestOptions(placeHolderRequest).load(image).into(setupImage);
 
                         //update the imageUri
                         mainImageUri = Uri.parse(image);
@@ -174,18 +182,24 @@ public class AccountActivity extends AppCompatActivity {
 
                 //get user details
                 final String userName = userNameField.getText().toString();
+                final String userBio = userBioField.getText().toString();
 
                 //check if userNameField is empty
                 if (!TextUtils.isEmpty(userName) && mainImageUri != null) {
                     Log.d(TAG, "userName is: " + userName +
+                            "\nuserBio is: " + userBio +
                             "\nimageUri is: " + mainImageUri.toString());
 
-                    // TODO: 4/4/18 before uploading userImage, compress to get userImageThumb
+                    //generate randomString name for image based on firebase time stamp
+                    final String randomName = UUID.randomUUID().toString();
+
                     //check if data (image) has changed
                     if (imageIsChanged) {
+
                         //upload the image to firebase
                         userId = mAUth.getCurrentUser().getUid();
                         StorageReference imagePath = mStorageRef.child("profile_images").child(userId + ".jpg");
+
                         Log.d(TAG, "userId is: " + userId + "imagePath is: " + imagePath);
 
                         //show progress bar
@@ -193,21 +207,107 @@ public class AccountActivity extends AppCompatActivity {
                         //start handling data with firebase
                         imagePath.putFile(mainImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
                                 //show progress bar after starting
                                 Log.d(TAG, "at onComplete");
 
                                 //check if is complete.
                                 if (task.isSuccessful()) {
                                     //update the database
-                                    updateDb(task, userName);
+                                    updateDb(task, userName, userBio);
+
+                                    File newImageFile = new File(mainImageUri.getPath());
+
+                                    try {
+                                        compressedImageFile = new Compressor(AccountActivity.this)
+                                                .setMaxWidth(100)
+                                                .setMaxHeight(100)
+                                                .setQuality(2)
+                                                .compressToBitmap(newImageFile);
+                                    } catch (IOException e) {
+
+                                        e.printStackTrace();
+
+                                    }
+
+                                    //handle Bitmap
+                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                    compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                    byte[] thumbData = baos.toByteArray();
+
+                                    //uploading the thumbnail
+                                    UploadTask uploadTask = mStorageRef.child("profile_images/thumbs")
+                                            .child(randomName + ".jpg")
+                                            .putBytes(thumbData);
+                                    // TODO: 4/9/18 continue this
+                                    uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                            //get downloadUri for thumbnail
+                                            String downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
+
+
+                                            //store the user info associated with post
+                                            Map<String, Object> postMap = new HashMap<>();
+                                            postMap.put("thumb_url", downloadThumbUri);
+
+                                            //upload
+                                            db.collection("Users").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                    //check the result
+                                                    if (task.isSuccessful()) {
+                                                        //db update successful
+                                                        Log.d(TAG, "Db Update successful");
+                                                        //go back to main feed
+                                                        startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                                                        finish();
+
+                                                    } else {
+                                                        //upload failed
+                                                        String errorMessage = task.getException().getMessage();
+                                                        Log.d(TAG, "Db Update failed: " + errorMessage);
+
+                                                        Snackbar.make(findViewById(R.id.account_layout),
+                                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                                    /*//hide progress bar
+                                                    newPostProgressBar.setVisibility(View.INVISIBLE);*/
+                                                        progressDialog.dismiss();
+                                                    }
+
+                                                }
+                                            });
+
+                                        }
+
+
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            //upload failed
+                                            String errorMessage = task.getException().getMessage();
+                                            Log.d(TAG, "Db Update failed: " + errorMessage);
+
+                                            Snackbar.make(findViewById(R.id.account_layout),
+                                                    "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                            //hide progress bar
+                                            progressDialog.dismiss();
+
+                                        }
+                                    });
+
+
+
                                 } else {
                                     //upload failed
                                     Log.d(TAG, "upload failed");
                                     String errorMessage = task.getException().getMessage();
 
                                     Snackbar.make(findViewById(R.id.account_layout),
-                                            "Upload failed: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+                                            "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();
 
                                 }
 
@@ -217,28 +317,29 @@ public class AccountActivity extends AppCompatActivity {
                         });
 
 
-                        // TODO: 4/3/18 when userImage is not present use default image
                     } else {
                         //no image selected, no username selected
                         //update username but not the imageUri
-                        updateDb(null, userName);
+                        updateDb(null, userName, userBio);
                     }
                 } else {
                     //field are empty
+                    // TODO: 4/9/18 make the user image optional
                     Snackbar.make(findViewById(R.id.account_layout),
-                            "Select a username and an image to continue...", Snackbar.LENGTH_SHORT).show();
+                            "Enter a username and an image to continue...", Snackbar.LENGTH_LONG).show();
 
                 }
             }
         });
     }
 
-    private void updateDb(@NonNull Task<UploadTask.TaskSnapshot> task, String userName) {
+    private void updateDb(@NonNull Task<UploadTask.TaskSnapshot> task, String userName, String userBio) {
         //upload successful
         Log.d(TAG, "upload successful");
 
         //declare downladUri
         Uri downloadUri;
+        Uri downloadThumbUri;
 
         //check if the task is null
         if (task != null) {
@@ -252,7 +353,10 @@ public class AccountActivity extends AppCompatActivity {
         //create map for users
         Map<String, String> usersMap = new HashMap<>();
         usersMap.put("name", userName);
+        usersMap.put("bio", userBio);
         usersMap.put("image", downloadUri.toString());
+        // TODO: 4/9/18 add thumbnail to user profile
+        /*usersMap.put("thumb", )*/
 
         //store data to db
         db.collection("Users").document(userId).set(usersMap).addOnCompleteListener(new OnCompleteListener<Void>() {

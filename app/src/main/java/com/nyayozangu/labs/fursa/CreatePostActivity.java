@@ -458,13 +458,22 @@ public class CreatePostActivity extends AppCompatActivity {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         //on failure
+                                        //upload failed
+                                        String errorMessage = task.getException().getMessage();
+                                        Log.d(TAG, "Db Update failed: " + errorMessage);
+
+                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
+                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                                    /*//hide progress bar
+                                                    newPostProgressBar.setVisibility(View.INVISIBLE);*/
+                                        progressDialog.dismiss();
                                     }
                                 });
 
 
                             } else {
                                 //post failed
-                                // TODO: 4/4/18 handle error uploading image
                                 String errorMessage = task.getException().getMessage();
 
                                 Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -481,13 +490,19 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 } else {
                     //desc is empty
-                    // TODO: 4/8/18 notifi user when elements are empty
+                    //upload failed
+                    Log.d(TAG, "Fields are empty");
+
+                    Snackbar.make(findViewById(R.id.createPostActivityLayout),
+                            "Enter your profile data to proceed", Snackbar.LENGTH_LONG).show();
+
+                    //hide progress bar
+                    progressDialog.dismiss();
 
                 }
 
             }
         });
-
 
 
         //clicking the edit image button

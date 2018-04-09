@@ -1,8 +1,10 @@
 package com.nyayozangu.labs.fursa;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -60,26 +62,52 @@ public class CommentsActivity extends AppCompatActivity {
         Log.d(TAG, "postId is: " + postId);
 
         //inform user to login to comment
-        // TODO: 4/8/18 moce this check to the sendButton.setOnclickListener() then user Alert Dialog to ask user to log in before commenting
         if (mAuth.getCurrentUser() == null) {
             currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_thumb_person));
-            // TODO: 4/8/18 hide chat Edit text replace with notificationt to login
             chatField.setHint("Log in to post a comment, click button to login");
-            chatField.setClickable(false);
-            sendButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_login));
             //clicking send to go to login with postId intent
             sendButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "login button has clicked");
-                    Intent openPostIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                    openPostIntent.putExtra("postId", postId);
-                    startActivity(openPostIntent);
+                    String message = "Log in to comment";
+                    showLoginAlertDialog(message);
                 }
 
             });
         }
 
 
+    }
+
+
+    private void showLoginAlertDialog(String message) {
+        //Prompt user to log in
+        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(CommentsActivity.this);
+        loginAlertBuilder.setTitle("Login")
+                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setMessage("You are not logged in\n" + message)
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //send user to login activity
+                        goToLogin();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //cancel
+                        dialog.cancel();
+                    }
+                })
+                .show();
+    }
+
+    private void goToLogin() {
+        Intent loginIntent = new Intent(CommentsActivity.this, LoginActivity.class);
+        loginIntent.putExtra("postId", postId);
+        startActivity(loginIntent);
+        finish();
     }
 }

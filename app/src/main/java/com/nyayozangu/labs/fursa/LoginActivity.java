@@ -76,6 +76,25 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "at LoginActivity, at onCreate");
 
         super.onCreate(savedInstanceState);
+
+
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .logger(new DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(new TwitterAuthConfig("D99HM3hZBaOVTKW6tfUeAtAcQ",
+                        "dxQNNNK4q4W32Bpu6RHRI2CNrAiFVqokAJ9t2d9cSCwQxdnY0d"))
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
+
+        /*
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .logger(new DefaultLogger(Log.DEBUG))
+                *//*.twitterAuthConfig(new TwitterAuthConfig(getString(R.string.twitter_key), getString(R.string.twitter_secret)))*//*
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
+        */
+
         setContentView(R.layout.activity_login);
 
         //Initiating Firebase instance
@@ -98,13 +117,14 @@ public class LoginActivity extends AppCompatActivity {
         String postId = getPostIdIntent.getStringExtra("postId");
         Log.d(TAG, "postId is: " + postId);
         // TODO: 4/7/18 when user comes to login form comments, return user to comments after loging in
+        // TODO: 4/9/18 setup intent extra receivers for source page and post ids, to return the user to a specific post/ page after login
 
 
         closeLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //user closes the login page ad goes back to home page
-                finish();
+                goToMain();
 
             }
         });
@@ -220,13 +240,6 @@ public class LoginActivity extends AppCompatActivity {
 
         //Twitter login
 
-        TwitterConfig config = new TwitterConfig.Builder(this)
-                .logger(new DefaultLogger(Log.DEBUG))
-                .twitterAuthConfig(new TwitterAuthConfig("D99HM3hZBaOVTKW6tfUeAtAcQ",
-                        "dxQNNNK4q4W32Bpu6RHRI2CNrAiFVqokAJ9t2d9cSCwQxdnY0d"))
-                .debug(true)
-                .build();
-        Twitter.initialize(config);
 
         twitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override

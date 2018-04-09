@@ -10,8 +10,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -134,9 +132,9 @@
                 android:id="@+id/postCommetnImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/postLikeImageView"
+                app:layout_constraintStart_toEndOf="@+id/postSaveImageView"
                 app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
                 app:srcCompat="@drawable/ic_action_comment" />
 
@@ -144,7 +142,7 @@
                 android:id="@+id/postShareImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toEndOf="@+id/postCommetnImageView"
                 app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
@@ -154,9 +152,9 @@
                 android:id="@+id/postSaveImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/postLikeImageView"
                 app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
                 app:srcCompat="@drawable/ic_action_bookmark_outline" />
 

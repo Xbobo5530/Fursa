@@ -1,9 +1,11 @@
 package com.nyayozangu.labs.fursa;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -99,7 +101,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         holder.setPostLocation(locationName, locationAddress);
 
 
-        String currentUserId;
+        final String currentUserId;
 
         //handling getting the user who clicked like
         if (isLoggedIn()) {
@@ -225,8 +227,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
         //likes feature
-        final String finalCurrentUserId = currentUserId;
-
         //set an a click listener to the like button
         holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -234,7 +234,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                 if (isLoggedIn()) {
 
-                    db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             //get data from teh likes collection
@@ -246,11 +246,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                                 //db.collection("Posts").document(postId).collection("Likes");
                                 //can alternatively ne written
-                                db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).set(likesMap);
+                                db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
 
                             } else {
                                 //delete the like
-                                db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).delete();
+                                db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
                             }
                         }
                     });
@@ -259,7 +259,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     //user is not logged in
                     Log.d(TAG, "use is not logged in");
                     //notify user
-                    // TODO: 4/8/18 replace Snackbar with AlertDialog with 'go to login' and cancel for options
+
+                    String message = "Log in to like items";
+                    showLoginAlertDialog(message);
+                    /*
                     Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                             "Log in to like items...", Snackbar.LENGTH_LONG)
                             .setAction("Login", new View.OnClickListener() {
@@ -269,6 +272,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 }
                             })
                             .show();
+                    */
                 }
 
             }
@@ -282,7 +286,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 //check if user is logged in
                 if (isLoggedIn()) {
 
-                    db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             //get data from the saves collections
@@ -292,20 +296,25 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 Map<String, Object> savesMap = new HashMap<>();
                                 savesMap.put("timestamp", FieldValue.serverTimestamp());
                                 //save new post
-                                db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).set(savesMap);
+                                db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
                                 //notify user that post has been saved
                                 Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                                         "Saved...", Snackbar.LENGTH_SHORT).show();
                             } else {
                                 //delete saved post
-                                db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).delete();
+                                db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
                             }
                         }
                     });
                 } else {
                     //user is not logged in
-                    Log.d(TAG, "use is not logged in");
+                    Log.d(TAG, "user is not logged in");
                     //notify user
+
+                    String message = "Log in to save items";
+                    showLoginAlertDialog(message);
+
+                    /*
                     Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                             "Log in to save items...", Snackbar.LENGTH_LONG)
                             .setAction("Login", new View.OnClickListener() {
@@ -315,6 +324,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 }
                             })
                             .show();
+                    */
                 }
             }
         });
@@ -373,6 +383,29 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private boolean isLoggedIn() {
         //determine if user is logged in
         return mAuth.getCurrentUser() != null;
+    }
+
+    private void showLoginAlertDialog(String message) {
+        //Prompt user to log in
+        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(context);
+        loginAlertBuilder.setTitle("Login")
+                .setIcon(context.getDrawable(R.drawable.ic_action_alert))
+                .setMessage("You are not logged in\n" + message)
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //send user to login activity
+                        goToLogin();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //cancel
+                        dialog.cancel();
+                    }
+                })
+                .show();
     }
 
     @Override

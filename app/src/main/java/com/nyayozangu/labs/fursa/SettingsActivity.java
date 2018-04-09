@@ -1,7 +1,9 @@
 package com.nyayozangu.labs.fursa;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -21,9 +23,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "Sean";
 
-    // TODO: 4/8/18 set user profile image
-    // TODO: 4/8/18 handle logout action
-    // TODO: 4/8/18 handle edit profile button
     // TODO: 4/8/18 handle my posts
     // TODO: 4/8/18 handle mysubscriptions
     // TODO: 4/8/18 handlle contact us
@@ -44,6 +43,8 @@ public class SettingsActivity extends AppCompatActivity {
     private Button contactUsButton;
     private Button privacyPolicyButton;
 
+    private android.support.v7.widget.Toolbar toolbar;
+
     //firebase auth
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -52,6 +53,11 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        toolbar = findViewById(R.id.settingsToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Settings");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
@@ -100,12 +106,14 @@ public class SettingsActivity extends AppCompatActivity {
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 goToAccSet();
+
             }
         });
 
 
-        //set image
+        //check is user is logged in
         if (isLoggedIn()) {
             //get current user is
             String userId = mAuth.getCurrentUser().getUid();
@@ -131,7 +139,7 @@ public class SettingsActivity extends AppCompatActivity {
                         RequestOptions placeHolderOptions = new RequestOptions();
                         placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
 
-                        Glide.with(SettingsActivity.this).applyDefaultRequestOptions(placeHolderOptions)
+                        Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
                                 .load(userProfileImageDownloadUrl).into(userImage);
 
                     } else {
@@ -144,9 +152,47 @@ public class SettingsActivity extends AppCompatActivity {
             //user is not logged in
             usernameTextView.setVisibility(View.GONE);
             userBioTextView.setText("You are currently not logged in \nclick the login button to log in");
-            userImage.setImageDrawable(getDrawable(R.drawable.ic_action_alert));
+            userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+            editProfileButton.setVisibility(View.INVISIBLE); //hide the edit profile button
 
         }
+
+        mySubscription.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isLoggedIn()) {
+
+                    //open the my subscriptions page
+                    // TODO: 4/9/18 open the subscriptions page
+                    // TODO: 4/9/18 list with check boxes
+
+                } else {
+
+                    //user is not logged in prompt to login
+                    String message = "Login to view your subscriptions";
+                    showLoginAlertDialog(message);
+
+                }
+            }
+        });
+
+        myPostsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isLoggedIn()) {
+
+                    //open the users posts page
+                    // TODO: 4/9/18 open user's posts page
+
+                } else {
+
+                    //user is not logged in
+                    String message = "Login to view your posts";
+                    showLoginAlertDialog(message);
+
+                }
+            }
+        });
 
     }
 
@@ -209,4 +255,29 @@ public class SettingsActivity extends AppCompatActivity {
         startActivity(new Intent(SettingsActivity.this, MainActivity.class));
         finish();
     }
+
+
+    private void showLoginAlertDialog(String message) {
+        //Prompt user to log in
+        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(SettingsActivity.this);
+        loginAlertBuilder.setTitle("Login")
+                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setMessage("You are not logged in\n" + message)
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //send user to login activity
+                        goToLogin();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //cancel
+                        dialog.cancel();
+                    }
+                })
+                .show();
+    }
+
 }
