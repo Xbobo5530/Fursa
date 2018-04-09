@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class HomeFragment extends Fragment {
 
-    // TODO: 4/6/18 fix the FAB on home fragment hides the last save
+    //  TODO: 4/6/18 fix the FAB on home fragment hides the last save
     // TODO: 4/8/18 add pull to refresh
 
     private static final String TAG = "Sean";
@@ -80,9 +80,6 @@ public class HomeFragment extends Fragment {
         //initiate firebase auth
         mAuth = FirebaseAuth.getInstance();
 
-        //requires permissions
-        //check permissions
-
         //initiate the firebase elements
         db = FirebaseFirestore.getInstance();
 
@@ -125,6 +122,8 @@ public class HomeFragment extends Fragment {
                     }
 
                 }
+
+
                 //create a for loop to check for document changes
                 for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                     //check if an item is added
