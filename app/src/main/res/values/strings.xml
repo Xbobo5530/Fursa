@@ -106,6 +106,10 @@
     </string>
     <string name="fursa_url_head">http://fursa.nyayozangu.com/</string>
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://fursa.nyayozangu.com\",\n  }\n}]</string>
+    <string name="finish_tut_text">Finish</string>
+    <string name="back_tut_text">Back</string>
+    <string name="next_tut_text">Next</string>
+    <string name="title_activity_view_category">ViewCategoryActivity</string>
 
 
 </resources>

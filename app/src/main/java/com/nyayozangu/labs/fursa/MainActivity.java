@@ -30,9 +30,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity {
 
     // TODO: 4/4/18  add a floating search bar with user
-    // TODO: 4/4/18 remove action bar
     // TODO: 4/6/18 add bottom navigation fade in feature
-    // TODO: 4/4/18 handle feed, categories
     // TODO: 4/7/18 add back twice to exit
 
     private static final String TAG = "Sean";

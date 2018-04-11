@@ -23,7 +23,7 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:toolbarId="@+id/toolbar">
+            app:toolbarId="@+id/viewCatToolbar">
 
             <ImageView
                 android:id="@+id/viewPostImageView"
@@ -74,7 +74,7 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_scrolling" />
+    <include layout="@layout/content_view_post" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

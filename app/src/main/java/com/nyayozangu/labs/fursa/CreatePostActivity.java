@@ -47,6 +47,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,10 +70,12 @@ public class CreatePostActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private Uri postImageUri;
     private EditText postTitleEditText;
+
     private TextView postDescTextView;
     private TextView contactTextView;
     private TextView eventDateTextView;
     private TextView priceTextView;
+    private TextView catsTextView;
 
     private String desc;
     private String title;
@@ -102,6 +105,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private String currentUserId;
     private Date eventDate;
     private String price;
+    private ArrayList mSelectedCats;
 
 
     @Override
@@ -125,7 +129,10 @@ public class CreatePostActivity extends AppCompatActivity {
         postDescTextView = findViewById(R.id.createPostDescTextView);
 
         descField = findViewById(R.id.createPostDescLayout);
+
         categoriesField = findViewById(R.id.createPostCategoriesLayout);
+        catsTextView = findViewById(R.id.createPostCategoriesTextView);
+        mSelectedCats = new ArrayList();
 
         locationField = findViewById(R.id.createPostLocationLayout);
         locationTextView = findViewById(R.id.createPostLocationTextView);
@@ -240,6 +247,129 @@ public class CreatePostActivity extends AppCompatActivity {
         });
 
 
+        // TODO: 4/12/18 handle psot categories
+        // TODO: 4/12/18 get the categories from the user
+        //set an on click listener for the categories field
+
+        categoriesField.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //create a list of selectable categories
+
+
+
+                /*
+                * @Override
+                    public Dialog onCreateDialog(Bundle savedInstanceState) {
+                        mSelectedItems = new ArrayList();  // Where we track the selected items
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        // Set the dialog title
+                        builder.setTitle(R.string.pick_toppings)
+                        // Specify the list array, the items to be selected by default (null for none),
+                        // and the listener through which to receive callbacks when items are selected
+                               .setMultiChoiceItems(R.array.toppings, null,
+                                          new DialogInterface.OnMultiChoiceClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which,
+                                           boolean isChecked) {
+                                       if (isChecked) {
+                                           // If the user checked the item, add it to the selected items
+                                           mSelectedItems.add(which);
+                                       } else if (mSelectedItems.contains(which)) {
+                                           // Else, if the item is already in the array, remove it
+                                           mSelectedItems.remove(Integer.valueOf(which));
+                                       }
+                                   }
+                               })
+                        // Set the action buttons
+                               .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int id) {
+                                       // User clicked OK, so save the mSelectedItems results somewhere
+                                       // or return them to the component that opened the dialog
+                                       ...
+                                   }
+                               })
+                               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int id) {
+                                       ...
+                                   }
+                               });
+
+                        return builder.create();
+}*/
+
+
+                final String[] categories = new String[]{
+                        "Business",
+                        "Events",
+                        "Buying and selling",
+                        "Educaiton",
+                        "Jobs",
+                        "Places",
+                        "Queries"
+
+                };
+
+                //alert diaolg builder
+                AlertDialog.Builder catPickerBuilder = new AlertDialog.Builder(CreatePostActivity.this);
+                catPickerBuilder.setTitle("Categories")
+                        .setIcon(getDrawable(R.drawable.ic_action_cat_light))
+                        .setMultiChoiceItems(categories, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                //what happens when an item is checked
+
+                                if (isChecked) {
+                                    // If the user checked the item, add it to the selected items
+                                    mSelectedCats.add(which);
+                                } else if (mSelectedCats.contains(which)) {
+                                    // Else, if the item is already in the array, remove it
+                                    mSelectedCats.remove(Integer.valueOf(which));
+                                }
+                            }
+                        })
+
+                        //set actions buttons
+                        .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //when Done is clicked
+                                //show the selected cats on the cats text view
+
+                                String catsString = "";
+
+                                for (int i = 0; i < mSelectedCats.size(); i++) {
+
+                                    //concatnate a string
+                                    catsString = catsString.concat(mSelectedCats.get(i) + ", ");
+
+                                }
+
+                                catsTextView.setText(catsString.trim());
+                            }
+                        })
+
+                        //set negative buttton
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                //dismiss the dialog
+                                dialog.dismiss();
+
+                            }
+                        })
+
+                        //show the dialog
+                        .show();
+
+
+            }
+        });
+
 
         //for location
         locationField.setOnClickListener(new View.OnClickListener() {
@@ -253,7 +383,26 @@ public class CreatePostActivity extends AppCompatActivity {
                             .build(CreatePostActivity.this);
                     startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
                 } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-                    // TODO: Handle the error.
+
+                    Log.e(TAG, "onClick: " + e.getMessage());
+                    // TODO: 4/12/18 show alert dialog with error message
+                    AlertDialog.Builder locationErrorBuilder = new AlertDialog.Builder(CreatePostActivity.this);
+                    locationErrorBuilder.setTitle("Error")
+                            .setIcon(getDrawable(R.drawable.ic_action_alert))
+                            .setMessage("Failed to load locations at this moment\n Please try again later")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    //dismiss the dialog
+                                    dialog.dismiss();
+
+                                }
+                            })
+
+                            //show the dialog
+                            .show();
+
                 }
 
             }

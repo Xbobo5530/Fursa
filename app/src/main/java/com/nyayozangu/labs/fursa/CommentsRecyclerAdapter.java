@@ -3,7 +3,6 @@ package com.nyayozangu.labs.fursa;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.sql.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -76,21 +74,21 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
         //set the post title
         holder.setTitle(titleData);*/
 
-        //get
         // TODO: 4/9/18 set items
 
         //set comment
         String comment = commentsList.get(position).getComment();
         holder.setComment(comment);
 
-        try {
+        // TODO: 4/10/18 fix the null on setting time
+        /*try {
             long millis = commentsList.get(position).getTimestamp().getTime();
             //convert millis to date time format
             String timeString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(millis)).toString();
             holder.setTime(timeString);
         } catch (Exception e) {
             Log.d(TAG, "onBindViewHolder: error:" + e.getMessage());
-        }
+        }*/
 
         //set image
         // TODO: 4/10/18 set image

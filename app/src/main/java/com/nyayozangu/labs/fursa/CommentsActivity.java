@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -36,6 +37,9 @@ import java.util.UUID;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentsActivity extends AppCompatActivity {
+
+
+    // TODO: 4/10/18 fix the pagenation on comments page
 
 
     private static final String TAG = "Sean";
@@ -82,10 +86,16 @@ public class CommentsActivity extends AppCompatActivity {
         commentsRecyclerView = findViewById(R.id.commentsRecyclerView);
 
         //initiate an arrayList to hold all the posts
-        commentsList = new ArrayList<Comments>();
+        commentsList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
         commentsRecyclerAdapter = new CommentsRecyclerAdapter(commentsList);
+
+        //set a layout manager for homeFeedView (recycler view)
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(CommentsActivity.this));
+
+        //set an adapter for the recycler view
+        commentsRecyclerView.setAdapter(commentsRecyclerAdapter);
 
         //get the sent intent
         Intent getPostIdIntent = getIntent();
@@ -99,9 +109,9 @@ public class CommentsActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                Boolean reachedBottom = !commentsRecyclerView.canScrollVertically(1);
+                Boolean reachedTop = !commentsRecyclerView.canScrollVertically(-1);
 
-                if (reachedBottom) {
+                if (reachedTop) {
 
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     loadMoreComments();
@@ -110,7 +120,7 @@ public class CommentsActivity extends AppCompatActivity {
         });
 
 
-        Query firstQuery = db.collection("Posts/" + postId + "/comments").orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
+        Query firstQuery = db.collection("Posts/" + postId + "/Comments").orderBy("timestamp", Query.Direction.ASCENDING).limit(10);
 
         firstQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -271,7 +281,7 @@ public class CommentsActivity extends AppCompatActivity {
     private void loadMoreComments() {
 
         Query nextQuery = db.collection("Posts/" + postId + "/Comments")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .orderBy("timestamp", Query.Direction.ASCENDING)
                 .startAfter(lastVisibleComment)
                 .limit(10);
 

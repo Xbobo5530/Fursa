@@ -85,7 +85,7 @@ public class ViewPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_post);
 
-        final Toolbar toolbar = findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.viewCatToolbar);
         setSupportActionBar(toolbar);
 
         //initialize Firebase

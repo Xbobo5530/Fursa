@@ -100,7 +100,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".CommentsActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+        <activity android:name=".TutorialActivity" />
+        <activity
+            android:name=".ViewCategoryActivity"
+            android:label="@string/title_activity_view_category"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

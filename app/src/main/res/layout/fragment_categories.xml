@@ -3,9 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.nyayozangu.labs.fursa.CategoriesFragment">
-    <TextView
+
+
+    <GridView
+        android:id="@+id/categoriesGridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="categories fragment " />
+        android:numColumns="auto_fit" />
 
 </FrameLayout>
