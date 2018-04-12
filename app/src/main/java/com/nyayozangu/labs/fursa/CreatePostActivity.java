@@ -58,9 +58,18 @@ import id.zelory.compressor.Compressor;
 public class CreatePostActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
+    private final String[] categories = new String[]{
 
+            "Business",
+            "Events",
+            "Buying and selling",
+            "Education",
+            "Jobs",
+            "Places",
+            "Queries"
+
+    };
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
-
     //for file compression
     Bitmap compressedImageFile;
     private ImageView createPostImageView;
@@ -70,33 +79,25 @@ public class CreatePostActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private Uri postImageUri;
     private EditText postTitleEditText;
-
     private TextView postDescTextView;
     private TextView contactTextView;
     private TextView eventDateTextView;
     private TextView priceTextView;
     private TextView catsTextView;
-
     private String desc;
     private String title;
-
     private ConstraintLayout descField;
     private ConstraintLayout categoriesField;
     private ConstraintLayout locationField;
     private ConstraintLayout priceField;
     private ConstraintLayout eventDateField;
     private ConstraintLayout contactField;
-
     private TextView locationTextView;
     private Place postPlace = null;
-
-
     private View alertView;
     private String contactName;
     private String contactPhone;
     private String contactEmail;
-
-
     //Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -105,7 +106,8 @@ public class CreatePostActivity extends AppCompatActivity {
     private String currentUserId;
     private Date eventDate;
     private String price;
-    private ArrayList mSelectedCats;
+    private ArrayList<Integer> mSelectedCats;
+    private ArrayList<String> catsStringsArray;
 
 
     @Override
@@ -132,7 +134,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
         categoriesField = findViewById(R.id.createPostCategoriesLayout);
         catsTextView = findViewById(R.id.createPostCategoriesTextView);
-        mSelectedCats = new ArrayList();
+        mSelectedCats = new ArrayList<Integer>();
+        catsStringsArray = new ArrayList<String>();
 
         locationField = findViewById(R.id.createPostLocationLayout);
         locationTextView = findViewById(R.id.createPostLocationTextView);
@@ -255,79 +258,28 @@ public class CreatePostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                //create a list of selectable categories
-
-
-
-                /*
-                * @Override
-                    public Dialog onCreateDialog(Bundle savedInstanceState) {
-                        mSelectedItems = new ArrayList();  // Where we track the selected items
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        // Set the dialog title
-                        builder.setTitle(R.string.pick_toppings)
-                        // Specify the list array, the items to be selected by default (null for none),
-                        // and the listener through which to receive callbacks when items are selected
-                               .setMultiChoiceItems(R.array.toppings, null,
-                                          new DialogInterface.OnMultiChoiceClickListener() {
-                                   @Override
-                                   public void onClick(DialogInterface dialog, int which,
-                                           boolean isChecked) {
-                                       if (isChecked) {
-                                           // If the user checked the item, add it to the selected items
-                                           mSelectedItems.add(which);
-                                       } else if (mSelectedItems.contains(which)) {
-                                           // Else, if the item is already in the array, remove it
-                                           mSelectedItems.remove(Integer.valueOf(which));
-                                       }
-                                   }
-                               })
-                        // Set the action buttons
-                               .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                   @Override
-                                   public void onClick(DialogInterface dialog, int id) {
-                                       // User clicked OK, so save the mSelectedItems results somewhere
-                                       // or return them to the component that opened the dialog
-                                       ...
-                                   }
-                               })
-                               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                   @Override
-                                   public void onClick(DialogInterface dialog, int id) {
-                                       ...
-                                   }
-                               });
-
-                        return builder.create();
-}*/
-
-
-                final String[] categories = new String[]{
-                        "Business",
-                        "Events",
-                        "Buying and selling",
-                        "Educaiton",
-                        "Jobs",
-                        "Places",
-                        "Queries"
-
-                };
-
-                //alert diaolg builder
+                //alert dialog builder
                 AlertDialog.Builder catPickerBuilder = new AlertDialog.Builder(CreatePostActivity.this);
                 catPickerBuilder.setTitle("Categories")
                         .setIcon(getDrawable(R.drawable.ic_action_cat_light))
                         .setMultiChoiceItems(categories, null, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                //what happens when an item is checked
 
+                                //when the alert dialog is opened first populate it with items from the mselected list(itema that are already selected)
+                                //empty all fields
+
+                                //what happens when an item is checked
                                 if (isChecked) {
+
                                     // If the user checked the item, add it to the selected items
                                     mSelectedCats.add(which);
+
                                 } else if (mSelectedCats.contains(which)) {
+
                                     // Else, if the item is already in the array, remove it
                                     mSelectedCats.remove(Integer.valueOf(which));
+
                                 }
                             }
                         })
@@ -343,8 +295,31 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 for (int i = 0; i < mSelectedCats.size(); i++) {
 
-                                    //concatnate a string
-                                    catsString = catsString.concat(mSelectedCats.get(i) + ", ");
+
+                                    //check if is last item
+                                    if (i == mSelectedCats.size() - 1) {
+
+                                        Log.d(TAG, "onClick: \nat if for loop, which is: " + which);
+                                        //this is the last item
+                                        //concat a string without comma
+                                        catsString = catsString.concat(categories[mSelectedCats.get(i)]);
+
+                                    } else {
+
+                                        //concat a string
+                                        catsString = catsString.concat(categories[mSelectedCats.get(i)] + ", ");
+
+
+                                    }
+
+                                    //update cats string array
+                                    if (!catsStringsArray.contains(categories[mSelectedCats.get(i)])) {
+
+                                        //only add items to the array if they are not already there
+                                        catsStringsArray.add(categories[mSelectedCats.get(i)]);
+                                        Log.d(TAG, "onClick: \n catsStringArray is: " + catsStringsArray);
+
+                                    }
 
                                 }
 
@@ -361,10 +336,16 @@ public class CreatePostActivity extends AppCompatActivity {
                                 dialog.dismiss();
 
                             }
-                        })
+                        });
 
-                        //show the dialog
-                        .show();
+                //clear itemts before showing
+                mSelectedCats.clear();
+                catsStringsArray.clear();
+                catsTextView.setText("");
+                catsTextView.setHint("Select categories for your post");
+
+                //show the dialog
+                catPickerBuilder.show();
 
 
             }
@@ -571,6 +552,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                             postMap.put("contact_phone", contactPhone);
                                             postMap.put("contact_email", contactEmail);
                                             postMap.put("price", price);
+
                                         } catch (NullPointerException e) {
                                             Log.d(TAG, "Error: " + e.getMessage());
                                         }
