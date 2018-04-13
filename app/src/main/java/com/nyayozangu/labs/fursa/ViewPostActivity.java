@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -75,6 +76,10 @@ public class ViewPostActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
 
 
+    //save categories to list
+    private ArrayList<String> catArray;
+
+
     // TODO: 4/7/18 handle populating data from postId
     // TODO: 4/7/18 if user is not logged in change the comment hint to "login to comment" and send user to login page when comments are clicked
 
@@ -110,8 +115,7 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostImage = findViewById(R.id.viewPostImageView);
         likesTextView = findViewById(R.id.viewPostLikesTextView);
         contactTextView = findViewById(R.id.viewPostContactTextView);
-        userTextView = findViewById(R.id.viewPostUserTextView);
-        catTextView = findViewById(R.id.viewPostCatTextView);
+
 
         closeButton = findViewById(R.id.viewPostCloseImageView);
         userImage = findViewById(R.id.viewPostUserImageView);
@@ -125,8 +129,15 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostTimeLayout = findViewById(R.id.viewPostTimeLayout);
         viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
         viewPostContactLayout = findViewById(R.id.viewPostContactLayout);
+
+
+        userTextView = findViewById(R.id.viewPostUserTextView);
         viewPostUserLayout = findViewById(R.id.viewPostUserLayout);
+
+
         viewPostCatLayout = findViewById(R.id.viewPostCatLayout);
+        catTextView = findViewById(R.id.viewPostCatTextView);
+        catArray = new ArrayList<>();
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -366,9 +377,14 @@ public class ViewPostActivity extends AppCompatActivity {
 
                             }
 
+                            //update the catArrayList
+                            catArray.add(String.valueOf(categories.get(i)));
+
+
                         }
 
                         Log.d(TAG, "onEvent: \ncatString is: " + catString);
+                        Log.d(TAG, "onEvent: \ncatArray is: " + catArray);
                         catTextView.setText("Categories:\n" + catString);
 
                     } else {
@@ -502,6 +518,42 @@ public class ViewPostActivity extends AppCompatActivity {
                         Log.d(TAG, "email and phone are null");
                     }
                 }
+            }
+        });
+
+
+        //set onclick listener for category layout
+        // TODO: 4/13/18 set on click listener for catogory layout
+        viewPostCatLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                //open alert dialog
+                AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
+                catDialogBuilder.setTitle("Categories")
+                        .setIcon(getDrawable(R.drawable.ic_action_categories))
+                        .setItems(catArray.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                //set click actions
+                                // TODO: 4/13/18 when a cat is clicked on alert dialog open the cat view
+
+                                //open view cat activity
+                                Intent catIntent = new Intent(ViewPostActivity.this, ViewCategoryActivity.class);
+                                catIntent.putExtra("category", catArray.get(which));
+                                startActivity(catIntent);
+
+
+                                Log.d(TAG, "onClick: \nuser selected cat is: " + catArray.get(which));
+
+                                Toast.makeText(ViewPostActivity.this, "" + which, Toast.LENGTH_SHORT).show();
+
+                            }
+                        })
+                        .show();
+
             }
         });
 
