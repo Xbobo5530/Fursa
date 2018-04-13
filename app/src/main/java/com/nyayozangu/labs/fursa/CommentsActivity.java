@@ -181,6 +181,9 @@ public class CommentsActivity extends AppCompatActivity {
 
                     //get user comment
                     if (!chatField.getText().toString().isEmpty()) {
+
+                        showProgress("Posting comment...");
+
                         final String comment = chatField.getText().toString();
                         //generate randomString name for image based on firebase time stamp
                         final String randomCommentId = UUID.randomUUID().toString();
@@ -198,9 +201,6 @@ public class CommentsActivity extends AppCompatActivity {
                                 commentsMap.put("timestamp", FieldValue.serverTimestamp());
                                 commentsMap.put("comment", comment);
                                 commentsMap.put("user_id", userId);
-
-                                //show progress bar
-                                showProgress("Posting comment...");
 
                                 //upload comment to cloud
                                 db.collection("Posts/" + postId + "/Comments").document(randomCommentId).set(commentsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -291,6 +291,5 @@ public class CommentsActivity extends AppCompatActivity {
         progressDialog.setMessage(message);
         progressDialog.show();
     }
-
 
 }

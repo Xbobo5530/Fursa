@@ -3,6 +3,8 @@ package com.nyayozangu.labs.fursa;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -232,36 +234,38 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             @Override
             public void onClick(View v) {
 
-                if (isLoggedIn()) {
+                if (isConnected()) {
 
-                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            //get data from teh likes collection
+                    if (isLoggedIn()) {
 
-                            //check if current user has already liked post
-                            if (!task.getResult().exists()) {
-                                Map<String, Object> likesMap = new HashMap<>();
-                                likesMap.put("timestamp", FieldValue.serverTimestamp());
+                        db.collection("Posts/" + postId + "/Likes").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                //get data from teh likes collection
 
-                                //db.collection("Posts").document(postId).collection("Likes");
-                                //can alternatively ne written
-                                db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
+                                //check if current user has already liked post
+                                if (!task.getResult().exists()) {
+                                    Map<String, Object> likesMap = new HashMap<>();
+                                    likesMap.put("timestamp", FieldValue.serverTimestamp());
 
-                            } else {
-                                //delete the like
-                                db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
+                                    //db.collection("Posts").document(postId).collection("Likes");
+                                    //can alternatively ne written
+                                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
+
+                                } else {
+                                    //delete the like
+                                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
+                                }
                             }
-                        }
-                    });
+                        });
 
-                } else {
-                    //user is not logged in
-                    Log.d(TAG, "use is not logged in");
-                    //notify user
+                    } else {
+                        //user is not logged in
+                        Log.d(TAG, "use is not logged in");
+                        //notify user
 
-                    String message = "Log in to like items";
-                    showLoginAlertDialog(message);
+                        String message = "Log in to like items";
+                        showLoginAlertDialog(message);
                     /*
                     Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                             "Log in to like items...", Snackbar.LENGTH_LONG)
@@ -273,6 +277,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                             })
                             .show();
                     */
+                    }
+                } else {
+
+                    //alert user is not connected
+                    showSnack(holder, "Failed to connect to the internet\nCheck your connection and try again");
+
                 }
 
             }
@@ -283,48 +293,51 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //check if user is logged in
-                if (isLoggedIn()) {
 
-                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            //get data from the saves collections
+                //check if user is connected to the internet
+                if (isConnected()) {
 
-                            //check if user has already saved the post
-                            if (!task.getResult().exists()) {
-                                Map<String, Object> savesMap = new HashMap<>();
-                                savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                //save new post
-                                db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
-                                //notify user that post has been saved
-                                Snackbar.make(holder.mView.findViewById(R.id.postLayout),
-                                        "Saved...", Snackbar.LENGTH_SHORT).show();
-                            } else {
-                                //delete saved post
-                                db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
-                            }
-                        }
-                    });
-                } else {
-                    //user is not logged in
-                    Log.d(TAG, "user is not logged in");
-                    //notify user
+                    //check if user is logged in
+                    if (isLoggedIn()) {
 
-                    String message = "Log in to save items";
-                    showLoginAlertDialog(message);
+                        db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                //get data from the saves collections
 
-                    /*
-                    Snackbar.make(holder.mView.findViewById(R.id.postLayout),
-                            "Log in to save items...", Snackbar.LENGTH_LONG)
-                            .setAction("Login", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    goToLogin();
+                                //check if user has already saved the post
+
+                                // TODO: 4/13/18 prevent the click button on like and save when the task is already at hand
+                                if (!task.getResult().exists()) {
+                                    Map<String, Object> savesMap = new HashMap<>();
+                                    savesMap.put("timestamp", FieldValue.serverTimestamp());
+                                    //save new post
+                                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
+                                    //notify user that post has been saved
+                                    showSnack(holder, "Added to saved items");
+                                } else {
+                                    //delete saved post
+                                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
                                 }
-                            })
-                            .show();
-                    */
+                            }
+                        });
+                    } else {
+                        //user is not logged in
+                        Log.d(TAG, "user is not logged in");
+                        //notify user
+
+                        String message = "Log in to save items";
+                        showLoginAlertDialog(message);
+
+
+                    }
+                } else {
+
+                    //user is not connected to the internet
+                    //show alert dialog
+                    showSnack(holder, "Failed to connect to the internet\nCheck your connection and try again");
+
+
                 }
             }
         });
@@ -373,6 +386,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     }
 
+    private void showSnack(@NonNull ViewHolder holder, String message) {
+        Snackbar.make(holder.mView.findViewById(R.id.postLayout),
+                message, Snackbar.LENGTH_LONG).show();
+    }
+
     private void goToLogin() {
         //take user to the login page
         Log.d(TAG, "at goToLogin");
@@ -383,6 +401,22 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private boolean isLoggedIn() {
         //determine if user is logged in
         return mAuth.getCurrentUser() != null;
+    }
+
+    private boolean isConnected() {
+
+        //check if there's a connection
+        Log.d(TAG, "at isConnected");
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = null;
+        if (cm != null) {
+
+            activeNetwork = cm.getActiveNetworkInfo();
+
+        }
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
     }
 
     private void showLoginAlertDialog(String message) {

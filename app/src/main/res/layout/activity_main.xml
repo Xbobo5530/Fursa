@@ -7,28 +7,17 @@
     android:layout_height="match_parent"
     tools:context="com.nyayozangu.labs.fursa.MainActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/mainToolbar"
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/mainBottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        android:visibility="gone"
+        android:layout_gravity="bottom"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/mainToolbarConstraintLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="16dp">
-
-        </android.support.constraint.ConstraintLayout>
-
-    </android.support.v7.widget.Toolbar>
+        app:menu="@menu/bottom_nav_menu" />
 
 
     <android.support.design.widget.FloatingActionButton
@@ -37,16 +26,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:foregroundTint="@android:color/white"
         android:foregroundTintMode="src_in"
         android:tint="@android:color/white"
         android:tintMode="src_in"
         app:backgroundTint="@android:color/holo_red_dark"
         app:layout_constraintBottom_toTopOf="@+id/mainBottomNav"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:srcCompat="@drawable/ic_action_add_white" />
 
     <android.support.v7.widget.CardView
         android:id="@+id/mainToolbarCardView"
@@ -88,7 +74,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/mainSearchView"
+                app:layout_constraintEnd_toStartOf="@+id/mainSearchView"
                 app:layout_constraintStart_toEndOf="@+id/currentUserImageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -103,22 +89,11 @@
 
     </android.support.v7.widget.CardView>
 
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/mainBottomNav"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
-
     <FrameLayout
         android:id="@+id/mainFrameContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"
         app:layout_constraintBottom_toTopOf="@+id/mainBottomNav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

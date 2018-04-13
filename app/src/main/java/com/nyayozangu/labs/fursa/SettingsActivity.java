@@ -143,12 +143,20 @@ public class SettingsActivity extends AppCompatActivity {
                         }
 
                         //set image
-                        String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
-                        RequestOptions placeHolderOptions = new RequestOptions();
-                        placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+                        try {
+                            String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
+                            RequestOptions placeHolderOptions = new RequestOptions();
+                            placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
 
-                        Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
-                                .load(userProfileImageDownloadUrl).into(userImage);
+                            Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
+                                    .load(userProfileImageDownloadUrl).into(userImage);
+                        } catch (NullPointerException userImageException) {
+
+                            //user image is null
+                            Log.e(TAG, "onEvent: ", userImageException);
+
+
+                        }
 
                     } else {
                         Log.d(TAG, "user does now exist");

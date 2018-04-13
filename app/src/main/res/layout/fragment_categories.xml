@@ -5,7 +5,7 @@
     tools:context="com.nyayozangu.labs.fursa.CategoriesFragment">
 
 
-    <GridView
+    <ListView
         android:id="@+id/categoriesGridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

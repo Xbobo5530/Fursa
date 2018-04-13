@@ -97,8 +97,16 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
 
                     //set user image
 
-                    String userImageDownloadUrl = documentSnapshot.get("image").toString();
-                    holder.setImage(userImageDownloadUrl);
+                    try {
+                        String userImageDownloadUrl = documentSnapshot.get("image").toString();
+                        holder.setImage(userImageDownloadUrl);
+                    } catch (NullPointerException userImageException) {
+
+                        //user image is null
+                        Log.e(TAG, "onEvent: ", userImageException);
+
+
+                    }
 
 
                 } else {
@@ -155,6 +163,8 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
             placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(imageUrl).into(userImageView);
+
+
         }
 
         public void setUsername(String username) {

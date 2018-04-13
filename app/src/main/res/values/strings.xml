@@ -111,6 +111,7 @@
     <string name="next_tut_text">Next</string>
     <string name="title_activity_view_category">ViewCategoryActivity</string>
     <string name="posted_by_text">Posted by:</string>
+    <string name="search_hint">Search</string>
 
 
 </resources>

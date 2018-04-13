@@ -1,7 +1,10 @@
 package com.nyayozangu.labs.fursa;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -16,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -24,6 +28,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -43,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar mainToolbar;
     private FloatingActionButton mNewPost;
     private BottomNavigationView mainBottomNav;
+    private TextView titleBarTextView;
 
     //instances of fragments
     private HomeFragment homeFragment;
@@ -52,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean doubleBackToExitPressedOnce = false;
 
     private CircleImageView userProfileImage;
+    private TextView searchBar;
+
+    private List<String> lastSearches;
 
 
     @Override
@@ -82,10 +92,17 @@ public class MainActivity extends AppCompatActivity {
 
         mNewPost = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
+//        titleBarTextView = findViewById(R.id.titleTextView);
+
+        if (!isConnected()) {
+
+            //notify user is not connected
+            showSnack(R.id.main_activity_layout, "Failed to connect to the internet");
+
+        }
 
         //set the homeFragment when home the main activity is loaded
         setFragment(homeFragment);
-
 
         //set onclick Listener for when the navigation items are selected
         mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -238,31 +255,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
     }
 
-   /* @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        switch (item.getItemId()) {
-            case R.id.actions_logout:
-                logout();
-                return true;
-            case R.id.action_settings:
-                //go to account page
-                goToAccount();
-
-            default:
-                return false;
-        }
-    }*/
 
     private void goToAccount() {
         //go to Account page
@@ -273,8 +265,14 @@ public class MainActivity extends AppCompatActivity {
         mAuth.signOut();
         //send alert user is signed out
         Log.d(TAG, "user has signed out");
-        Snackbar.make(findViewById(R.id.main_activity_layout),
-                "You are now signed out", Snackbar.LENGTH_SHORT).show();
+        String logoutMessage = "You are now signed out";
+        showSnack(R.id.main_activity_layout, logoutMessage);
+    }
+
+    // TODO: 4/13/18 replace Snackbard with this
+    private void showSnack(int id, String message) {
+        Snackbar.make(findViewById(id),
+                message, Snackbar.LENGTH_SHORT).show();
     }
 
     //check to see if the user is logged in
@@ -395,6 +393,23 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
                 .show();
+    }
+
+    private boolean isConnected() {
+
+        //check if there's a connection
+        Log.d(TAG, "at isConnected");
+        Context context = getApplicationContext();
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = null;
+        if (cm != null) {
+
+            activeNetwork = cm.getActiveNetworkInfo();
+
+        }
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
     }
 
 }

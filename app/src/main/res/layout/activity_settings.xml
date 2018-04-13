@@ -56,7 +56,8 @@
                 android:src="@drawable/ic_action_image_placeholder"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_thumb_person" />
 
             <TextView
                 android:id="@+id/settingsUsernameTextView"

@@ -120,14 +120,21 @@ public class AccountActivity extends AppCompatActivity {
                         userNameField.setText(name);
                         userBioField.setText(bio);
 
-                        RequestOptions placeHolderRequest = new RequestOptions();
-                        placeHolderRequest.placeholder(R.drawable.ic_thumb_person);
+                        try {
+                            RequestOptions placeHolderRequest = new RequestOptions();
+                            placeHolderRequest.placeholder(R.drawable.ic_thumb_person);
 
-                        //loading the string for url to the image view
-                        Glide.with(getApplicationContext()).setDefaultRequestOptions(placeHolderRequest).load(image).into(setupImage);
+                            //loading the string for url to the image view
+                            Glide.with(getApplicationContext()).setDefaultRequestOptions(placeHolderRequest).load(image).into(setupImage);
 
-                        //update the imageUri
-                        userImageUri = Uri.parse(image);
+                            //update the imageUri
+                            userImageUri = Uri.parse(image);
+                        } catch (NullPointerException userImageException) {
+
+                            //user image is null
+                            Log.e(TAG, "onComplete: ", userImageException);
+
+                        }
 
                     } else {
                         Log.d(TAG, "data does not exist");
@@ -184,10 +191,7 @@ public class AccountActivity extends AppCompatActivity {
                 final String userBio = userBioField.getText().toString();
 
                 //check if userNameField is empty
-                if (!TextUtils.isEmpty(userName) && userImageUri != null) {
-                    Log.d(TAG, "userName is: " + userName +
-                            "\nuserBio is: " + userBio +
-                            "\nimageUri is: " + userImageUri.toString());
+                if (!TextUtils.isEmpty(userName)) {
 
                     //generate randomString name for image based on firebase time stamp
                     final String randomName = UUID.randomUUID().toString();
@@ -195,91 +199,97 @@ public class AccountActivity extends AppCompatActivity {
                     //check if data (image) has changed
                     if (imageIsChanged) {
 
-                        //upload the image to firebase
-                        userId = mAUth.getCurrentUser().getUid();
-                        StorageReference imagePath = mStorageRef.child("profile_images").child(userId + ".jpg");
+                        try {
+                            //upload the image to firebase
+                            userId = mAUth.getCurrentUser().getUid();
+                            StorageReference imagePath = mStorageRef.child("profile_images").child(userId + ".jpg");
 
-                        Log.d(TAG, "userId is: " + userId + "imagePath is: " + imagePath);
+                            Log.d(TAG, "userId is: " + userId + "imagePath is: " + imagePath);
 
-                        //show progress bar
-                        showProgress("Loading...");
-                        //start handling data with firebase
-                        imagePath.putFile(userImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
-                                //show progress bar after starting
-                                Log.d(TAG, "at onComplete");
+                            //show progress bar
+                            showProgress("Loading...");
+                            //start handling data with firebase
+                            imagePath.putFile(userImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+                                    //show progress bar after starting
+                                    Log.d(TAG, "at onComplete");
 
-                                //check if is complete.
-                                if (task.isSuccessful()) {
+                                    //check if is complete.
+                                    if (task.isSuccessful()) {
                                     /*//update the database
                                     updateDb(task, null,userName, userBio);*/
 
-                                    File newImageFile = new File(userImageUri.getPath());
+                                        File newImageFile = new File(userImageUri.getPath());
 
-                                    try {
-                                        compressedImageFile = new Compressor(AccountActivity.this)
-                                                .setMaxWidth(100)
-                                                .setMaxHeight(100)
-                                                .setQuality(2)
-                                                .compressToBitmap(newImageFile);
-                                    } catch (IOException e) {
+                                        try {
+                                            compressedImageFile = new Compressor(AccountActivity.this)
+                                                    .setMaxWidth(100)
+                                                    .setMaxHeight(100)
+                                                    .setQuality(2)
+                                                    .compressToBitmap(newImageFile);
+                                        } catch (IOException e) {
 
-                                        e.printStackTrace();
+                                            e.printStackTrace();
+
+                                        }
+
+                                        //handle Bitmap
+                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                        compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                        byte[] thumbData = baos.toByteArray();
+
+                                        //uploading the thumbnail
+                                        UploadTask uploadTask = mStorageRef.child("profile_images/thumbs")
+                                                .child(randomName + ".jpg")
+                                                .putBytes(thumbData);
+                                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                                //update dB with new thumb in task snapshot
+                                                updateDb(task, taskSnapshot, userName, userBio);
+
+                                            }
+
+
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                //upload failed
+                                                String errorMessage = task.getException().getMessage();
+                                                Log.d(TAG, "Db Update failed: " + errorMessage);
+
+                                                Snackbar.make(findViewById(R.id.account_layout),
+                                                        "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                                //hide progress bar
+                                                progressDialog.dismiss();
+
+                                            }
+                                        });
+
+
+                                    } else {
+                                        //upload failed
+                                        Log.d(TAG, "upload failed");
+                                        String errorMessage = task.getException().getMessage();
+
+                                        Snackbar.make(findViewById(R.id.account_layout),
+                                                "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();
 
                                     }
 
-                                    //handle Bitmap
-                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                    compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                    byte[] thumbData = baos.toByteArray();
-
-                                    //uploading the thumbnail
-                                    UploadTask uploadTask = mStorageRef.child("profile_images/thumbs")
-                                            .child(randomName + ".jpg")
-                                            .putBytes(thumbData);
-                                    uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                        @Override
-                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                            //update dB with new thumb in task snapshot
-                                            updateDb(task, taskSnapshot, userName, userBio);
-
-                                        }
-
-
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            //upload failed
-                                            String errorMessage = task.getException().getMessage();
-                                            Log.d(TAG, "Db Update failed: " + errorMessage);
-
-                                            Snackbar.make(findViewById(R.id.account_layout),
-                                                    "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                                            //hide progress bar
-                                            progressDialog.dismiss();
-
-                                        }
-                                    });
-
-
-
-                                } else {
-                                    //upload failed
-                                    Log.d(TAG, "upload failed");
-                                    String errorMessage = task.getException().getMessage();
-
-                                    Snackbar.make(findViewById(R.id.account_layout),
-                                            "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();
+                                    progressDialog.dismiss();
 
                                 }
+                            });
+                        } catch (NullPointerException userImageException) {
 
-                                progressDialog.dismiss();
+                            Log.e(TAG, "onClick: ", userImageException.getCause());
+                            updateDb(null, null, userName, userBio);
 
-                            }
-                        });
+                        }
 
 
                     } else {
@@ -289,9 +299,8 @@ public class AccountActivity extends AppCompatActivity {
                     }
                 } else {
                     //field are empty
-                    // TODO: 4/9/18 make the user image optional
                     Snackbar.make(findViewById(R.id.account_layout),
-                            "Enter a username and an image to continue...", Snackbar.LENGTH_LONG).show();
+                            "Enter a username to continue", Snackbar.LENGTH_LONG).show();
 
                 }
             }
@@ -320,43 +329,46 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         //create map for users
+
+        Map<String, String> usersMap = new HashMap<>();
+        usersMap.put("name", userName);
+
         try {
-            Map<String, String> usersMap = new HashMap<>();
-            usersMap.put("name", userName);
             usersMap.put("bio", userBio);
             usersMap.put("image", downloadUri.toString());
             usersMap.put("thumb", downloadThumbUri.toString());
-
-
-            //store data to db
-            db.collection("Users").document(userId).set(usersMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-
-                    if (task.isSuccessful()) {
-                        //task successful
-                        //go to main activity, go to feed
-                        Log.d(TAG, "Database update successful");
-                        goToMain();
-
-                    } else {
-                        //task failed
-                        String errorMessage = task.getException().getMessage();
-                        Snackbar.make(findViewById(R.id.account_layout),
-                                "Database error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                    }
-                    //hide progress  after finishing
-                    progressDialog.dismiss();
-                }
-            });
-
         } catch (NullPointerException dbUpdateNull) {
 
             Log.e(TAG, "updateDb: ", dbUpdateNull);
             finish();
 
         }
+
+
+        //store data to db
+        db.collection("Users").document(userId).set(usersMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+                if (task.isSuccessful()) {
+                    //task successful
+                    //go to main activity, go to feed
+                    Log.d(TAG, "Database update successful");
+                    goToMain();
+
+                } else {
+                    //task failed
+                    String errorMessage = task.getException().getMessage();
+                    Snackbar.make(findViewById(R.id.account_layout),
+                            "Database error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                }
+                //hide progress  after finishing
+                progressDialog.dismiss();
+            }
+        });
+
+
     }
 
     private void goToMain() {
