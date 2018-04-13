@@ -226,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
     private void goToSettings() {
         //to to settings page
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-        finish();
     }
 
     //go to new post page

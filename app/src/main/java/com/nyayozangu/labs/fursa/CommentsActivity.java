@@ -39,17 +39,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class CommentsActivity extends AppCompatActivity {
 
 
-
     private static final String TAG = "Sean";
     private ImageView sendButton;
     private EditText chatField;
     private CircleImageView currentUserImage;
 
     private RecyclerView commentsRecyclerView;
-    //recycler adapter
     private CommentsRecyclerAdapter commentsRecyclerAdapter;
-
-    //retrieve posts
     private List<Comments> commentsList;
 
     //progress
@@ -61,11 +57,23 @@ public class CommentsActivity extends AppCompatActivity {
 
     private String postId;
 
+    private android.support.v7.widget.Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
 
+        toolbar = findViewById(R.id.commentsToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Comments");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
@@ -283,4 +291,6 @@ public class CommentsActivity extends AppCompatActivity {
         progressDialog.setMessage(message);
         progressDialog.show();
     }
+
+
 }

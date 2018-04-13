@@ -60,6 +60,12 @@ public class SettingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Settings");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
@@ -239,7 +245,6 @@ public class SettingsActivity extends AppCompatActivity {
     //go to account settings
     private void goToAccSet() {
         startActivity(new Intent(SettingsActivity.this, AccountActivity.class));
-        finish();
     }
 
     private void goToMain() {

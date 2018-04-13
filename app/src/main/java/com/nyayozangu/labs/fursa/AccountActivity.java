@@ -88,7 +88,6 @@ public class AccountActivity extends AppCompatActivity {
         userBioField = findViewById(R.id.accSettingAboutEditText);
 
         //user
-        // TODO: 4/6/18 fix the app crash after sgning with google sign in at account setting page
         userId = mAUth.getCurrentUser().getUid();
 
         // Access a Cloud Firestore instance from your Activity
@@ -239,18 +238,12 @@ public class AccountActivity extends AppCompatActivity {
                                     UploadTask uploadTask = mStorageRef.child("profile_images/thumbs")
                                             .child(randomName + ".jpg")
                                             .putBytes(thumbData);
-                                    // TODO: 4/9/18 continue this
                                     uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                         @Override
                                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                                            //get downloadUri for thumbnail
-                                            String downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
-
                                             //update dB with new thumb in task snapshot
                                             updateDb(task, taskSnapshot, userName, userBio);
-
-
 
                                         }
 
@@ -327,37 +320,48 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         //create map for users
-        Map<String, String> usersMap = new HashMap<>();
-        usersMap.put("name", userName);
-        usersMap.put("bio", userBio);
-        usersMap.put("image", downloadUri.toString());
-        usersMap.put("thumb", downloadThumbUri.toString());
-        // TODO: 4/9/18 add thumbnail to user profile
-        /*usersMap.put("thumb", )*/
+        try {
+            Map<String, String> usersMap = new HashMap<>();
+            usersMap.put("name", userName);
+            usersMap.put("bio", userBio);
+            usersMap.put("image", downloadUri.toString());
+            usersMap.put("thumb", downloadThumbUri.toString());
 
-        //store data to db
-        db.collection("Users").document(userId).set(usersMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
 
-                if (task.isSuccessful()) {
-                    //task successful
-                    //go to main activity, go to feed
-                    Log.d(TAG, "Database update successful");
-                    startActivity(new Intent(AccountActivity.this, MainActivity.class));
-                    finish();
+            //store data to db
+            db.collection("Users").document(userId).set(usersMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
 
-                } else {
-                    //task failed
-                    String errorMessage = task.getException().getMessage();
-                    Snackbar.make(findViewById(R.id.account_layout),
-                            "Database error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+                    if (task.isSuccessful()) {
+                        //task successful
+                        //go to main activity, go to feed
+                        Log.d(TAG, "Database update successful");
+                        goToMain();
 
+                    } else {
+                        //task failed
+                        String errorMessage = task.getException().getMessage();
+                        Snackbar.make(findViewById(R.id.account_layout),
+                                "Database error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                    }
+                    //hide progress  after finishing
+                    progressDialog.dismiss();
                 }
-                //hide progress  after finishing
-                progressDialog.dismiss();
-            }
-        });
+            });
+
+        } catch (NullPointerException dbUpdateNull) {
+
+            Log.e(TAG, "updateDb: ", dbUpdateNull);
+            finish();
+
+        }
+    }
+
+    private void goToMain() {
+        startActivity(new Intent(AccountActivity.this, MainActivity.class));
+        finish();
     }
 
     private void pickImage() {

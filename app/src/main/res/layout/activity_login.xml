@@ -26,14 +26,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/login_close_fab"
+            <ImageButton
+                android:id="@+id/login_close_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
                 android:clickable="true"
-                app:backgroundTint="?attr/colorButtonNormal"
+                android:tint="@color/colorAccent"
+                android:tintMode="src_in"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_action_close" />
@@ -96,7 +98,9 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
                 android:text="login"
+                android:textAlignment="viewEnd"
                 app:layout_constraintEnd_toStartOf="@+id/loginRegisterButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/passwordEditText" />
@@ -105,9 +109,11 @@
                 android:id="@+id/loginRegisterButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
                 android:text="@string/login_register_edit_text"
+                android:textColor="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/passwordEditText" />
 
@@ -124,7 +130,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/login_close_fab" />
+                app:layout_constraintTop_toBottomOf="@+id/login_close_button" />
 
             <ProgressBar
                 android:id="@+id/loginProgressBar"
