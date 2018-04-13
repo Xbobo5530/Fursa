@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -48,6 +49,8 @@ public class ViewPostActivity extends AppCompatActivity {
     private TextView titleTextView;
     private TextView eventDateTextView;
     private TextView contactTextView;
+    private TextView userTextView;
+    private TextView catTextView;
 
     private CircleImageView userImage; //image of user who posted post
 
@@ -59,6 +62,8 @@ public class ViewPostActivity extends AppCompatActivity {
     private ConstraintLayout viewPostTimeLayout;
     private ConstraintLayout viewPostEventDateLayout;
     private ConstraintLayout viewPostContactLayout;
+    private ConstraintLayout viewPostUserLayout;
+    private ConstraintLayout viewPostCatLayout;
 
 
     private String contactName;
@@ -105,9 +110,11 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostImage = findViewById(R.id.viewPostImageView);
         likesTextView = findViewById(R.id.viewPostLikesTextView);
         contactTextView = findViewById(R.id.viewPostContactTextView);
+        userTextView = findViewById(R.id.viewPostUserTextView);
+        catTextView = findViewById(R.id.viewPostCatTextView);
 
         closeButton = findViewById(R.id.viewPostCloseImageView);
-        userImage = findViewById(R.id.viewPostUserImage);
+        userImage = findViewById(R.id.viewPostUserImageView);
 
 
         viewPostTitleLayout = findViewById(R.id.viewPostTitleLayout);
@@ -118,6 +125,8 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostTimeLayout = findViewById(R.id.viewPostTimeLayout);
         viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
         viewPostContactLayout = findViewById(R.id.viewPostContactLayout);
+        viewPostUserLayout = findViewById(R.id.viewPostUserLayout);
+        viewPostCatLayout = findViewById(R.id.viewPostCatLayout);
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -222,7 +231,6 @@ public class ViewPostActivity extends AppCompatActivity {
                     }
 
                     //set price
-                    // TODO: 4/9/18 fix when post.getPrice() is null textView remains
                     String price = post.getPrice();
                     if (price != null) {
                         priceTextView.setText(price);
@@ -246,7 +254,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     //set the time
                     long millis = post.getTimestamp().getTime();
                     String dateString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(millis)).toString();
-                    timeTextView.setText("Posted on...\n" + dateString);
+                    timeTextView.setText("Posted on:\n" + dateString);
 
                     //set post image
                     //add the placeholder image
@@ -262,9 +270,117 @@ public class ViewPostActivity extends AppCompatActivity {
                             .into(viewPostImage);
 
 
-                    // TODO: 4/7/18 set categories
+                    //get user id for the post
+                    final String userId = post.getUser_id();
 
-                    //set user image
+                    //check db for user
+                    db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                            //check if user exists
+                            if (documentSnapshot.exists()) {
+
+                                Log.d(TAG, "onEvent: user exists");
+
+                                //user exists
+                                //create object user
+                                /*final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);*
+
+                                //set user image
+                                //get user thumbDownloadUrl
+
+                                /*String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();*/
+
+                                if (documentSnapshot.get("thumb") != null) {
+
+                                    //user has thumb
+                                    String userThumbDwnUrl = documentSnapshot.get("thumb").toString();
+
+                                    Log.d(TAG, "onEvent: user thumb download url is: " + userThumbDwnUrl);
+
+                                    setImage(userThumbDwnUrl);
+                                } else if (documentSnapshot.get("image") != null) {
+
+
+                                    //use has no thumb but has image
+                                    String userImageDwnUrl = documentSnapshot.get("image").toString();
+
+                                    setImage(userImageDwnUrl);
+
+                                } else {
+
+                                    //user has no image or thumb
+                                    userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+
+                                }
+
+
+                                //set username
+                                //get user name
+                                if (documentSnapshot.get("name") != null) {
+
+                                    String username = documentSnapshot.get("name").toString();
+                                    userTextView.setText(getString(R.string.posted_by_text) + "\n" + username);
+                                    Log.d(TAG, "onEvent: username is: " + username);
+
+                                } else {
+
+                                    //use name is null, hide the user layout
+                                    viewPostUserLayout.setVisibility(View.GONE);
+
+                                }
+
+                            } else {
+
+                                //user does not exist
+                                userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+                                Log.d(TAG, "onEvent: user does not exist");
+
+                            }
+
+
+                        }
+                    });
+
+
+                    //get categories
+                    if (documentSnapshot.get("categories") != null) {
+
+                        String catString = "";
+
+                        //post has categories
+                        ArrayList categories = (ArrayList) documentSnapshot.get("categories");
+                        Log.d(TAG, "onEvent: categories are " + categories);
+                        for (int i = 0; i < categories.size(); i++) {
+
+                            if (i == categories.size() - 1) {
+
+                                //is last cat
+                                catString = catString.concat(String.valueOf(categories.get(i)));
+
+                            } else {
+
+                                //is middle item
+                                catString = catString.concat(categories.get(i) + ", ");
+
+                            }
+
+                        }
+
+                        Log.d(TAG, "onEvent: \ncatString is: " + catString);
+                        catTextView.setText("Categories:\n" + catString);
+
+                    } else {
+
+                        //post has not categories
+                        // hide categories layout
+                        viewPostCatLayout.setVisibility(View.GONE);
+
+                    }
+
+
+                    //set user image and usename
                     //query for users and get user details
                     db.collection("Users").document(post.getUser_id()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
@@ -330,7 +446,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     }
                 } else {
                     //hide the likes view
-                    likesTextView.setVisibility(View.GONE);
+                    viewPostLikesLayout.setVisibility(View.GONE);
                     Log.d(TAG, "query returned empty");
                 }
             }
@@ -413,6 +529,16 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setImage(String downloadUrl) {
+        RequestOptions placeHolderOptions = new RequestOptions();
+        placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+
+        Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
+                .load(downloadUrl).into(userImage);
+
+        Log.d(TAG, "onEvent: image set");
     }
 
     private void emailContact(String email) {

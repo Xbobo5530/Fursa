@@ -110,6 +110,7 @@
     <string name="back_tut_text">Back</string>
     <string name="next_tut_text">Next</string>
     <string name="title_activity_view_category">ViewCategoryActivity</string>
+    <string name="posted_by_text">Posted by:</string>
 
 
 </resources>

@@ -38,6 +38,7 @@ public class Posts extends PostId {
         this.thumb_url = thumb_url;
         this.desc = desc;
         this.title = title;
+        this.price = price;
         this.timestamp = timestamp;
         this.event_date = event_date;
         this.location_name = location_name;
@@ -46,6 +47,7 @@ public class Posts extends PostId {
         this.contact_name = contact_name;
         this.contact_phone = contact_phone;
         this.contact_email = contact_email;
+
     }
 
 

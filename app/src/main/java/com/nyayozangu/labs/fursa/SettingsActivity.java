@@ -28,6 +28,8 @@ public class SettingsActivity extends AppCompatActivity {
     // TODO: 4/8/18 handlle contact us
     // TODO: 4/8/18 handle feedback
     // TODO: 4/8/18 handle privacy policy
+    // TODO: 4/13/18 handle back button
+    // TODO: 4/13/18 change back button theme color
 
 
     private CircleImageView userImage;

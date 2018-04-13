@@ -544,6 +544,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                         postMap.put("desc", desc);
                                         postMap.put("user_id", currentUserId);
                                         try {
+
                                             postMap.put("timestamp", FieldValue.serverTimestamp());
                                             postMap.put("location_name", postPlace.getName());
                                             postMap.put("location_address", postPlace.getAddress());
@@ -552,6 +553,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                             postMap.put("contact_phone", contactPhone);
                                             postMap.put("contact_email", contactEmail);
                                             postMap.put("price", price);
+                                            postMap.put("categories", catsStringsArray);
 
                                         } catch (NullPointerException e) {
                                             Log.d(TAG, "Error: " + e.getMessage());
