@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,7 +26,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -38,8 +38,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentsActivity extends AppCompatActivity {
 
-
-    // TODO: 4/10/18 fix the pagenation on comments page
 
 
     private static final String TAG = "Sean";
@@ -62,8 +60,6 @@ public class CommentsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private String postId;
-    private boolean isFirstPageFirstLoad = true;
-    private DocumentSnapshot lastVisibleComment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,15 +83,11 @@ public class CommentsActivity extends AppCompatActivity {
 
         //initiate an arrayList to hold all the posts
         commentsList = new ArrayList<>();
-
-        //initiate the PostsRecyclerAdapter
         commentsRecyclerAdapter = new CommentsRecyclerAdapter(commentsList);
-
-        //set a layout manager for homeFeedView (recycler view)
-        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(CommentsActivity.this));
-
-        //set an adapter for the recycler view
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        commentsRecyclerView.setHasFixedSize(true);
         commentsRecyclerView.setAdapter(commentsRecyclerAdapter);
+
 
         //get the sent intent
         Intent getPostIdIntent = getIntent();
@@ -103,84 +95,37 @@ public class CommentsActivity extends AppCompatActivity {
         Log.d(TAG, "postId is: " + postId);
 
 
-        //listen for scrolling on the homeFeedView
-        commentsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                Boolean reachedTop = !commentsRecyclerView.canScrollVertically(-1);
-
-                if (reachedTop) {
-
-                    Log.d(TAG, "at addOnScrollListener\n reached bottom");
-                    loadMoreComments();
-                }
-            }
-        });
-
-
-        Query firstQuery = db.collection("Posts/" + postId + "/Comments").orderBy("timestamp", Query.Direction.ASCENDING).limit(10);
-
-        firstQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("Posts/" + postId + "/Comments").addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                if (isFirstPageFirstLoad) {
+                //check if query is empty
+                if (!queryDocumentSnapshots.isEmpty()) {
 
-                    //get the last visible post
-                    try {
-                        lastVisibleComment = queryDocumentSnapshots.getDocuments()
-                                .get(queryDocumentSnapshots.size() - 1);
-                    } catch (Exception exception) {
-                        Log.d(TAG, "error: " + exception.getMessage());
-                    }
+                    //create a for loop to check for document changes
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        //check if an item is added
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
 
-                }
-
-
-                //create a for loop to check for document changes
-                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                    //check if an item is added
-                    if (doc.getType() == DocumentChange.Type.ADDED) {
-                        //a new item/ post is added
-
-
-                        //get the post id for likes feature
-                        String commentId = doc.getDocument().getId();
-
-                        //converting database data into objects
-                        //get the newly added post
-                        //pass the postId to the post model class Posts.class
-                        Comments comment = doc.getDocument().toObject(Comments.class).withId(commentId);
-
-                        //add new post to the local postsList
-                        if (isFirstPageFirstLoad) {
-                            //if the first page is loaded the add new post normally
+                            //a new comment is added
+                            //get the comment id for likes feature
+                            String commentId = doc.getDocument().getId();
+                            Comments comment = doc.getDocument().toObject(Comments.class);
                             commentsList.add(comment);
-                        } else {
-                            //add the post at position 0 of the postsList
-                            commentsList.add(0, comment);
+                            Log.d(TAG, "onEvent: commentsList is: " + commentsList.toString());
+                            commentsRecyclerAdapter.notifyDataSetChanged();
 
                         }
-                        Log.d(TAG, "onEvent: commentsList is: " + commentsList.toString());
-                        //notify the recycler adapter of the set change
-                        commentsRecyclerAdapter.notifyDataSetChanged();
                     }
-                }
+                } else {
 
-                //the first page has already loaded
-                isFirstPageFirstLoad = false;
+                    //there are no comments
+                    // TODO: 4/13/18 handle there are no comments
+
+                }
 
             }
         });
-
-
-
-
-
-
-
 
 
 
@@ -200,13 +145,13 @@ public class CommentsActivity extends AppCompatActivity {
                         //user exists
                         try {
 
-                            //in case user has no thumb
-                            String thumbUrl = documentSnapshot.get("thumb").toString();
+                            //set image
+                            String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
                             RequestOptions placeHolderOptions = new RequestOptions();
                             placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
 
                             Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
-                                    .load(thumbUrl).into(currentUserImage);
+                                    .load(userProfileImageDownloadUrl).into(currentUserImage);
 
 
                         } catch (NullPointerException noImageFoundException) {
@@ -246,8 +191,26 @@ public class CommentsActivity extends AppCompatActivity {
                                 commentsMap.put("comment", comment);
                                 commentsMap.put("user_id", userId);
 
+                                //show progress bar
+                                showProgress("Posting comment...");
+
                                 //upload comment to cloud
-                                db.collection("Posts/" + postId + "/Comments").document(randomCommentId).set(commentsMap);
+                                db.collection("Posts/" + postId + "/Comments").document(randomCommentId).set(commentsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+
+                                        //chek if task is successful
+                                        if (!task.isSuccessful()) {
+
+                                            Snackbar.make(findViewById(R.id.comment_activity_layout),
+                                                    "Failed to post comment: " + task.getResult().toString(), Snackbar.LENGTH_SHORT).show();
+
+                                        }
+
+                                    }
+                                });
+
+                                progressDialog.dismiss();
 
                             }
                         });
@@ -262,7 +225,6 @@ public class CommentsActivity extends AppCompatActivity {
         } else {
 
             currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_thumb_person));
-            chatField.setHint("Log in to post a comment, click button to login");
             //clicking send to go to login with postId intent
             sendButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -274,62 +236,6 @@ public class CommentsActivity extends AppCompatActivity {
 
             });
         }
-
-
-    }
-
-    private void loadMoreComments() {
-
-        Query nextQuery = db.collection("Posts/" + postId + "/Comments")
-                .orderBy("timestamp", Query.Direction.ASCENDING)
-                .startAfter(lastVisibleComment)
-                .limit(10);
-
-
-        //get all comments from the database
-        //use snapshotListener to get all the data real time
-        nextQuery.addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
-                try {
-                    //check if there area more posts
-                    if (!queryDocumentSnapshots.isEmpty()) {
-
-
-                        //get the last visible comment
-                        lastVisibleComment = queryDocumentSnapshots.getDocuments()
-                                .get(queryDocumentSnapshots.size() - 1);
-
-
-                        //create a for loop to check for document changes
-                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                            //check if an item is added
-                            if (doc.getType() == DocumentChange.Type.ADDED) {
-                                //a new item/ comment is added
-
-                                //get the post id for likes feature
-                                String commentId = doc.getDocument().getId();
-
-                                //converting database data into objects
-                                //get the newly added comment
-                                //pass the commentId to the comment model class Comment.class
-                                Comments comment = doc.getDocument().toObject(Comments.class).withId(commentId);
-
-                                //add new post to the local postsList
-                                commentsList.add(comment);
-                                //notify the recycler adapter of the set change
-                                commentsRecyclerAdapter.notifyDataSetChanged();
-                            }
-                        }
-
-                    }
-                } catch (NullPointerException nullException) {
-                    //the Query is null
-                    Log.e(TAG, "error: " + nullException.getMessage());
-                }
-            }
-        });
 
 
     }
@@ -367,5 +273,14 @@ public class CommentsActivity extends AppCompatActivity {
         loginIntent.putExtra("postId", postId);
         startActivity(loginIntent);
         finish();
+    }
+
+
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
     }
 }

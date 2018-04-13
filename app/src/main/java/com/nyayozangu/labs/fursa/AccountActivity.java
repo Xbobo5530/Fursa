@@ -309,12 +309,14 @@ public class AccountActivity extends AppCompatActivity {
         //upload successful
         Log.d(TAG, "upload successful");
 
-        //declare downladUri
+        //declare downloadUri
         Uri downloadUri;
         Uri downloadThumbUri;
 
+
+        // TODO: 4/13/18 check crash bug during login without changin anything
         //check if the task is null
-        if (task != null && uploadTaskSnapshot != null) {
+        if (uploadTaskSnapshot != null) {
             //new image uri
             downloadUri = task.getResult().getDownloadUrl();
             downloadThumbUri = uploadTaskSnapshot.getDownloadUrl();

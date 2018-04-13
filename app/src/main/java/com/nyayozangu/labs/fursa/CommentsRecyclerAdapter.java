@@ -12,7 +12,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.List;
 
@@ -41,6 +44,7 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
 
         //store received posts
         this.commentsList = commentsList;
+
     }
 
 
@@ -55,40 +59,58 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
 
-
         //initialize firebase storage
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
 
         return new CommentsRecyclerAdapter.ViewHolder(view);
+
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CommentsRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final CommentsRecyclerAdapter.ViewHolder holder, int position) {
         Log.d(TAG, "at onBindViewHolder");
-
-        /*holder.setIsRecyclable(false);*/
-
-        /*//get title from holder
-        String titleData = postsList.get(position).getTitle();
-        //set the post title
-        holder.setTitle(titleData);*/
 
         // TODO: 4/9/18 set items
 
+        holder.setIsRecyclable(false);
+
         //set comment
         String comment = commentsList.get(position).getComment();
+        Log.d(TAG, "onBindViewHolder: \ncomment is: " + comment);
         holder.setComment(comment);
 
-        // TODO: 4/10/18 fix the null on setting time
-        /*try {
-            long millis = commentsList.get(position).getTimestamp().getTime();
-            //convert millis to date time format
-            String timeString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(millis)).toString();
-            holder.setTime(timeString);
-        } catch (Exception e) {
-            Log.d(TAG, "onBindViewHolder: error:" + e.getMessage());
-        }*/
+        //set username
+        String userId = commentsList.get(position).getUser_id();
+        db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                //check if user exists
+                if (documentSnapshot.exists()) {
+
+                    //user exists
+                    String username = documentSnapshot.get("name").toString();
+
+                    //set username to usename textview
+                    holder.setUsername(username);
+
+                    //set user image
+
+                    String userImageDownloadUrl = documentSnapshot.get("image").toString();
+                    holder.setImage(userImageDownloadUrl);
+
+
+                } else {
+
+                    //user does not exist
+
+
+                }
+            }
+        });
+
+
 
         //set image
         // TODO: 4/10/18 set image
@@ -109,7 +131,7 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
         //initiate items
         private CircleImageView userImageView;
         private TextView commentTextView;
-        private TextView timeTextView;
+        private TextView usernameTextView;
 
 
         public ViewHolder(View itemView) {
@@ -119,15 +141,8 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
 
             userImageView = mView.findViewById(R.id.commentUserImage);
             commentTextView = mView.findViewById(R.id.commentTextView);
-            timeTextView = mView.findViewById(R.id.commentTimeTextView);
+            usernameTextView = mView.findViewById(R.id.commentUsernameTextView);
 
-
-        }
-
-        public void setComment(String comment) {
-
-            commentTextView = mView.findViewById(R.id.commentTimeTextView);
-            commentTextView.setText(comment);
 
         }
 
@@ -142,12 +157,19 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(imageUrl).into(userImageView);
         }
 
-        public void setTime(String time) {
+        public void setUsername(String username) {
 
             // TODO: 4/4/18 show different time status  like one minute ago ++
 
-            timeTextView = mView.findViewById(R.id.commentTimeTextView);
-            timeTextView.setText(time);
+            usernameTextView = mView.findViewById(R.id.commentUsernameTextView);
+            usernameTextView.setText(username);
+
+        }
+
+        public void setComment(String comment) {
+
+            commentTextView = mView.findViewById(R.id.commentTextView);
+            commentTextView.setText(comment);
 
         }
 

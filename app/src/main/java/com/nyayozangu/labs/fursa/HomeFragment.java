@@ -49,7 +49,6 @@ public class HomeFragment extends Fragment {
     private Boolean isFirstPageFirstLoad = true;
 
 
-
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -129,7 +128,6 @@ public class HomeFragment extends Fragment {
                     //check if an item is added
                     if (doc.getType() == DocumentChange.Type.ADDED) {
                         //a new item/ post is added
-
 
                         //get the post id for likes feature
                         String postId = doc.getDocument().getId();
