@@ -30,14 +30,13 @@ public class AlertFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_alert, container, false);
 
         //initiate
-        // TODO: 4/6/18 fix login button on alert screen
-        /*alertLoginButton = container.findViewById(R.id.alrerLoginButton);
+        alertLoginButton = view.findViewById(R.id.alrerLoginButton);
         alertLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 goToLogin();
             }
-        });*/
+        });
 
         return view;
     }

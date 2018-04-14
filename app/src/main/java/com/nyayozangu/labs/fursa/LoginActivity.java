@@ -51,6 +51,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     // TODO: 4/5/18  Must initialize Twitter before using getInstance()
     // TODO: 4/5/18 when user has types email and pass, then clicks register, send typed details to register page
+    // TODO: 4/14/18 connect social accs to single user
 
 
     private static final String TAG = "Sean";
