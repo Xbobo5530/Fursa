@@ -3,11 +3,17 @@ package com.nyayozangu.labs.fursa;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
+import android.widget.SimpleAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -17,7 +23,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
 
     private static final String TAG = "Sean";
     //cat texts Array
-    /*String[] catTitle = new String[]{
+    String[] catTitle = new String[]{
 
             "Featured",
             "Popular",
@@ -44,9 +50,10 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
             R.drawable.ic_action_time,
             R.drawable.ic_action_contact
 
-    };*/
+    };
 
 
+    /*
     private ConstraintLayout popular;
     private ConstraintLayout featured;
     private ConstraintLayout comingup;
@@ -55,7 +62,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
     private ConstraintLayout jobs;
     private ConstraintLayout buysell;
     private ConstraintLayout places;
-    private ConstraintLayout events;
+    private ConstraintLayout events;*/
 
 
     public CategoriesFragment() {
@@ -71,7 +78,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
 
         // TODO: 4/12/18 handle the adapter on the categories
 
-        /*//create a simple adapter
+        //create a simple adapter
 
 
         List<HashMap<String, String>> aList = new ArrayList<>();
@@ -84,13 +91,15 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         }
 
         String[] from = {"listView_image", "listView_title"};
-        int[] to = {R.id.catListItemImageVIew, R.id.catListItemTextView};
+        int[] to = {R.id.catGridItemImageView, R.id.catGridItemTextView};
 
-        SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.cat_list_item, from, to);
-        ListView androidListView = container.findViewById(R.id.catListView);
-//        androidListView.setAdapter(simpleAdapter);*/
+        SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.cat_grid_item_layout, from, to);
+        GridView androidListView = view.findViewById(R.id.catsGridView);
+        androidListView.setAdapter(simpleAdapter);
 
 
+
+        /*
         //initiate items
         popular = view.findViewById(R.id.catPopularLayout);
         featured = view.findViewById(R.id.catFeaturedLayout);
@@ -113,9 +122,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         buysell.setOnClickListener(this);
         places.setOnClickListener(this);
         events.setOnClickListener(this);
-
-
-
+*/
         return view;
 
     }
@@ -131,13 +138,50 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
 
             case R.id.catBusinessLayout:
                 //open the cat view
-
-                Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);
-                openCatIntent.putExtra("category", "business");
-                startActivity(openCatIntent);
+                openCat("business");
                 break;
 
+            case R.id.catPopularLayout:
+                openCat("popular");
+                break;
+
+            case R.id.catFeaturedLayout:
+                openCat("featured");
+                break;
+
+            case R.id.catComingupLayout:
+                openCat("comingup");
+                break;
+
+            case R.id.catEducationLayout:
+                openCat("education");
+                break;
+
+            case R.id.catBuySellLayout:
+                openCat("buysell");
+                break;
+
+            case R.id.catEventsLayout:
+                openCat("events");
+                break;
+
+            case R.id.catJobsLayout:
+                openCat("jobs");
+                break;
+
+            case R.id.catPlacesLayout:
+                openCat("places");
+                break;
+
+            default:
+                Log.d(TAG, "onClick: at default");
         }
 
+    }
+
+    private void openCat(String catValue) {
+        Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);
+        openCatIntent.putExtra("category", catValue);
+        startActivity(openCatIntent);
     }
 }

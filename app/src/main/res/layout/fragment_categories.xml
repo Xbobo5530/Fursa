@@ -6,22 +6,32 @@
     tools:context="com.nyayozangu.labs.fursa.CategoriesFragment">
 
 
-    <!--<ListView
+    <GridView
+        android:id="@+id/catsGridView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:horizontalSpacing="10dp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dp" />
+
+
+    <ListView
         android:id="@+id/catListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:numColumns="auto_fit"
-        android:visibility="gone" >
+        android:visibility="gone">
 
 
     </ListView>
 
 
--->
-
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="gone">
 
 
         <LinearLayout
