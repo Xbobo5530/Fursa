@@ -10,7 +10,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
@@ -40,7 +39,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private ImageView viewPostImage;
     private FloatingActionButton viewPostActionsFAB;
-    private ImageView closeButton;
 
     private TextView descTextView;
     private TextView timeTextView;
@@ -71,6 +69,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private String contactPhone;
     private String contactEmail;
 
+    private android.support.v7.widget.Toolbar toolbar;
 
     //progress
     private ProgressDialog progressDialog;
@@ -95,8 +94,16 @@ public class ViewPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_post);
 
-        final Toolbar toolbar = findViewById(R.id.viewCatToolbar);
+        toolbar = findViewById(R.id.viewPostToolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Fursa");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
@@ -117,7 +124,6 @@ public class ViewPostActivity extends AppCompatActivity {
         contactTextView = findViewById(R.id.viewPostContactTextView);
 
 
-        closeButton = findViewById(R.id.viewPostCloseImageView);
         userImage = findViewById(R.id.viewPostUserImageView);
 
 
@@ -554,16 +560,6 @@ public class ViewPostActivity extends AppCompatActivity {
                         })
                         .show();
 
-            }
-        });
-
-
-        //close post button
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //go back
-                finish();
             }
         });
 

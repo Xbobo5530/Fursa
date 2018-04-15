@@ -75,8 +75,8 @@ public class CreatePostActivity extends AppCompatActivity {
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     //for file compression
     Bitmap compressedImageFile;
+    private android.support.v7.widget.Toolbar toolbar;
     private ImageView createPostImageView;
-    private ImageView closeImageButton;
     private FloatingActionButton editImageFAB;
     private Button submitButton;
     private ProgressDialog progressDialog;
@@ -118,6 +118,18 @@ public class CreatePostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_post);
 
+        toolbar = findViewById(R.id.createPostToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Create Post");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+
         //initiate firebase
         mAuth = FirebaseAuth.getInstance();
         // Access a Cloud Firestore instance from your Activity
@@ -127,7 +139,6 @@ public class CreatePostActivity extends AppCompatActivity {
         currentUserId = mAuth.getCurrentUser().getUid();
 
         createPostImageView = findViewById(R.id.createPostImageView);
-        closeImageButton = findViewById(R.id.createPostCloseImageView);
         submitButton = findViewById(R.id.createPostSubmitButton);
         editImageFAB = findViewById(R.id.createPostEditImageFab);
         postTitleEditText = findViewById(R.id.createPostTileEditText);
@@ -453,18 +464,6 @@ public class CreatePostActivity extends AppCompatActivity {
             }
         });
 
-        //handle close button
-        closeImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //go to main
-                goToMain();
-
-            }
-        });
-
-
-
 
         //on submit
         // TODO: 4/8/18 check if can connect to internet
@@ -626,9 +625,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         Log.d(TAG, "Fields are empty");
 
                         showSnack(R.id.createPostActivityLayout, "Enter your profile data to proceed");
-
-                        //hide progress bar
-                        progressDialog.dismiss();
 
                     }
                 } else {
