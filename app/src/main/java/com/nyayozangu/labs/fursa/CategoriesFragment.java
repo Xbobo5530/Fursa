@@ -24,47 +24,6 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
 
     private static final String TAG = "Sean";
     //cat texts Array
-    String[] catTitle = new String[]{
-
-            "Featured",
-            "Popular",
-            "UpComing",
-            "Events",
-            "Business",
-            "Buy and sell",
-            "Education",
-            "Jobs",
-            "Queries"
-
-    };
-
-    //categories images Array
-    int catImages[] = {
-
-            R.drawable.ic_action_image_placeholder,
-            R.drawable.ic_thumb_person,
-            R.drawable.ic_action_like_unclicked,
-            R.drawable.ic_action_bookmark,
-            R.drawable.ic_action_call,
-            R.drawable.ic_action_email,
-            R.drawable.ic_action_location,
-            R.drawable.ic_action_time,
-            R.drawable.ic_action_contact
-
-    };
-
-
-    /*
-    private ConstraintLayout popular;
-    private ConstraintLayout featured;
-    private ConstraintLayout comingup;
-    private ConstraintLayout business;
-    private ConstraintLayout education;
-    private ConstraintLayout jobs;
-    private ConstraintLayout buysell;
-    private ConstraintLayout places;
-    private ConstraintLayout events;*/
-
 
     public CategoriesFragment() {
         // Required empty public constructor
@@ -77,11 +36,38 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
 
-        // TODO: 4/12/18 handle the adapter on the categories
+
+        String[] catTitle = new String[]{
+
+                getResources().getString(R.string.cat_featured),
+                getResources().getString(R.string.cat_popular),
+                getResources().getString(R.string.cat_upcoming),
+                getResources().getString(R.string.cat_events),
+                getResources().getString(R.string.cat_business),
+                getResources().getString(R.string.cat_buysell),
+                getResources().getString(R.string.cat_education),
+                getResources().getString(R.string.cat_jobs),
+                getResources().getString(R.string.cat_queries)
+
+        };
+
+        //categories images Array
+        int catImages[] = {
+
+                R.drawable.ic_action_image_placeholder,
+                R.drawable.ic_thumb_person,
+                R.drawable.ic_action_like_unclicked,
+                R.drawable.ic_action_bookmark,
+                R.drawable.ic_action_call,
+                R.drawable.ic_action_email,
+                R.drawable.ic_action_location,
+                R.drawable.ic_action_time,
+                R.drawable.ic_action_contact
+
+        };
+
 
         //create a simple adapter
-
-
         List<HashMap<String, String>> aList = new ArrayList<>();
 
         for (int i = 0; i < catTitle.length; i++) {
@@ -153,31 +139,6 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         });
 
 
-
-        /*
-        //initiate items
-        popular = view.findViewById(R.id.catPopularLayout);
-        featured = view.findViewById(R.id.catFeaturedLayout);
-        comingup = view.findViewById(R.id.catComingupLayout);
-        business = view.findViewById(R.id.catBusinessLayout);
-        education = view.findViewById(R.id.catEducationLayout);
-        jobs = view.findViewById(R.id.catJobsLayout);
-        buysell = view.findViewById(R.id.catBuySellLayout);
-        places = view.findViewById(R.id.catPlacesLayout);
-        events = view.findViewById(R.id.catEventsLayout);
-
-
-        popular.setOnClickListener(this);
-        featured.setOnClickListener(this);
-        comingup.setOnClickListener(this);
-        business.setOnClickListener(this);
-        education.setOnClickListener(this);
-        education.setOnClickListener(this);
-        jobs.setOnClickListener(this);
-        buysell.setOnClickListener(this);
-        places.setOnClickListener(this);
-        events.setOnClickListener(this);
-*/
         return view;
 
     }
@@ -239,4 +200,6 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         openCatIntent.putExtra("category", catValue);
         startActivity(openCatIntent);
     }
+
+
 }

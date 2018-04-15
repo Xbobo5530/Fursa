@@ -1,9 +1,7 @@
 package com.nyayozangu.labs.fursa;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -20,15 +18,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.sql.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -210,6 +205,7 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
 
 
 
+        /*
         //likes feature
         //set an a click listener to the like button
         holder.savedPostLikeButton.setOnClickListener(new View.OnClickListener() {
@@ -237,9 +233,10 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
                 });
 
             }
-        });
+        });*/
 
 
+        /*
         //set a click listener to the save button
         holder.savedPostSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -264,9 +261,10 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
                     }
                 });
             }
-        });
+        });*/
 
-        //share post
+
+        /*//share post
         //set onclick listener to the share button
         holder.shareSavedPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -282,7 +280,7 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
                 context.startActivity(Intent.createChooser(shareIntent, "Share this post with"));
 
             }
-        });
+        });*/
     }
 
 

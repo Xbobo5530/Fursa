@@ -315,8 +315,6 @@ public class AccountActivity extends AppCompatActivity {
         Uri downloadUri;
         Uri downloadThumbUri;
 
-
-        // TODO: 4/13/18 check crash bug during login without changin anything
         //check if the task is null
         if (uploadTaskSnapshot != null) {
             //new image uri

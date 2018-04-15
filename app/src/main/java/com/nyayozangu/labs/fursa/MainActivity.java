@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         if (!isConnected()) {
 
             //notify user is not connected
-            showSnack(R.id.main_activity_layout, "Failed to connect to the internet");
+            showSnack(R.id.main_activity_layout, getString(R.string.connection_error_message));
 
         }
 
@@ -269,7 +269,6 @@ public class MainActivity extends AppCompatActivity {
         showSnack(R.id.main_activity_layout, logoutMessage);
     }
 
-    // TODO: 4/13/18 replace Snackbard with this
     private void showSnack(int id, String message) {
         Snackbar.make(findViewById(id),
                 message, Snackbar.LENGTH_SHORT).show();

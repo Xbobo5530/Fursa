@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -77,6 +76,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
     //save categories to list
     private ArrayList<String> catArray;
+    private ArrayList catKeys;
 
 
     // TODO: 4/7/18 handle populating data from postId
@@ -144,6 +144,7 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostCatLayout = findViewById(R.id.viewPostCatLayout);
         catTextView = findViewById(R.id.viewPostCatTextView);
         catArray = new ArrayList<>();
+        catKeys = new ArrayList();
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -301,14 +302,6 @@ public class ViewPostActivity extends AppCompatActivity {
                                 Log.d(TAG, "onEvent: user exists");
 
                                 //user exists
-                                //create object user
-                                /*final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);*
-
-                                //set user image
-                                //get user thumbDownloadUrl
-
-                                /*String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();*/
-
                                 if (documentSnapshot.get("thumb") != null) {
 
                                     //user has thumb
@@ -367,7 +360,18 @@ public class ViewPostActivity extends AppCompatActivity {
                         String catString = "";
 
                         //post has categories
-                        ArrayList categories = (ArrayList) documentSnapshot.get("categories");
+                        catKeys = (ArrayList) documentSnapshot.get("categories");
+
+                        ArrayList<String> categories = new ArrayList<>();
+                        for (int i = 0; i < catKeys.size(); i++) {
+
+                            //go through catKeys and get values
+                            String catValue = getCatValue(catKeys.get(i).toString());
+                            categories.add(catValue);
+
+                        }
+
+
                         Log.d(TAG, "onEvent: categories are " + categories);
                         for (int i = 0; i < categories.size(); i++) {
 
@@ -375,11 +379,13 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                 //is last cat
                                 catString = catString.concat(String.valueOf(categories.get(i)));
+                                Log.d(TAG, "onEvent: cat size is last");
 
                             } else {
 
                                 //is middle item
                                 catString = catString.concat(categories.get(i) + ", ");
+                                Log.d(TAG, "onEvent: cat is middle");
 
                             }
 
@@ -529,7 +535,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
         //set onclick listener for category layout
-        // TODO: 4/13/18 set on click listener for catogory layout
         viewPostCatLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -544,17 +549,15 @@ public class ViewPostActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
 
                                 //set click actions
-                                // TODO: 4/13/18 when a cat is clicked on alert dialog open the cat view
-
                                 //open view cat activity
                                 Intent catIntent = new Intent(ViewPostActivity.this, ViewCategoryActivity.class);
-                                catIntent.putExtra("category", catArray.get(which));
+                                catIntent.putExtra("category", catKeys.get(which).toString());
                                 startActivity(catIntent);
 
 
-                                Log.d(TAG, "onClick: \nuser selected cat is: " + catArray.get(which));
+                                Log.d(TAG, "onClick: \nuser selected cat is: " + catKeys.get(which));
 
-                                Toast.makeText(ViewPostActivity.this, "" + which, Toast.LENGTH_SHORT).show();
+
 
                             }
                         })
@@ -577,6 +580,57 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private String getCatValue(String catValue) {
+
+        /*
+            "Featured",
+            "Popular",
+            "UpComing",
+            "Events",
+            "Business",
+            "Buy and sell",
+            "Education",
+            "Jobs",
+            "Queries"*/
+
+
+        //return value for key
+        switch (catValue) {
+
+            case "featured":
+                return getString(R.string.cat_featured);
+
+            case "popular":
+                return getString(R.string.cat_popular);
+
+            case "upcoming":
+                return getString(R.string.cat_upcoming);
+
+            case "events":
+                return getString(R.string.cat_events);
+
+            case "business":
+                return getString(R.string.cat_business);
+
+            case "buysell":
+                return getString(R.string.cat_buysell);
+
+            case "education":
+                return getString(R.string.cat_education);
+
+            case "jobs":
+                return getString(R.string.cat_jobs);
+
+            case "queries":
+                return getString(R.string.cat_queries);
+
+            default:
+                Log.d(TAG, "getCatValue: default");
+                return "";
+
+        }
     }
 
     private void setImage(String downloadUrl) {

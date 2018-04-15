@@ -112,6 +112,19 @@
     <string name="title_activity_view_category">ViewCategoryActivity</string>
     <string name="posted_by_text">Posted by:</string>
     <string name="search_hint">Search</string>
+    <string name="cat_featured">Featured</string>
+    <string name="cat_popular">Popular</string>
+    <string name="cat_upcoming">Up Coming</string>
+    <string name="cat_events">Events</string>
+    <string name="cat_business">Business</string>
+    <string name="cat_buysell">Buy and sell</string>
+    <string name="cat_education">Education</string>
+    <string name="cat_jobs">Jobs</string>
+    <string name="cat_queries">Queries</string>
+    <string name="connection_error_message">Failed to connect to the internet</string>
+    <string name="log_to_subscribe_text">Log in to subscribe</string>
+    <string name="subscribe_to_text">Subscribed to</string>
+    <string name="sucscribe_failed_text">Failed to subscribe</string>
 
 
 </resources>

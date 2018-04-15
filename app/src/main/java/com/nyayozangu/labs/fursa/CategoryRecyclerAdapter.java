@@ -37,12 +37,11 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by Sean on 4/4/18.
- * <p>
- * Adapter class for the Recycler view
+ * Created by Sean on 4/15/18.
+ * handle categories
  */
 
-public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
+public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecyclerAdapter.ViewHolder> {
 
 
     private static final String TAG = "Sean";
@@ -56,15 +55,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private FirebaseFirestore db;
 
     //empty constructor for receiving the posts
-    public PostsRecyclerAdapter(List<Posts> postsList) {
+    public CategoryRecyclerAdapter(List<Posts> postsList) {
 
         //store received posts
         this.postsList = postsList;
     }
 
+
     @NonNull
     @Override
-    public PostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CategoryRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_item, parent, false);
@@ -73,17 +73,18 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
 
-
         //initialize firebase storage
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
 
-        return new ViewHolder(view);
+        return new CategoryRecyclerAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder, int position) {
-        Log.d(TAG, "at onBindViewHolder");
+    public void onBindViewHolder(@NonNull final CategoryRecyclerAdapter.ViewHolder holder, int position) {
+
+        // TODO: 4/15/18 filter posts
+
 
         holder.setIsRecyclable(false);
 
@@ -225,7 +226,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             });
 
         }
-
 
 
         //likes feature
@@ -386,7 +386,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     }
 
-    private void showSnack(@NonNull ViewHolder holder, String message) {
+
+    private void showSnack(@NonNull CategoryRecyclerAdapter.ViewHolder holder, String message) {
         Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                 message, Snackbar.LENGTH_LONG).show();
     }
@@ -442,17 +443,17 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .show();
     }
 
+
     @Override
     public int getItemCount() {
         //the number of posts
         return postsList.size();
     }
 
-    //implement the viewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         //initiate view
-        View mView;
+        private View mView;
 
         //initiate elements in the view holder
         private TextView titleTextView;
@@ -479,9 +480,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //location
         private TextView postLocationTextView;
 
+
         public ViewHolder(View itemView) {
             super(itemView);
-            //use mView to populate other methods
+
             mView = itemView;
 
             postLikeButton = mView.findViewById(R.id.postLikeImageView);
@@ -496,7 +498,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postCommentButton = mView.findViewById(R.id.postCommetnImageView);
 
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
-
         }
 
         //retrieve the title
@@ -587,5 +588,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
         }
+
     }
+
+
 }

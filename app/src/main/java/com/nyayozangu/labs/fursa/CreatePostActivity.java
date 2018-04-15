@@ -72,6 +72,19 @@ public class CreatePostActivity extends AppCompatActivity {
             "Queries"
 
     };
+
+    private final String[] catKeys = new String[]{
+
+            "business",
+            "events",
+            "buysell",
+            "education",
+            "jobs",
+            "places",
+            "queries"
+
+    };
+
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     //for file compression
     Bitmap compressedImageFile;
@@ -233,6 +246,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 } else {
 
+
+                                    // TODO: 4/15/18 handle the empty fields with multiple ifs
                                     //at least one field is filled
                                     contactTextView.setText("Name: " + contactName +
                                             "\nPhone: " + contactPhone +
@@ -326,7 +341,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                     if (!catsStringsArray.contains(categories[mSelectedCats.get(i)])) {
 
                                         //only add items to the array if they are not already there
-                                        catsStringsArray.add(categories[mSelectedCats.get(i)]);
+                                        catsStringsArray.add(catKeys[mSelectedCats.get(i)]);
                                         Log.d(TAG, "onClick: \n catsStringArray is: " + catsStringsArray);
 
                                     }
@@ -482,6 +497,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
                     //check if description field is empty
+                    // TODO: 4/15/18 make it so that posts dont need to have images to be posted, use default image for posts
                     if (!TextUtils.isEmpty(desc) && postImageUri != null && !TextUtils.isEmpty(title)) {
                         //description is not empty and image is not null
                         showProgress("Posting...");
@@ -554,6 +570,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                                 postMap.put("contact_email", contactEmail);
                                                 postMap.put("price", price);
                                                 postMap.put("categories", catsStringsArray);
+                                                Log.d(TAG, "onSuccess: uploading, catStrinArraty is: " + catsStringsArray);
 
                                             } catch (NullPointerException e) {
                                                 Log.d(TAG, "Error: " + e.getMessage());
@@ -586,6 +603,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                                 }
                                             });
+
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -624,7 +642,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         //upload failed
                         Log.d(TAG, "Fields are empty");
 
-                        showSnack(R.id.createPostActivityLayout, "Enter your profile data to proceed");
+                        showSnack(R.id.createPostActivityLayout, "Enter your post details to proceed");
 
                     }
                 } else {
