@@ -134,7 +134,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     //task is successful
                     Log.d(TAG, "task is successful");
                     //get userName
-                    // TODO: 4/6/18 fix when username is not provided
                     try {
                         String userName = task.getResult().get("name").toString();
                         Log.d(TAG, "userName is: " + userName);
@@ -152,7 +151,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     Log.d(TAG, "task not successful");
                     String errorMessage = task.getException().getMessage();
                     Log.d(TAG, "Failed to retrieve userData: " + errorMessage);
-                    // TODO: 4/4/18 notify users on errors(maybe use Snackbars)
                     // TODO: 4/4/18 load default images
                 }
             }
@@ -235,6 +233,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             @Override
             public void onClick(View v) {
 
+                //disable button
+                holder.postLikeButton.setClickable(false);
+
                 if (isConnected()) {
 
                     if (isLoggedIn()) {
@@ -286,6 +287,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                 }
 
+                //enable button
+                holder.postLikeButton.setClickable(true);
+
             }
         });
 
@@ -294,6 +298,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //disable button
+                holder.postSaveButton.setClickable(false);
 
                 //check if user is connected to the internet
                 if (isConnected()) {
@@ -340,6 +347,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
                 }
+
+                //enable button
+                holder.postSaveButton.setClickable(true);
+
             }
         });
 
