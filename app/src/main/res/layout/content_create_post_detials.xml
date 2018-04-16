@@ -102,6 +102,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:autoLink="email|phone"
                 android:hint="Enter contact details (optional)"
                 android:lineSpacingExtra="8sp"
                 app:layout_constraintBottom_toBottomOf="parent"

@@ -96,25 +96,26 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
                 android:text="login"
                 android:textAlignment="viewEnd"
-                app:layout_constraintEnd_toStartOf="@+id/loginRegisterButton"
-                app:layout_constraintStart_toStartOf="parent"
+                android:textColor="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/passwordEditText" />
 
             <Button
                 android:id="@+id/loginRegisterButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
                 android:text="@string/login_register_edit_text"
-                android:textColor="@color/colorAccent"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:textAlignment="viewEnd"
+                app:layout_constraintEnd_toStartOf="@+id/loginButton"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/passwordEditText" />
 
             <EditText

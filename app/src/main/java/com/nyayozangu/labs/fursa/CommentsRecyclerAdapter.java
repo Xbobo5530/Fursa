@@ -71,8 +71,6 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
     public void onBindViewHolder(@NonNull final CommentsRecyclerAdapter.ViewHolder holder, int position) {
         Log.d(TAG, "at onBindViewHolder");
 
-        // TODO: 4/9/18 set items
-
         holder.setIsRecyclable(false);
 
         //set comment
@@ -89,23 +87,32 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
                 //check if user exists
                 if (documentSnapshot.exists()) {
 
-                    // TODO: 4/16/18 handle crash when user details are incomplete or when user doesn't exist
-                    //user exists
-                    String username = documentSnapshot.get("name").toString();
+                    // TODO: 4/16/18 test when user is not available
 
-                    //set username to username textView
-                    holder.setUsername(username);
-
-                    //set user image
 
                     try {
-                        String userImageDownloadUrl = documentSnapshot.get("image").toString();
-                        holder.setImage(userImageDownloadUrl);
-                    } catch (NullPointerException userImageException) {
+                        //user exists
+                        String username = documentSnapshot.get("name").toString();
 
-                        //user image is null
-                        Log.e(TAG, "onEvent: ", userImageException);
+                        //set username to username textView
+                        holder.setUsername(username);
 
+                        //set user image
+
+                        try {
+                            String userImageDownloadUrl = documentSnapshot.get("image").toString();
+                            holder.setImage(userImageDownloadUrl);
+                        } catch (NullPointerException userImageException) {
+
+                            //user image is null
+                            Log.e(TAG, "onEvent: ", userImageException);
+
+
+                        }
+
+                    } catch (NullPointerException userInfoErrorException) {
+
+                        Log.e(TAG, "onEvent: \nuserInfoErrorException: " + userInfoErrorException.getMessage(), userInfoErrorException);
 
                     }
 
@@ -113,17 +120,12 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
                 } else {
 
                     //user does not exist
+                    Log.d(TAG, "onEvent: user does not exist");
 
 
                 }
             }
         });
-
-
-
-        //set image
-        // TODO: 4/10/18 set image
-
 
     }
 
@@ -169,8 +171,6 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
         }
 
         public void setUsername(String username) {
-
-            // TODO: 4/4/18 show different time status  like one minute ago ++
 
             usernameTextView = mView.findViewById(R.id.commentUsernameTextView);
             usernameTextView.setText(username);

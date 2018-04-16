@@ -408,7 +408,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     }
 
 
-                    //set user image and usename
+                    //set user image and username
                     //query for users and get user details
                     db.collection("Users").document(post.getUser_id()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
@@ -539,7 +539,6 @@ public class ViewPostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
                 //open alert dialog
                 AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
                 catDialogBuilder.setTitle("Categories")
@@ -553,7 +552,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                 Intent catIntent = new Intent(ViewPostActivity.this, ViewCategoryActivity.class);
                                 catIntent.putExtra("category", catKeys.get(which).toString());
                                 startActivity(catIntent);
-
+                                finish();
 
                                 Log.d(TAG, "onClick: \nuser selected cat is: " + catKeys.get(which));
 

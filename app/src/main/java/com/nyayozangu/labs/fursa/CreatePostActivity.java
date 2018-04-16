@@ -246,12 +246,80 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 } else {
 
-
-                                    // TODO: 4/15/18 handle the empty fields with multiple ifs
                                     //at least one field is filled
-                                    contactTextView.setText("Name: " + contactName +
-                                            "\nPhone: " + contactPhone +
-                                            "\nEmail: " + contactEmail);
+                                    if (!contactName.isEmpty()) {
+
+                                        //name is not empty
+                                        if (!contactPhone.isEmpty()) {
+
+                                            //name and phone are not empty
+                                            if (!contactEmail.isEmpty()) {
+
+                                                //has name, phone and email
+                                                contactTextView.setText("Name: " + contactName +
+                                                        "\nPhone: " + contactPhone +
+                                                        "\nEmail: " + contactEmail);
+
+                                            }
+
+                                        } else {
+
+                                            //has name but phone is empty
+                                            if (!contactEmail.isEmpty()) {
+
+                                                //has name and email, but phone is empty
+                                                contactTextView.setText("Name: " + contactName +
+                                                        "\nEmail: " + contactEmail);
+
+                                            } else {
+
+                                                //has name, but phone, email is empty
+                                                //hide contact field
+                                                contactField.setVisibility(View.GONE);
+
+                                            }
+
+                                        }
+
+                                    } else {
+
+                                        //name is empty
+                                        if (!contactPhone.isEmpty()) {
+
+                                            //has phone but name is empty
+                                            if (!contactEmail.isEmpty()) {
+
+                                                //has email, phone but name is empty
+                                                contactTextView.setText(
+                                                        "\nPhone: " + contactPhone +
+                                                                "\nEmail: " + contactEmail);
+
+                                            } else {
+
+                                                //name, phone, and email are all empty
+                                                contactField.setVisibility(View.GONE);
+
+                                            }
+
+                                        } else {
+
+                                            //name and phone are empty
+                                            if (!contactEmail.isEmpty()) {
+
+                                                //has phone and email, but name  and phone are empty
+                                                contactTextView.setText("\nEmail: " + contactEmail);
+
+                                            } else {
+
+                                                //phone, email and name are all empty
+                                                //hide contact field
+                                                contactField.setVisibility(View.GONE);
+
+                                            }
+
+                                        }
+
+                                    }
                                 }
 
                                 Log.d(TAG, "at positive button clicked: \n contact name: " + contactName +
@@ -481,7 +549,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
         //on submit
-        // TODO: 4/8/18 check if can connect to internet
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -715,7 +782,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
-                // TODO: Handle the error.
+                // TODO: Handle the error when the creating post process is incomplete. the on desctroy error
                 Log.i(TAG, status.getStatusMessage());
 
             } else if (resultCode == RESULT_CANCELED) {

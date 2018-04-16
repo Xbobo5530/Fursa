@@ -76,13 +76,32 @@
                 app:layout_constraintStart_toEndOf="@+id/currentUserImageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
             <SearchView
                 android:id="@+id/mainSearchView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:background="@color/colorWhite"
+                android:goIcon="@drawable/ic_action_next"
+                android:gravity="end"
+                android:orientation="vertical"
+                android:searchIcon="@drawable/places_ic_search"
+                android:voiceIcon="@drawable/ic_action_voice_search"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
         </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>

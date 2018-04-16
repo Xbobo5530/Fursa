@@ -130,6 +130,7 @@ public class CommentsActivity extends AppCompatActivity {
                     //there are no comments
                     // TODO: 4/13/18 handle there are no comments
 
+
                 }
 
             }

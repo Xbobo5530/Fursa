@@ -1,5 +1,7 @@
 package com.nyayozangu.labs.fursa;
 
+import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,10 +17,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -46,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
     //users
     private String currentUserId;
-    private Toolbar mainToolbar;
     private FloatingActionButton mNewPost;
     private BottomNavigationView mainBottomNav;
     private TextView titleBarTextView;
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
     private CircleImageView userProfileImage;
     private TextView searchBar;
+
+    private SearchView mainSearchView;
 
     private List<String> lastSearches;
 
@@ -87,8 +90,7 @@ public class MainActivity extends AppCompatActivity {
         userProfileImage = findViewById(R.id.currentUserImageView);
 
         //initiate elements
-        /*mainToolbar = findViewById(R.id.mainToolbar);
-        setSupportActionBar(mainToolbar);*/
+        mainSearchView = findViewById(R.id.mainSearchView);
 
         mNewPost = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
@@ -199,6 +201,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+        //handle search
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, SearchableActivity.class)));
+        mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
+
+
 
 
         //get the sent intent

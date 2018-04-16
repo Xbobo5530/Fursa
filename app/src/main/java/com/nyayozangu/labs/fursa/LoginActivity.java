@@ -49,7 +49,6 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    // TODO: 4/5/18  Must initialize Twitter before using getInstance()
     // TODO: 4/5/18 when user has types email and pass, then clicks register, send typed details to register page
     // TODO: 4/14/18 connect social accs to single user
 
@@ -90,15 +89,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .debug(true)
                 .build();
         Twitter.initialize(config);
-
-        /*
-        TwitterConfig config = new TwitterConfig.Builder(this)
-                .logger(new DefaultLogger(Log.DEBUG))
-                *//*.twitterAuthConfig(new TwitterAuthConfig(getString(R.string.twitter_key), getString(R.string.twitter_secret)))*//*
-                .debug(true)
-                .build();
-        Twitter.initialize(config);
-        */
 
         setContentView(R.layout.activity_login);
 
