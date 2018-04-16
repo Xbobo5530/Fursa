@@ -79,9 +79,6 @@ public class ViewPostActivity extends AppCompatActivity {
     private ArrayList catKeys;
 
 
-    // TODO: 4/7/18 handle populating data from postId
-    // TODO: 4/7/18 if user is not logged in change the comment hint to "login to comment" and send user to login page when comments are clicked
-
     //firebase auth
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -641,6 +638,8 @@ public class ViewPostActivity extends AppCompatActivity {
 
         Log.d(TAG, "onEvent: image set");
     }
+
+    // TODO: 4/16/18 think of removing dialog
 
     private void emailContact(String email) {
         // TODO: 4/8/18 fix when sending email email address is not forwarded bug

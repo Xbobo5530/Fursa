@@ -34,6 +34,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRecyclerAdapter.ViewHolder> {
 
 
+    // TODO: 4/16/18 edit the saved posts recyvler adapter
+
     private static final String TAG = "Sean";
     //member variables for storing posts
     public List<Posts> savedPostsList;
@@ -118,7 +120,6 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
                     //task is successful
                     Log.d(TAG, "task is successful");
                     //get userName
-                    // TODO: 4/6/18 fix when username is not provided
                     try {
                         String userName = task.getResult().get("name").toString();
                         Log.d(TAG, "userName is: " + userName);
@@ -142,7 +143,6 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
         });
 
         //handle date for posts
-        // TODO: 4/5/18 looking into the timestamp bug; app crashes on creating new post
         long millis = savedPostsList.get(position).getTimestamp().getTime();
         //convert millis to date time format
         String dateString = DateFormat.format("MM/dd/yyyy", new Date(millis)).toString();
@@ -374,8 +374,6 @@ public class SavedPostsRecyclerAdapter extends RecyclerView.Adapter<SavedPostsRe
 
         //set post date
         public void setPostDate(String date) {
-
-            // TODO: 4/4/18 show different time status  like one minute ago ++
 
             savedPostDateTextView = mView.findViewById(R.id.savedPostDateTextView);
             savedPostDateTextView.setText(date);

@@ -22,7 +22,6 @@ import com.google.firebase.auth.FirebaseAuth;
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "Sean";
 
-    // TODO: 4/4/18 add twitter sign in
     // TODO: 4/4/18 check phone number sign in
 
 

@@ -314,8 +314,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 //get data from the saves collections
 
                                 //check if user has already saved the post
-
-                                // TODO: 4/13/18 prevent the click button on like and save when the task is already at hand
                                 if (!task.getResult().exists()) {
                                     Map<String, Object> savesMap = new HashMap<>();
                                     savesMap.put("timestamp", FieldValue.serverTimestamp());

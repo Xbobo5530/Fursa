@@ -8,7 +8,6 @@ package com.nyayozangu.labs.fursa;
 public class Users extends UserId {
 
     // TODO: 4/7/18 get date user joined
-    // TODO: 4/7/18 user posts
 
     public String username;
     public String userId;

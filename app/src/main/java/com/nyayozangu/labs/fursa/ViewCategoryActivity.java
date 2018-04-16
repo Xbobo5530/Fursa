@@ -67,8 +67,6 @@ public class ViewCategoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_category);
 
-
-        // TODO: 4/16/18 when user clicks back, go back to home
         Toolbar toolbar = findViewById(R.id.viewCatToolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
