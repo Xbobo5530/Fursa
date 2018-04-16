@@ -189,6 +189,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         });
 
+
         if (isLoggedIn()) {
             //get likes
             //determine likes by current user
@@ -372,7 +373,25 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         });
 
-        //clicking the comment icon to go to the commet page of post
+
+        //create query to count comments
+        db.collection("Posts/" + postId + "/Comments").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                Log.d(TAG, "at onEvent, when likes change");
+                if (!queryDocumentSnapshots.isEmpty()) {
+
+                    //post has likes
+                    int numberOfComments = queryDocumentSnapshots.size();
+                    holder.updateCommentsCount(numberOfComments);
+                } else {
+                    //post has no likes
+                    holder.updateCommentsCount(0);
+                }
+            }
+        });
+
+        //clicking the comment icon to go to the comment page of post
         holder.postCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -466,6 +485,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //likes
         private ImageView postLikeButton;
         private TextView postLikesCount;
+        private TextView postCommentCount;
 
         //saves
         private ImageView postSaveButton;
@@ -487,6 +507,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postLikeButton = mView.findViewById(R.id.postLikeImageView);
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
 
+
             postSaveButton = mView.findViewById(R.id.postSaveImageView);
 
             postSharePostButton = mView.findViewById(R.id.postShareImageView);
@@ -494,6 +515,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postImageView = mView.findViewById(R.id.postImageView);
 
             postCommentButton = mView.findViewById(R.id.postCommetnImageView);
+            postCommentCount = mView.findViewById(R.id.postCommentCountText);
 
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
 
@@ -564,15 +586,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         public void updateLikesCount(int likesCount) {
 
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
+            postLikesCount.setText(String.valueOf(likesCount));
 
-            //check the number of likes
-            if (likesCount == 1) {
-                //use like
-                postLikesCount.setText(String.valueOf(likesCount) + " Like");
-            } else {
-                //else use likes
-                postLikesCount.setText(String.valueOf(likesCount) + " Likes");
-            }
 
         }
 
@@ -586,6 +601,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
+        }
+
+        public void updateCommentsCount(int numberOfComments) {
+
+            postLikesCount = mView.findViewById(R.id.postCommentCountText);
+            postLikesCount.setText(String.valueOf(numberOfComments));
+
         }
     }
 }

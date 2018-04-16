@@ -89,10 +89,11 @@ class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapt
                 //check if user exists
                 if (documentSnapshot.exists()) {
 
+                    // TODO: 4/16/18 handle crash when user details are incomplete or when user doesn't exist
                     //user exists
                     String username = documentSnapshot.get("name").toString();
 
-                    //set username to usename textview
+                    //set username to username textView
                     holder.setUsername(username);
 
                     //set user image
