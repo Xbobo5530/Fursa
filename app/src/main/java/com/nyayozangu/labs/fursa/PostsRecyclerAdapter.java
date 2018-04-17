@@ -268,17 +268,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                         String message = "Log in to like items";
                         showLoginAlertDialog(message);
-                    /*
-                    Snackbar.make(holder.mView.findViewById(R.id.postLayout),
-                            "Log in to like items...", Snackbar.LENGTH_LONG)
-                            .setAction("Login", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    goToLogin();
-                                }
-                            })
-                            .show();
-                    */
+
                     }
                 } else {
 

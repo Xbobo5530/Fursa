@@ -47,6 +47,8 @@ import id.zelory.compressor.Compressor;
 
 public class AccountActivity extends AppCompatActivity {
 
+    // TODO: 4/17/18 change loading progress on save to saving
+
     private static final String TAG = "Sean";
     Bitmap compressedImageFile;
     private CircleImageView setupImage;

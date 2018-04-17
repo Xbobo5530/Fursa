@@ -13,7 +13,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <provider
             android:name=".MySuggestionProvider"
             android:authorities="com.nyayozangu.labs.fursa.MySuggestionProvider" />
@@ -36,11 +35,11 @@
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:value=".SearchableActivity" />
         </activity>
-
         <activity
             android:name=".SearchableActivity"
             android:launchMode="singleTop"
@@ -48,11 +47,11 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait"
@@ -127,6 +126,10 @@
         <activity
             android:name=".ViewCategoryActivity"
             android:label="@string/title_activity_view_category"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MyPostsActivity"
+            android:label="@string/title_activity_my_posts"
             android:theme="@style/AppTheme"></activity>
     </application>
 

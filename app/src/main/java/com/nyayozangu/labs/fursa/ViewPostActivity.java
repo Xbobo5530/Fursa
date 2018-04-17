@@ -93,7 +93,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.viewPostToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Fursa");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -479,7 +478,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
         //handle contact actions
-        viewPostContactLayout.setOnClickListener(new View.OnClickListener() {
+        /*viewPostContactLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder contactActionsDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
@@ -528,7 +527,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     }
                 }
             }
-        });
+        });*/
 
 
         //set onclick listener for category layout

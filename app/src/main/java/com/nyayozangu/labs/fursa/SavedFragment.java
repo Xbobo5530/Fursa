@@ -136,15 +136,11 @@ public class SavedFragment extends Fragment {
                         //get the post id for likes feature
                         final String postId = doc.getDocument().getId();
 
-                        //converting database data into objects
-                        //get the newly saved post
-                        //pass the postId to the post model class Posts.class
                         final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
                         //check if user is logged in to access the saved posts
                         if (isLoggedIn()) {
                             String currentUserId = mAuth.getCurrentUser().getUid();
-                            Log.d(TAG, "size is: " + queryDocumentSnapshots.getDocuments().size());
 
                             //query for saved posts
                             db.collection("Posts/" + postId + "/Saves").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -153,42 +149,22 @@ public class SavedFragment extends Fragment {
 
                                     //check if the current user saved current post
                                     if (documentSnapshot.exists()) {
-                                        Log.d(TAG, "current user saved this post");
+
                                         //add new post to the local postsList
                                         if (isFirstPageFirstLoad) {
                                             //if the first page is loaded the add new post normally
                                             savedPostsList.add(post);
-                                            Log.d(TAG, "isFirstPageFirstLoad: post added to savedPostList" + savedPostsList.toString());
                                             //notify the recycler adapter of the set change
                                             savedPostsRecyclerAdapter.notifyDataSetChanged();
-                                            Log.d(TAG, "Nofitied Dataset changed");
                                         } else {
                                             //add the post at position 0 of the postsList
                                             savedPostsList.add(0, post);
-                                            Log.d(TAG, "!isFirstPageFirstLoad: post added to savedPostList" + savedPostsList.toString());
                                             //notify the recycler adapter of the set change
                                             savedPostsRecyclerAdapter.notifyDataSetChanged();
-                                            Log.d(TAG, "Notified DataSet changed");
                                         }
-                                    } else {
-                                        Log.d(TAG, "current user did not saved this post");
-
                                     }
                                 }
                             });
-                        } else {
-                            //user is not logged in
-                            //notify user
-                            //user is not logged in, hence cant view saved posts
-                            Log.d(TAG, "user is not logged in");
-                            /*Snackbar.make(container.findViewById(R.id.saved_fragment_container),
-                                    "Log in to view saved items", Snackbar.LENGTH_SHORT)
-                                    .setAction("Login", new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            goToLogin();
-                                        }
-                                    }).show();*/
                         }
                     }
                 }

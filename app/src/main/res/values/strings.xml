@@ -125,6 +125,31 @@
     <string name="log_to_subscribe_text">Log in to subscribe</string>
     <string name="subscribe_to_text">Subscribed to</string>
     <string name="sucscribe_failed_text">Failed to subscribe</string>
+    <string name="done_acc_text">Done</string>
+    <string name="about_hint_acc_text">About</string>
+    <string name="account_settings_acc_text">Account settings</string>
+    <string name="post_your_comment_hint">Post your comment here</string>
+    <string name="submit_text">Submit</string>
+    <string name="enter_email_hint">Enter an email address</string>
+    <string name="confirm_password_reg_edit_text">Confirm password</string>
+    <string name="chose_password_reg_edittext">Chose a password</string>
+    <string name="register_reg_button_text">Register</string>
+    <string name="have_account_reg_button_text">Have an Account?</string>
+    <string name="sign_up_with_email_reg_text">Sign up with email</string>
+    <string name="user_bio_sett_textview_hint">User Bio</string>
+    <string name="username_sett_textview_hint">Username</string>
+    <string name="logout_sett_button">Logout</string>
+    <string name="edit_profile_sett_button">Edit Profile</string>
+    <string name="my_subscriptions_sett_button">My Subscriptions</string>
+    <string name="my_posts_sett_button">My Posts</string>
+    <string name="contact_us_sett_button">Contact Us</string>
+    <string name="privacy_policy_sett_button">Privacy Policy</string>
+    <string name="feedback_sett_button">Feedback</string>
+    <string name="title_activity_my_posts">MyPostsActivity</string>
+    <string name="cancel_text">Cancel</string>
+    <string name="login_text">Login</string>
+    <string name="not_logged_in_text">You are not logged in</string>
+    <string name="login_to_post_text">Log in to post items</string>
 
 
 </resources>

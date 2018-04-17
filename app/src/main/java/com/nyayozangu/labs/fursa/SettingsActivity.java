@@ -197,6 +197,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                     //open the users posts page
                     // TODO: 4/9/18 open user's posts page
+                    goToMyPosts();
 
                 } else {
 
@@ -207,6 +208,13 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         });
+
+    }
+
+    private void goToMyPosts() {
+
+        //open the myposts page
+        startActivity(new Intent(SettingsActivity.this, MyPostsActivity.class));
 
     }
 

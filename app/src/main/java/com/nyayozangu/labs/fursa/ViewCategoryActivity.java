@@ -1,14 +1,17 @@
 package com.nyayozangu.labs.fursa;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,6 +45,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private RecyclerView catFeed;
+    private SwipeRefreshLayout swipeRefresh;
 
     private FloatingActionButton subscribeFab;
 
@@ -57,9 +61,8 @@ public class ViewCategoryActivity extends AppCompatActivity {
 
     private String userId;
 
-    private boolean isUserSubscribed;
-
     private String currentCat;
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -175,6 +178,9 @@ public class ViewCategoryActivity extends AppCompatActivity {
         subscribeFab = findViewById(R.id.subscribeCatFab);
 
 
+        swipeRefresh = findViewById(R.id.catSwipeRefresh);
+
+
         if (isConnected()) {
 
             if (isLoggedIn()) {
@@ -204,9 +210,12 @@ public class ViewCategoryActivity extends AppCompatActivity {
                         Log.d(TAG, "onClick: is logged in");
 
 
+                        //show progress
+                        showProgress("Subscribing...");
+
                         userId = mAuth.getCurrentUser().getUid();
 
-                        db.collection("Users/" + userId + "/subscriptions").document(currentCat).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        db.collection("Users/" + userId + "/Subscriptions").document(currentCat).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 //get data from teh likes collection
@@ -217,7 +226,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
                                     catsMap.put("timestamp", FieldValue.serverTimestamp());
 
                                     //subscribe user
-                                    db.collection("Users/" + userId + "/subscriptions").document(currentCat).set(catsMap);
+                                    db.collection("Users/" + userId + "/Subscriptions").document(currentCat).set(catsMap);
                                     //user is not subscribed
                                     subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
                                     //notify user
@@ -225,12 +234,14 @@ public class ViewCategoryActivity extends AppCompatActivity {
 
                                 } else {
                                     //unsubscribe
-                                    db.collection("Users/" + userId + "/subscriptions").document(currentCat).delete();
+                                    db.collection("Users/" + userId + "/Subscriptions").document(currentCat).delete();
                                     //set fab image
                                     subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
                                 }
                             }
                         });
+
+                        progressDialog.dismiss();
 
                     } else {
 
@@ -263,6 +274,23 @@ public class ViewCategoryActivity extends AppCompatActivity {
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     loadMorePosts();
                 }
+            }
+        });
+
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                categoryRecyclerAdapter.notifyDataSetChanged();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        swipeRefresh.setRefreshing(false);
+                    }
+                }, 1500);
+
             }
         });
 
@@ -607,5 +635,15 @@ public class ViewCategoryActivity extends AppCompatActivity {
     private void goToLogin() {
         startActivity(new Intent(ViewCategoryActivity.this, LoginActivity.class));
     }
+
+
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
 
 }

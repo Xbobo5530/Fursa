@@ -37,11 +37,10 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by Sean on 4/15/18.
- * handle categories
+ * Created by Sean on 4/17/18.
  */
 
-public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecyclerAdapter.ViewHolder> {
+public class MyPostsRecyclerAdapter extends RecyclerView.Adapter<MyPostsRecyclerAdapter.ViewHolder> {
 
 
     private static final String TAG = "Sean";
@@ -55,7 +54,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
     private FirebaseFirestore db;
 
     //empty constructor for receiving the posts
-    public CategoryRecyclerAdapter(List<Posts> postsList) {
+    public MyPostsRecyclerAdapter(List<Posts> postsList) {
 
         //store received posts
         this.postsList = postsList;
@@ -64,8 +63,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
 
     @NonNull
     @Override
-    public CategoryRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
+    public MyPostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
@@ -77,11 +75,13 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
 
-        return new CategoryRecyclerAdapter.ViewHolder(view);
+        return new MyPostsRecyclerAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final CategoryRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyPostsRecyclerAdapter.ViewHolder holder, int position) {
+
+        Log.d(TAG, "at onBindViewHolder");
 
         holder.setIsRecyclable(false);
 
@@ -132,7 +132,6 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
                     //task is successful
                     Log.d(TAG, "task is successful");
                     //get userName
-                    // TODO: 4/6/18 fix when username is not provided
                     try {
                         String userName = task.getResult().get("name").toString();
                         Log.d(TAG, "userName is: " + userName);
@@ -150,7 +149,6 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
                     Log.d(TAG, "task not successful");
                     String errorMessage = task.getException().getMessage();
                     Log.d(TAG, "Failed to retrieve userData: " + errorMessage);
-                    // TODO: 4/4/18 notify users on errors(maybe use Snackbars)
                     // TODO: 4/4/18 load default images
                 }
             }
@@ -187,11 +185,11 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
             }
         });
 
+
         if (isLoggedIn()) {
             //get likes
             //determine likes by current user
-            final String finalCurrentUserId = currentUserId;
-            db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            db.collection("Posts/" + postId + "/Likes").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                     //update the like button real time
@@ -207,7 +205,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
             });
 
             //get saves
-            db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            db.collection("Posts/" + postId + "/Saves").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                     //update the save button real time
@@ -230,6 +228,9 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //disable button
+                holder.postLikeButton.setClickable(false);
 
                 if (isConnected()) {
 
@@ -263,17 +264,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
 
                         String message = "Log in to like items";
                         showLoginAlertDialog(message);
-                    /*
-                    Snackbar.make(holder.mView.findViewById(R.id.postLayout),
-                            "Log in to like items...", Snackbar.LENGTH_LONG)
-                            .setAction("Login", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    goToLogin();
-                                }
-                            })
-                            .show();
-                    */
+
                     }
                 } else {
 
@@ -281,6 +272,9 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
                     showSnack(holder, "Failed to connect to the internet\nCheck your connection and try again");
 
                 }
+
+                //enable button
+                holder.postLikeButton.setClickable(true);
 
             }
         });
@@ -290,6 +284,9 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //disable button
+                holder.postSaveButton.setClickable(false);
 
                 //check if user is connected to the internet
                 if (isConnected()) {
@@ -303,8 +300,6 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
                                 //get data from the saves collections
 
                                 //check if user has already saved the post
-
-                                // TODO: 4/13/18 prevent the click button on like and save when the task is already at hand
                                 if (!task.getResult().exists()) {
                                     Map<String, Object> savesMap = new HashMap<>();
                                     savesMap.put("timestamp", FieldValue.serverTimestamp());
@@ -336,6 +331,10 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
 
 
                 }
+
+                //enable button
+                holder.postSaveButton.setClickable(true);
+
             }
         });
 
@@ -369,7 +368,25 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
             }
         });
 
-        //clicking the comment icon to go to the commet page of post
+
+        //create query to count comments
+        db.collection("Posts/" + postId + "/Comments").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                Log.d(TAG, "at onEvent, when likes change");
+                if (!queryDocumentSnapshots.isEmpty()) {
+
+                    //post has likes
+                    int numberOfComments = queryDocumentSnapshots.size();
+                    holder.updateCommentsCount(numberOfComments);
+                } else {
+                    //post has no likes
+                    holder.updateCommentsCount(0);
+                }
+            }
+        });
+
+        //clicking the comment icon to go to the comment page of post
         holder.postCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -384,7 +401,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
     }
 
 
-    private void showSnack(@NonNull CategoryRecyclerAdapter.ViewHolder holder, String message) {
+    private void showSnack(@NonNull MyPostsRecyclerAdapter.ViewHolder holder, String message) {
         Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                 message, Snackbar.LENGTH_LONG).show();
     }
@@ -447,10 +464,11 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         return postsList.size();
     }
 
+    //implement the viewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         //initiate view
-        private View mView;
+        View mView;
 
         //initiate elements in the view holder
         private TextView titleTextView;
@@ -464,6 +482,7 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         //likes
         private ImageView postLikeButton;
         private TextView postLikesCount;
+        private TextView postCommentCount;
 
         //saves
         private ImageView postSaveButton;
@@ -477,14 +496,14 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         //location
         private TextView postLocationTextView;
 
-
         public ViewHolder(View itemView) {
             super(itemView);
-
+            //use mView to populate other methods
             mView = itemView;
 
             postLikeButton = mView.findViewById(R.id.postLikeImageView);
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
+
 
             postSaveButton = mView.findViewById(R.id.postSaveImageView);
 
@@ -493,8 +512,10 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
             postImageView = mView.findViewById(R.id.postImageView);
 
             postCommentButton = mView.findViewById(R.id.postCommetnImageView);
+            postCommentCount = mView.findViewById(R.id.postCommentCountText);
 
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
+
         }
 
         //retrieve the title
@@ -562,15 +583,8 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         public void updateLikesCount(int likesCount) {
 
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
+            postLikesCount.setText(String.valueOf(likesCount));
 
-            //check the number of likes
-            if (likesCount == 1) {
-                //use like
-                postLikesCount.setText(String.valueOf(likesCount) + " Like");
-            } else {
-                //else use likes
-                postLikesCount.setText(String.valueOf(likesCount) + " Likes");
-            }
 
         }
 
@@ -586,7 +600,12 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
         }
 
-    }
+        public void updateCommentsCount(int numberOfComments) {
 
+            postLikesCount = mView.findViewById(R.id.postCommentCountText);
+            postLikesCount.setText(String.valueOf(numberOfComments));
+
+        }
+    }
 
 }
