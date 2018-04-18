@@ -37,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Button editProfileButton;
 
     private Button myPostsButton;
-    private Button mySubscription;
+    private Button mySubsButton;
 
     private Button feedbackButton;
     private Button contactUsButton;
@@ -78,7 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
         editProfileButton = findViewById(R.id.settingsEditProfileButton);
 
         myPostsButton = findViewById(R.id.settingsPostsButton);
-        mySubscription = findViewById(R.id.settingsLogoutButton);
+        mySubsButton = findViewById(R.id.settingsSubsButton);
 
         feedbackButton = findViewById(R.id.settingsFeedbackButton);
         contactUsButton = findViewById(R.id.settingsContactButton);
@@ -171,43 +171,51 @@ public class SettingsActivity extends AppCompatActivity {
 
         }
 
-        mySubscription.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isLoggedIn()) {
-
-                    //open the my subscriptions page
-                    // TODO: 4/9/18 open the subscriptions page
-                    // TODO: 4/9/18 list with check boxes
-
-                } else {
-
-                    //user is not logged in prompt to login
-                    String message = "Login to view your subscriptions";
-                    showLoginAlertDialog(message);
-
-                }
-            }
-        });
-
         myPostsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isLoggedIn()) {
 
                     //open the users posts page
-                    // TODO: 4/9/18 open user's posts page
                     goToMyPosts();
 
                 } else {
 
                     //user is not logged in
-                    String message = "Login to view your posts";
+                    String message = getString(R.string.login_to_view_post_text);
                     showLoginAlertDialog(message);
 
                 }
             }
         });
+
+        mySubsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //check if is logged in
+                if (isLoggedIn()) {
+
+                    //user is logged in
+                    goToMySubs();
+
+                } else {
+
+                    //not logged in
+                    String message = getString(R.string.login_to_view_subs_text);
+                    showLoginAlertDialog(message);
+
+                }
+
+            }
+        });
+
+    }
+
+    private void goToMySubs() {
+
+        //open mySubs Page
+        startActivity(new Intent(SettingsActivity.this, MySubscriptionsActivity.class));
 
     }
 

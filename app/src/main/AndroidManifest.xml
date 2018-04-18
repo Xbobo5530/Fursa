@@ -130,7 +130,8 @@
         <activity
             android:name=".MyPostsActivity"
             android:label="@string/title_activity_my_posts"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".MySubscriptionsActivity"></activity>
     </application>
 
 </manifest>

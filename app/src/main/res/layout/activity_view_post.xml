@@ -32,6 +32,8 @@
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_action_image_placeholder" />
 
+            <!--todo make all toolbars have the same theme-->
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/viewPostToolbar"
                 android:layout_width="match_parent"

@@ -62,6 +62,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
     private String userId;
 
     private String currentCat;
+    private String catDesc;
     private ProgressDialog progressDialog;
 
 
@@ -215,7 +216,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
 
                         userId = mAuth.getCurrentUser().getUid();
 
-                        db.collection("Users/" + userId + "/Subscriptions").document(currentCat).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 //get data from teh likes collection
@@ -223,10 +224,13 @@ public class ViewCategoryActivity extends AppCompatActivity {
                                 //check if current user has already subscribed
                                 if (!task.getResult().exists()) {
                                     Map<String, Object> catsMap = new HashMap<>();
+                                    catsMap.put("key", currentCat);
+                                    catsMap.put("value", getSupportActionBar().getTitle());
+                                    catsMap.put("desc", catDesc);
                                     catsMap.put("timestamp", FieldValue.serverTimestamp());
 
                                     //subscribe user
-                                    db.collection("Users/" + userId + "/Subscriptions").document(currentCat).set(catsMap);
+                                    db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).set(catsMap);
                                     //user is not subscribed
                                     subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
                                     //notify user
@@ -234,7 +238,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
 
                                 } else {
                                     //unsubscribe
-                                    db.collection("Users/" + userId + "/Subscriptions").document(currentCat).delete();
+                                    db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).delete();
                                     //set fab image
                                     subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
                                 }
@@ -348,7 +352,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
 
         userId = mAuth.getCurrentUser().getUid();
         //check if user is subscribed
-        db.collection("Users/" + userId + "/subscriptions").document(currentCat).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -364,7 +368,6 @@ public class ViewCategoryActivity extends AppCompatActivity {
                     //user is already subscribed
                     //set fab image
                     subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
-
 
                 }
 
