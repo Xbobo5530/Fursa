@@ -2,10 +2,14 @@ package com.nyayozangu.labs.fursa;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,15 +22,20 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -41,7 +50,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private TextView descTextView;
     private TextView timeTextView;
-    private TextView likesTextView;
     private TextView priceTextView;
     private TextView locationTextView;
     private TextView titleTextView;
@@ -55,7 +63,6 @@ public class ViewPostActivity extends AppCompatActivity {
     private ConstraintLayout viewPostTitleLayout;
     private ConstraintLayout viewPostDescLayout;
     private ConstraintLayout viewPostLocationLayout;
-    private ConstraintLayout viewPostLikesLayout;
     private ConstraintLayout viewPostPriceLayout;
     private ConstraintLayout viewPostTimeLayout;
     private ConstraintLayout viewPostEventDateLayout;
@@ -121,7 +128,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
         actionsLayout = findViewById(R.id.viewPostActionsLayout);
         likeButton = findViewById(R.id.viewPostLikeImageView);
-        likesCountText = findViewById(R.id.viewPostLikesCountTextView);
+        likesCountText = findViewById(R.id.viewPostLikesCountsTextView);
         commentsButton = findViewById(R.id.viewPostCommentImageView);
         commentsCountText = findViewById(R.id.viewPostCommentTextView);
         saveButton = findViewById(R.id.viewPostSaveImageView);
@@ -135,7 +142,6 @@ public class ViewPostActivity extends AppCompatActivity {
         priceTextView = findViewById(R.id.viewPostPriceTextView);
         locationTextView = findViewById(R.id.viewPostLocationTextView);
         viewPostImage = findViewById(R.id.viewPostImageView);
-        likesTextView = findViewById(R.id.viewPostLikesTextView);
         contactTextView = findViewById(R.id.viewPostContactTextView);
 
 
@@ -145,7 +151,6 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostTitleLayout = findViewById(R.id.viewPostTitleLayout);
         viewPostDescLayout = findViewById(R.id.viewPostDescLayout);
         viewPostLocationLayout = findViewById(R.id.viewPostLocationLayout);
-        viewPostLikesLayout = findViewById(R.id.viewPostLikesLayout);
         viewPostPriceLayout = findViewById(R.id.viewPostPriceLayout);
         viewPostTimeLayout = findViewById(R.id.viewPostTimeLayout);
         viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
@@ -162,17 +167,7 @@ public class ViewPostActivity extends AppCompatActivity {
         catKeys = new ArrayList();
 
 
-        commentsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                //open comments page
-                Intent commentsIntent = new Intent(ViewPostActivity.this, CommentsActivity.class);
-                commentsIntent.putExtra("postId", postId);
-                startActivity(commentsIntent);
-
-            }
-        });
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -198,6 +193,242 @@ public class ViewPostActivity extends AppCompatActivity {
             goToMain();
         }
 
+
+        //handle action clicks
+        //handle comments click
+        commentsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //open comments page
+                Intent commentsIntent = new Intent(ViewPostActivity.this, CommentsActivity.class);
+                commentsIntent.putExtra("postId", postId);
+                startActivity(commentsIntent);
+
+            }
+        });
+
+        //handle share click
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d(TAG, "Sharing post");
+                //create post url
+                String postUrl = getResources().getString(R.string.fursa_url_head) + postId;
+                Log.d(TAG, "postUrl is: " + postUrl);
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
+                shareIntent.putExtra(Intent.EXTRA_TEXT, postUrl);
+                startActivity(Intent.createChooser(shareIntent, "Share this post with"));
+
+            }
+        });
+
+        //handle save click
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //disable button
+                saveButton.setClickable(false);
+
+                //check if user is connected to the internet
+                if (isConnected()) {
+
+                    //check if user is logged in
+                    if (isLoggedIn()) {
+
+                        final String currentUserId = mAuth.getCurrentUser().getUid();
+
+                        db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                //get data from the saves collections
+
+                                //check if user has already saved the post
+                                if (!task.getResult().exists()) {
+                                    Map<String, Object> savesMap = new HashMap<>();
+                                    savesMap.put("timestamp", FieldValue.serverTimestamp());
+                                    //save new post
+                                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
+
+                                    //notify user that post has been saved
+
+                                    showSnack(R.id.view_post_activity_layout, "Added to saved items");
+
+                                    // TODO: 4/19/18 add actions to go view the saved list
+                                    /*Snackbar.make(findViewById(R.id.view_post_activity_layout),
+                                            "Added to saved items", Snackbar.LENGTH_LONG)
+                                            .setAction("View List", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+
+                                                    //go to saved list
+                                                    // TODO: 4/19/18 open the saved it
+
+                                                }
+                                            });*/
+
+                                } else {
+                                    //delete saved post
+                                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
+                                }
+                            }
+                        });
+                    } else {
+                        //user is not logged in
+                        Log.d(TAG, "user is not logged in");
+                        //notify user
+
+                        String message = "Log in to save items";
+                        showLoginAlertDialog(message);
+                    }
+                } else {
+
+                    //user is not connected to the internet
+                    //show alert dialog
+                    showSnack(R.id.view_post_activity_layout, "Failed to connect to the internet\nCheck your connection and try again");
+
+
+                }
+
+                //enable button
+                saveButton.setClickable(true);
+
+            }
+        });
+
+        //handle like click
+        likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //disable button
+                likeButton.setClickable(false);
+
+                if (isConnected()) {
+
+                    if (isLoggedIn()) {
+
+                        final String currentUserId = mAuth.getCurrentUser().getUid();
+
+                        db.collection("Posts/" + postId + "/Likes").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                //get data from teh likes collection
+
+                                //check if current user has already liked post
+                                if (!task.getResult().exists()) {
+                                    Map<String, Object> likesMap = new HashMap<>();
+                                    likesMap.put("timestamp", FieldValue.serverTimestamp());
+
+                                    //db.collection("Posts").document(postId).collection("Likes");
+                                    //can alternatively ne written
+                                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
+
+                                } else {
+                                    //delete the like
+                                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
+                                }
+                            }
+                        });
+
+                    } else {
+                        //user is not logged in
+                        Log.d(TAG, "use is not logged in");
+                        //notify user
+
+                        String message = "Log in to like items";
+                        showLoginAlertDialog(message);
+
+                    }
+                } else {
+
+                    //alert user is not connected
+                    showSnack(R.id.view_post_activity_layout, "Failed to connect to the internet\nCheck your connection and try again");
+
+                }
+
+                //enable button
+                likeButton.setClickable(true);
+
+            }
+        });
+
+
+        //set likes
+        db.collection("Posts/" + postId + "/Likes").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                //check if exits
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    //post has likes
+                    int likes = queryDocumentSnapshots.getDocuments().size();
+                    Log.d(TAG, "post has" + likes + " likes");
+                    //set likes to likesTextView
+                    likesCountText.setText(Integer.toString(likes));
+                }
+            }
+        });
+
+        //set comments
+        db.collection("Posts/" + postId + "/Comments").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                Log.d(TAG, "at onEvent, when likes change");
+                if (!queryDocumentSnapshots.isEmpty()) {
+
+                    //post has likes
+                    int numberOfComments = queryDocumentSnapshots.size();
+                    commentsCountText.setText(Integer.toString(numberOfComments));
+                }
+            }
+        });
+
+
+        //set like button
+        if (isLoggedIn()) {
+            //get likes
+            //determine likes by current user
+
+            String currentUserId = mAuth.getCurrentUser().getUid();
+
+            db.collection("Posts/" + postId + "/Likes").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                    //update the like button real time
+                    if (documentSnapshot.exists()) {
+                        Log.d(TAG, "at get likes, updating likes real time");
+                        //user has liked
+                        likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_liked));
+                    } else {
+                        //current user has not liked the post
+                        likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_unclicked));
+                    }
+                }
+            });
+
+            //get saves
+            db.collection("Posts/" + postId + "/Saves").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                    //update the save button real time
+                    if (documentSnapshot.exists()) {
+                        Log.d(TAG, "at get saves, updating saves realtime");
+                        //user has saved post
+                        saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmarked));
+                    } else {
+                        //user has not liked post
+                        saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmark_outline));
+                    }
+                }
+            });
+
+        }
+
+        //set contents
         db.collection("Posts").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
@@ -485,83 +716,6 @@ public class ViewPostActivity extends AppCompatActivity {
         });
 
 
-        //set likes
-        db.collection("Posts/" + postId + "/Likes").addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-                //check if exits
-                if (!queryDocumentSnapshots.isEmpty()) {
-                    //post has likes
-                    int likes = queryDocumentSnapshots.getDocuments().size();
-                    Log.d(TAG, "post has likes");
-                    //set likes to likesTextView
-                    if (likes == 1) {
-                        likesTextView.setText(likes + " Like");
-                    } else {
-                        likesTextView.setText(likes + " Likes");
-                    }
-                } else {
-                    //hide the likes view
-                    viewPostLikesLayout.setVisibility(View.GONE);
-                    Log.d(TAG, "query returned empty");
-                }
-            }
-        });
-
-
-        //handle contact actions
-        /*viewPostContactLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder contactActionsDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
-                if (contactName != null) {
-                    contactActionsDialogBuilder.setTitle(contactName);
-                } else {
-                    contactActionsDialogBuilder.setTitle("Contact");
-                }
-                // TODO: 4/9/18 handle the empty string bug
-                contactActionsDialogBuilder.setIcon(getDrawable(R.drawable.ic_action_contact));
-                if (contactPhone != null) {
-                    //phone is not null
-                    if (contactEmail != null) {
-                        //phone and email are available
-                        final String[] values = new String[]{
-                                contactPhone,
-                                contactEmail
-                        };
-                        contactActionsDialogBuilder.setItems(values, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                switch (which) {
-                                    case 0:
-                                        callContact(contactPhone);
-                                        break;
-                                    case 1:
-                                        emailContact(contactEmail);
-                                        break;
-                                    default:
-                                        Log.d(TAG, "at default");
-                                        break;
-                                }
-                            }
-                        });
-                        contactActionsDialogBuilder.show();
-                    }
-                } else {
-                    //phone is null
-                    if (contactEmail != null) {
-                        //phone is null but email is available set email
-                        emailContact(contactEmail);
-                    } else {
-                        //phone is null and email is null
-                        Log.d(TAG, "email and phone are null");
-                    }
-                }
-            }
-        });*/
-
-
         //set onclick listener for category layout
         viewPostCatLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -606,6 +760,29 @@ public class ViewPostActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    private boolean isConnected() {
+
+        //check if there's a connection
+        Log.d(TAG, "at isConnected");
+        Context context = getApplicationContext();
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = null;
+        if (cm != null) {
+
+            activeNetwork = cm.getActiveNetworkInfo();
+
+        }
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    private boolean isLoggedIn() {
+
+        //check if user is logged in
+        return mAuth.getCurrentUser() != null;
 
     }
 
@@ -722,4 +899,42 @@ public class ViewPostActivity extends AppCompatActivity {
         progressDialog.show();
 
     }
+
+    private void showSnack(int id, String message) {
+        Snackbar.make(findViewById(id),
+                message, Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showLoginAlertDialog(String message) {
+        //Prompt user to log in
+        android.support.v7.app.AlertDialog.Builder loginAlertBuilder = new android.support.v7.app.AlertDialog.Builder(this);
+        loginAlertBuilder.setTitle("Login")
+                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setMessage("You are not logged in\n" + message)
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //send user to login activity
+                        goToLogin();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //cancel
+                        dialog.cancel();
+                    }
+                })
+                .show();
+    }
+
+    private void goToLogin() {
+
+        Intent loginIntent = new Intent(ViewPostActivity.this, LoginActivity.class);
+        loginIntent.putExtra("source", "ViewPost");
+        loginIntent.putExtra("postId", postId);
+        startActivity(loginIntent);
+
+    }
+
 }
