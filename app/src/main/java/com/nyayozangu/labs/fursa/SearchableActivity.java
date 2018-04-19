@@ -203,8 +203,20 @@ public class SearchableActivity extends AppCompatActivity {
         String title = post.getTitle();
         String desc = post.getDesc();
 
+        if (post.getLocation_address() != null) {
+            String locAddress = post.getLocation_address();
+        }
+        if (post.getContact_name() != null) {
+            String locName = post.getContact_name();
+        }
+        // TODO: 4/19/18 continue search for null
+
         //check if query is in title / desc
-        if (title.contains(searchQuery) || desc.contains(searchQuery)) {
+        // TODO: 4/19/18 refine search, the || might have errors
+        if (title.contains(searchQuery) ||
+                desc.contains(searchQuery)
+                /* || locAddress.contains(searchQuery) ||
+                locName.contains(searchQuery)*/) {
 
             //add post to search results
             if (isFirstPageFirstLoad) {
@@ -219,6 +231,7 @@ public class SearchableActivity extends AppCompatActivity {
             searchRecyclerAdapter.notifyDataSetChanged();
 
         }
+
     }
 
     //for loading more posts
