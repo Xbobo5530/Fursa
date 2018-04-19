@@ -225,6 +225,7 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="login_to_view_post_text">Login to view your posts</string>
     <string name="login_to_view_subs_text">Login to view your subscriptions</string>
+    <string name="search_view_query_hint_text">Search Fursa</string>
 
 
 </resources>

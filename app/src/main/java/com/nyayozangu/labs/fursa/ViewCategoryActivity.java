@@ -53,7 +53,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
     private List<Posts> postsList;
 
     //recycler adapter
-    private CategoryRecyclerAdapter categoryRecyclerAdapter;
+    private PostsRecyclerAdapter categoryRecyclerAdapter;
 
     private DocumentSnapshot lastVisiblePost;
 
@@ -88,8 +88,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
         postsList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        categoryRecyclerAdapter = new CategoryRecyclerAdapter(postsList);
-
+        categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList);
 
         //set a layout manager for catFeed (recycler view)
         catFeed.setLayoutManager(new LinearLayoutManager(this));

@@ -10,6 +10,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,6 +21,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -62,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView searchBar;
 
     private SearchView mainSearchView;
+    private ImageView searchButton;
+    private ConstraintLayout searchLayout;
 
     private List<String> lastSearches;
 
@@ -90,10 +96,22 @@ public class MainActivity extends AppCompatActivity {
 
         //initiate elements
         mainSearchView = findViewById(R.id.mainSearchView);
+        searchButton = findViewById(R.id.searchButton);
+        searchLayout = findViewById(R.id.mainSearchConsLayout);
 
         mNewPost = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
-//        titleBarTextView = findViewById(R.id.titleTextView);
+
+
+        //search
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                openSearch();
+
+            }
+        });
 
         if (!isConnected()) {
 
@@ -176,6 +194,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        //hide search layout
+        searchLayout.setVisibility(View.GONE);
+
         //set click listener to image view
         userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,7 +231,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
         //get the sent intent
         if (getIntent() != null) {
             Log.d(TAG, "getIntent is not null");
@@ -225,6 +245,62 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void openSearch() {
+
+        //show the search view
+        showSearchView();
+
+    }
+
+    private void showSearchView() {
+        //Load animation
+        Animation slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_down);
+        searchLayout.startAnimation(slide_down);
+        searchLayout.setVisibility(View.VISIBLE);
+
+        //editing the text color and hints of the searchView
+        int textViewId = mainSearchView.getContext()
+                .getResources()
+                .getIdentifier("android:id/search_src_text", null, null);
+        TextView textView = mainSearchView.findViewById(textViewId);
+        /*textView.setTextColor(Color.WHITE);*/
+        /*textView.setHintTextColor(getResources().getColor(R.color.colorWhiteTransparent));*/
+
+        mainSearchView.setSubmitButtonEnabled(true);
+        mainSearchView.setIconifiedByDefault(true);
+        mainSearchView.setFocusable(true);
+        mainSearchView.setIconified(false);
+        mainSearchView.requestFocusFromTouch();
+        mainSearchView.setQueryHint(getString(R.string.search_view_query_hint_text));
+
+        mainSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+
+                //hide search layout
+                hideSearchView();
+
+                return false;
+            }
+        });
+
+    }
+
+    /**
+     * hides the searchView
+     */
+    private void hideSearchView() {
+        if (searchLayout.getVisibility() == View.VISIBLE) {
+            //load animation
+            Animation slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
+                    R.anim.slide_up);
+            searchLayout.startAnimation(slide_up);
+            mainSearchView.setQuery(String.valueOf(""), false);
+            searchLayout.setVisibility(View.GONE);
+        }
     }
 
     private void showLoginAlertDialog(String message) {
