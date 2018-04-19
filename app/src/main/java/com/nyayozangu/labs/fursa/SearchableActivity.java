@@ -62,6 +62,8 @@ public class SearchableActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                startActivity(new Intent(SearchableActivity.this, MainActivity.class));
                 finish();
             }
         });

@@ -60,6 +60,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
+        android:visibility="gone"
         app:backgroundTint="@android:color/holo_red_dark"
         app:layout_anchor="@id/create_post_app_bar"
         app:layout_anchorGravity="bottom|start"

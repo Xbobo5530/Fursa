@@ -64,6 +64,9 @@ public class ViewPostActivity extends AppCompatActivity {
     private ConstraintLayout viewPostCatLayout;
 
 
+    private ConstraintLayout actionsLayout;
+
+
     private String contactName;
     private String contactPhone;
     private String contactEmail;
