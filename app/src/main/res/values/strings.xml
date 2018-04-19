@@ -226,6 +226,42 @@
     <string name="login_to_view_post_text">Login to view your posts</string>
     <string name="login_to_view_subs_text">Login to view your subscriptions</string>
     <string name="search_view_query_hint_text">Search Fursa</string>
+    <string name="title_text">Title</string>
+    <string name="comment_text">Comment</string>
+    <string name="username_text">Username</string>
+    <string name="enter_contact_name_contact_dialog_text">Enter contact name</string>
+    <string name="enter_contact_phone_number_contact_dialog_text">Enter contact phone number</string>
+    <string name="enter_contact_email_contact_diaog_text">Enter contact email</string>
+    <string name="enter_post_title_create_post_hint_text">Enter a title for your post</string>
+    <string name="enter_description_hint_text">Enter a description</string>
+    <string name="enter_contact_details_create_post_hint_text">Enter contact details (optional)</string>
+    <string name="select_categories_create_post_hint_text">Select related categories</string>
+    <string name="enter_location_create_post_hint_text">Enter a location (optional)</string>
+    <string name="enter_event_date_create_post_hint_text">Enter a date for an event (optional)</string>
+    <string name="enter_price_create_post_hint_text">Enter a price value (optional)</string>
+    <string name="zero_text">0</string>
+    <string name="save_text">Save</string>
+    <string name="share_text">Share</string>
+    <string name="title_view_post_text">Title</string>
+    <string name="desc_text">Desc</string>
+    <string name="contact_view_post_text">Contact</string>
+    <string name="location_view_post_text">Location</string>
+    <string name="event_date_view_post_text">Event Date</string>
+    <string name="price_view_post_text">Price</string>
+    <string name="time_view_post_text">Time</string>
+    <string name="user_view_post_text">User</string>
+    <string name="login_alert_fragment_text">Login</string>
+    <string name="login_to_view_saved_items_alert_fragment_text">Login to view saved items</string>
+    <string name="date_post_placeholder_text">Jan 14 2022</string>
+    <string name="username_post_placeholder_text">Username</string>
+    <string name="desc_post_placeholder_text">this is random text for teh placeholder of the image veia hdod lookd i=too maih intteo iwws</string>
+    <string name="location__post_placeholder_text">Dar es Salaam Tanzania</string>
+    <string name="post_title__post_placeholder_text">Post Title</string>
+    <string name="colon">:</string>
+    <string name="name_text">Name</string>
+    <string name="phone_text">Phone</string>
+    <string name="new_line">\\n</string>
+    <string name="email_text">Email</string>
 
 
 </resources>

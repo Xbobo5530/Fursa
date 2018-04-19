@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * search for items
  * Created by Sean on 4/13/18.
  */
 
@@ -49,6 +50,9 @@ public class SearchableActivity extends AppCompatActivity {
 
     private Boolean isFirstPageFirstLoad = true;
 
+    private String locAddress = "+#%+";
+    private String locName = "+#%+";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +61,7 @@ public class SearchableActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.searchToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Settings");
+        getSupportActionBar().setTitle("Search");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,6 +69,7 @@ public class SearchableActivity extends AppCompatActivity {
 
                 startActivity(new Intent(SearchableActivity.this, MainActivity.class));
                 finish();
+
             }
         });
 
@@ -155,7 +160,7 @@ public class SearchableActivity extends AppCompatActivity {
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
                 //check if the data is loaded for the first time
-                /**
+                /*
                  * if new data is added it will be added to the first query not the second query
                  */
                 if (isFirstPageFirstLoad) {
@@ -199,24 +204,27 @@ public class SearchableActivity extends AppCompatActivity {
         });
     }
 
+
     private void filterPosts(Posts post, String searchQuery) {
-        String title = post.getTitle();
-        String desc = post.getDesc();
+        String title = post.getTitle().toLowerCase();
+        String desc = post.getDesc().toLowerCase();
 
         if (post.getLocation_address() != null) {
-            String locAddress = post.getLocation_address();
+            locAddress = post.getLocation_address().toLowerCase();
         }
         if (post.getContact_name() != null) {
-            String locName = post.getContact_name();
+            locName = post.getContact_name().toLowerCase();
         }
-        // TODO: 4/19/18 continue search for null
+        // TODO: 4/19/18 find better solution to handle locations null
+
+        // TODO: 4/19/18 test case sensitivity
 
         //check if query is in title / desc
         // TODO: 4/19/18 refine search, the || might have errors
         if (title.contains(searchQuery) ||
                 desc.contains(searchQuery)
-                /* || locAddress.contains(searchQuery) ||
-                locName.contains(searchQuery)*/) {
+                || locAddress.contains(searchQuery) ||
+                locName.contains(searchQuery)) {
 
             //add post to search results
             if (isFirstPageFirstLoad) {

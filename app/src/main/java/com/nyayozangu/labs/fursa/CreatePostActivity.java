@@ -161,8 +161,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
         categoriesField = findViewById(R.id.createPostCategoriesLayout);
         catsTextView = findViewById(R.id.createPostCategoriesTextView);
-        mSelectedCats = new ArrayList<Integer>();
-        catsStringsArray = new ArrayList<String>();
+        mSelectedCats = new ArrayList<>();
+        catsStringsArray = new ArrayList<>();
 
         locationField = findViewById(R.id.createPostLocationLayout);
         locationTextView = findViewById(R.id.createPostLocationTextView);
@@ -232,7 +232,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 //user clicks done
                                 EditText contactNameField = alertView.findViewById(R.id.contactNameDialogEditText);
-                                EditText contactPhoneField = alertView.findViewById(R.id.contactPhoneDialogDditText);
+                                EditText contactPhoneField = alertView.findViewById(R.id.contactPhoneDialogEditText);
                                 EditText contactEmailField = alertView.findViewById(R.id.contactEmailDialogEditText);
 
                                 //get values
@@ -256,9 +256,10 @@ public class CreatePostActivity extends AppCompatActivity {
                                             if (!contactEmail.isEmpty()) {
 
                                                 //has name, phone and email
-                                                contactTextView.setText("Name: " + contactName +
-                                                        "\nPhone: " + contactPhone +
-                                                        "\nEmail: " + contactEmail);
+                                                String contactDetails = getString(R.string.name_text) + getString(R.string.colon) + contactName +
+                                                        getString(R.string.new_line) + getString(R.string.phone_text) + getString(R.string.colon) + contactPhone +
+                                                        getString(R.string.new_line) + getString(R.string.email_text) + getString(R.string.colon) + contactEmail;
+                                                contactTextView.setText(contactDetails);
 
                                             }
 
@@ -268,8 +269,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                             if (!contactEmail.isEmpty()) {
 
                                                 //has name and email, but phone is empty
-                                                contactTextView.setText("Name: " + contactName +
-                                                        "\nEmail: " + contactEmail);
+                                                String contactDetails = getString(R.string.name_text) + getString(R.string.colon) + contactName +
+                                                        getString(R.string.new_line) + getString(R.string.email_text) + getString(R.string.colon) + contactEmail;
+                                                contactTextView.setText(contactDetails);
 
                                             } else {
 
@@ -290,9 +292,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                             if (!contactEmail.isEmpty()) {
 
                                                 //has email, phone but name is empty
-                                                contactTextView.setText(
-                                                        "\nPhone: " + contactPhone +
-                                                                "\nEmail: " + contactEmail);
+                                                String contactDetails = getString(R.string.new_line) + getString(R.string.phone_text) + getString(R.string.colon) + contactPhone +
+                                                        getString(R.string.new_line) + getString(R.string.email_text) + getString(R.string.colon) + contactEmail;
+                                                contactTextView.setText(contactDetails);
 
                                             } else {
 
@@ -307,7 +309,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                             if (!contactEmail.isEmpty()) {
 
                                                 //has phone and email, but name  and phone are empty
-                                                contactTextView.setText("\nEmail: " + contactEmail);
+                                                String contactDetails = getString(R.string.new_line) + getString(R.string.email_text) + getString(R.string.colon) + contactEmail;
+                                                contactTextView.setText(contactDetails);
+
 
                                             } else {
 

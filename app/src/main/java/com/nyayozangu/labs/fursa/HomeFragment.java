@@ -36,7 +36,7 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
 
     private RecyclerView homeFeedView;
-    private SwipeRefreshLayout swiperefresh;
+    private SwipeRefreshLayout swipeRefresh;
 
     //retrieve posts
     private List<Posts> postsList;
@@ -83,7 +83,7 @@ public class HomeFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         //initiate swipe refresh
-        swiperefresh = view.findViewById(R.id.homeSwiperefresh);
+        swipeRefresh = view.findViewById(R.id.homeSwipeRefresh);
 
 
         //listen for scrolling on the homeFeedView
@@ -109,7 +109,7 @@ public class HomeFragment extends Fragment {
         loadPosts(firstQuery);
 
         //handle refresh
-        swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
@@ -120,7 +120,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void run() {
 
-                        swiperefresh.setRefreshing(false);
+                        swipeRefresh.setRefreshing(false);
                     }
                 }, 1500);
             }

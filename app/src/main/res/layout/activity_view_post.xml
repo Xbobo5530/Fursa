@@ -32,8 +32,6 @@
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_action_image_placeholder" />
 
-            <!--todo make all toolbars have the same theme-->
-
             <android.support.v7.widget.Toolbar
                 android:id="@+id/viewPostToolbar"
                 android:layout_width="match_parent"
@@ -41,30 +39,12 @@
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
 
-                <android.support.constraint.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                </android.support.constraint.ConstraintLayout>
-
-
             </android.support.v7.widget.Toolbar>
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_view_post" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        android:visibility="gone"
-        app:backgroundTint="@android:color/holo_red_dark"
-        app:layout_anchor="@id/create_post_app_bar"
-        app:layout_anchorGravity="bottom|start"
-        app:srcCompat="@drawable/ic_action_bookmark_outline_white" />
 
 
 </android.support.design.widget.CoordinatorLayout>

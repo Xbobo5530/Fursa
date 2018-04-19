@@ -8,5 +8,4 @@
     tools:context="com.nyayozangu.labs.fursa.MainActivity"
     tools:showIn="@layout/activity_main">
 
-
 </android.support.constraint.ConstraintLayout>

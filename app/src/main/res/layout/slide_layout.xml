@@ -24,7 +24,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:text="Heading"
+            android:text="@string/title_text"
             android:textAlignment="center"
             android:textColor="@color/colorWhite"
             android:textSize="20sp"
@@ -37,7 +37,7 @@
             android:paddingEnd="10dp"
             android:paddingStart="10dp"
             android:paddingTop="10dp"
-            android:text="Description"
+            android:text="@string/desc_text"
             android:textAlignment="center"
             android:textColor="@color/colorWhiteTransparent"
             android:textSize="17sp" />
