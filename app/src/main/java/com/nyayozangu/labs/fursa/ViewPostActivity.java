@@ -65,6 +65,12 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
     private ConstraintLayout actionsLayout;
+    private ImageView likeButton;
+    private TextView likesCountText;
+    private ImageView commentsButton;
+    private TextView commentsCountText;
+    private ImageView saveButton;
+    private ImageView shareButton;
 
 
     private String contactName;
@@ -112,6 +118,16 @@ public class ViewPostActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         //initialize items
+
+        actionsLayout = findViewById(R.id.viewPostActionsLayout);
+        likeButton = findViewById(R.id.viewPostLikeImageView);
+        likesCountText = findViewById(R.id.viewPostLikesCountTextView);
+        commentsButton = findViewById(R.id.viewPostCommentImageView);
+        commentsCountText = findViewById(R.id.viewPostCommentTextView);
+        saveButton = findViewById(R.id.viewPostSaveImageView);
+        shareButton = findViewById(R.id.viewPostShareImageView);
+
+
         titleTextView = findViewById(R.id.viewPostTitleTextView);
         descTextView = findViewById(R.id.viewPostDescTextView);
         eventDateTextView = findViewById(R.id.createPostEventDateTextView);
@@ -144,6 +160,19 @@ public class ViewPostActivity extends AppCompatActivity {
         catTextView = findViewById(R.id.viewPostCatTextView);
         catArray = new ArrayList<>();
         catKeys = new ArrayList();
+
+
+        commentsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //open comments page
+                Intent commentsIntent = new Intent(ViewPostActivity.this, CommentsActivity.class);
+                commentsIntent.putExtra("postId", postId);
+                startActivity(commentsIntent);
+
+            }
+        });
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
