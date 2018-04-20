@@ -51,6 +51,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -494,21 +495,24 @@ public class CreatePostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //open date picker dialog
 
-                //for N and above
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    final DatePickerDialog eventDatePickerDialog = new DatePickerDialog(CreatePostActivity.this);
-                    eventDatePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                            eventDate = new Date(year, month, dayOfMonth);
-                            Log.d(TAG, "date selected is: " + eventDate.toString());
-                            //set selected date to the eventDate textView
-                            eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, ''yy - h:mm a", eventDate).toString());
-                        }
-                    });
-                    eventDatePickerDialog.show();
 
-                }
+                Calendar calendar = Calendar.getInstance();
+                int YEAR = calendar.get(Calendar.YEAR);
+                int MONTH = calendar.get(Calendar.MONTH);
+                int DAY = calendar.get(Calendar.DAY_OF_MONTH);
+
+                final DatePickerDialog eventDatePickerDialog = new DatePickerDialog(CreatePostActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
+                        eventDate = new Date(year, month, dayOfMonth);
+                        Log.d(TAG, "date selected is: " + eventDate.toString());
+                        //set selected date to the eventDate textView
+                        eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, yyyy - h:mm a", eventDate).toString());
+
+                    }
+                }, YEAR, MONTH, DAY);
+                eventDatePickerDialog.show();
 
                 // save date to eventDate
             }

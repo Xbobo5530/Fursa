@@ -62,7 +62,7 @@ public class MySubscriptionsActivity extends AppCompatActivity {
 
         //get current user subs
         String catDoc = "categories";
-        db.collection("Users/" + currentUserId + "/Subscriptions/categories/Categories").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("Users/" + currentUserId + "/Subscriptions/categories/Categories").addSnapshotListener(MySubscriptionsActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
@@ -90,7 +90,7 @@ public class MySubscriptionsActivity extends AppCompatActivity {
 
                     List<HashMap<String, String>> aList = new ArrayList<>();
 
-                    Log.d(TAG, "onCreate: at hashMap, catSubsArray contains " + catSubsArray + "\ncat 1 is " + catSubsArray.get(1));
+                    Log.d(TAG, "onCreate: at hashMap, catSubsArray contains " + catSubsArray);
 
                     for (int i = 0; i < catSubsArray.size(); i++) {
                         HashMap<String, String> hm = new HashMap<>();
