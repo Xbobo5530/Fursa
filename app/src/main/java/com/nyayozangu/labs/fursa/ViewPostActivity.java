@@ -83,6 +83,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private String contactName;
     private String contactPhone;
     private String contactEmail;
+    private String contactDetails;
 
     private android.support.v7.widget.Toolbar toolbar;
 
@@ -109,6 +110,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.viewPostToolbar);
         setSupportActionBar(toolbar);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,19 +167,6 @@ public class ViewPostActivity extends AppCompatActivity {
         catTextView = findViewById(R.id.viewPostCatTextView);
         catArray = new ArrayList<>();
         catKeys = new ArrayList();
-
-
-
-
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
 
         if (getIntent() != null) {
@@ -443,6 +432,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     //set title
                     String title = post.getTitle();
                     titleTextView.setText(title);
+                    getSupportActionBar().setTitle(title);
 
                     //set the description
                     String desc = post.getDesc();
@@ -459,16 +449,19 @@ public class ViewPostActivity extends AppCompatActivity {
                             //name and phone not empty
                             if (contactEmail != null) {
                                 //phone, email and name are all not empty
-                                contactTextView.setText(contactName + "\n" + contactPhone + "\n" + contactEmail);
+                                contactDetails = contactName + "\n" + contactPhone + "\n" + contactEmail;
+                                contactTextView.setText(contactDetails);
                             } else {
                                 //name and phone are not empty but email is empty
-                                contactTextView.setText(contactName + "\n" + contactPhone);
+                                contactDetails = contactName + "\n" + contactPhone;
+                                contactTextView.setText(contactDetails);
                             }
                         } else {
                             //name is not empty but phone is empty
                             if (contactEmail != null) {
                                 //name and email is not empty but phone is empty
-                                contactTextView.setText(contactName + "\n" + "\n" + contactEmail);
+                                contactDetails = contactName + "\n" + contactEmail;
+                                contactTextView.setText(contactDetails);
                             } else {
                                 //name is not empty, but email and phone are empty
                                 viewPostContactLayout.setVisibility(View.GONE);
@@ -480,10 +473,12 @@ public class ViewPostActivity extends AppCompatActivity {
                             //name is empty but phone is not empty
                             if (contactEmail != null) {
                                 //name is empty but phone and email are not empty
-                                contactTextView.setText(contactPhone + "\n" + contactEmail);
+                                String contactDetails = contactPhone + "\n" + contactEmail;
+                                contactTextView.setText(contactDetails);
                             } else {
                                 //name is empty and email are empty but phone is not empty
-                                contactTextView.setText(contactPhone);
+                                String contactDetails = contactPhone;
+                                contactTextView.setText(contactDetails);
                             }
                         } else {
                             //name is empty and phone is also empty

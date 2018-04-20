@@ -256,28 +256,30 @@ public class CreatePostActivity extends AppCompatActivity {
                                             if (!contactEmail.isEmpty()) {
 
                                                 //has name, phone and email
-                                                String contactDetails = getString(R.string.name_text) + getString(R.string.colon) + contactName +
-                                                        getString(R.string.new_line) + getString(R.string.phone_text) + getString(R.string.colon) + contactPhone +
-                                                        getString(R.string.new_line) + getString(R.string.email_text) + getString(R.string.colon) + contactEmail;
+                                                String contactDetails = contactName + "\n" + contactPhone + "\n" + contactEmail;
+                                                contactTextView.setText(contactDetails);
+
+                                            } else {
+
+                                                //has name and phone
+                                                String contactDetails = contactName + "\n" + contactPhone;
                                                 contactTextView.setText(contactDetails);
 
                                             }
 
                                         } else {
 
-                                            //has name but phone is empty
+                                            //has name
                                             if (!contactEmail.isEmpty()) {
 
-                                                //has name and email, but phone is empty
-                                                String contactDetails = getString(R.string.name_text) + getString(R.string.colon) + contactName +
-                                                        getString(R.string.new_line) + getString(R.string.email_text) + getString(R.string.colon) + contactEmail;
+                                                //has name and email
+                                                String contactDetails = contactName + "\n" + contactEmail;
                                                 contactTextView.setText(contactDetails);
 
                                             } else {
 
-                                                //has name, but phone, email is empty
-                                                //hide contact field
-                                                contactField.setVisibility(View.GONE);
+                                                //has name
+                                                contactTextView.setText("");
 
                                             }
 
@@ -288,18 +290,18 @@ public class CreatePostActivity extends AppCompatActivity {
                                         //name is empty
                                         if (!contactPhone.isEmpty()) {
 
-                                            //has phone but name is empty
+                                            //has phone
                                             if (!contactEmail.isEmpty()) {
 
-                                                //has email, phone but name is empty
-                                                String contactDetails = getString(R.string.new_line) + getString(R.string.phone_text) + getString(R.string.colon) + contactPhone +
-                                                        getString(R.string.new_line) + getString(R.string.email_text) + getString(R.string.colon) + contactEmail;
+                                                //has email and phone
+                                                String contactDetails = contactPhone + "\n" + contactEmail;
                                                 contactTextView.setText(contactDetails);
 
                                             } else {
 
-                                                //name, phone, and email are all empty
-                                                contactField.setVisibility(View.GONE);
+                                                //has phone
+                                                String contactDetails = contactPhone;
+                                                contactTextView.setText(contactDetails);
 
                                             }
 
@@ -308,8 +310,8 @@ public class CreatePostActivity extends AppCompatActivity {
                                             //name and phone are empty
                                             if (!contactEmail.isEmpty()) {
 
-                                                //has phone and email, but name  and phone are empty
-                                                String contactDetails = getString(R.string.new_line) + getString(R.string.email_text) + getString(R.string.colon) + contactEmail;
+                                                //has email
+                                                String contactDetails = contactEmail;
                                                 contactTextView.setText(contactDetails);
 
 
@@ -317,7 +319,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                                 //phone, email and name are all empty
                                                 //hide contact field
-                                                contactField.setVisibility(View.GONE);
+                                                contactTextView.setText("");
 
                                             }
 

@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CategoriesFragment extends Fragment implements View.OnClickListener {
+public class CategoriesFragment extends Fragment {
 
     private static final String TAG = "Sean";
     //cat texts Array
@@ -144,7 +144,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
     }
 
 
-    @Override
+    /*@Override
     public void onClick(View v) {
 
         MainActivity activity = (MainActivity) getActivity();
@@ -193,7 +193,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
                 Log.d(TAG, "onClick: at default");
         }
 
-    }
+    }*/
 
     private void openCat(String catValue) {
         Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);

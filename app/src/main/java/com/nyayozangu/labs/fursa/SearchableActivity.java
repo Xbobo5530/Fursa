@@ -38,6 +38,8 @@ public class SearchableActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
+    private String searchQuery;
+
     private RecyclerView homeFeedView;
 
     //retrieve posts
@@ -53,6 +55,7 @@ public class SearchableActivity extends AppCompatActivity {
     private String locAddress = "+#%+";
     private String locName = "+#%+";
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +64,7 @@ public class SearchableActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.searchToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Search");
+        getSupportActionBar().setTitle(getString(R.string.search_text));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,16 +117,28 @@ public class SearchableActivity extends AppCompatActivity {
         Log.d(TAG, "handleIntent: at search intent");
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
+            searchQuery = intent.getStringExtra(SearchManager.QUERY).toLowerCase();
+
+            // TODO: 4/20/18 setting search query for title doesnt work
+            getSupportActionBar().setTitle(intent.getStringExtra(SearchManager.QUERY));
 
             // TODO: 4/16/18 continue suggested query search
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
-            suggestions.saveRecentQuery(query, null);
+            suggestions.saveRecentQuery(searchQuery, null);
 
-            Log.d(TAG, "handleIntent: query is " + query);
+            Log.d(TAG, "handleIntent: query is " + searchQuery);
 
-            doMySearch(query);
+            doMySearch(searchQuery);
+        } else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+
+            // Handle a suggestions click (because the suggestions all use ACTION_VIEW)
+            searchQuery = intent.getStringExtra(SearchManager.QUERY).toLowerCase();
+
+            Log.d(TAG, "handleIntent: query is " + searchQuery);
+
+            doMySearch(searchQuery);
+
         }
     }
 

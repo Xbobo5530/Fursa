@@ -170,7 +170,6 @@ public class CommentsActivity extends AppCompatActivity {
                             Log.d(TAG, "onEvent: error: no thum found");
                         }
 
-
                     }
 
                 }

@@ -135,7 +135,6 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:autoLink="email|phone|all"
                 android:hint="@string/enter_contact_details_create_post_hint_text"
                 android:lineSpacingExtra="8sp"
                 app:layout_constraintBottom_toBottomOf="parent"
