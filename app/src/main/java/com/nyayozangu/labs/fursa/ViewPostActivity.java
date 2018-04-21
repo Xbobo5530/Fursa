@@ -702,7 +702,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                     //use name is null, hide the user layout
                                     viewPostUserLayout.setVisibility(View.GONE);
-                                    Log.d(TAG, "onEvent: username is null");
 
                                 }
 
@@ -710,7 +709,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                 //user does not exist
                                 userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
-                                Log.d(TAG, "onEvent: user does not exist");
 
                             }
 
@@ -743,16 +741,12 @@ public class ViewPostActivity extends AppCompatActivity {
 
                             //is last cat
                             catString = catString.concat(String.valueOf(categories.get(i)) + "\n");
-                            Log.d(TAG, "onEvent: cat size is last");
-
                             //update the catArrayList
                             catArray.add(String.valueOf(categories.get(i)));
 
 
                         }
 
-                        Log.d(TAG, "onEvent: \ncatString is: " + catString);
-                        Log.d(TAG, "onEvent: \ncatArray is: " + catArray);
                         catTextView.setText(catString);
 
                     } else {
@@ -770,7 +764,8 @@ public class ViewPostActivity extends AppCompatActivity {
                     Log.d(TAG, "Error: post does not exist");
                     //save error and notify in main
                     Intent postNotFountIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-                    postNotFountIntent.putExtra("error", "Could not find post...");
+                    // TODO: 4/21/18 handle cant find post exception
+//                    postNotFountIntent.putExtra("error", "Could not find post");
                     startActivity(postNotFountIntent);
                     finish();
                 }

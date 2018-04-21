@@ -244,15 +244,36 @@ public class MainActivity extends AppCompatActivity {
                         .show();
                 Log.d(TAG, "notifyMessage is: " + notifyMessage);
 
-            }/*else if (getPostIdIntent.getStringExtra("error") != null) {
+            } else if (getPostIdIntent.getStringExtra("error") != null) {
 
                 String errorMessage = getPostIdIntent.getStringExtra("error");
-                Snackbar.make(findViewById(R.id.main_activity_layout),
-                        errorMessage, Snackbar.LENGTH_LONG)
-                        .show();
-                Log.d(TAG, "errorMessage is: " + errorMessage);
 
-            }*/
+                if (errorMessage.equals(getString(R.string.post_not_found_text))) {
+
+                    Snackbar.make(findViewById(R.id.main_activity_layout),
+                            errorMessage, Snackbar.LENGTH_LONG)
+                            .show();
+                    Log.d(TAG, "errorMessage is: " + errorMessage);
+
+                } else if (errorMessage.equals(getString(R.string.not_logged_in_text))) {
+
+                    Snackbar.make(findViewById(R.id.main_activity_layout),
+                            errorMessage, Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.login_text), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    //go to log in
+                                    goToLogin();
+
+                                }
+                            })
+                            .show();
+                    Log.d(TAG, "errorMessage is: " + errorMessage);
+
+                }
+
+            }
 
         }
 

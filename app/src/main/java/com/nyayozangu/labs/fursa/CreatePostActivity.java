@@ -156,14 +156,12 @@ public class CreatePostActivity extends AppCompatActivity {
             }
         });
 
-
         //initiate firebase
         mAuth = FirebaseAuth.getInstance();
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
         //initiate storage reference
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        currentUserId = mAuth.getCurrentUser().getUid();
 
         createPostImageView = findViewById(R.id.createPostImageView);
         submitButton = findViewById(R.id.createPostSubmitButton);
@@ -194,13 +192,25 @@ public class CreatePostActivity extends AppCompatActivity {
         priceTextView = findViewById(R.id.createPostPriceTextView);
 
 
+        if (isLoggedIn()) {
+
+            currentUserId = mAuth.getCurrentUser().getUid();
+
+        } else {
+
+            //user is not logged in
+            Intent homeIntent = new Intent(CreatePostActivity.this, MainActivity.class);
+            homeIntent.putExtra("error", "You are not logged in");
+            startActivity(homeIntent);
+            finish();
+
+        }
+
         if (getIntent() != null) {
 
             handleIntent();
 
         }
-
-
 
 
         descField.setOnClickListener(new View.OnClickListener() {
@@ -243,7 +253,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
         //open a dialog for contact details
-        final LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
         alertView = inflater.inflate(R.layout.contact_alert_dialog_content_layout, null);
 
         contactField.setOnClickListener(new View.OnClickListener() {
@@ -409,7 +419,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         })
 
                         //set actions buttons
-                        .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //when Done is clicked
@@ -461,7 +471,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             }
                         });
 
-                //clear itemts before showing
+                //clear items before showing
                 mSelectedCats.clear();
                 catsStringsArray.clear();
                 catsTextView.setText("");
@@ -469,7 +479,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 //show the dialog
                 catPickerBuilder.show();
-
 
             }
         });
@@ -631,6 +640,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                         Log.d(TAG, "upload successful");
 
                                         File newImageFile = new File(postImageUri.getPath());
+                                        Log.d(TAG, "onComplete: newImageFile is" + newImageFile);
+
+
 
                                         try {
                                             compressedImageFile = new Compressor(CreatePostActivity.this)
@@ -953,6 +965,20 @@ public class CreatePostActivity extends AppCompatActivity {
 
     private void handleIntent() {
 
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+
+            if ("text/plain".equals(type)) {
+                handleSendText(intent); // Handle text being sent
+            } else if (type.startsWith("image/")) {
+                handleSendImage(intent); // Handle single image being sent
+            }
+
+        }
+
         if (isEditPost()) {
             //get the sent intent
             Intent getEditPostIdIntent = getIntent();
@@ -963,9 +989,33 @@ public class CreatePostActivity extends AppCompatActivity {
             populateEditPostData(postId);
 
         }
-
-
     }
+
+    void handleSendText(Intent intent) {
+        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (sharedText != null) {
+
+            //set shared text to desc field
+            postDescTextView.setText(sharedText);
+            Log.d(TAG, "handleSendText: shared text is " + sharedText);
+
+        }
+    }
+
+    void handleSendImage(Intent intent) {
+        Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (imageUri != null) {
+
+            // Update image Uri
+            postImageUri = imageUri;
+            Log.d(TAG, "handleSendImage: image uri is " + imageUri);
+
+            //set image
+            createPostImageView.setImageURI(postImageUri);
+
+        }
+    }
+
 
     private void populateEditPostData(String postId) {
 
@@ -1265,6 +1315,13 @@ public class CreatePostActivity extends AppCompatActivity {
                 return "";
 
         }
+    }
+
+    private boolean isLoggedIn() {
+
+        //check if user is logged in
+        return mAuth.getCurrentUser() != null;
+
     }
 
 }

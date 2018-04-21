@@ -125,7 +125,7 @@
     <string name="log_to_subscribe_text">Log in to subscribe</string>
     <string name="subscribe_to_text">Subscribed to</string>
     <string name="sucscribe_failed_text">Failed to subscribe</string>
-    <string name="done_acc_text">Done</string>
+    <string name="done_text">Done</string>
     <string name="about_hint_acc_text">About</string>
     <string name="account_settings_acc_text">Account settings</string>
     <string name="post_your_comment_hint">Post your comment here</string>
@@ -268,6 +268,7 @@
     <string name="edit_menu_item_text">Edit</string>
     <string name="delete_menu_item_text">Delete</string>
     <string name="login_with_email_text">Login with Email</string>
+    <string name="post_not_found_text">Could not find post</string>
 
 
 </resources>
