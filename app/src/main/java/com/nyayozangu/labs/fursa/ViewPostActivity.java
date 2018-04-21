@@ -16,9 +16,13 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -41,6 +45,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ViewPostActivity extends AppCompatActivity {
 
+
+    // TODO: 4/21/18 check if is connected before requesting for items
 
     private static final String TAG = "Sean";
 
@@ -70,6 +76,8 @@ public class ViewPostActivity extends AppCompatActivity {
     private ConstraintLayout viewPostUserLayout;
     private ConstraintLayout viewPostCatLayout;
 
+    private String postUserId;
+    private String currentUserId;
 
     private ConstraintLayout actionsLayout;
     private ImageView likeButton;
@@ -79,10 +87,6 @@ public class ViewPostActivity extends AppCompatActivity {
     private ImageView saveButton;
     private ImageView shareButton;
 
-
-    private String contactName;
-    private String contactPhone;
-    private String contactEmail;
     private String contactDetails;
 
     private android.support.v7.widget.Toolbar toolbar;
@@ -104,13 +108,118 @@ public class ViewPostActivity extends AppCompatActivity {
     private String postId;
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        if (isConnected()) {
+            if (isLoggedIn()) {
+                currentUserId = mAuth.getCurrentUser().getUid();
+
+                MenuItem editPost = menu.findItem(R.id.editMenuItem);
+                MenuItem deletePost = menu.findItem(R.id.deleteMenuItem);
+
+                if (currentUserId.equals(postUserId)) {
+                    editPost.setVisible(true);
+                    deletePost.setVisible(true);
+                } else {
+                    editPost.setVisible(false);
+                    deletePost.setVisible(false);
+                }
+
+            }
+
+        }
+
+        return true;
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.view_post_toolbar_menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.reportMenuItem:
+                Toast.makeText(this, item.getItemId(), Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            case R.id.editMenuItem:
+                //open edit post
+                goToEdit();
+                break;
+
+            case R.id.deleteMenuItem:
+                //handle delete post
+                deletePost(postId);
+                break;
+
+            default:
+                break;
+        }
+
+        return true;
+    }
+
+    private void deletePost(final String postId) {
+
+        String delConfirmMessage = "Are you sure you want to delete this post?";
+        //add alert Dialog
+        AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(ViewPostActivity.this);
+        deleteBuilder.setTitle("Delete Post")
+                .setMessage(delConfirmMessage)
+                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        showProgress("Deleting...");
+                        db.collection("Posts").document(postId).delete();
+                        progressDialog.dismiss();
+                        Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
+                        delResultIntent.putExtra("notify", "Post successfully Deleted");
+                        startActivity(delResultIntent);
+                        finish();
+
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .show();
+
+
+    }
+
+    private void goToEdit() {
+
+        Intent editIntent = new Intent(ViewPostActivity.this, CreatePostActivity.class);
+        editIntent.putExtra("editPost", postId);
+        startActivity(editIntent);
+        finish();
+
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_post);
 
         toolbar = findViewById(R.id.viewPostToolbar);
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setTitle(getString(R.string.app_name));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,7 +245,6 @@ public class ViewPostActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.viewPostSaveImageView);
         shareButton = findViewById(R.id.viewPostShareImageView);
 
-
         titleTextView = findViewById(R.id.viewPostTitleTextView);
         descTextView = findViewById(R.id.viewPostDescTextView);
         eventDateTextView = findViewById(R.id.createPostEventDateTextView);
@@ -146,9 +254,7 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostImage = findViewById(R.id.viewPostImageView);
         contactTextView = findViewById(R.id.viewPostContactTextView);
 
-
         userImage = findViewById(R.id.viewPostUserImageView);
-
 
         viewPostTitleLayout = findViewById(R.id.viewPostTitleLayout);
         viewPostDescLayout = findViewById(R.id.viewPostDescLayout);
@@ -158,10 +264,8 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
         viewPostContactLayout = findViewById(R.id.viewPostContactLayout);
 
-
         userTextView = findViewById(R.id.viewPostUserTextView);
         viewPostUserLayout = findViewById(R.id.viewPostUserLayout);
-
 
         viewPostCatLayout = findViewById(R.id.viewPostCatLayout);
         catTextView = findViewById(R.id.viewPostCatTextView);
@@ -247,8 +351,8 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                     showSnack(R.id.view_post_activity_layout, "Added to saved items");
 
-                                    // TODO: 4/19/18 add actions to go view the saved list
-                                    /*Snackbar.make(findViewById(R.id.view_post_activity_layout),
+                                    /*// TODO: 4/19/18 add actions to go view the saved list
+                                    Snackbar.make(findViewById(R.id.view_post_activity_layout),
                                             "Added to saved items", Snackbar.LENGTH_LONG)
                                             .setAction("View List", new View.OnClickListener() {
                                                 @Override
@@ -256,6 +360,11 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                                     //go to saved list
                                                     // TODO: 4/19/18 open the saved it
+                                                    FragmentManager manager = getFragmentManager();
+                                                    FragmentTransaction transaction = manager.beginTransaction();
+                                                    transaction.replace(R.id.container, new SavedFragment());
+                                                    transaction.addToBackStack(null);
+                                                    transaction.commit();
 
                                                 }
                                             });*/
@@ -278,8 +387,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     //user is not connected to the internet
                     //show alert dialog
-                    showSnack(R.id.view_post_activity_layout, "Failed to connect to the internet\nCheck your connection and try again");
-
+                    showSnack(R.id.view_post_activity_layout, "Failed to connect to the internet");
 
                 }
 
@@ -432,83 +540,82 @@ public class ViewPostActivity extends AppCompatActivity {
                     //set title
                     String title = post.getTitle();
                     titleTextView.setText(title);
+                    Log.d(TAG, "onEvent: title set");
                     getSupportActionBar().setTitle(title);
+                    Log.d(TAG, "onEvent: toolbar title set");
+
 
                     //set the description
                     String desc = post.getDesc();
                     descTextView.setText(desc);
+                    Log.d(TAG, "onEvent: desc set");
 
                     //set the contact info
-                    contactName = post.getContact_name();
-                    contactPhone = post.getContact_phone();
-                    contactEmail = post.getContact_email();
+                    ArrayList contactArray = post.getContact_details();
+                    if (contactArray != null) {
+                        Log.d(TAG, "onEvent: has contact details");
 
-                    if (contactName != null) {
-                        //name is not empty
-                        if (contactPhone != null) {
-                            //name and phone not empty
-                            if (contactEmail != null) {
-                                //phone, email and name are all not empty
-                                contactDetails = contactName + "\n" + contactPhone + "\n" + contactEmail;
-                                contactTextView.setText(contactDetails);
-                            } else {
-                                //name and phone are not empty but email is empty
-                                contactDetails = contactName + "\n" + contactPhone;
-                                contactTextView.setText(contactDetails);
-                            }
-                        } else {
-                            //name is not empty but phone is empty
-                            if (contactEmail != null) {
-                                //name and email is not empty but phone is empty
-                                contactDetails = contactName + "\n" + contactEmail;
-                                contactTextView.setText(contactDetails);
-                            } else {
-                                //name is not empty, but email and phone are empty
-                                viewPostContactLayout.setVisibility(View.GONE);
-                            }
-                        }
+                        String contactString = "";
+                        int i = 0;
+                        do {
+
+                            //set the first item
+                            contactString = contactString.concat(contactArray.get(i).toString() + "\n");
+                            i++;
+
+                        } while (i < contactArray.size());
+
+                        //set contactString
+                        contactTextView.setText(contactString.trim());
+                        Log.d(TAG, "onEvent: contact details set");
+
                     } else {
-                        //name is empty
-                        if (contactPhone != null) {
-                            //name is empty but phone is not empty
-                            if (contactEmail != null) {
-                                //name is empty but phone and email are not empty
-                                String contactDetails = contactPhone + "\n" + contactEmail;
-                                contactTextView.setText(contactDetails);
-                            } else {
-                                //name is empty and email are empty but phone is not empty
-                                String contactDetails = contactPhone;
-                                contactTextView.setText(contactDetails);
-                            }
-                        } else {
-                            //name is empty and phone is also empty
-                            if (contactEmail != null) {
-                                //name and phone are empty but email is not empty
-                                contactTextView.setText(contactEmail);
-                            } else {
-                                //name, phone and email are all empty
-                                viewPostContactLayout.setVisibility(View.GONE);
-                            }
-                        }
+
+                        //hide contact details field
+                        viewPostContactLayout.setVisibility(View.GONE);
+                        Log.d(TAG, "onEvent: has no contact details");
+
                     }
 
 
                     //set location
-                    String locationName = post.getLocation_name();
-                    String locationAddress = post.getLocation_address();
-                    if (locationAddress != null && locationAddress != null) {
-                        locationTextView.setText(locationName + "\n" + locationAddress);
+                    ArrayList locationArray = post.getLocation();
+                    String locationString = "";
+
+                    if (locationArray != null) {
+
+                        Log.d(TAG, "onEvent: has location");
+                        Log.d(TAG, "onEvent: location is " + locationArray);
+
+                        for (int i = 0; i < locationArray.size(); i++) {
+
+                            locationString = locationString.concat(locationArray.get(i).toString() + "\n");
+
+                        }
+
+                        locationTextView.setText(locationString.trim());
+                        Log.d(TAG, "onEvent: location set");
+
                     } else {
+
                         viewPostLocationLayout.setVisibility(View.GONE);
+                        Log.d(TAG, "onEvent: has no location");
                     }
 
                     //set price
                     String price = post.getPrice();
                     if (price != null) {
+
+                        Log.d(TAG, "onEvent: has price");
+
                         priceTextView.setText(price);
+
+                        Log.d(TAG, "onEvent: price set");
                     } else {
-                        Log.d(TAG, "onEvent: price is: " + price);
+
                         viewPostPriceLayout.setVisibility(View.GONE);
+                        Log.d(TAG, "onEvent: has no price");
+
                     }
 
                     //set event date
@@ -525,7 +632,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     //set the time
                     long millis = post.getTimestamp().getTime();
-                    String dateString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(millis)).toString();
+                    String dateString = DateFormat.format("EEE, MMM d, yyyy - h:mm a", new Date(millis)).toString();
                     timeTextView.setText("Posted on:\n" + dateString);
 
                     //set post image
@@ -541,12 +648,14 @@ public class ViewPostActivity extends AppCompatActivity {
                             .thumbnail(Glide.with(getApplicationContext()).load(postThumbUrl))
                             .into(viewPostImage);
 
+                    Log.d(TAG, "onEvent: image set");
+
 
                     //get user id for the post
-                    final String userId = post.getUser_id();
+                    postUserId = post.getUser_id();
 
                     //check db for user
-                    db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    db.collection("Users").document(postUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
                         public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -560,22 +669,22 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                     //user has thumb
                                     String userThumbDwnUrl = documentSnapshot.get("thumb").toString();
-
-                                    Log.d(TAG, "onEvent: user thumb download url is: " + userThumbDwnUrl);
-
                                     setImage(userThumbDwnUrl);
+                                    Log.d(TAG, "onEvent: user thumb set");
+
                                 } else if (documentSnapshot.get("image") != null) {
 
 
                                     //use has no thumb but has image
                                     String userImageDwnUrl = documentSnapshot.get("image").toString();
-
                                     setImage(userImageDwnUrl);
+                                    Log.d(TAG, "onEvent: user thumb set");
 
                                 } else {
 
                                     //user has no image or thumb
                                     userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+                                    Log.d(TAG, "onEvent: placeholder user image set");
 
                                 }
 
@@ -585,13 +694,15 @@ public class ViewPostActivity extends AppCompatActivity {
                                 if (documentSnapshot.get("name") != null) {
 
                                     String username = documentSnapshot.get("name").toString();
-                                    userTextView.setText(getString(R.string.posted_by_text) + "\n" + username);
-                                    Log.d(TAG, "onEvent: username is: " + username);
+                                    String userNameMessage = getString(R.string.posted_by_text) + "\n" + username;
+                                    userTextView.setText(userNameMessage);
+
 
                                 } else {
 
                                     //use name is null, hide the user layout
                                     viewPostUserLayout.setVisibility(View.GONE);
+                                    Log.d(TAG, "onEvent: username is null");
 
                                 }
 
@@ -609,12 +720,13 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
                     //get categories
-                    if (documentSnapshot.get("categories") != null) {
+                    if (post.getCategories() != null) {
 
+                        Log.d(TAG, "onEvent: post has cats");
                         String catString = "";
 
                         //post has categories
-                        catKeys = (ArrayList) documentSnapshot.get("categories");
+                        catKeys = post.getCategories();
 
                         ArrayList<String> categories = new ArrayList<>();
                         for (int i = 0; i < catKeys.size(); i++) {
@@ -629,19 +741,9 @@ public class ViewPostActivity extends AppCompatActivity {
                         Log.d(TAG, "onEvent: categories are " + categories);
                         for (int i = 0; i < categories.size(); i++) {
 
-                            if (i == categories.size() - 1) {
-
-                                //is last cat
-                                catString = catString.concat(String.valueOf(categories.get(i)));
-                                Log.d(TAG, "onEvent: cat size is last");
-
-                            } else {
-
-                                //is middle item
-                                catString = catString.concat(categories.get(i) + ", ");
-                                Log.d(TAG, "onEvent: cat is middle");
-
-                            }
+                            //is last cat
+                            catString = catString.concat(String.valueOf(categories.get(i)) + "\n");
+                            Log.d(TAG, "onEvent: cat size is last");
 
                             //update the catArrayList
                             catArray.add(String.valueOf(categories.get(i)));
@@ -651,50 +753,16 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         Log.d(TAG, "onEvent: \ncatString is: " + catString);
                         Log.d(TAG, "onEvent: \ncatArray is: " + catArray);
-                        catTextView.setText("Categories:\n" + catString);
+                        catTextView.setText(catString);
 
                     } else {
 
                         //post has not categories
                         // hide categories layout
                         viewPostCatLayout.setVisibility(View.GONE);
+                        Log.d(TAG, "onEvent: post has no cats");
 
                     }
-
-
-                    //set user image and username
-                    //query for users and get user details
-                    db.collection("Users").document(post.getUser_id()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                            //check if user exists
-                            if (documentSnapshot.exists()) {
-                                Log.d(TAG, "User exist");
-                                //user exists
-                                //get ID of user hwo posted
-                                String userId = post.getUser_id();
-                                Log.d(TAG, "UserId is: " + userId);
-                                Users user = documentSnapshot.toObject(Users.class).withId(userId);
-                                Log.d(TAG, "user is: " + user.toString());
-                                //get user image url
-                                String userImageUrl = user.getUserImage();
-                                Log.d(TAG, "userImageUrl is: " + userImageUrl);
-
-                                //set user image
-                                // TODO: 4/7/18 load user thumb instead of image
-                                RequestOptions placeHolderOptions = new RequestOptions();
-                                placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
-                                Glide.with(getApplicationContext())
-                                        .applyDefaultRequestOptions(placeHolderOptions)
-                                        .load(userImageUrl)
-                                        .into(userImage);
-
-                            } else {
-                                //user does not exists
-                                Log.d(TAG, "user does not exist");
-                            }
-                        }
-                    });
 
 
                 } else {
@@ -788,6 +856,7 @@ public class ViewPostActivity extends AppCompatActivity {
             "Popular",
             "UpComing",
             "Events",
+            "Places"
             "Business",
             "Buy and sell",
             "Education",
@@ -809,6 +878,9 @@ public class ViewPostActivity extends AppCompatActivity {
 
             case "events":
                 return getString(R.string.cat_events);
+
+            case "places":
+                return getString(R.string.cat_places);
 
             case "business":
                 return getString(R.string.cat_business);
@@ -840,18 +912,6 @@ public class ViewPostActivity extends AppCompatActivity {
                 .load(downloadUrl).into(userImage);
 
         Log.d(TAG, "onEvent: image set");
-    }
-
-    // TODO: 4/16/18 think of removing dialog
-
-    private void emailContact(String email) {
-        // TODO: 4/8/18 fix when sending email email address is not forwarded bug
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-        intent.putExtra(Intent.EXTRA_EMAIL, email);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
     }
 
     private void callContact(String phone) {
@@ -887,9 +947,10 @@ public class ViewPostActivity extends AppCompatActivity {
     }
 
     private void showProgress(String message) {
+
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(ViewPostActivity.this);
         progressDialog.setMessage(message);
         progressDialog.show();
 

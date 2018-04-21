@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -16,11 +17,9 @@ public class Posts extends PostId {
     public String desc;
     public String title;
     public String price;
-    public String location_name;
-    public String location_address;
-    public String contact_name;
-    public String contact_phone;
-    public String contact_email;
+    public ArrayList<String> location;
+    public ArrayList<String> contact_details;
+    public ArrayList<String> categories;
     public Date timestamp;
     public Date event_date;
 
@@ -29,10 +28,17 @@ public class Posts extends PostId {
     public Posts() {
     }
 
-    public Posts(String user_id, String image_url, String thumb_url,
-                 String desc, String title, String price,
-                 Date timestamp, Date event_date,
-                 String contact_name, String contact_email, String contact_phone) {
+    public Posts(String user_id,
+                 String image_url,
+                 String thumb_url,
+                 String desc,
+                 String title,
+                 String price,
+                 Date timestamp,
+                 Date event_date,
+                 ArrayList<String> categories,
+                 ArrayList<String> contact_details,
+                 ArrayList<String> location) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
@@ -41,12 +47,10 @@ public class Posts extends PostId {
         this.price = price;
         this.timestamp = timestamp;
         this.event_date = event_date;
-        this.location_name = location_name;
-        this.location_address = location_address;
+        this.categories = categories;
+        this.location = location;
         this.timestamp = timestamp;
-        this.contact_name = contact_name;
-        this.contact_phone = contact_phone;
-        this.contact_email = contact_email;
+        this.contact_details = contact_details;
 
     }
 
@@ -99,22 +103,6 @@ public class Posts extends PostId {
         this.title = title;
     }
 
-    public String getLocation_name() {
-        return location_name;
-    }
-
-    public void setLocation_name(String location_name) {
-        this.location_name = location_name;
-    }
-
-    public String getLocation_address() {
-        return location_address;
-    }
-
-    public void setLocation_address(String location_address) {
-        this.location_address = location_address;
-    }
-
     public Date getEvent_date() {
         return event_date;
     }
@@ -123,28 +111,12 @@ public class Posts extends PostId {
         this.event_date = event_date;
     }
 
-    public String getContact_name() {
-        return contact_name;
+    public ArrayList<String> getCategories() {
+        return categories;
     }
 
-    public void setContact_name(String contact_name) {
-        this.contact_name = contact_name;
-    }
-
-    public String getContact_phone() {
-        return contact_phone;
-    }
-
-    public void setContact_phone(String contact_phone) {
-        this.contact_phone = contact_phone;
-    }
-
-    public String getContact_email() {
-        return contact_email;
-    }
-
-    public void setContact_email(String contact_email) {
-        this.contact_email = contact_email;
+    public void setCategories(ArrayList<String> categories) {
+        this.categories = categories;
     }
 
     public String getPrice() {
@@ -153,5 +125,21 @@ public class Posts extends PostId {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public ArrayList<String> getLocation() {
+        return location;
+    }
+
+    public void setLocation(ArrayList<String> location) {
+        this.location = location;
+    }
+
+    public ArrayList<String> getContact_details() {
+        return contact_details;
+    }
+
+    public void setContact_details(ArrayList<String> contact_details) {
+        this.contact_details = contact_details;
     }
 }

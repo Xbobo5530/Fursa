@@ -47,8 +47,6 @@ import id.zelory.compressor.Compressor;
 
 public class AccountActivity extends AppCompatActivity {
 
-    // TODO: 4/17/18 change loading progress on save to saving
-
     private static final String TAG = "Sean";
     Bitmap compressedImageFile;
     private CircleImageView setupImage;
@@ -96,7 +94,7 @@ public class AccountActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         //show progress
-        showProgress("Loading...");
+        showProgress("Saving...");
 
         //disable save button
         saveButton.setEnabled(false);

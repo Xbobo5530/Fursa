@@ -28,6 +28,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
@@ -39,6 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -94,7 +97,11 @@ public class CreatePostActivity extends AppCompatActivity {
     private FloatingActionButton editImageFAB;
     private Button submitButton;
     private ProgressDialog progressDialog;
+
     private Uri postImageUri;
+    private String downloadThumbUri;
+    private String downloadUri;
+
     private EditText postTitleEditText;
     private TextView postDescTextView;
     private TextView contactTextView;
@@ -112,9 +119,13 @@ public class CreatePostActivity extends AppCompatActivity {
     private TextView locationTextView;
     private Place postPlace = null;
     private View alertView;
+
+    //contact details
     private String contactName;
     private String contactPhone;
     private String contactEmail;
+    private ArrayList<String> contactDetails;
+
     //Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -125,6 +136,8 @@ public class CreatePostActivity extends AppCompatActivity {
     private String price;
     private ArrayList<Integer> mSelectedCats;
     private ArrayList<String> catsStringsArray;
+    private ArrayList<String> locationArray;
+    private Date timestamp;
 
 
     @Override
@@ -167,15 +180,27 @@ public class CreatePostActivity extends AppCompatActivity {
 
         locationField = findViewById(R.id.createPostLocationLayout);
         locationTextView = findViewById(R.id.createPostLocationTextView);
+        locationArray = new ArrayList<>();
 
         eventDateField = findViewById(R.id.createEventDateDescLayout);
         eventDateTextView = findViewById(R.id.createPostEventDateTextView);
 
         contactField = findViewById(R.id.createPostContactLayout);
         contactTextView = findViewById(R.id.createPostContactTextView);
+        contactDetails = new ArrayList<String>();
+
 
         priceField = findViewById(R.id.createPostPriceLayout);
         priceTextView = findViewById(R.id.createPostPriceTextView);
+
+
+        if (getIntent() != null) {
+
+            handleIntent();
+
+        }
+
+
 
 
         descField.setOnClickListener(new View.OnClickListener() {
@@ -218,7 +243,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
         //open a dialog for contact details
-        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        final LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
         alertView = inflater.inflate(R.layout.contact_alert_dialog_content_layout, null);
 
         contactField.setOnClickListener(new View.OnClickListener() {
@@ -348,8 +373,6 @@ public class CreatePostActivity extends AppCompatActivity {
                     ((ViewGroup) alertView.getParent()).removeView(alertView);
                 }
                 contactDialogBuilder.show();
-
-
             }
         });
 
@@ -563,6 +586,8 @@ public class CreatePostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                // TODO: 4/20/18 check if getIntent is null, if its editing post, delete the old post
+
                 //check if internet is connected
                 if (isConnected()) {
 
@@ -575,149 +600,179 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     //check if description field is empty
                     // TODO: 4/15/18 make it so that posts dont need to have images to be posted, use default image for posts
-                    if (!TextUtils.isEmpty(desc) && postImageUri != null && !TextUtils.isEmpty(title)) {
+                    if (!TextUtils.isEmpty(desc) && !TextUtils.isEmpty(title)) {
                         //description is not empty and image is not null
                         showProgress("Posting...");
 
-                        //generate randomString name for image based on firebase time stamp
-                        final String randomName = UUID.randomUUID().toString();
 
-                        //define path to upload image
-                        StorageReference filePath = mStorageRef.child("post_images").child(randomName + ".jpg");
+                        //check if is new post or edit post
+                        if (!isEditPost()) {
 
-                        //upload the image
-                        filePath.putFile(postImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+                            //is new post
+                            Log.d(TAG, "onClick: is new post");
 
-                                //get download url
-                                final String downloadUri = task.getResult().getDownloadUrl().toString();
+                            //generate randomString name for image based on firebase time stamp
+                            final String randomName = UUID.randomUUID().toString();
 
-                                //handle results after attempting to upload
-                                if (task.isSuccessful()) {
-                                    //upload complete
-                                    Log.d(TAG, "upload successful");
+                            //define path to upload image
+                            StorageReference filePath = mStorageRef.child("post_images").child(randomName + ".jpg");
 
-                                    File newImageFile = new File(postImageUri.getPath());
+                            //upload the image
+                            filePath.putFile(postImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
 
-                                    try {
-                                        compressedImageFile = new Compressor(CreatePostActivity.this)
-                                                .setMaxWidth(100)
-                                                .setMaxHeight(100)
-                                                .setQuality(5)
-                                                .compressToBitmap(newImageFile);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+                                    //get download url
+                                    downloadUri = task.getResult().getDownloadUrl().toString();
 
-                                    //handle Bitmap
-                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                    compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                    byte[] thumbData = baos.toByteArray();
+                                    //handle results after attempting to upload
+                                    if (task.isSuccessful()) {
+                                        //upload complete
+                                        Log.d(TAG, "upload successful");
 
-                                    //uploading the thumbnail
-                                    UploadTask uploadTask = mStorageRef.child("post_images/thumbs")
-                                            .child(randomName + ".jpg")
-                                            .putBytes(thumbData);
+                                        File newImageFile = new File(postImageUri.getPath());
 
-                                    //on success listener
-                                    uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                        @Override
-                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                        try {
+                                            compressedImageFile = new Compressor(CreatePostActivity.this)
+                                                    .setMaxWidth(100)
+                                                    .setMaxHeight(100)
+                                                    .setQuality(5)
+                                                    .compressToBitmap(newImageFile);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
 
-                                            //get downloadUri for thumbnail
-                                            String downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
-                                            //on success
+                                        //handle Bitmap
+                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                        compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                        byte[] thumbData = baos.toByteArray();
 
-                                            //store the user info associated with post
-                                            Map<String, Object> postMap = new HashMap<>();
-                                            postMap.put("image_url", downloadUri);
-                                            postMap.put("thumb_url", downloadThumbUri);
-                                            postMap.put("title", title);
-                                            postMap.put("desc", desc);
-                                            postMap.put("user_id", currentUserId);
-                                            try {
+                                        //uploading the thumbnail
+                                        UploadTask uploadTask = mStorageRef.child("post_images/thumbs")
+                                                .child(randomName + ".jpg")
+                                                .putBytes(thumbData);
 
-                                                postMap.put("timestamp", FieldValue.serverTimestamp());
-                                                postMap.put("location_name", postPlace.getName());
-                                                postMap.put("location_address", postPlace.getAddress());
-                                                postMap.put("location_event_date", eventDate);
-                                                postMap.put("contact_name", contactName);
-                                                postMap.put("contact_phone", contactPhone);
-                                                postMap.put("contact_email", contactEmail);
-                                                postMap.put("price", price);
-                                                postMap.put("categories", catsStringsArray);
-                                                Log.d(TAG, "onSuccess: uploading, catStrinArraty is: " + catsStringsArray);
+                                        //on success listener
+                                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                                            } catch (NullPointerException e) {
-                                                Log.d(TAG, "Error: " + e.getMessage());
-                                            }
+                                                //get downloadUri for thumbnail
+                                                downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
+                                                //on success
+                                                Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
+                                                //upload
 
-                                            //upload
-                                            db.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<DocumentReference> task) {
-                                                    //check the result
-                                                    if (task.isSuccessful()) {
-                                                        //db update successful
-                                                        Log.d(TAG, "Db Update successful");
-                                                        //go back to main feed
-                                                        startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
-                                                        finish();
+                                                //check if its update or new post
+                                                db.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                        //check the result
+                                                        if (task.isSuccessful()) {
+                                                            //db update successful
+                                                            Log.d(TAG, "Db Update successful");
+                                                            //go back to main feed
+                                                            startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
+                                                            finish();
+                                                            progressDialog.dismiss();
 
-                                                    } else {
-                                                        //upload failed
-                                                        String errorMessage = task.getException().getMessage();
-                                                        Log.d(TAG, "Db Update failed: " + errorMessage);
+                                                        } else {
+                                                            //upload failed
+                                                            String errorMessage = task.getException().getMessage();
+                                                            Log.d(TAG, "Db Update failed: " + errorMessage);
 
-                                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
-                                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+                                                            Snackbar.make(findViewById(R.id.createPostActivityLayout),
+                                                                    "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
 
-                                                    /*//hide progress bar
-                                                    newPostProgressBar.setVisibility(View.INVISIBLE);*/
-                                                        progressDialog.dismiss();
+                                                            progressDialog.dismiss();
+
+                                                        }
+
                                                     }
+                                                });
 
-                                                }
-                                            });
 
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            //on failure
-                                            //upload failed
-                                            String errorMessage = task.getException().getMessage();
-                                            Log.d(TAG, "Db Update failed: " + errorMessage);
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                //on failure
+                                                //upload failed
+                                                String errorMessage = task.getException().getMessage();
+                                                Log.d(TAG, "Db Update failed: " + errorMessage);
 
-                                            showSnack(R.id.createPostActivityLayout, "Failed to upload image: " + errorMessage);
+                                                showSnack(R.id.createPostActivityLayout, "Failed to upload image: " + errorMessage);
                                                     /*//hide progress bar
                                                     newPostProgressBar.setVisibility(View.INVISIBLE);*/
-                                            progressDialog.dismiss();
-                                        }
-                                    });
+                                                progressDialog.dismiss();
+                                            }
+                                        });
 
 
-                                } else {
-                                    //post failed
-                                    String errorMessage = task.getException().getMessage();
+                                    } else {
+                                        //post failed
+                                        String errorMessage = task.getException().getMessage();
 
-                                    Log.w(TAG, "signInWithCredential:failure", task.getException());
+                                        Log.w(TAG, "signInWithCredential:failure", task.getException());
 
-                                    showSnack(R.id.createPostActivityLayout, "Failed to upload image: " + errorMessage);
+                                        showSnack(R.id.createPostActivityLayout, "Failed to upload image: " + errorMessage);
 
                                 /*//hide progress bar
                                 newPostProgressBar.setVisibility(View.INVISIBLE);*/
-                                    progressDialog.dismiss();
+                                        progressDialog.dismiss();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        } else {
+
+                            //is edit post
+
+                            //get map
+                            Map postMap = handleMap(downloadThumbUri, downloadUri);
+
+                            //get the sent intent
+                            Intent getEditPostIdIntent = getIntent();
+                            String postId = getEditPostIdIntent.getStringExtra("editPost");
+                            Log.d(TAG, "postId is: " + postId);
+
+                            //update post
+                            db.collection("Posts").document(postId).set(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentReference> task) {
+
+                                    //check the result
+                                    if (task.isSuccessful()) {
+                                        //db update successful
+                                        Log.d(TAG, "Db Update successful");
+                                        //go back to main feed
+                                        startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
+                                        finish();
+
+                                    } else {
+                                        //upload failed
+                                        String errorMessage = task.getException().getMessage();
+                                        Log.d(TAG, "Db Update failed: " + errorMessage);
+
+                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
+                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                        progressDialog.dismiss();
+                                    }
+
+                                }
+                            });
+
+                        }
 
 
                     } else {
                         //desc is empty
                         //upload failed
-                        Log.d(TAG, "Fields are empty");
+                        Log.d(TAG, "Fields are empty " +
+                                "\nTitle is: " + postTitleEditText.getText().toString() +
+                                "\ndesc is " + postDescTextView.getText().toString() +
+                                "\nStringUtils for title is empty: " + TextUtils.isEmpty(postTitleEditText.getText().toString().trim()) +
+                                "\nStringUtils for desc is empty: " + TextUtils.isEmpty(postDescTextView.getText().toString().trim()));
 
                         showSnack(R.id.createPostActivityLayout, "Enter your post details to proceed");
 
@@ -725,7 +780,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 } else {
 
                     //notify user is not connected and cant post
-                    showSnack(R.id.createPostActivityLayout, "You are not connected to the internet\nCheck your connection and try again");
+                    showSnack(R.id.createPostActivityLayout, "Failed to connect to the internet");
 
                 }
 
@@ -748,6 +803,324 @@ public class CreatePostActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    @NonNull
+    private Map<String, Object> handleMap(String downloadThumbUri, String downloadUri) {
+        //store the user info associated with post
+        Map<String, Object> postMap = new HashMap<>();
+        postMap.put("image_url", downloadUri);
+        postMap.put("thumb_url", downloadThumbUri);
+        postMap.put("title", title);
+        postMap.put("desc", desc);
+        postMap.put("user_id", currentUserId);
+
+        // TODO: 4/20/18 check if user is editing post, and save timestamp
+
+        /*if (isEditPost()){
+
+            //retrieve the original time stamp
+            postMap.put("timestamp", timestamp);
+
+        }else {
+
+            //get the current time
+            postMap.put("timestamp", FieldValue.serverTimestamp());
+        }*/
+
+        //get the current time
+        postMap.put("timestamp", FieldValue.serverTimestamp());
+
+
+        //handle contact details
+        if (contactName != null) {
+
+            if (contactPhone != null) {
+
+                if (contactEmail != null) {
+
+                    contactDetails.add(contactName);
+                    contactDetails.add(contactPhone);
+                    contactDetails.add(contactEmail);
+
+                } else {
+
+                    contactDetails.add(contactName);
+                    contactDetails.add(contactPhone);
+
+                }
+
+            } else {
+
+                if (contactEmail != null) {
+
+                    contactDetails.add(contactName);
+                    contactDetails.add(contactEmail);
+
+                } else {
+
+                    contactDetails.add(contactName);
+
+                }
+
+            }
+
+        } else {
+
+            if (contactPhone != null) {
+
+                if (contactEmail != null) {
+
+                    contactDetails.add(contactPhone);
+                    contactDetails.add(contactEmail);
+
+                } else {
+
+                    contactDetails.add(contactPhone);
+
+                }
+
+            } else {
+
+                if (contactEmail != null) {
+
+                    contactDetails.add(contactEmail);
+
+                } else {
+
+                    contactDetails = null;
+
+                }
+
+            }
+
+        }
+
+        //handle location
+        if (postPlace != null) {
+
+            //set up an array for location
+            locationArray.add(postPlace.getName().toString());
+            locationArray.add(postPlace.getAddress().toString());
+
+        }
+
+        //put items to Map
+        try {
+
+            //location
+            if (locationArray.size() > 0) {
+
+                //loc array has content
+                postMap.put("location", locationArray);
+
+            }
+            //event date
+            if (eventDate != null) {
+
+                postMap.put("event_date", eventDate);
+
+            }
+            //contact details
+            if (contactDetails.size() > 0) {
+
+                postMap.put("contact_details", contactDetails);
+
+            }
+            //price
+            if (price != null) {
+
+                postMap.put("price", price);
+
+            }
+            //categories
+            if (catsStringsArray.size() > 0) {
+
+                postMap.put("categories", catsStringsArray);
+
+            }
+
+        } catch (NullPointerException e) {
+            Log.d(TAG, "Error: " + e.getMessage());
+        }
+        return postMap;
+    }
+
+    private boolean isEditPost() {
+        return getIntent().hasExtra("editPost");
+    }
+
+    private void handleIntent() {
+
+        if (isEditPost()) {
+            //get the sent intent
+            Intent getEditPostIdIntent = getIntent();
+            String postId = getEditPostIdIntent.getStringExtra("editPost");
+            Log.d(TAG, "postId is: " + postId);
+
+            //populate data
+            populateEditPostData(postId);
+
+        }
+
+
+    }
+
+    private void populateEditPostData(String postId) {
+
+        showProgress("Loading...");
+
+        //access db to set items
+        db.collection("Posts").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                //check if result is successful
+                if (task.isSuccessful()) {
+
+                    //set items
+
+                    //non null
+                    //set title
+                    String title = task.getResult().get("title").toString();
+                    postTitleEditText.setText(title);
+
+                    //set desc
+                    String desc = task.getResult().get("desc").toString();
+                    postDescTextView.setText(desc);
+
+
+                    //set image
+                    String imageUrl = task.getResult().get("image_url").toString();
+                    String thumbUrl = task.getResult().get("thumb_url").toString();
+                    RequestOptions placeHolderOptions = new RequestOptions();
+                    placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
+
+                    Glide.with(getApplicationContext())
+                            .applyDefaultRequestOptions(placeHolderOptions)
+                            .load(imageUrl)
+                            .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
+                            .into(createPostImageView);
+
+                    //update the imageUrl
+                    downloadUri = imageUrl;
+                    downloadThumbUri = thumbUrl;
+
+                    /*//update the  original timestamp
+                    timestamp = (Date) task.getResult().get("timestamp");*/
+
+                    //nullable
+
+                    //set categories
+                    if (task.getResult().get("categories") != null) {
+
+                        ArrayList catsArray = (ArrayList) task.getResult().get("categories");
+                        Log.d(TAG, "onComplete: \n catsArray on edit is: " + catsArray);
+                        String catsString = "";
+                        for (int i = 0; i < catsArray.size(); i++) {
+
+                            Log.d(TAG, "onComplete: i = " + i);
+                            if (i == (catsArray.size()) - 1) {
+
+                                //is last item
+                                catsString = catsString.concat(getCatValue(catsArray.get(i).toString()));
+                                Log.d(TAG, "onComplete: last item");
+
+                            } else {
+
+                                //middle item
+                                catsString = catsString.concat(getCatValue(catsArray.get(i).toString()) + "\n");
+                                Log.d(TAG, "onComplete: middle item\n catString is: " + catsString + "\ni is: " + i);
+
+                            }
+
+                        }
+
+                        //set cat string
+                        catsTextView.setText(catsString);
+                        Log.d(TAG, "onComplete: \n catString is: " + catsString);
+
+                    }
+
+                    //set contact details
+                    if (task.getResult().get("contact_details") != null) {
+
+                        ArrayList contactArray = (ArrayList) task.getResult().get("contact_details");
+                        String contactString = "";
+                        for (int i = 0; i < contactArray.size(); i++) {
+
+                            if (i == contactArray.size() - 1) {
+
+                                //is last item
+                                contactString = contactString.concat(contactArray.get(i).toString());
+
+                            } else {
+
+                                //middle item
+                                contactString = contactString.concat(contactArray.get(i).toString() + "\n");
+
+                            }
+
+                        }
+
+                        contactTextView.setText(contactString.trim());
+
+
+                    }
+
+                    //set location
+                    if (task.getResult().get("location") != null) {
+
+                        ArrayList locationArray = (ArrayList) task.getResult().get("location");
+                        String locationString = "";
+
+                        for (int i = 0; i < locationArray.size(); i++) {
+
+                            if (i == locationArray.size() - 1) {
+
+                                locationString = locationString.concat(locationArray.get(i).toString());
+
+                            } else {
+
+                                locationString = locationString.concat(locationArray.get(i).toString() + "\n");
+
+                            }
+
+                        }
+
+                        locationTextView.setText(locationString);
+
+                    }
+
+                    //set event date
+                    if (task.getResult().get("event_date") != null) {
+
+                        Date eventDate = (Date) task.getResult().get("event_date");
+                        // TODO: 4/21/18 handle date bug
+
+
+                        //convert millis to date time format
+//                        String eventDateString = DateFormat.format("EEE, MMM d, yyyy - h:mm a", new Date(eventDateMils)).toString();
+//                        eventDateTextView.setText(eventDateString);
+
+
+                    }
+
+                    //set price
+                    if (task.getResult().get("price") != null) {
+
+                        String price = task.getResult().get("price").toString();
+                        priceTextView.setText(price);
+
+                    }
+
+                }
+
+            }
+        });
+
+        progressDialog.dismiss();
 
     }
 
@@ -811,7 +1184,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private void showProgress(String message) {
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(CreatePostActivity.this);
         progressDialog.setMessage(message);
         progressDialog.show();
 
@@ -837,6 +1210,61 @@ public class CreatePostActivity extends AppCompatActivity {
     private void showSnack(int id, String message) {
         Snackbar.make(findViewById(id),
                 message, Snackbar.LENGTH_LONG).show();
+    }
+
+    private String getCatValue(String catValue) {
+
+        /*
+            "Featured",
+            "Popular",
+            "UpComing",
+            "Events",
+            "Places"
+            "Business",
+            "Buy and sell",
+            "Education",
+            "Jobs",
+            "Queries"*/
+
+
+        //return value for key
+        switch (catValue) {
+
+            case "featured":
+                return getString(R.string.cat_featured);
+
+            case "popular":
+                return getString(R.string.cat_popular);
+
+            case "upcoming":
+                return getString(R.string.cat_upcoming);
+
+            case "events":
+                return getString(R.string.cat_events);
+
+            case "places":
+                return getString(R.string.cat_places);
+
+            case "business":
+                return getString(R.string.cat_business);
+
+            case "buysell":
+                return getString(R.string.cat_buysell);
+
+            case "education":
+                return getString(R.string.cat_education);
+
+            case "jobs":
+                return getString(R.string.cat_jobs);
+
+            case "queries":
+                return getString(R.string.cat_queries);
+
+            default:
+                Log.d(TAG, "getCatValue: default");
+                return "";
+
+        }
     }
 
 }

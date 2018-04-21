@@ -235,13 +235,24 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent() != null) {
             Log.d(TAG, "getIntent is not null");
             Intent getPostIdIntent = getIntent();
-            String errorMessage = getPostIdIntent.getStringExtra("error");
-            if (errorMessage != null) {
+
+            if (getPostIdIntent.getStringExtra("notify") != null) {
+
+                String notifyMessage = getPostIdIntent.getStringExtra("notify");
+                Snackbar.make(findViewById(R.id.main_activity_layout),
+                        notifyMessage, Snackbar.LENGTH_LONG)
+                        .show();
+                Log.d(TAG, "notifyMessage is: " + notifyMessage);
+
+            }/*else if (getPostIdIntent.getStringExtra("error") != null) {
+
+                String errorMessage = getPostIdIntent.getStringExtra("error");
                 Snackbar.make(findViewById(R.id.main_activity_layout),
                         errorMessage, Snackbar.LENGTH_LONG)
                         .show();
                 Log.d(TAG, "errorMessage is: " + errorMessage);
-            }
+
+            }*/
 
         }
 

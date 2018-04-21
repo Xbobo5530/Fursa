@@ -52,8 +52,8 @@ public class SearchableActivity extends AppCompatActivity {
 
     private Boolean isFirstPageFirstLoad = true;
 
-    private String locAddress = "+#%+";
-    private String locName = "+#%+";
+    private String locString = "";
+
 
 
     @Override
@@ -224,12 +224,22 @@ public class SearchableActivity extends AppCompatActivity {
         String title = post.getTitle().toLowerCase();
         String desc = post.getDesc().toLowerCase();
 
-        if (post.getLocation_address() != null) {
-            locAddress = post.getLocation_address().toLowerCase();
+        locString = "";
+
+        if (post.getLocation() != null) {
+
+            ArrayList locArray = post.getLocation();
+
+            for (int i = 0; i < locArray.size(); i++) {
+
+                locString = locString.concat(locArray.get(i).toString() + " ");
+
+            }
+
+
+
         }
-        if (post.getContact_name() != null) {
-            locName = post.getContact_name().toLowerCase();
-        }
+
         // TODO: 4/19/18 find better solution to handle locations null
 
         // TODO: 4/19/18 test case sensitivity
@@ -237,9 +247,8 @@ public class SearchableActivity extends AppCompatActivity {
         //check if query is in title / desc
         // TODO: 4/19/18 refine search, the || might have errors
         if (title.contains(searchQuery) ||
-                desc.contains(searchQuery)
-                || locAddress.contains(searchQuery) ||
-                locName.contains(searchQuery)) {
+                desc.contains(searchQuery) ||
+                locString.contains(searchQuery)) {
 
             //add post to search results
             if (isFirstPageFirstLoad) {

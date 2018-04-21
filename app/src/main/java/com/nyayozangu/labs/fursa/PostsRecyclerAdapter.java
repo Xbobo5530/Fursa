@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -30,6 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,9 +100,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         holder.setDesc(descData);
 
         //set location
-        String locationName = postsList.get(position).getLocation_name();
-        String locationAddress = postsList.get(position).getLocation_address();
-        holder.setPostLocation(locationName, locationAddress);
+        ArrayList locationArray = postsList.get(position).getLocation();
+        holder.setPostLocation(locationArray);
 
 
         final String currentUserId;
@@ -224,7 +225,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             });
 
         }
-
 
 
         //likes feature
@@ -369,6 +369,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 Intent openPostIntent = new Intent(context, ViewPostActivity.class);
                 openPostIntent.putExtra("postId", postId);
                 context.startActivity(openPostIntent);
+                /*((Activity)context).finish();*/
             }
         });
 
@@ -402,6 +403,112 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
+        //open menu on clicking post menu
+        holder.postMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                db.collection("Posts/").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                        //check if task is successful
+                        if (task.isSuccessful()) {
+
+                            //get postUserId
+                            String postUserId = task.getResult().get("user_id").toString();
+
+                            //open menu
+                            openPostMenu(postId, currentUserId, postUserId);
+
+                        } else {
+
+                            //task failed
+
+                        }
+
+                    }
+                });
+
+
+            }
+        });
+
+
+    }
+
+    private void openPostMenu(final String postId, final String currentUserId, final String postUserId) {
+
+
+        //normal menu
+        AlertDialog.Builder postMenuBuilder = new AlertDialog.Builder(context);
+        postMenuBuilder.setItems(getPostMenuItems(currentUserId, postUserId), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                //open the feedback page
+                switch (getPostMenuItems(currentUserId, postUserId)[which].toLowerCase()) {
+
+                    case "report":
+                        //open report page
+                        Toast.makeText(context, "Report", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "edit":
+                        //open edit post
+                        Intent editIntent = new Intent(context, CreatePostActivity.class);
+                        editIntent.putExtra("editPost", postId);
+                        context.startActivity(editIntent);
+                        break;
+
+                }
+
+
+            }
+        })
+                .show();
+
+
+    }
+
+    private String[] getPostMenuItems(String currentUserId, String postUserId) {
+
+        if (isConnected()) {
+
+            if (isLoggedIn()) {
+
+
+                //get user id for post
+
+
+                if (currentUserId.equals(postUserId)) {
+
+                    //menu items
+                    String[] menuItems = new String[]{
+
+                            "Edit",
+                            "Report"
+
+                    };
+                    return menuItems;
+                } else {
+
+                    //menu items
+                    String[] menuItems = new String[]{
+
+                            "Report",
+
+                    };
+                    return menuItems;
+
+                }
+
+            }
+
+
+        }
+
+        return new String[0];
     }
 
     private void showSnack(@NonNull ViewHolder holder, String message) {
@@ -498,6 +605,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //location
         private TextView postLocationTextView;
 
+        //menu
+        private ImageView postMenuButton;
+
         public ViewHolder(View itemView) {
             super(itemView);
             //use mView to populate other methods
@@ -517,6 +627,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postCommentCount = mView.findViewById(R.id.postCommentCountText);
 
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
+
+            postMenuButton = mView.findViewById(R.id.postMenuImageView);
 
         }
 
@@ -559,11 +671,19 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //set post location
-        public void setPostLocation(String locationName, String locationAddress) {
+        public void setPostLocation(ArrayList locationArray) {
 
-            if (locationName != null && locationAddress != null) {
+            if (locationArray != null) {
+
                 postLocationTextView = mView.findViewById(R.id.postLocationTextView);
-                postLocationTextView.setText(locationName + " \n" + locationAddress);
+                String locationString = "";
+                for (int i = 0; i < locationArray.size(); i++) {
+
+                    locationString = locationString.concat(locationArray.get(i).toString() + "\n");
+
+                }
+                postLocationTextView.setText(locationString.trim());
+
             } else {
                 Log.d(TAG, "location details are null");
                 postLocationTextView.setVisibility(View.GONE);

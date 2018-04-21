@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Fursa - Opportunities</string>
+    <string name="app_name">Fursa</string>
     <string name="action_settings">Settings</string>
     <string name="login_email_edit_text">Email</string>
     <string name="login_password_edit_text">Password</string>
     <string name="login_button">Login</string>
-    <string name="login_register_edit_text">Register</string>
+    <string name="login_register_edit_text">Register with Email</string>
     <string name="acc_name_hint">Your name</string>
     <string name="acc_save_button">Save settings</string>
     <string name="submit_new_post_button">Submit</string>
@@ -147,7 +147,7 @@
     <string name="feedback_sett_button">Feedback</string>
     <string name="title_activity_my_posts">MyPostsActivity</string>
     <string name="cancel_text">Cancel</string>
-    <string name="login_text">Login</string>
+    <string name="login_text">Login with Email</string>
     <string name="not_logged_in_text">You are not logged in</string>
     <string name="login_to_post_text">Log in to post items</string>
     <string name="title_activity_my_subscriptions">My Subscriptions</string>
@@ -263,6 +263,10 @@
     <string name="new_line">\\n</string>
     <string name="email_text">Email</string>
     <string name="search_text">Search</string>
+    <string name="cat_places">Places</string>
+    <string name="report_menu_item_text">Report</string>
+    <string name="edit_menu_item_text">Edit</string>
+    <string name="delete_menu_item_text">Delete</string>
 
 
 </resources>
