@@ -62,8 +62,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     GoogleSignInClient mGoogleSignInClient;
     //for facebook sing in
     CallbackManager mCallbackManager;
-    private EditText loginEmailText;
-    private EditText loginPasswordText;
+
     private Button loginButton;
     private Button loginRegistrationButton;
     private ImageButton closeLoginButton;
@@ -76,6 +75,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private FirebaseAuth mAuth;
     private GoogleApiClient mGoogleApiClient;
     private View registerView;
+    private View loginView;
 
 
     @Override
@@ -100,8 +100,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         mAuth = FirebaseAuth.getInstance();
 
         //initiating elements
-        loginEmailText = findViewById(R.id.emailEditText);
-        loginPasswordText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         loginRegistrationButton = findViewById(R.id.loginRegisterButton);
         closeLoginButton = findViewById(R.id.login_close_button);
@@ -129,58 +127,82 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         });
 
 
-        // TODO: 4/21/18 open dialog to handle login with email
-        // TODO: 4/21/18 create layout for login dialog
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //sign in an existing user
 
-                String loginEmail = loginEmailText.getText().toString();
-                String loginPassword = loginPasswordText.getText().toString();
+                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+                loginView = inflater.inflate(R.layout.login_alert_dialog_content, null);
 
-                if (!TextUtils.isEmpty(loginEmail) && !TextUtils.isEmpty(loginPassword)) {
-                    //login email and password are not empty
 
-                    //show progress
-                    showProgress("Loading...");
+                //show login in with email dialog
+                AlertDialog.Builder loginBuilder = new AlertDialog.Builder(LoginActivity.this);
+                loginBuilder.setTitle("Login with Email")
+                        .setIcon(getDrawable(R.drawable.ic_action_contact_email))
+                        .setView(loginView)
+                        .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                    mAuth.signInWithEmailAndPassword(loginEmail, loginPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            //check if login was successful
-                            if (task.isSuccessful()) {
-                                //login was successful
-                                startMain();
-                            } else {
-                                //login was not successful
-                                String errorMessage = task.getException().getMessage();
+                                dialog.dismiss();
 
-                                Snackbar.make(findViewById(R.id.login_activity_layout),
-                                        "Error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                                //hide progress
-                                progressDialog.dismiss();
                             }
-                        }
-                    });
+                        })
+                        .setPositiveButton(getString(R.string.login_text), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                } else {
-                    //alert empty fields
-                /*Toast.makeText(LoginActivity.this, "Fields should not be empty", Toast.LENGTH_LONG).show();*/
+                                EditText emailField = findViewById(R.id.loginDialogEmailEditText);
+                                EditText passwordField = findViewById(R.id.loginDialogPasswordEditText);
 
-                    if (TextUtils.isEmpty(loginEmail)) {
-                        Snackbar.make(findViewById(R.id.login_activity_layout),
-                                "Enter your email to log in", Snackbar.LENGTH_SHORT).show();
-                    } else if (TextUtils.isEmpty(loginPassword)) {
+                                String email = emailField.getText().toString().trim();
+                                String password = passwordField.getText().toString().trim();
 
-                        Snackbar.make(findViewById(R.id.login_activity_layout),
-                                "Enter your password to log in", Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        Snackbar.make(findViewById(R.id.login_activity_layout),
-                                "Enter your email and password to log in", Snackbar.LENGTH_SHORT).show();
-                    }
-                }
+                                if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
+
+                                    //show progress
+                                    showProgress("Loading...");
+
+                                    mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<AuthResult> task) {
+                                            //check if login was successful
+                                            if (task.isSuccessful()) {
+                                                //login was successful
+                                                startMain();
+                                            } else {
+                                                //login was not successful
+                                                String errorMessage = task.getException().getMessage();
+
+                                                showSnack(R.id.login_activity_layout, "Error: " + errorMessage);
+
+                                                //hide progress
+                                                progressDialog.dismiss();
+                                            }
+                                            //hide progress
+                                            progressDialog.dismiss();
+                                        }
+                                    });
+
+                                } else if (TextUtils.isEmpty(email)) {
+
+                                    showSnack(R.id.login_activity_layout, "Enter your email address");
+
+                                } else if (TextUtils.isEmpty(password)) {
+
+                                    showSnack(R.id.login_activity_layout, "Enter your login password");
+
+                                } else {
+
+                                    showSnack(R.id.login_activity_layout, "Enter your login details to login");
+
+                                }
+
+                            }
+                        })
+                        .show();
+
             }
         });
         loginRegistrationButton.setOnClickListener(new View.OnClickListener() {
@@ -190,7 +212,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                 //open dialog
 
-                final LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
                 registerView = inflater.inflate(R.layout.register_alert_dialog_content, null);
 
                 AlertDialog.Builder registerDialog = new AlertDialog.Builder(LoginActivity.this);
