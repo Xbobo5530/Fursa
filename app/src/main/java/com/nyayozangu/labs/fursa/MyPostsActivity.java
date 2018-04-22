@@ -3,6 +3,7 @@ package com.nyayozangu.labs.fursa;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,6 +43,7 @@ public class MyPostsActivity extends AppCompatActivity {
 
     //retrieve posts
     private List<Posts> postsList;
+    private List<Users> usersList;
 
     //recycler adapter
     private PostsRecyclerAdapter postsRecyclerAdapter;
@@ -76,9 +80,10 @@ public class MyPostsActivity extends AppCompatActivity {
 
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
+        usersList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList);
+        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
 
 
         //set a layout manager for myPostsFeed (recycler view)
@@ -143,6 +148,8 @@ public class MyPostsActivity extends AppCompatActivity {
                     try {
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
+                        postsList.clear();
+                        usersList.clear();
                     } catch (Exception exception) {
                         Log.d(TAG, "error: " + exception.getMessage());
                     }
@@ -164,9 +171,11 @@ public class MyPostsActivity extends AppCompatActivity {
                         //pass the postId to the post model class Posts.class
                         final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
+                        String postUserId = doc.getDocument().getString("user_id");
+
                         // TODO: 4/17/18 filter user posts
 
-                        filterPosts(postId, post);
+                        filterPosts(postId, post, postUserId);
 
 
                     }
@@ -180,26 +189,26 @@ public class MyPostsActivity extends AppCompatActivity {
 
     }
 
-    private void filterPosts(String postId, final Posts post) {
-        db.collection("Posts").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+    private void filterPosts(String postId, final Posts post, String postUserId) {
 
-                //check if exists
-                if (documentSnapshot.exists()) {
+        //get current user id
+        String currentUserId = mAuth.getCurrentUser().getUid();
 
-                    //post exists
-                    //check user id
+        //check if is current user's post
+        if (postUserId.equals(currentUserId)) {
 
-                    String postUserId = documentSnapshot.get("user_id").toString();
+            //get userId for post
+            db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                    //get current user id
-                    String currentUserId = mAuth.getCurrentUser().getUid();
+                    //check if task is successful
+                    if (task.isSuccessful()) {
 
-                    //check if is current user's post
-                    if (postUserId.equals(currentUserId)) {
+                        Users user = task.getResult().toObject(Users.class);
+                        usersList.add(user);
 
-                        //is user's post
+
                         //add new post to the local postsList
                         if (isFirstPageFirstLoad) {
                             //if the first page is loaded the add new post normally
@@ -207,17 +216,20 @@ public class MyPostsActivity extends AppCompatActivity {
                         } else {
                             //add the post at position 0 of the postsList
                             postsList.add(0, post);
+                            usersList.add(0, user);
 
                         }
                         //notify the recycler adapter of the set change
                         postsRecyclerAdapter.notifyDataSetChanged();
-
                     }
 
                 }
+            });
+        }
 
-            }
-        });
+
+
+
     }
 
     private boolean isLoggedIn() {
@@ -297,8 +309,10 @@ public class MyPostsActivity extends AppCompatActivity {
                                 //pass the postId to the post model class Posts.class
                                 Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
+                                String postUserId = doc.getDocument().getString("user_id");
+
                                 //filter posts
-                                filterPosts(postId, post);
+                                filterPosts(postId, post, postUserId);
 
                                 /*//add new post to the local postsList
                                 postsList.add(post);

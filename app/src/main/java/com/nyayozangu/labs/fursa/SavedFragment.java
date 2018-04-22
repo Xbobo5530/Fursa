@@ -3,6 +3,7 @@ package com.nyayozangu.labs.fursa;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,6 +43,7 @@ public class SavedFragment extends Fragment {
 
     //retrieve posts
     private List<Posts> savedPostsList;
+    private List<Users> usersList;
 
     //recycler adapter
     private PostsRecyclerAdapter savedPostsRecyclerAdapter;
@@ -68,9 +72,10 @@ public class SavedFragment extends Fragment {
 
         //initiate an arrayList to hold all the posts
         savedPostsList = new ArrayList<>();
+        usersList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList);
+        savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList);
 
 
         //set a layout manager for homeFeedView (recycler view)
@@ -121,6 +126,8 @@ public class SavedFragment extends Fragment {
                     try {
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
+                        savedPostsList.clear();
+                        usersList.clear();
                     } catch (Exception exception) {
                         Log.d(TAG, "Error: " + exception.getMessage());
                     }
@@ -138,34 +145,37 @@ public class SavedFragment extends Fragment {
 
                         final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
-                        //check if user is logged in to access the saved posts
-                        if (isLoggedIn()) {
-                            String currentUserId = mAuth.getCurrentUser().getUid();
+                        //get user id
+                        String postUserId = doc.getDocument().getString("user_id");
 
-                            //query for saved posts
-                            db.collection("Posts/" + postId + "/Saves").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                @Override
-                                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        //get userId for post
+                        db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                                    //check if the current user saved current post
-                                    if (documentSnapshot.exists()) {
+                                //check if task is successful
+                                if (task.isSuccessful()) {
 
-                                        //add new post to the local postsList
-                                        if (isFirstPageFirstLoad) {
-                                            //if the first page is loaded the add new post normally
-                                            savedPostsList.add(post);
-                                            //notify the recycler adapter of the set change
-                                            savedPostsRecyclerAdapter.notifyDataSetChanged();
-                                        } else {
-                                            //add the post at position 0 of the postsList
-                                            savedPostsList.add(0, post);
-                                            //notify the recycler adapter of the set change
-                                            savedPostsRecyclerAdapter.notifyDataSetChanged();
-                                        }
+                                    Users user = task.getResult().toObject(Users.class);
+                                    usersList.add(user);
+
+
+                                    //add new post to the local postsList
+                                    if (isFirstPageFirstLoad) {
+                                        //if the first page is loaded the add new post normally
+                                        savedPostsList.add(post);
+                                    } else {
+                                        //add the post at position 0 of the postsList
+                                        savedPostsList.add(0, post);
+                                        usersList.add(0, user);
+
                                     }
+                                    //notify the recycler adapter of the set change
+                                    savedPostsRecyclerAdapter.notifyDataSetChanged();
                                 }
-                            });
-                        }
+
+                            }
+                        });
                     }
                 }
 
@@ -221,12 +231,27 @@ public class SavedFragment extends Fragment {
                                 //converting database data into objects
                                 //get the newly added post
                                 //pass the postId to the post model class Posts.class
-                                Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                                final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
-                                //add new post to the local postsList
-                                savedPostsList.add(post);
-                                //notify the recycler adapter of the set change
-                                savedPostsRecyclerAdapter.notifyDataSetChanged();
+                                //get user id
+                                String postUserId = doc.getDocument().getString("user_id");
+
+                                //get userId for post
+                                db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                        //check if task is successful
+                                        if (task.isSuccessful()) {
+
+                                            Users user = task.getResult().toObject(Users.class);
+                                            usersList.add(user);
+                                            savedPostsList.add(post);
+                                            savedPostsRecyclerAdapter.notifyDataSetChanged();
+                                        }
+
+                                    }
+                                });
                             }
                         }
 

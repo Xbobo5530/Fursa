@@ -51,6 +51,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
 
     //retrieve posts
     private List<Posts> postsList;
+    private List<Users> usersList;
 
     //recycler adapter
     private PostsRecyclerAdapter categoryRecyclerAdapter;
@@ -86,9 +87,10 @@ public class ViewCategoryActivity extends AppCompatActivity {
 
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
+        usersList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList);
+        categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
 
         //set a layout manager for catFeed (recycler view)
         catFeed.setLayoutManager(new LinearLayoutManager(this));
@@ -318,6 +320,8 @@ public class ViewCategoryActivity extends AppCompatActivity {
                     try {
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
+                        postsList.clear();
+                        usersList.clear();
                     } catch (Exception exception) {
                         Log.d(TAG, "error: " + exception.getMessage());
                     }
@@ -507,21 +511,38 @@ public class ViewCategoryActivity extends AppCompatActivity {
                         if (categories.contains(category)) {
 
                             //cat has business
-                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                            final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
-                            if (isFirstPageFirstLoad) {
+                            //get user id
+                            String postUserId = doc.getDocument().getString("user_id");
 
-                                //if the first page is loaded the add new post normally
-                                postsList.add(post);
+                            //get userId for post
+                            db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                            } else {
+                                    //check if task is successful
+                                    if (task.isSuccessful()) {
 
-                                //add the post at position 0 of the postsList
-                                postsList.add(0, post);
+                                        Users user = task.getResult().toObject(Users.class);
+                                        usersList.add(user);
 
-                            }
-                            //notify the recycler adapter of the set change
-                            categoryRecyclerAdapter.notifyDataSetChanged();
+                                        //add new post to the local postsList
+                                        if (isFirstPageFirstLoad) {
+                                            //if the first page is loaded the add new post normally
+                                            postsList.add(post);
+                                        } else {
+                                            //add the post at position 0 of the postsList
+                                            postsList.add(0, post);
+                                            usersList.add(0, user);
+
+                                        }
+                                        //notify the recycler adapter of the set change
+                                        categoryRecyclerAdapter.notifyDataSetChanged();
+                                    }
+
+                                }
+                            });
 
                         }
 

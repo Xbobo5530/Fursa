@@ -50,6 +50,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private static final String TAG = "Sean";
     //member variables for storing posts
     public List<Posts> postsList;
+    public List<Users> usersList;
 
     public Context context;
 
@@ -58,10 +59,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private FirebaseFirestore db;
 
     //empty constructor for receiving the posts
-    public PostsRecyclerAdapter(List<Posts> postsList) {
+    public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList) {
 
         //store received posts
         this.postsList = postsList;
+        this.usersList = usersList;
     }
 
     @NonNull
@@ -124,39 +126,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         final String postId = postsList.get(position).PostId;
 
         //handle username and userImage
-        final String userId = postsList.get(position).getUser_id();
-        //retrieve username from db
-        db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                //get the result and retrieve userName and Image Url
-                Log.d(TAG, "at getUserId from db query");
-                if (task.isSuccessful()) {
-                    //task is successful
-                    Log.d(TAG, "task is successful");
-                    //get userName
-                    try {
-                        String userName = task.getResult().get("name").toString();
-                        Log.d(TAG, "userName is: " + userName);
-                        holder.setPostUserName(userName);
+        String userName = usersList.get(position).getUsername();
+        String userImageDownloadUri = usersList.get(position).getUserImage();
+        Log.d(TAG, "onBindViewHolder: \nusername is: " + userName + "\nuser image is: " + userImageDownloadUri);
 
-                        //get userImage
-                        String userImageDownloadUri = task.getResult().get("image").toString();
-                        holder.setUserImage(userImageDownloadUri);
-                    } catch (Exception exception) {
-                        Log.d(TAG, "error: " + exception.getMessage());
-                    }
-
-                } else {
-                    //failed to retrieve the userData
-                    Log.d(TAG, "task not successful");
-                    String errorMessage = task.getException().getMessage();
-                    Log.d(TAG, "Failed to retrieve userData: " + errorMessage);
-                    // TODO: 4/4/18 load default images
-                }
-            }
-        });
-
+        holder.setUserData(userName, userImageDownloadUri);
 
         //handle date for posts
         // TODO: 4/5/18 looking into the timestamp bug; app crashes on creating new post
@@ -662,13 +636,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     .into(postImageView);
         }
 
-        // set post username
-        public void setPostUserName(String userName) {
 
-            postUserNameTextView = mView.findViewById(R.id.postUsernameTextView);
-            postUserNameTextView.setText(userName);
-
-        }
 
         //set post location
         public void setPostLocation(ArrayList locationArray) {
@@ -711,21 +679,25 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         // TODO: 4/7/18 use user thumb instead of user image
-        //set userImage
-        public void setUserImage(String userImageDownloadUri) {
-
-            postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
-            //add the placeholder image
-            RequestOptions placeHolderOptions = new RequestOptions();
-            placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
-
-            Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
-        }
 
         public void updateCommentsCount(int numberOfComments) {
 
             postLikesCount = mView.findViewById(R.id.postCommentCountText);
             postLikesCount.setText(String.valueOf(numberOfComments));
+
+        }
+
+        public void setUserData(String userName, String userImageDownloadUri) {
+
+            postUserNameTextView = mView.findViewById(R.id.postUsernameTextView);
+            postUserNameTextView.setText(userName);
+
+            postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
+            //add the placeholder image
+            RequestOptions placeHolderOptions = new RequestOptions();
+            placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+
+            Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
 
         }
     }

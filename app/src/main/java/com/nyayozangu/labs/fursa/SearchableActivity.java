@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -44,6 +47,7 @@ public class SearchableActivity extends AppCompatActivity {
 
     //retrieve posts
     private List<Posts> postsList;
+    private List<Users> usersList;
 
     //recycler adapter
     private PostsRecyclerAdapter searchRecyclerAdapter;
@@ -82,9 +86,10 @@ public class SearchableActivity extends AppCompatActivity {
 
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
+        usersList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        searchRecyclerAdapter = new PostsRecyclerAdapter(postsList);
+        searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
 
         //set a layout manager for homeFeedView (recycler view)
         homeFeedView.setLayoutManager(new LinearLayoutManager(this));
@@ -184,6 +189,8 @@ public class SearchableActivity extends AppCompatActivity {
                     try {
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
+                        postsList.clear();
+                        usersList.clear();
                     } catch (Exception exception) {
                         Log.d(TAG, "error: " + exception.getMessage());
                     }
@@ -205,9 +212,11 @@ public class SearchableActivity extends AppCompatActivity {
                         //pass the postId to the post model class Posts.class
                         Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
+                        //get user id
+                        String postUserId = doc.getDocument().getString("user_id");
 
                         //filter posts
-                        filterPosts(post, searchQuery);
+                        filterPosts(post, searchQuery, postUserId);
 
                     }
                 }
@@ -220,7 +229,7 @@ public class SearchableActivity extends AppCompatActivity {
     }
 
 
-    private void filterPosts(Posts post, String searchQuery) {
+    private void filterPosts(final Posts post, String searchQuery, String postUserId) {
         String title = post.getTitle().toLowerCase();
         String desc = post.getDesc().toLowerCase();
 
@@ -250,18 +259,34 @@ public class SearchableActivity extends AppCompatActivity {
                 desc.contains(searchQuery) ||
                 locString.contains(searchQuery)) {
 
-            //add post to search results
-            if (isFirstPageFirstLoad) {
-                //if the first page is loaded the add new post normally
-                postsList.add(post);
-            } else {
-                //add the post at position 0 of the postsList
-                postsList.add(0, post);
+            //get userId for post
+            db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-            }
-            //notify the recycler adapter of the set change
-            searchRecyclerAdapter.notifyDataSetChanged();
+                    //check if task is successful
+                    if (task.isSuccessful()) {
 
+                        Users user = task.getResult().toObject(Users.class);
+                        usersList.add(user);
+
+
+                        //add new post to the local postsList
+                        if (isFirstPageFirstLoad) {
+                            //if the first page is loaded the add new post normally
+                            postsList.add(post);
+                        } else {
+                            //add the post at position 0 of the postsList
+                            postsList.add(0, post);
+                            usersList.add(0, user);
+
+                        }
+                        //notify the recycler adapter of the set change
+                        searchRecyclerAdapter.notifyDataSetChanged();
+                    }
+
+                }
+            });
         }
 
     }
@@ -305,8 +330,10 @@ public class SearchableActivity extends AppCompatActivity {
                                 //pass the postId to the post model class Posts.class
                                 Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
+                                String postUserId = doc.getDocument().getString("user_id");
+
                                 //filter posts
-                                filterPosts(post, searchQuery);
+                                filterPosts(post, searchQuery, postUserId);
 
                             }
                         }

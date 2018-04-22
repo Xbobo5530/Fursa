@@ -40,7 +40,7 @@ public class SplashActivity extends AppCompatActivity {
 
             // This is just a normal run
             //start the main activity
-            startActivity(new Intent(getApplicationContext(), TutorialActivity.class));
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             Log.i("Sean", "At Splash, this is normal");
 
         } else if (savedVersionCode == DOES_NOT_EXIST) {

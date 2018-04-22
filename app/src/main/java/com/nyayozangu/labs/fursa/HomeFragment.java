@@ -3,6 +3,7 @@ package com.nyayozangu.labs.fursa;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,6 +43,7 @@ public class HomeFragment extends Fragment {
 
     //retrieve posts
     private List<Posts> postsList;
+    private List<Users> usersList;
 
     //recycler adapter
     private PostsRecyclerAdapter postsRecyclerAdapter;
@@ -65,9 +69,10 @@ public class HomeFragment extends Fragment {
 
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
+        usersList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList);
+        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
 
 
         //set a layout manager for homeFeedView (recycler view)
@@ -146,6 +151,8 @@ public class HomeFragment extends Fragment {
                     try {
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
+                        postsList.clear();
+                        usersList.clear();
                     } catch (Exception exception) {
                         Log.d(TAG, "error: " + exception.getMessage());
                     }
@@ -165,19 +172,44 @@ public class HomeFragment extends Fragment {
                         //converting database data into objects
                         //get the newly added post
                         //pass the postId to the post model class Posts.class
-                        Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                        final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
-                        //add new post to the local postsList
-                        if (isFirstPageFirstLoad) {
-                            //if the first page is loaded the add new post normally
-                            postsList.add(post);
-                        } else {
-                            //add the post at position 0 of the postsList
-                            postsList.add(0, post);
+                        //get user id
+                        String postUserId = doc.getDocument().getString("user_id");
+                        Log.d(TAG, "onEvent: userId is " + postUserId);
 
-                        }
-                        //notify the recycler adapter of the set change
-                        postsRecyclerAdapter.notifyDataSetChanged();
+                        //get userId for post
+                        db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                //check if task is successful
+                                if (task.isSuccessful()) {
+
+
+                                    // TODO: 4/23/18 cinverting a user to object returns use values as null
+                                    Users user = task.getResult().toObject(Users.class);
+                                    usersList.add(user);
+                                    Log.d(TAG, "onComplete: user is : " + user.toString());
+
+
+                                    //add new post to the local postsList
+                                    if (isFirstPageFirstLoad) {
+                                        //if the first page is loaded the add new post normally
+                                        postsList.add(post);
+                                    } else {
+                                        //add the post at position 0 of the postsList
+                                        postsList.add(0, post);
+
+                                    }
+                                    //notify the recycler adapter of the set change
+                                    postsRecyclerAdapter.notifyDataSetChanged();
+                                }
+
+                            }
+                        });
+
+
                     }
                 }
 
@@ -225,12 +257,27 @@ public class HomeFragment extends Fragment {
                                 //converting database data into objects
                                 //get the newly added post
                                 //pass the postId to the post model class Posts.class
-                                Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                                final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
-                                //add new post to the local postsList
-                                postsList.add(post);
-                                //notify the recycler adapter of the set change
-                                postsRecyclerAdapter.notifyDataSetChanged();
+                                //get user id
+                                String postUserId = doc.getDocument().getString("user_id");
+
+                                //get userId for post
+                                db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                        //check if task is successful
+                                        if (task.isSuccessful()) {
+
+                                            Users user = task.getResult().toObject(Users.class);
+                                            usersList.add(user);
+                                            postsList.add(post);
+                                            postsRecyclerAdapter.notifyDataSetChanged();
+                                        }
+
+                                    }
+                                });
                             }
                         }
 

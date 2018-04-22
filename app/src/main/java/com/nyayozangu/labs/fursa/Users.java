@@ -9,17 +9,15 @@ public class Users extends UserId {
 
     // TODO: 4/7/18 get date user joined
 
-    public String username;
-    public String userId;
-    public String userImage;
-    public String userThumb;
+    public String username, userId, userImage, userThumb, bio;
 
 
-    public Users(String name, String user_id, String image, String thumb) {
+    public Users(String name, String user_id, String image, String thumb, String bio) {
         this.username = name;
         this.userId = user_id;
         this.userImage = image;
         this.userThumb = thumb;
+        this.bio = bio;
     }
 
     //empty constructor
@@ -57,6 +55,14 @@ public class Users extends UserId {
 
     public void setUserThumb(String userThumb) {
         this.userThumb = userThumb;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
     public String toString() {
