@@ -531,6 +531,7 @@ public class ViewPostActivity extends AppCompatActivity {
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                 Log.d(TAG, "at view post query");
                 //show progress
+                // TODO: 4/22/18 check on editing post showing this progress dialog crashes the app
                 showProgress("Loading...");
                 //check if post exists
                 if (documentSnapshot.exists()) {
@@ -947,6 +948,8 @@ public class ViewPostActivity extends AppCompatActivity {
         //construct the dialog box
         progressDialog = new ProgressDialog(ViewPostActivity.this);
         progressDialog.setMessage(message);
+
+        // TODO: 4/22/18 when editing post, saving a post crashes the app due to showing porogress bar
         progressDialog.show();
 
     }

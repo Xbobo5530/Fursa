@@ -1,13 +1,13 @@
 package com.nyayozangu.labs.fursa;
 
 import android.content.Context;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -21,22 +21,42 @@ public class SlideAdapter extends PagerAdapter {
      */
     //Arrays
     public int[] slide_images = {
-            R.drawable.nyayozangu_tutorial_image,
-            R.drawable.requests_tutorial_image,
-            R.drawable.payments_tutorial_image,
-            R.drawable.delivery_tutorial_image
+            R.drawable.appic,
+            R.drawable.share,
+            R.drawable.party,
+            R.drawable.places,
+            R.drawable.school,
+            R.drawable.jobs,
+            R.drawable.services,
+            R.drawable.help
     };
     public String[] slide_headings = {
-            "NYAYO ZANGU STORE",
-            "PRODUCT REQUESTS",
-            "MOBILE PAYMENTS",
-            "DOOR TO DOOR DELIVERY"
+            "FURSA",
+            "SHARING",
+            "EVENTS",
+            "PLACES",
+            "EDUCATION",
+            "JOBS",
+            "SERVICES",
+            "GET HELP"
     };
     public String[] slide_descriptions = {
-            "Find products you are looking for\nfrom our catalog of unique products\nhandpicked just for you.",
-            "In case you can't find what you are looking for,\nhead over to the Product Requests section\nand tell us what you need.",
-            "Making payments is fast and easy.\nUse MPesa, Tigo Pesa, Airtel Money\nor even a bank deposit if you so choose.",
-            "We understand how precious your time is, \nwe will bring your package to you.\nWherever that might be."
+            "Welcome to Fursa, \nA place to share experiences and opportunities.",
+
+            "We all have something to share,\nsee what opportunities everyone is sharing\nand be apart of the conversation.",
+
+            "There's always something happening \nright around the corner,\nCheck out the hottest events near you.",
+
+            "New venues are opened everyday, \nTake a look at all the amazing places around you and expand your horizon.",
+
+            "Stay up to date on the latest \nScholarships, exchange programs, and courses offered around the world,\ndon't miss out on a chance \nto make your dream come true.",
+
+            "Companies are looking for people with skills like yours,\nfind out who is hiring.",
+
+            "There's a ton of service providers out there,\ntake a look at the listings \nto get the service you need.",
+
+            "Get help with whatever you are looking for from the growing Fursa community."
+
     };
     Context context;
     LayoutInflater layoutInflater;
@@ -83,7 +103,7 @@ public class SlideAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
 
-        container.removeView((RelativeLayout) object);
+        container.removeView((ConstraintLayout) object);
 
     }
 

@@ -37,12 +37,13 @@ public class CategoriesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
 
 
-        String[] catTitle = new String[]{
+        final String[] catTitle = new String[]{
 
                 getResources().getString(R.string.cat_featured),
                 getResources().getString(R.string.cat_popular),
                 getResources().getString(R.string.cat_upcoming),
                 getResources().getString(R.string.cat_events),
+                getString(R.string.cat_places),
                 getResources().getString(R.string.cat_business),
                 getResources().getString(R.string.cat_buysell),
                 getResources().getString(R.string.cat_education),
@@ -54,15 +55,16 @@ public class CategoriesFragment extends Fragment {
         //categories images Array
         int catImages[] = {
 
-                R.drawable.ic_action_image_placeholder,
-                R.drawable.ic_thumb_person,
-                R.drawable.ic_action_like_unclicked,
-                R.drawable.ic_action_bookmark,
-                R.drawable.ic_action_call,
-                R.drawable.ic_action_email,
-                R.drawable.ic_action_location,
-                R.drawable.ic_action_time,
-                R.drawable.ic_action_contact
+                R.drawable.featured,
+                R.drawable.popular,
+                R.drawable.upcoming,
+                R.drawable.events,
+                R.drawable.places,
+                R.drawable.business,
+                R.drawable.buysell,
+                R.drawable.school,
+                R.drawable.jobs,
+                R.drawable.help
 
         };
 
@@ -93,14 +95,22 @@ public class CategoriesFragment extends Fragment {
                 "Popular",
                 "UpComing",
                 "Events",
+                "Places"
                 "Business",
                 "Buy and sell",
                 "Education",
                 "Jobs",
                 "Queries"*/
 
-                //use position to open catViewActivity
+                Log.d(TAG, "onItemClick: ");
+
+                openCat(getCatKey(catTitle[position]));
+
+                /*//use position to open catViewActivity
                 switch (position) {
+
+
+                    case catTitle[position]
 
                     case 0:
                         openCat("featured");
@@ -113,6 +123,9 @@ public class CategoriesFragment extends Fragment {
                         break;
                     case 3:
                         openCat("events");
+                        break;
+                    case 3:
+                        openCat("places");
                         break;
                     case 4:
                         openCat("business");
@@ -133,7 +146,7 @@ public class CategoriesFragment extends Fragment {
                     default:
                         Log.d(TAG, "onItemClick: default");
 
-                }
+                }*/
 
             }
         });
@@ -143,57 +156,35 @@ public class CategoriesFragment extends Fragment {
 
     }
 
+    private String getCatKey(String catValue) {
 
-    /*@Override
-    public void onClick(View v) {
+        switch (catValue) {
 
-        MainActivity activity = (MainActivity) getActivity();
-
-        //set on click listener
-        switch (v.getId()) {
-
-            case R.id.catBusinessLayout:
-                //open the cat view
-                openCat("business");
-                break;
-
-            case R.id.catPopularLayout:
-                openCat("popular");
-                break;
-
-            case R.id.catFeaturedLayout:
-                openCat("featured");
-                break;
-
-            case R.id.catComingupLayout:
-                openCat("comingup");
-                break;
-
-            case R.id.catEducationLayout:
-                openCat("education");
-                break;
-
-            case R.id.catBuySellLayout:
-                openCat("buysell");
-                break;
-
-            case R.id.catEventsLayout:
-                openCat("events");
-                break;
-
-            case R.id.catJobsLayout:
-                openCat("jobs");
-                break;
-
-            case R.id.catPlacesLayout:
-                openCat("places");
-                break;
-
+            case "Featured":
+                return "featured";
+            case "Popular":
+                return "popular";
+            case "Up Coming":
+                return "upcoming";
+            case "Events":
+                return "events";
+            case "Places":
+                return "places";
+            case "Business":
+                return "business";
+            case "Buy and sell":
+                return "buysell";
+            case "Education":
+                return "education";
+            case "Jobs":
+                return "jobs";
+            case "Queries":
+                return "queries";
             default:
-                Log.d(TAG, "onClick: at default");
+                return null;
         }
 
-    }*/
+    }
 
     private void openCat(String catValue) {
         Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);

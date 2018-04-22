@@ -144,6 +144,9 @@ public class ViewCategoryActivity extends AppCompatActivity {
                         getSupportActionBar().setTitle(getString(R.string.cat_events));
                         break;
 
+                    case "places":
+                        getSupportActionBar().setTitle(getString(R.string.cat_places));
+
                     case "business":
                         getSupportActionBar().setTitle(getString(R.string.cat_business));
                         break;

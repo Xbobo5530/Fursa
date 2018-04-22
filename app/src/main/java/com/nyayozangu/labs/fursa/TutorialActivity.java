@@ -13,8 +13,6 @@ import android.widget.TextView;
 
 public class TutorialActivity extends AppCompatActivity {
 
-
-    private static final String EXTRA_MESSAGE = "com.nyayozangu.sean.nyayozangustore.CREATE_ACC_URL";
     private ViewPager mSlideViewPager;
     private LinearLayout mDotsLayout;
     private SlideAdapter sliderAdapter;
@@ -120,13 +118,12 @@ public class TutorialActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
 
     public void addDotsIndicator(int position) {
 
-        mDots = new TextView[4];
+        mDots = new TextView[8];
         mDotsLayout.removeAllViews();
 
         for (int i = 0; i < mDots.length; i++) {
