@@ -1,10 +1,15 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+
+import com.nyayozangu.labs.fursa.BuildConfig;
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.tutorial.TutorialActivity;
 
 public class SplashActivity extends AppCompatActivity {
 

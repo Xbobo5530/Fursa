@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.nyayozangu.labs.fursa.ViewPostActivity">
+    tools:context="com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/create_post_app_bar"

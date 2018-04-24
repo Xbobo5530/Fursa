@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
 import android.os.Bundle;
@@ -23,6 +23,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.Users;
+import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
+import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 
 import java.util.ArrayList;
 import java.util.List;

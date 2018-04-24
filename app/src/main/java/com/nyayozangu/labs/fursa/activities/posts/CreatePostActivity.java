@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.posts;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
@@ -47,6 +47,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -685,9 +687,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                                             if (task.isSuccessful()) {
                                                                 //db update successful
                                                                 Log.d(TAG, "Db Update successful");
-                                                                //go back to main feed
-                                                                startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
-                                                                finish();
+                                                                goToMain();
                                                                 progressDialog.dismiss();
 
                                                             } else {
@@ -741,9 +741,30 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 //post has no image
                                 //get map
-                                // TODO: 4/24/18 getmap
-                                //handle map with image null
-                                // TODO: 4/24/18 handle map with null image
+                                Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
+
+                                showProgress(getString(R.string.posting_text));
+                                db.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentReference> task) {
+
+                                        //check if postig is successful
+                                        if (task.isSuccessful()) {
+
+                                            goToMain();
+                                            progressDialog.dismiss();
+                                            Log.d(TAG, "onComplete: posted post without image");
+
+                                        } else {
+
+                                            //posting failed
+                                            String errorMessage = task.getException().getMessage();
+                                            showSnack(R.id.createPostActivityLayout, "Failed to post: " + errorMessage);
+
+                                        }
+
+                                    }
+                                });
 
                             }
                         } else {
@@ -833,10 +854,19 @@ public class CreatePostActivity extends AppCompatActivity {
     private Map<String, Object> handleMap(String downloadThumbUri, String downloadUri) {
         //store the user info associated with post
 
-        // TODO: 4/24/18 handle map with images null
         Map<String, Object> postMap = new HashMap<>();
-        postMap.put("image_url", downloadUri);
-        postMap.put("thumb_url", downloadThumbUri);
+
+        if (downloadUri != null) {
+
+            postMap.put("image_url", downloadUri);
+
+        }
+
+        if (downloadThumbUri != null) {
+
+            postMap.put("thumb_url", downloadThumbUri);
+
+        }
         postMap.put("title", title);
         postMap.put("desc", desc);
         postMap.put("user_id", currentUserId);

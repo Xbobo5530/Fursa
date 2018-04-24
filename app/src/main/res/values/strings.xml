@@ -269,6 +269,7 @@
     <string name="delete_menu_item_text">Delete</string>
     <string name="login_with_email_text">Login with Email</string>
     <string name="post_not_found_text">Could not find post</string>
+    <string name="posting_text">Posting...</string>
 
 
 </resources>

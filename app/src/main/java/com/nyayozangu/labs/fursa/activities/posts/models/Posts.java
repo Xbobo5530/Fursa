@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.posts.models;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,7 +8,7 @@ import java.util.Date;
  * Model class for the posts
  */
 
-public class Posts extends PostId {
+public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.PostId {
 
     //get all the details from database
     public String user_id;

@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.comments.models;
 
 import com.google.firebase.firestore.Exclude;
 

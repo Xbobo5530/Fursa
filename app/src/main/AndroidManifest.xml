@@ -16,8 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <provider
-            android:name=".MySuggestionProvider"
-            android:authorities="com.nyayozangu.labs.fursa.MySuggestionProvider" />
+            android:name=".activities.main.providers.MySuggestionProvider"
+            android:authorities="com.nyayozangu.labs.fursa.activities.main.providers.MySuggestionProvider" />
 
         <meta-data
             android:name="asset_statements"
@@ -27,7 +27,7 @@
             android:value="AIzaSyBuYym_3btmkmg4xGx2PO07J9c_kTLfy2I" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.main.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
@@ -43,9 +43,9 @@
                 android:value=".SearchableActivity" />
         </activity>
         <activity
-            android:name=".SearchableActivity"
+            android:name=".activities.main.SearchableActivity"
             android:launchMode="singleTop"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".activities.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -55,10 +55,10 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.settings.LoginActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan|adjustResize" />
-        <activity android:name=".AccountActivity" />
+        <activity android:name=".activities.settings.AccountActivity" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:screenOrientation="portrait"
@@ -85,7 +85,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ViewPostActivity"
+            android:name=".activities.posts.ViewPostActivity"
             android:label="@string/title_activity_scrolling"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
@@ -102,7 +102,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CreatePostActivity"
+            android:name=".activities.posts.CreatePostActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
 
@@ -119,7 +119,7 @@
 
         </activity>
         <activity
-            android:name=".SplashActivity"
+            android:name=".activities.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -129,21 +129,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activities.settings.SettingsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".CommentsActivity"
+            android:name=".activities.comments.CommentsActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".TutorialActivity" />
+        <activity android:name=".activities.tutorial.TutorialActivity" />
         <activity
-            android:name=".ViewCategoryActivity"
+            android:name=".activities.categories.ViewCategoryActivity"
             android:label="@string/title_activity_view_category"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".MyPostsActivity"
+            android:name=".activities.settings.MyPostsActivity"
             android:label="@string/title_activity_my_posts"
             android:theme="@style/AppTheme" />
-        <activity android:name=".MySubscriptionsActivity" />
+        <activity android:name=".activities.settings.MySubscriptionsActivity" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
 import android.content.Intent;
@@ -8,6 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 
 
 /**

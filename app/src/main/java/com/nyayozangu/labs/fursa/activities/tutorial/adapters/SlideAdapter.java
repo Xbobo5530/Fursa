@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.tutorial.adapters;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.nyayozangu.labs.fursa.R;
 
 /**
  * Created by Sean on 4/11/18.

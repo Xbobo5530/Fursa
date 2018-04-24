@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.tutorial;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -10,6 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.tutorial.adapters.SlideAdapter;
 
 public class TutorialActivity extends AppCompatActivity {
 

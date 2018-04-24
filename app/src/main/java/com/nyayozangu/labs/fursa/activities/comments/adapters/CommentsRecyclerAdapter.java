@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.comments.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -16,6 +16,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by Sean on 4/9/18.
  */
 
-class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapter.ViewHolder> {
+public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapter.ViewHolder> {
 
 
     private static final String TAG = "Sean";

@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
 import android.content.Intent;
@@ -11,6 +11,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.SimpleAdapter;
+
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;

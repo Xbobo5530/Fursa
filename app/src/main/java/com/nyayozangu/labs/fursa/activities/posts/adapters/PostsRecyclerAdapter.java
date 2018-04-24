@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.posts.adapters;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,6 +29,13 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.Users;
+import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
+import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
+import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
+import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
+import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 
 import java.sql.Date;
 import java.util.ArrayList;

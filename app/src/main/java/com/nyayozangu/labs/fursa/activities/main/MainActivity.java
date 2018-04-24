@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.main;
 
 import android.app.SearchManager;
 import android.content.ComponentName;
@@ -34,6 +34,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
+import com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment;
+import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
+import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
+import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
+import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
+import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 
 import java.util.List;
 

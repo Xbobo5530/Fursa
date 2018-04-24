@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.comments.models;
 
 import java.util.Date;
 
@@ -7,7 +7,7 @@ import java.util.Date;
  * model class for comments
  */
 
-class Comments extends CommentId {
+public class Comments extends CommentId {
 
     //get data from database
     public String comment;

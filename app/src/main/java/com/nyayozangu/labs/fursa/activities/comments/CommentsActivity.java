@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.activities.comments;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -27,6 +27,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.comments.adapters.CommentsRecyclerAdapter;
+import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
+import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
