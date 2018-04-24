@@ -270,6 +270,9 @@
     <string name="login_with_email_text">Login with Email</string>
     <string name="post_not_found_text">Could not find post</string>
     <string name="posting_text">Posting...</string>
+    <string name="internet_fail">Failed to connect to the internet</string>
+    <string name="added_to_saved_text">Added to saved items</string>
+    <string name="login_to_view_options_text">Login to view post options</string>
 
 
 </resources>

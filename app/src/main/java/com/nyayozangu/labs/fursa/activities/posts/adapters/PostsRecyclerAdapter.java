@@ -84,7 +84,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
 
-
         //initialize firebase storage
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
@@ -231,8 +230,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     Map<String, Object> likesMap = new HashMap<>();
                                     likesMap.put("timestamp", FieldValue.serverTimestamp());
 
-                                    //db.collection("Posts").document(postId).collection("Likes");
-                                    //can alternatively ne written
                                     db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
 
                                 } else {
@@ -245,7 +242,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     } else {
                         //user is not logged in
                         Log.d(TAG, "use is not logged in");
-                        //notify user
 
                         String message = "Log in to like items";
                         showLoginAlertDialog(message);
@@ -254,7 +250,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 } else {
 
                     //alert user is not connected
-                    showSnack(holder, "Failed to connect to the internet\nCheck your connection and try again");
+                    showSnack(holder, "Failed to connect to the internet");
 
                 }
 
@@ -291,7 +287,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     //save new post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
                                     //notify user that post has been saved
-                                    showSnack(holder, "Added to saved items");
+                                    showSnack(holder, context.getString(R.string.added_to_saved_text));
                                 } else {
                                     //delete saved post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
@@ -312,8 +308,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                     //user is not connected to the internet
                     //show alert dialog
-                    showSnack(holder, "Failed to connect to the internet\nCheck your connection and try again");
-
+                    showSnack(holder, context.getString(R.string.internet_fail));
 
                 }
 
@@ -355,7 +350,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
-        //create query to count comments
+        //count comments
         db.collection("Posts/" + postId + "/Comments").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -372,7 +367,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         });
 
-        //clicking the comment icon to go to the comment page of post
+        //comment icon click action
         holder.postCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -384,13 +379,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
-        //open menu on clicking post menu
+        //post menu click action
         holder.postMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-
-                db.collection("Posts/").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                db.collection("Posts").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -422,32 +416,51 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void openPostMenu(final String postId, final String currentUserId, final String postUserId) {
 
 
-        //normal menu
-        AlertDialog.Builder postMenuBuilder = new AlertDialog.Builder(context);
-        postMenuBuilder.setItems(getPostMenuItems(currentUserId, postUserId), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        if (isConnected()) {
 
-                //open the feedback page
-                switch (getPostMenuItems(currentUserId, postUserId)[which].toLowerCase()) {
+            if (isLoggedIn()) {
 
-                    case "report":
-                        //open report page
-                        Toast.makeText(context, "Report", Toast.LENGTH_SHORT).show();
-                        break;
-                    case "edit":
-                        //open edit post
-                        Intent editIntent = new Intent(context, CreatePostActivity.class);
-                        editIntent.putExtra("editPost", postId);
-                        context.startActivity(editIntent);
-                        break;
 
-                }
+                //normal menu
+                AlertDialog.Builder postMenuBuilder = new AlertDialog.Builder(context);
+                postMenuBuilder.setItems(getPostMenuItems(currentUserId, postUserId), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
+                        //open the feedback page
+                        switch (getPostMenuItems(currentUserId, postUserId)[which].toLowerCase()) {
+
+                            case "report":
+                                //open report page
+                                Toast.makeText(context, "Report", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "edit":
+                                //open edit post
+                                Intent editIntent = new Intent(context, CreatePostActivity.class);
+                                editIntent.putExtra("editPost", postId);
+                                context.startActivity(editIntent);
+                                break;
+
+                        }
+
+
+                    }
+                })
+                        .show();
+
+            } else {
+
+                //user is not logged in
+                showLoginAlertDialog(context.getString(R.string.login_to_view_options_text));
 
             }
-        })
-                .show();
+
+        } else {
+
+            // TODO: 4/24/18 notify user failed to connect
+            /*showSnack (holder, "Failed to connet to the internet");*/
+
+        }
 
 
     }
@@ -632,15 +645,24 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             postImageView = mView.findViewById(R.id.postImageView);
 
-            RequestOptions requestOptions = new RequestOptions();
-            // TODO: 4/5/18 replace postImage placeholder image
-            requestOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
-            Glide.with(context)
-                    .applyDefaultRequestOptions(requestOptions)
-                    .load(imageDownloadUrl)
-                    .thumbnail(Glide.with(context).load(thumbDownloadUrl))
-                    .into(postImageView);
+            if (imageDownloadUrl != null && thumbDownloadUrl != null) {
+                RequestOptions requestOptions = new RequestOptions();
+                // TODO: 4/5/18 replace postImage placeholder image
+                requestOptions.placeholder(R.drawable.ic_action_image_placeholder);
+
+                Glide.with(context)
+                        .applyDefaultRequestOptions(requestOptions)
+                        .load(imageDownloadUrl)
+                        .thumbnail(Glide.with(context).load(thumbDownloadUrl))
+                        .into(postImageView);
+
+            } else {
+
+                //post has no image, hide imageView
+                postImageView.setVisibility(View.GONE);
+
+            }
         }
 
 

@@ -640,22 +640,32 @@ public class ViewPostActivity extends AppCompatActivity {
                     //set the time
                     long millis = post.getTimestamp().getTime();
                     String dateString = DateFormat.format("EEE, MMM d, yyyy - h:mm a", new Date(millis)).toString();
-                    timeTextView.setText("Posted on:\n" + dateString);
+                    String date = "Posted on:\n" + dateString;
+                    timeTextView.setText(date);
 
                     //set post image
                     //add the placeholder image
                     String postImageUri = post.getImage_url();
                     String postThumbUrl = post.getThumb_url();
-                    RequestOptions placeHolderOptions = new RequestOptions();
-                    placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
-                    Glide.with(getApplicationContext())
-                            .applyDefaultRequestOptions(placeHolderOptions)
-                            .load(postImageUri)
-                            .thumbnail(Glide.with(getApplicationContext()).load(postThumbUrl))
-                            .into(viewPostImage);
+                    if (postImageUri != null && postThumbUrl != null) {
+                        RequestOptions placeHolderOptions = new RequestOptions();
+                        placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
-                    Log.d(TAG, "onEvent: image set");
+                        Glide.with(getApplicationContext())
+                                .applyDefaultRequestOptions(placeHolderOptions)
+                                .load(postImageUri)
+                                .thumbnail(Glide.with(getApplicationContext()).load(postThumbUrl))
+                                .into(viewPostImage);
+
+                        Log.d(TAG, "onEvent: image set");
+
+                    } else {
+
+                        //post has no image, hide the image view
+                        viewPostImage.setVisibility(View.GONE);
+
+                    }
 
 
                     //get user id for the post
@@ -754,7 +764,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         }
 
-                        catTextView.setText(catString);
+                        catTextView.setText(catString.trim());
 
                     } else {
 
