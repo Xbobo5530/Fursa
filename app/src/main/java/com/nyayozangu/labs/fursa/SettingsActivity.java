@@ -144,7 +144,7 @@ public class SettingsActivity extends AppCompatActivity {
                         try {
                             String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
                             RequestOptions placeHolderOptions = new RequestOptions();
-                            placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+                            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
 
                             Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
                                     .load(userProfileImageDownloadUrl).into(userImage);
@@ -158,7 +158,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                     } else {
                         Log.d(TAG, "user does now exist");
-                        userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+                        userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
                     }
                 }
             });
@@ -166,7 +166,7 @@ public class SettingsActivity extends AppCompatActivity {
             //user is not logged in
             usernameTextView.setVisibility(View.GONE);
             userBioTextView.setText("You are currently not logged in \nclick the login button to log in");
-            userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+            userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
             editProfileButton.setVisibility(View.INVISIBLE); //hide the edit profile button
 
         }

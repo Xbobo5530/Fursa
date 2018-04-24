@@ -58,7 +58,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_thumb_person" />
+                app:srcCompat="@drawable/ic_account_circle_black_48dp" />
 
             <TextView
                 android:id="@+id/settingsUsernameTextView"

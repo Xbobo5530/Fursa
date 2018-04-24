@@ -684,7 +684,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                 } else {
 
                                     //user has no image or thumb
-                                    userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+                                    userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
                                     Log.d(TAG, "onEvent: placeholder user image set");
 
                                 }
@@ -709,7 +709,7 @@ public class ViewPostActivity extends AppCompatActivity {
                             } else {
 
                                 //user does not exist
-                                userImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+                                userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
 
                             }
 
@@ -902,7 +902,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private void setImage(String downloadUrl) {
         RequestOptions placeHolderOptions = new RequestOptions();
-        placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+        placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
 
         Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
                 .load(downloadUrl).into(userImage);

@@ -122,7 +122,7 @@ public class AccountActivity extends AppCompatActivity {
 
                         try {
                             RequestOptions placeHolderRequest = new RequestOptions();
-                            placeHolderRequest.placeholder(R.drawable.ic_thumb_person);
+                            placeHolderRequest.placeholder(R.drawable.ic_action_person_placeholder);
 
                             //loading the string for url to the image view
                             Glide.with(getApplicationContext()).setDefaultRequestOptions(placeHolderRequest).load(image).into(setupImage);

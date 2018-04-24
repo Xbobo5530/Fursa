@@ -173,14 +173,14 @@ public class MainActivity extends AppCompatActivity {
                             String userImageDownloadUri = task.getResult().get("image").toString();
 
                             RequestOptions placeHolderOptions = new RequestOptions();
-                            placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+                            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
 
                             Glide.with(MainActivity.this).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(userProfileImage);
 
                         } catch (NullPointerException imageNotFoundException) {
 
                             //user image not found
-                            userProfileImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+                            userProfileImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
                             Log.d(TAG, "onComplete: user has no profile image");
 
                         }

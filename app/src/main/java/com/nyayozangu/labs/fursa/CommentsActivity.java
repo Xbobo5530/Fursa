@@ -157,7 +157,7 @@ public class CommentsActivity extends AppCompatActivity {
                             //set image
                             String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
                             RequestOptions placeHolderOptions = new RequestOptions();
-                            placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+                            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
 
                             Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
                                     .load(userProfileImageDownloadUrl).into(currentUserImage);
@@ -165,7 +165,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                         } catch (NullPointerException noImageFoundException) {
 
-                            currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_thumb_person));
+                            currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
 
                             Log.d(TAG, "onEvent: error: no thum found");
                         }
@@ -232,7 +232,7 @@ public class CommentsActivity extends AppCompatActivity {
 
         } else {
 
-            currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_thumb_person));
+            currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
             //clicking send to go to login with postId intent
             sendButton.setOnClickListener(new View.OnClickListener() {
                 @Override

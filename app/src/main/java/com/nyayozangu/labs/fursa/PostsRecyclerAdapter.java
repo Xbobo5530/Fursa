@@ -695,7 +695,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
             //add the placeholder image
             RequestOptions placeHolderOptions = new RequestOptions();
-            placeHolderOptions.placeholder(R.drawable.ic_thumb_person);
+            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
 
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
 
