@@ -158,6 +158,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 EditText emailField = findViewById(R.id.loginDialogEmailEditText);
                                 EditText passwordField = findViewById(R.id.loginDialogPasswordEditText);
 
+                                // TODO: 4/24/18 check the null edit text bug
+
                                 String email = emailField.getText().toString().trim();
                                 String password = passwordField.getText().toString().trim();
 

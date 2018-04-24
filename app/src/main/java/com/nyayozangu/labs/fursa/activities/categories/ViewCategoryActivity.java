@@ -202,7 +202,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
         } else {
 
             //user is not connected to internet
-            showSnack(R.id.viewCatLayout, getString(R.string.connection_error_message));
+            showSnack(R.id.viewCatLayout, getString(R.string.failed_to_connect_text));
 
         }
 
@@ -266,7 +266,7 @@ public class ViewCategoryActivity extends AppCompatActivity {
                 } else {
 
                     //user is not connected to internet
-                    showSnack(R.id.viewCatLayout, getString(R.string.connection_error_message));
+                    showSnack(R.id.viewCatLayout, getString(R.string.failed_to_connect_text));
 
                 }
 

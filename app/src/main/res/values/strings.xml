@@ -2,7 +2,7 @@
     <string name="app_name">Fursa</string>
     <string name="action_settings">Settings</string>
     <string name="login_email_edit_text">Email</string>
-    <string name="login_password_edit_text">Password</string>
+    <string name="password_text">Password</string>
     <string name="login_button">Login</string>
     <string name="login_register_edit_text">Register with Email</string>
     <string name="acc_name_hint">Your name</string>
@@ -121,7 +121,7 @@
     <string name="cat_education">Education</string>
     <string name="cat_jobs">Jobs</string>
     <string name="cat_queries">Queries</string>
-    <string name="connection_error_message">Failed to connect to the internet</string>
+    <string name="failed_to_connect_text">Failed to connect to the internet</string>
     <string name="log_to_subscribe_text">Log in to subscribe</string>
     <string name="subscribe_to_text">Subscribed to</string>
     <string name="sucscribe_failed_text">Failed to subscribe</string>
@@ -257,15 +257,13 @@
     <string name="desc_post_placeholder_text">this is random text for teh placeholder of the image veia hdod lookd i=too maih intteo iwws</string>
     <string name="location__post_placeholder_text">Dar es Salaam Tanzania</string>
     <string name="post_title__post_placeholder_text">Post Title</string>
-    <string name="colon">:</string>
     <string name="name_text">Name</string>
     <string name="phone_text">Phone</string>
-    <string name="new_line">\\n</string>
     <string name="email_text">Email</string>
     <string name="search_text">Search</string>
     <string name="cat_places">Places</string>
-    <string name="report_menu_item_text">Report</string>
-    <string name="edit_menu_item_text">Edit</string>
+    <string name="report_text">Report</string>
+    <string name="edit_text">Edit</string>
     <string name="delete_menu_item_text">Delete</string>
     <string name="login_with_email_text">Login with Email</string>
     <string name="post_not_found_text">Could not find post</string>
@@ -273,6 +271,8 @@
     <string name="internet_fail">Failed to connect to the internet</string>
     <string name="added_to_saved_text">Added to saved items</string>
     <string name="login_to_view_options_text">Login to view post options</string>
+    <string name="login_to_like">Login to like items</string>
+    <string name="default_notification_channel_name">Updates</string>
 
 
 </resources>

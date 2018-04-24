@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         if (!isConnected()) {
 
             //notify user is not connected
-            showSnack(R.id.main_activity_layout, getString(R.string.connection_error_message));
+            showSnack(getString(R.string.failed_to_connect_text));
 
         }
 
@@ -393,11 +393,11 @@ public class MainActivity extends AppCompatActivity {
         //send alert user is signed out
         Log.d(TAG, "user has signed out");
         String logoutMessage = "You are now signed out";
-        showSnack(R.id.main_activity_layout, logoutMessage);
+        showSnack(logoutMessage);
     }
 
-    private void showSnack(int id, String message) {
-        Snackbar.make(findViewById(id),
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.main_activity_layout),
                 message, Snackbar.LENGTH_SHORT).show();
     }
 

@@ -172,8 +172,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         if (isLoggedIn()) {
             //get likes
             //determine likes by current user
-            final String finalCurrentUserId = currentUserId;
-            db.collection("Posts/" + postId + "/Likes").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            db.collection("Posts/" + postId + "/Likes").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                     //update the like button real time
@@ -189,7 +188,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             });
 
             //get saves
-            db.collection("Posts/" + postId + "/Saves").document(finalCurrentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            db.collection("Posts/" + postId + "/Saves").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                     //update the save button real time
@@ -243,14 +242,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         //user is not logged in
                         Log.d(TAG, "use is not logged in");
 
-                        String message = "Log in to like items";
+                        String message = context.getString(R.string.login_to_like);
                         showLoginAlertDialog(message);
 
                     }
                 } else {
 
                     //alert user is not connected
-                    showSnack(holder, "Failed to connect to the internet");
+                    showSnack(holder, context.getString(R.string.failed_to_connect_text));
 
                 }
 
@@ -415,11 +414,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private void openPostMenu(final String postId, final String currentUserId, final String postUserId) {
 
-
         if (isConnected()) {
 
             if (isLoggedIn()) {
-
 
                 //normal menu
                 AlertDialog.Builder postMenuBuilder = new AlertDialog.Builder(context);
@@ -458,10 +455,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         } else {
 
             // TODO: 4/24/18 notify user failed to connect
-            /*showSnack (holder, "Failed to connet to the internet");*/
+            /*showSnack (holder, "Failed to connect to the internet");*/
 
         }
-
 
     }
 
@@ -471,34 +467,27 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             if (isLoggedIn()) {
 
-
-                //get user id for post
-
-
                 if (currentUserId.equals(postUserId)) {
 
                     //menu items
-                    String[] menuItems = new String[]{
+                    return new String[]{
 
-                            "Edit",
-                            "Report"
+                            context.getString(R.string.edit_text),
+                            context.getString(R.string.report_text),
 
                     };
-                    return menuItems;
                 } else {
 
                     //menu items
-                    String[] menuItems = new String[]{
+                    return new String[]{
 
-                            "Report",
+                            context.getString(R.string.report_text)
 
                     };
-                    return menuItems;
 
                 }
 
             }
-
 
         }
 
@@ -541,17 +530,17 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void showLoginAlertDialog(String message) {
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(context);
-        loginAlertBuilder.setTitle("Login")
+        loginAlertBuilder.setTitle(context.getString(R.string.login_text))
                 .setIcon(context.getDrawable(R.drawable.ic_action_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                .setMessage(context.getString(R.string.not_logged_in_text) + message)
+                .setPositiveButton(context.getString(R.string.login_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
                         goToLogin();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(context.getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //cancel
@@ -610,7 +599,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postLikeButton = mView.findViewById(R.id.postLikeImageView);
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
 
-
             postSaveButton = mView.findViewById(R.id.postSaveImageView);
 
             postSharePostButton = mView.findViewById(R.id.postShareImageView);
@@ -647,10 +635,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
             if (imageDownloadUrl != null && thumbDownloadUrl != null) {
-                RequestOptions requestOptions = new RequestOptions();
-                // TODO: 4/5/18 replace postImage placeholder image
-                requestOptions.placeholder(R.drawable.ic_action_image_placeholder);
 
+                RequestOptions requestOptions = new RequestOptions();
+                requestOptions.placeholder(R.drawable.ic_action_image_placeholder);
                 Glide.with(context)
                         .applyDefaultRequestOptions(requestOptions)
                         .load(imageDownloadUrl)
@@ -682,8 +669,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 postLocationTextView.setText(locationString.trim());
 
             } else {
+
                 Log.d(TAG, "location details are null");
                 postLocationTextView.setVisibility(View.GONE);
+
             }
 
         }
