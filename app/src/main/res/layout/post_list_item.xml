@@ -38,8 +38,10 @@
                 android:id="@+id/postUserImageCircleImageView"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_marginBottom="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/postImageView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_action_person_placeholder" />

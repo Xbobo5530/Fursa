@@ -225,9 +225,12 @@ public class CommentsActivity extends AppCompatActivity {
 
                                             //subscribe user to post
                                             db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).set(commentsMap);
-
+                                            //subscribe user to topic
+                                            //subscribe to app updates
+                                            FirebaseMessaging.getInstance().subscribeToTopic("comment_updates");
+                                            Log.d(TAG, "user subscribed to topic COMMENTS");
                                             // TODO: 4/25/18 send notifs to subscribers
-                                            new Notify().execute();
+                                            new Notify().execute("comment_updates", postId);
                                             Log.d(TAG, "onComplete: sending notification");
 
                                         } else {
@@ -271,6 +274,7 @@ public class CommentsActivity extends AppCompatActivity {
     }
 
 
+    //setting sub icon on toolbar
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
@@ -291,6 +295,7 @@ public class CommentsActivity extends AppCompatActivity {
                             subscribeButton.setIcon(R.drawable.ic_action_subscribed);
 
                         } else {
+
 
                             //user is not subscribed
                             subscribeButton.setIcon(R.drawable.ic_action_subscribe);
@@ -330,7 +335,7 @@ public class CommentsActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                            //check if tast is successful
+                            //check if task is successful
                             if (task.isSuccessful()) {
 
                                 //check if post exists
@@ -339,7 +344,7 @@ public class CommentsActivity extends AppCompatActivity {
                                     //user has already subscribed to current post
                                     //unsubscribe user
                                     db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).delete();
-                                    FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
+                                    FirebaseMessaging.getInstance().unsubscribeFromTopic("comment_updates");
                                     Log.d(TAG, "user subscribed to topic {CURRENT POST}");
 
 
@@ -350,9 +355,9 @@ public class CommentsActivity extends AppCompatActivity {
                                     commentsSubMap.put("timestamp", FieldValue.serverTimestamp());
                                     //user is not yet subscribed
                                     db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).set(commentsSubMap);
-                                    //subscribe to firebase topic
-                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                    Log.d(TAG, "user subscribed to topic {CURRENT POST}");
+                                    //subscribe to topic
+                                    FirebaseMessaging.getInstance().subscribeToTopic("comment_updates");
+                                    Log.d(TAG, "user subscribed to topic COMMENTS");
                                     //notify user
                                     String message = "Subscribed to post updates";
                                     showSnack(message);

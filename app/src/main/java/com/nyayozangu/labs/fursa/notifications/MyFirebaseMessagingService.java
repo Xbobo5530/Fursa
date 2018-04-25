@@ -51,14 +51,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             String title = data.get("title");
             String message = data.get("message");
-            String targetUrl = data.get("targetUrl").trim();
+            String extraInfo = data.get("extra").trim();
             Log.d(TAG, "onMessageReceived: Message Received: \n" +
                     "Title: " + title + "\n" +
                     "Message: " + message + "\n" +
-                    "targetUrl: " + targetUrl);
+                    "targetUrl: " + extraInfo);
 
-            if (!targetUrl.isEmpty()) {
-                sendNotification(title, message, targetUrl);
+            if (!extraInfo.isEmpty()) {
+                sendNotification(title, message, extraInfo);
             } else {
                 sendNotification(title, message, null);
             }

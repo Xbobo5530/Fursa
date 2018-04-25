@@ -49,6 +49,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.notifications.Notify;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -683,12 +684,17 @@ public class CreatePostActivity extends AppCompatActivity {
                                                     db.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<DocumentReference> task) {
+
                                                             //check the result
                                                             if (task.isSuccessful()) {
+
                                                                 //db update successful
                                                                 Log.d(TAG, "Db Update successful");
                                                                 goToMain();
                                                                 progressDialog.dismiss();
+                                                                //notify users subscribed to cats
+                                                                notifyNewPostCatsUpdates(catsStringsArray);
+                                                                Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
 
                                                             } else {
                                                                 //upload failed
@@ -753,6 +759,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                             goToMain();
                                             progressDialog.dismiss();
+                                            //notify users subscribed to cats
+                                            notifyNewPostCatsUpdates(catsStringsArray);
                                             Log.d(TAG, "onComplete: posted post without image");
 
                                         } else {
@@ -786,21 +794,24 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                     //check the result
                                     if (task.isSuccessful()) {
+
                                         //db update successful
                                         Log.d(TAG, "Db Update successful");
                                         //go back to main feed
                                         startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
                                         finish();
+                                        //notify users subscribed to cats
+                                        notifyNewPostCatsUpdates(catsStringsArray);
 
                                     } else {
+
                                         //upload failed
                                         String errorMessage = task.getException().getMessage();
                                         Log.d(TAG, "Db Update failed: " + errorMessage);
-
                                         Snackbar.make(findViewById(R.id.createPostActivityLayout),
                                                 "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
                                         progressDialog.dismiss();
+
                                     }
 
                                 }
@@ -847,6 +858,18 @@ public class CreatePostActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    private void notifyNewPostCatsUpdates(ArrayList<String> catsStringsArray) {
+
+        //send notifications to all users subscribed to cats in catStringArray
+        for (int i = 0; i < catsStringsArray.size(); i++) {
+
+            String notifType = "categories_updates";
+            new Notify().execute(notifType, catsStringsArray.get(i));
+
+        }
 
     }
 
@@ -1072,27 +1095,29 @@ public class CreatePostActivity extends AppCompatActivity {
                     String desc = task.getResult().get("desc").toString();
                     postDescTextView.setText(desc);
 
-
-                    //set image
-                    String imageUrl = task.getResult().get("image_url").toString();
-                    String thumbUrl = task.getResult().get("thumb_url").toString();
-                    RequestOptions placeHolderOptions = new RequestOptions();
-                    placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
-
-                    Glide.with(getApplicationContext())
-                            .applyDefaultRequestOptions(placeHolderOptions)
-                            .load(imageUrl)
-                            .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
-                            .into(createPostImageView);
-
-                    //update the imageUrl
-                    downloadUri = imageUrl;
-                    downloadThumbUri = thumbUrl;
-
                     /*//update the  original timestamp
                     timestamp = (Date) task.getResult().get("timestamp");*/
 
                     //nullable
+
+                    //set image
+                    if (task.getResult().get("image_url") != null) {
+                        String imageUrl = task.getResult().get("image_url").toString();
+                        String thumbUrl = task.getResult().get("thumb_url").toString();
+                        RequestOptions placeHolderOptions = new RequestOptions();
+                        placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
+
+                        Glide.with(getApplicationContext())
+                                .applyDefaultRequestOptions(placeHolderOptions)
+                                .load(imageUrl)
+                                .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
+                                .into(createPostImageView);
+
+                        //update the imageUrl
+                        downloadUri = imageUrl;
+                        downloadThumbUri = thumbUrl;
+
+                    }
 
                     //set categories
                     if (task.getResult().get("categories") != null) {
