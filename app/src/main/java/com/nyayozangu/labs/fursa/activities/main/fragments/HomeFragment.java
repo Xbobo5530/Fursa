@@ -94,19 +94,18 @@ public class HomeFragment extends Fragment {
         //initiate swipe refresh
         swipeRefresh = view.findViewById(R.id.homeSwipeRefresh);
 
-
         //listen for scrolling on the homeFeedView
         homeFeedView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
                 super.onScrolled(recyclerView, dx, dy);
-
                 Boolean reachedBottom = !homeFeedView.canScrollVertically(1);
-
                 if (reachedBottom) {
 
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     loadMorePosts();
+
                 }
             }
         });
@@ -175,7 +174,7 @@ public class HomeFragment extends Fragment {
                         final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
                         //get user id
-                        String postUserId = doc.getDocument().getString("user_id");
+                        final String postUserId = doc.getDocument().getString("user_id");
                         Log.d(TAG, "onEvent: userId is " + postUserId);
 
                         //get userId for post
@@ -188,15 +187,19 @@ public class HomeFragment extends Fragment {
 
                                     // TODO: 4/23/18 converting a user to object returns use values as null
                                     Users user = task.getResult().toObject(Users.class);
-                                    usersList.add(user);
+                                    Log.d(TAG, "onComplete: \ntask results: )" + task.getResult().toString());
+
                                     Log.d(TAG, "onComplete: user is : " + user.toString());
-
-
                                     //add new post to the local postsList
                                     if (isFirstPageFirstLoad) {
+
+                                        usersList.add(user);
                                         //if the first page is loaded the add new post normally
                                         postsList.add(post);
+
                                     } else {
+
+                                        usersList.add(0, user);
                                         //add the post at position 0 of the postsList
                                         postsList.add(0, post);
 
