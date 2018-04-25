@@ -201,7 +201,7 @@ public class CommentsActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
                                 //add new comment
-                                Map<String, Object> commentsMap = new HashMap<>();
+                                final Map<String, Object> commentsMap = new HashMap<>();
                                 commentsMap.put("timestamp", FieldValue.serverTimestamp());
                                 commentsMap.put("comment", comment);
                                 commentsMap.put("user_id", userId);
@@ -211,16 +211,21 @@ public class CommentsActivity extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
 
-                                        //chek if task is successful
+                                        //check if task is successful
                                         if (!task.isSuccessful()) {
 
                                             Snackbar.make(findViewById(R.id.comment_activity_layout),
                                                     "Failed to post comment: " + task.getResult().toString(), Snackbar.LENGTH_SHORT).show();
+                                            //subscribe user to post
+                                            db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(userId).set(commentsMap);
+
+
 
                                         }
 
                                     }
                                 });
+
 
                                 progressDialog.dismiss();
 

@@ -29,6 +29,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.Users;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
@@ -179,7 +180,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     if (documentSnapshot.exists()) {
                         Log.d(TAG, "at get likes, updating likes real time");
                         //user has liked
-                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_app_light));
+                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_accent));
                     } else {
                         //current user has not liked the post
                         holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
@@ -281,23 +282,35 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                                 //check if user has already saved the post
                                 if (!task.getResult().exists()) {
+
                                     Map<String, Object> savesMap = new HashMap<>();
                                     savesMap.put("timestamp", FieldValue.serverTimestamp());
                                     //save new post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
+                                    //subscribe to topic
+                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                                    String userId = mAuth.getCurrentUser().getUid();
+                                    db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(userId).set(savesMap);
+                                    Log.d(TAG, "user subscribed to topic {SAVED POST}");
                                     //notify user that post has been saved
                                     showSnack(holder, context.getString(R.string.added_to_saved_text));
+
                                 } else {
+
                                     //delete saved post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
+                                    //subscribe to app updates
+                                    FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
+                                    Log.d(TAG, "user unSubscribed from topic {SAVED POST}");
+
                                 }
                             }
                         });
                     } else {
+
                         //user is not logged in
                         Log.d(TAG, "user is not logged in");
                         //notify user
-
                         String message = "Log in to save items";
                         showLoginAlertDialog(message);
 

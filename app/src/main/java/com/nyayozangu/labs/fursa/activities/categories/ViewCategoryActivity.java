@@ -31,6 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.Users;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
@@ -42,7 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ViewCategoryActivity extends AppCompatActivity {
+public class
+ViewCategoryActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
     //firebase auth
@@ -240,14 +242,22 @@ public class ViewCategoryActivity extends AppCompatActivity {
 
                                     //subscribe user
                                     db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).set(catsMap);
-                                    //user is not subscribed
+                                    //set image
                                     subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
+                                    //subscribe to notifications
+                                    //subscribe to app updates
+                                    FirebaseMessaging.getInstance().subscribeToTopic(currentCat);
+                                    Log.d(TAG, "user subscribed to topic {CURRENT CAT}");
                                     //notify user
                                     showSnack(R.id.viewCatLayout, "Subscribed to " + getSupportActionBar().getTitle());
 
                                 } else {
+
                                     //unsubscribe
                                     db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).delete();
+                                    //unsubscribe to app updates
+                                    FirebaseMessaging.getInstance().unsubscribeFromTopic(currentCat);
+                                    Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
                                     //set fab image
                                     subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
                                 }
