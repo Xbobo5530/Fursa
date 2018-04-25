@@ -34,6 +34,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment;
@@ -88,6 +89,10 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //subscribe to app updates
+        FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
+        Log.d(TAG, "user subscribed to topic UPDATES");
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();

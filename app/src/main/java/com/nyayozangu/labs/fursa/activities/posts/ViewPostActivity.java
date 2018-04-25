@@ -505,7 +505,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         Log.d(TAG, "at get likes, updating likes real time");
                         //user has liked
-                        likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_liked));
+                        likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_app_light));
                     } else {
                         //current user has not liked the post
                         likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_unclicked));

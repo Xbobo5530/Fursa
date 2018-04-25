@@ -114,7 +114,6 @@ public class HomeFragment extends Fragment {
 
         final Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
         //get all posts from the database
-        //use snapshotListener to get all the data real time
         loadPosts(firstQuery);
 
         //handle refresh
@@ -173,9 +172,6 @@ public class HomeFragment extends Fragment {
                         //get the post id for likes feature
                         String postId = doc.getDocument().getId();
 
-                        //converting database data into objects
-                        //get the newly added post
-                        //pass the postId to the post model class Posts.class
                         final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
                         //get user id
@@ -190,8 +186,7 @@ public class HomeFragment extends Fragment {
                                 //check if task is successful
                                 if (task.isSuccessful()) {
 
-
-                                    // TODO: 4/23/18 cinverting a user to object returns use values as null
+                                    // TODO: 4/23/18 converting a user to object returns use values as null
                                     Users user = task.getResult().toObject(Users.class);
                                     usersList.add(user);
                                     Log.d(TAG, "onComplete: user is : " + user.toString());
@@ -258,9 +253,6 @@ public class HomeFragment extends Fragment {
                                 //get the post id for likes feature
                                 String postId = doc.getDocument().getId();
 
-                                //converting database data into objects
-                                //get the newly added post
-                                //pass the postId to the post model class Posts.class
                                 final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
                                 //get user id
@@ -286,9 +278,9 @@ public class HomeFragment extends Fragment {
                         }
 
                     }
-                } catch (NullPointerException nullExeption) {
+                } catch (NullPointerException nullException) {
                     //the Query is null
-                    Log.e(TAG, "error: " + nullExeption.getMessage());
+                    Log.e(TAG, "error: " + nullException.getMessage());
                 }
             }
         });

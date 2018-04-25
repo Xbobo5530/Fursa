@@ -179,7 +179,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     if (documentSnapshot.exists()) {
                         Log.d(TAG, "at get likes, updating likes real time");
                         //user has liked
-                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
+                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_app_light));
                     } else {
                         //current user has not liked the post
                         holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
@@ -341,10 +341,30 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             public void onClick(View v) {
 
                 Log.d(TAG, "post image is clicked");
-                Intent openPostIntent = new Intent(context, ViewPostActivity.class);
-                openPostIntent.putExtra("postId", postId);
-                context.startActivity(openPostIntent);
+                openPost(postId);
                 /*((Activity)context).finish();*/
+            }
+        });
+
+        //post title click action
+        holder.titleTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d(TAG, "post title is clicked");
+                openPost(postId);
+
+            }
+        });
+
+        //post desc is clicked
+        holder.descTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d(TAG, "post desc is clicked");
+                openPost(postId);
+
             }
         });
 
@@ -410,6 +430,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
+    }
+
+    private void openPost(String postId) {
+        Intent openPostIntent = new Intent(context, ViewPostActivity.class);
+        openPostIntent.putExtra("postId", postId);
+        context.startActivity(openPostIntent);
     }
 
     private void openPostMenu(final String postId, final String currentUserId, final String postUserId) {
