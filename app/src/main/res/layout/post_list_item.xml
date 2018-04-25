@@ -81,7 +81,7 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postUserImageCircleImageView"
+                app:layout_constraintTop_toBottomOf="@+id/postLocationTextView"
                 app:srcCompat="@color/common_google_signin_btn_text_light_default" />
 
             <TextView
@@ -114,8 +114,8 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
                 android:text="@string/location__post_placeholder_text"
+                android:textStyle="italic"
                 app:layout_constraintBottom_toTopOf="@+id/postImageView"
                 app:layout_constraintEnd_toStartOf="@+id/postMenuImageView"
                 app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"

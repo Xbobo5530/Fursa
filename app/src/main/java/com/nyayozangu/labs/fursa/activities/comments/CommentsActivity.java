@@ -1,16 +1,23 @@
 package com.nyayozangu.labs.fursa.activities.comments;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -27,10 +34,12 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.adapters.CommentsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.notifications.Notify;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +69,7 @@ public class CommentsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private String postId;
+    private String userId;
 
     private android.support.v7.widget.Toolbar toolbar;
 
@@ -143,10 +153,10 @@ public class CommentsActivity extends AppCompatActivity {
 
 
         //inform user to login to comment
-        if (isLoggedin()) {
+        if (isLoggedIn()) {
 
             //user is logged in
-            final String userId = mAuth.getCurrentUser().getUid();
+            userId = mAuth.getCurrentUser().getUid();
             //user is logged in
             db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
@@ -192,7 +202,6 @@ public class CommentsActivity extends AppCompatActivity {
                         //generate randomString name for image based on firebase time stamp
                         final String randomCommentId = UUID.randomUUID().toString();
                         //get the user id of the user posing
-                        final String userId = mAuth.getCurrentUser().getUid();
 
 
                         //post a comment
@@ -212,14 +221,18 @@ public class CommentsActivity extends AppCompatActivity {
                                     public void onComplete(@NonNull Task<Void> task) {
 
                                         //check if task is successful
-                                        if (!task.isSuccessful()) {
+                                        if (task.isSuccessful()) {
 
-                                            Snackbar.make(findViewById(R.id.comment_activity_layout),
-                                                    "Failed to post comment: " + task.getResult().toString(), Snackbar.LENGTH_SHORT).show();
                                             //subscribe user to post
-                                            db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(userId).set(commentsMap);
+                                            db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).set(commentsMap);
 
+                                            // TODO: 4/25/18 send notifs to subscribers
+                                            new Notify().execute();
+                                            Log.d(TAG, "onComplete: sending notification");
 
+                                        } else {
+
+                                            showSnack("Failed to post comment: " + task.getResult().toString());
 
                                         }
 
@@ -257,10 +270,122 @@ public class CommentsActivity extends AppCompatActivity {
 
     }
 
-    private boolean isLoggedin() {
-        return mAuth.getCurrentUser() != null;
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        if (isConnected()) {
+            if (isLoggedIn()) {
+                userId = mAuth.getCurrentUser().getUid();
+
+                final MenuItem subscribeButton = menu.findItem(R.id.comSubMenuItem);
+
+                db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+
+                        //check if user is already subscribed
+                        if (documentSnapshot.exists()) {
+
+                            //set subscribed icon
+                            subscribeButton.setIcon(R.drawable.ic_action_subscribed);
+
+                        } else {
+
+                            //user is not subscribed
+                            subscribeButton.setIcon(R.drawable.ic_action_subscribe);
+
+                        }
+
+                    }
+                });
+
+            }
+
+        }
+        return true;
+
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.comments_toolbar_menu, menu);
+        return true;
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.comSubMenuItem:
+
+                if (isLoggedIn()) {
+
+                    //check if user is already subscribed
+                    db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                            //check if tast is successful
+                            if (task.isSuccessful()) {
+
+                                //check if post exists
+                                if (task.getResult().exists()) {
+
+                                    //user has already subscribed to current post
+                                    //unsubscribe user
+                                    db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).delete();
+                                    FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
+                                    Log.d(TAG, "user subscribed to topic {CURRENT POST}");
+
+
+                                } else {
+
+                                    //subscribe user
+                                    Map<String, Object> commentsSubMap = new HashMap<>();
+                                    commentsSubMap.put("timestamp", FieldValue.serverTimestamp());
+                                    //user is not yet subscribed
+                                    db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).set(commentsSubMap);
+                                    //subscribe to firebase topic
+                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                                    Log.d(TAG, "user subscribed to topic {CURRENT POST}");
+                                    //notify user
+                                    String message = "Subscribed to post updates";
+                                    showSnack(message);
+
+                                }
+
+                            } else {
+
+                                Log.d(TAG, "onComplete: task failed " + task.getException().getMessage());
+
+                            }
+
+                        }
+                    });
+
+                } else {
+
+                    showLoginAlertDialog("Log in to subscribe to comments notifications");
+
+                }
+                break;
+
+            case R.id.commentSearchMenuItem:
+                // TODO: 4/25/18 handle searching comments
+                break;
+
+            default:
+                break;
+
+        }
+        return true;
+
+    }
 
     private void showLoginAlertDialog(String message) {
         //Prompt user to log in
@@ -299,6 +424,33 @@ public class CommentsActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
         progressDialog.show();
+    }
+
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.comment_activity_layout),
+                message, Snackbar.LENGTH_LONG).show();
+    }
+
+
+    private boolean isLoggedIn() {
+        //determine if user is logged in
+        return mAuth.getCurrentUser() != null;
+    }
+
+    private boolean isConnected() {
+
+        //check if there's a connection
+        Log.d(TAG, "at isConnected");
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = null;
+        if (cm != null) {
+
+            activeNetwork = cm.getActiveNetworkInfo();
+
+        }
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
     }
 
 }

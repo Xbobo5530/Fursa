@@ -169,7 +169,6 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(imageUrl).into(userImageView);
 
-
         }
 
         public void setUsername(String username) {

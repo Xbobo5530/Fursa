@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.users;
 
 /**
  * Created by Sean on 4/7/18.

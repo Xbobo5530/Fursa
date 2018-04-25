@@ -33,10 +33,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.Users;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -154,6 +154,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         break;
 
                     case "places":
+                        // TODO: 4/25/18 check the open cat places, sets title business bug
                         getSupportActionBar().setTitle(getString(R.string.cat_places));
 
                     case "business":
@@ -260,6 +261,7 @@ ViewCategoryActivity extends AppCompatActivity {
                                     Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
                                     //set fab image
                                     subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
+
                                 }
                             }
                         });

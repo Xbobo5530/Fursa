@@ -145,13 +145,13 @@
             android:theme="@style/AppTheme" />
         <activity android:name=".activities.settings.MySubscriptionsActivity" />
 
-        <service android:name=".MyFirebaseMessagingService">
+        <service android:name=".notifications.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name=".MyFirebaseInstanceIDService">
+        <service android:name=".notifications.MyFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>

@@ -31,12 +31,12 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.Users;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.users.Users;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -65,6 +65,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     //firebase auth
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private String userId;
 
     //empty constructor for receiving the posts
     public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList) {
@@ -289,8 +290,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
                                     //subscribe to topic
                                     FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                    String userId = mAuth.getCurrentUser().getUid();
-                                    db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(userId).set(savesMap);
+                                    userId = mAuth.getCurrentUser().getUid();
+                                    db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(postId).set(savesMap);
                                     Log.d(TAG, "user subscribed to topic {SAVED POST}");
                                     //notify user that post has been saved
                                     showSnack(holder, context.getString(R.string.added_to_saved_text));
@@ -299,6 +300,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                                     //delete saved post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
+                                    db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(postId).delete();
                                     //subscribe to app updates
                                     FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
                                     Log.d(TAG, "user unSubscribed from topic {SAVED POST}");
@@ -348,7 +350,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         });
 
-        //clicking the post image to start the ViewPost page
+        //post image click action to start the ViewPost page
         holder.postImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -425,13 +427,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                             //get postUserId
                             String postUserId = task.getResult().get("user_id").toString();
-
                             //open menu
                             openPostMenu(postId, currentUserId, postUserId);
 
                         } else {
 
                             //task failed
+                            Log.d(TAG, "onComplete: " + task.getException().getMessage());
 
                         }
 

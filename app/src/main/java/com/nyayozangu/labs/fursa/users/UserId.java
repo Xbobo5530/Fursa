@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa;
+package com.nyayozangu.labs.fursa.users;
 
 import com.google.firebase.firestore.Exclude;
 
