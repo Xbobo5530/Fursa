@@ -352,9 +352,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                     savesMap.put("timestamp", FieldValue.serverTimestamp());
                                     //save new post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
-
                                     //notify user that post has been saved
-
                                     showSnack(R.id.view_post_activity_layout, "Added to saved items");
 
                                     /*// TODO: 4/19/18 add actions to go view the saved list

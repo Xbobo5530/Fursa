@@ -135,17 +135,20 @@ public class Notify extends AsyncTask<String, String, Void> {
             case "COMMENTS":
                 info.put("title", "New Comments");   // Notification title
                 info.put("message", "Check out new comments on the posts you follow"); // Notification body
+                info.put("notif_type", "comment_updates");
                 info.put("extra", extraInfo);
                 Log.d(TAG, "passNotifDetails: \nextraInfo is:" + extraInfo);
                 break;
             case "SAVED":
                 info.put("title", "Saved Post Updates");   // Notification title
                 info.put("message", "Check out new updates on your saved posts"); // Notification body
+                info.put("notif_type", "saved_posts_updates");
                 info.put("extra", extraInfo);
                 break;
             case "CATS":
                 info.put("title", "New Posts on Categories you follow");   // Notification title
                 info.put("message", "Check out new posts on the categories you follow"); // Notification body
+                info.put("notif_type", "categories_updates");
                 info.put("extra", extraInfo);
                 break;
             default:

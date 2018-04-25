@@ -29,7 +29,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
@@ -288,11 +287,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     savesMap.put("timestamp", FieldValue.serverTimestamp());
                                     //save new post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
-                                    //subscribe to topic
-                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
                                     userId = mAuth.getCurrentUser().getUid();
                                     db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(postId).set(savesMap);
-                                    Log.d(TAG, "user subscribed to topic {SAVED POST}");
                                     //notify user that post has been saved
                                     showSnack(holder, context.getString(R.string.added_to_saved_text));
 
@@ -301,9 +297,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     //delete saved post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
                                     db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(postId).delete();
-                                    //subscribe to app updates
-                                    FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
-                                    Log.d(TAG, "user unSubscribed from topic {SAVED POST}");
+
 
                                 }
                             }

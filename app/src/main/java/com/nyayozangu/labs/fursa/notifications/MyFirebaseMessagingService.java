@@ -15,6 +15,8 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
+import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 
 import java.util.Map;
@@ -27,6 +29,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     private static final String TAG = "Sean";
+    private PendingIntent pendingIntent;
+    private Uri defaultSoundUri;
+    private NotificationCompat.Builder notificationBuilder;
+    private NotificationManager notificationManager;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -51,16 +57,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             String title = data.get("title");
             String message = data.get("message");
+            String notifType = data.get("notif_type");
             String extraInfo = data.get("extra").trim();
             Log.d(TAG, "onMessageReceived: Message Received: \n" +
                     "Title: " + title + "\n" +
                     "Message: " + message + "\n" +
-                    "targetUrl: " + extraInfo);
+                    "Notification type: " + notifType + "\n" +
+                    "extraInfo: " + extraInfo);
 
             if (!extraInfo.isEmpty()) {
-                sendNotification(title, message, extraInfo);
+                sendNotification(title, message, notifType, extraInfo);
             } else {
-                sendNotification(title, message, null);
+                sendNotification(title, message, null, null);
             }
         } else if (remoteMessage.getNotification() != null) {
             //has no data probably comes from database
@@ -71,18 +79,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.d(TAG, "title is: " + title + "\nmessage is: " + message);
 
             if (title != null && message != null) {
-                sendNotification(title, message, null);
+                sendNotification(title, message, null, null);
             } else {
                 title = "Nyayo Zangu Store";
                 message = "Sharing experiences and opportunities";
-                sendNotification(title, message, null);
+                sendNotification(title, message, null, null);
             }
         } else {
             //other weird cases
             Log.d(TAG, "data is null, notification is null");
             String title = "Nyayo Zangu Store";
             String message = "Sharing experiences and opportunities";
-            sendNotification(title, message, null);
+            sendNotification(title, message, null, null);
         }
     }
 
@@ -92,18 +100,62 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param title       the title of the notification
      * @param messageBody the message of the notification
-     * @param targetUrl   the url to open when the notification is opened
+     * @param extraInfo   the url to open when the notification is opened
      */
-    private void sendNotification(String title, String messageBody, String targetUrl) {
+    private void sendNotification(String title, String messageBody, String notifType, String extraInfo) {
         Log.d(TAG, "at sendNotification");
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("targetUrl", targetUrl);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        if (notifType != null) {
+            switch (notifType) {
 
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                case "comment_updates":
+
+                    Intent commentsNotifIntent = new Intent(this, CommentsActivity.class);
+                    commentsNotifIntent.putExtra("postId", extraInfo);
+                    commentsNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, commentsNotifIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+                    buildNotif(title, messageBody);
+                    break;
+
+                case "categories_updates":
+
+                    Intent catsNotifIntent = new Intent(this, ViewCategoryActivity.class);
+                    catsNotifIntent.putExtra("category", extraInfo);
+                    catsNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, catsNotifIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+                    buildNotif(title, messageBody);
+                    break;
+
+                default:
+
+                    Log.d(TAG, "sendNotification: at default");
+                    Intent noExtraNotifIntent = new Intent(this, MainActivity.class);
+                    noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, noExtraNotifIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+                    buildNotif(title, messageBody);
+
+            }
+        } else {
+
+            //notif and extra are null
+
+            Intent noExtraNotifIntent = new Intent(this, MainActivity.class);
+            noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, noExtraNotifIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            buildNotif(title, messageBody);
+
+        }
+
+
+    }
+
+    private void buildNotif(String title, String messageBody) {
+        defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_notification)
                 .setContentTitle(title)
@@ -118,7 +170,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(messageBody));
 
-        NotificationManager notificationManager =
+        notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

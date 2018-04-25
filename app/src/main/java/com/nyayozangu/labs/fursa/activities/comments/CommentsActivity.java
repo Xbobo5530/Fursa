@@ -181,7 +181,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                             currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
 
-                            Log.d(TAG, "onEvent: error: no thum found");
+                            Log.d(TAG, "onEvent: error: no thumb found");
                         }
 
                     }
@@ -227,7 +227,7 @@ public class CommentsActivity extends AppCompatActivity {
                                             db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).set(commentsMap);
                                             //subscribe user to topic
                                             //subscribe to app updates
-                                            FirebaseMessaging.getInstance().subscribeToTopic("comment_updates");
+                                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
                                             Log.d(TAG, "user subscribed to topic COMMENTS");
                                             // TODO: 4/25/18 send notifs to subscribers
                                             new Notify().execute("comment_updates", postId);
@@ -344,7 +344,7 @@ public class CommentsActivity extends AppCompatActivity {
                                     //user has already subscribed to current post
                                     //unsubscribe user
                                     db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).delete();
-                                    FirebaseMessaging.getInstance().unsubscribeFromTopic("comment_updates");
+                                    FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
                                     Log.d(TAG, "user subscribed to topic {CURRENT POST}");
 
 
@@ -356,7 +356,7 @@ public class CommentsActivity extends AppCompatActivity {
                                     //user is not yet subscribed
                                     db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).set(commentsSubMap);
                                     //subscribe to topic
-                                    FirebaseMessaging.getInstance().subscribeToTopic("comment_updates");
+                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
                                     Log.d(TAG, "user subscribed to topic COMMENTS");
                                     //notify user
                                     String message = "Subscribed to post updates";
