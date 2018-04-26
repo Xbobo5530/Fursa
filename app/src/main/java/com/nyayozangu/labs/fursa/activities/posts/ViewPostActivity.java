@@ -100,7 +100,6 @@ public class ViewPostActivity extends AppCompatActivity {
     //progress
     private ProgressDialog progressDialog;
 
-
     //save categories to list
     private ArrayList<String> catArray;
     private ArrayList catKeys;
@@ -242,7 +241,6 @@ public class ViewPostActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         //initialize items
-
         actionsLayout = findViewById(R.id.viewPostActionsLayout);
         likeButton = findViewById(R.id.viewPostLikeImageView);
         likesCountText = findViewById(R.id.viewPostLikesCountsTextView);
@@ -478,6 +476,7 @@ public class ViewPostActivity extends AppCompatActivity {
         db.collection("Posts/" + postId + "/Comments").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+
                 Log.d(TAG, "at onEvent, when likes change");
                 if (!queryDocumentSnapshots.isEmpty()) {
 
@@ -499,12 +498,16 @@ public class ViewPostActivity extends AppCompatActivity {
             db.collection("Posts/" + postId + "/Likes").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
                     //update the like button real time
                     if (documentSnapshot.exists()) {
+
                         Log.d(TAG, "at get likes, updating likes real time");
                         //user has liked
                         likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_accent));
+
                     } else {
+
                         //current user has not liked the post
                         likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_unclicked));
                     }
@@ -515,14 +518,19 @@ public class ViewPostActivity extends AppCompatActivity {
             db.collection("Posts/" + postId + "/Saves").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
                     //update the save button real time
                     if (documentSnapshot.exists()) {
+
                         Log.d(TAG, "at get saves, updating saves realtime");
                         //user has saved post
                         saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmarked));
+
                     } else {
+
                         //user has not liked post
                         saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmark_outline));
+
                     }
                 }
             });
@@ -533,22 +541,21 @@ public class ViewPostActivity extends AppCompatActivity {
         db.collection("Posts").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
                 Log.d(TAG, "at view post query");
                 //show progress
                 // TODO: 4/22/18 check on editing post showing this progress dialog crashes the app
                 showProgress("Loading...");
                 //check if post exists
                 if (documentSnapshot.exists()) {
+
                     Log.d(TAG, "Post  exist");
                     final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
                     //set items
                     //set title
                     String title = post.getTitle();
                     titleTextView.setText(title);
-                    Log.d(TAG, "onEvent: title set");
                     getSupportActionBar().setTitle(title);
-                    Log.d(TAG, "onEvent: toolbar title set");
-
 
                     //set the description
                     String desc = post.getDesc();
@@ -558,18 +565,15 @@ public class ViewPostActivity extends AppCompatActivity {
                     //set the contact info
                     ArrayList contactArray = post.getContact_details();
                     if (contactArray != null) {
-                        Log.d(TAG, "onEvent: has contact details");
 
+                        Log.d(TAG, "onEvent: has contact details");
                         String contactString = "";
-                        int i = 0;
-                        do {
+                        for (int i = 0; i < contactArray.size(); i++) {
 
                             //set the first item
                             contactString = contactString.concat(contactArray.get(i).toString() + "\n");
-                            i++;
 
-                        } while (i < contactArray.size());
-
+                        }
                         //set contactString
                         contactTextView.setText(contactString.trim());
                         Log.d(TAG, "onEvent: contact details set");
@@ -703,7 +707,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                 }
 
-
                                 //set name
                                 //get user name
                                 if (documentSnapshot.get("name") != null) {
@@ -758,7 +761,6 @@ public class ViewPostActivity extends AppCompatActivity {
                             catString = catString.concat(String.valueOf(categories.get(i)) + "\n");
                             //update the catArrayList
                             catArray.add(String.valueOf(categories.get(i)));
-
 
                         }
 

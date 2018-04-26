@@ -132,11 +132,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sign in an existing user
 
+                Log.d(TAG, "onClick: login button is clicked");
+                //sign in an existing user
                 LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
                 loginView = inflater.inflate(R.layout.login_alert_dialog_content, null);
-
 
                 //show login in with email dialog
                 AlertDialog.Builder loginBuilder = new AlertDialog.Builder(LoginActivity.this);
@@ -155,13 +155,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
-                                EditText emailField = findViewById(R.id.loginDialogEmailEditText);
-                                EditText passwordField = findViewById(R.id.loginDialogPasswordEditText);
-
-                                // TODO: 4/24/18 check the null edit text bug
-
+                                EditText emailField = loginView.findViewById(R.id.loginDialogEmailEditText);
+                                EditText passwordField = loginView.findViewById(R.id.loginDialogPasswordEditText);
+                                Log.d(TAG, "onClick: items are initialized");
                                 String email = emailField.getText().toString().trim();
                                 String password = passwordField.getText().toString().trim();
+                                Log.d(TAG, "onClick: \nemail is: " + email +
+                                        "\npassword is: " + password);
 
                                 if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
 
@@ -212,10 +212,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         loginRegistrationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //launch register activity
 
+                Log.d(TAG, "onClick: login button clicked");
                 //open dialog
-
                 LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
                 registerView = inflater.inflate(R.layout.register_alert_dialog_content, null);
 
@@ -231,10 +230,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 EditText emailField = registerView.findViewById(R.id.regEmailEditText);
                                 EditText passwordField = registerView.findViewById(R.id.regPassEditText);
                                 EditText confirmPasswordField = registerView.findViewById(R.id.regConfirmPassEditText);
+                                Log.d(TAG, "onClick: initialized login dialog items");
 
                                 String email = emailField.getText().toString();
                                 String password = passwordField.getText().toString();
                                 String confirmPassword = confirmPasswordField.getText().toString();
+                                Log.d(TAG, "onClick: \nemail is: " +
+                                        "\npassword is: " + password +
+                                        "\nconfirm password is: " + confirmPassword);
+
 
                                 //check if fields are empty
                                 if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(confirmPassword)) {
@@ -433,14 +437,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         "Google Sign In failed.", Snackbar.LENGTH_SHORT).show();
             }
 
-
-            /*
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-            */
-
         }
 
         // Pass the activity result back to the Facebook SDK
@@ -450,27 +446,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         twitterLoginButton.onActivityResult(requestCode, resultCode, data);
 
     }
-
-    /*
-    //handle on activity result for google sign in
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
-            // Signed in successfully, show authenticated UI.
-            //go to main
-            firebaseAuthWithGoogle(account);
-            goToAccSettings();
-
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            Snackbar.make(findViewById(R.id.login_activity_layout),
-                    "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-        }
-    }
-    */
 
 
     //handle result for facebook sign in
