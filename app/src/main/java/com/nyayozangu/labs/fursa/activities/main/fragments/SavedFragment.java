@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -95,7 +96,7 @@ public class SavedFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         //listen for scrolling on the homeFeedView
-        savedPostsView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        /*savedPostsView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -108,7 +109,7 @@ public class SavedFragment extends Fragment {
                 }
 
             }
-        });
+        });*/
 
         if (isLoggedIn()) {
 
@@ -117,7 +118,83 @@ public class SavedFragment extends Fragment {
 
         Log.d(TAG, "onCreateView: \ncurrentUserId is: " + currentUserId);
 
-        Query firstQuery = db
+        db.collection("Users/" + currentUserId + "/Subscriptions")
+                .document("saved_posts")
+                .collection("SavedPosts")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+
+                        if (!queryDocumentSnapshots.isEmpty()) {
+
+                            for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+
+                                final String postId = doc.getDocument().getId();
+                                db.collection("Posts")
+                                        .document(postId)
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                                //check if task is successful
+                                                if (task.isSuccessful()) {
+
+                                                    if (task.getResult().exists()) {
+
+                                                        final Posts post = task.getResult().toObject(Posts.class).withId(postId);
+                                                        String postUserId = post.getUser_id();
+                                                        db.collection("Users")
+                                                                .document(postUserId)
+                                                                .get()
+                                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                                                        if (task.isSuccessful()) {
+
+                                                                            Users user = task.getResult().toObject(Users.class);
+                                                                            savedPostsList.add(post);
+                                                                            usersList.add(user);
+                                                                            savedPostsRecyclerAdapter.notifyDataSetChanged();
+
+                                                                        } else {
+
+                                                                            Log.d(TAG, "onComplete: task filed\n" + task.getException());
+
+                                                                        }
+
+                                                                    }
+                                                                });
+
+                                                    } else {
+
+                                                        Log.d(TAG, "onComplete: post does not exist");
+
+                                                    }
+
+                                                } else {
+
+                                                    Log.d(TAG, "onComplete: task for getting posts failed\n" + task.getException());
+                                                }
+
+                                            }
+                                        });
+
+                            }
+
+                        } else {
+
+                            Log.d(TAG, "onEvent: user has no liked posts");
+
+                        }
+
+                    }
+                });
+
+
+        /*Query firstQuery = db
                 .collection("Users/" + currentUserId + "/Subscriptions").document("saved_posts")
                 .collection("SavedPosts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -128,23 +205,23 @@ public class SavedFragment extends Fragment {
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
                 //check if the data is loaded for the first time
-                /**
-                 * if new data is added it will be added to the first query not the second query
-                 */
                 if (isFirstPageFirstLoad) {
 
                     //get the last visible post
                     try {
+
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
                         savedPostsList.clear();
                         usersList.clear();
+
                     } catch (Exception exception) {
+
                         Log.d(TAG, "Error: " + exception.getMessage());
+
                     }
 
                 }
-
 
                 //create a for loop to check for document changes
                 for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
@@ -152,22 +229,30 @@ public class SavedFragment extends Fragment {
                     if (doc.getType() == DocumentChange.Type.ADDED) {
 
                         //get the post id for likes feature
-                        String postId = doc.getDocument().getId();
+                        final String postId = doc.getDocument().getId();
                         //uses postId to retrieve post details from Posts collections
-                        db.collection("Posts").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        db.collection("Posts")
+                                .document(postId)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
                                 //check if task is success
                                 if (task.isSuccessful()) {
 
+                                    Log.d(TAG, "onComplete: task is successful");
                                     //check if post exists
                                     if (task.getResult().exists()) {
 
+                                        Log.d(TAG, "onComplete: post exists\npost is: " + task.getResult());
                                         //post exists, convert post to object
-                                        final Posts post = task.getResult().toObject(Posts.class);
+                                        final Posts post = task.getResult().toObject(Posts.class).withId(postId);
 
-                                        db.collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        db.collection("Users")
+                                                .document(currentUserId)
+                                                .get()
+                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -217,114 +302,7 @@ public class SavedFragment extends Fragment {
                             }
                         });
 
-                        /*final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
 
-                        //get user id
-                        String postUserId = doc.getDocument().getString("user_id");
-
-                        //get user_id for post
-                        db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
-
-                                //check if task is successful
-                                if (task.isSuccessful()) {
-
-                                    if (isLoggedIn()) {
-                                        currentUserId = mAuth.getCurrentUser().getUid();
-
-                                        // filter saved posts
-                                        db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                                //check if task is successful
-                                                if(task.isSuccessful()){
-
-                                                    //check if user has liked post
-                                                    if (task.getResult().exists()){
-
-                                                        //user has liked post
-                                                        Users user = task.getResult().toObject(Users.class);
-                                                        //user has liked current post, add post to saved posts
-                                                        if (isFirstPageFirstLoad) {
-
-                                                            //if the first page is loaded the add new post normally
-                                                            savedPostsList.add(post);
-                                                            usersList.add(user);
-
-                                                        } else {
-
-                                                            //add the post at position 0 of the postsList
-                                                            savedPostsList.add(0, post);
-                                                            usersList.add(0, user);
-
-                                                        }
-
-                                                        //notify the recycler adapter of the set change
-                                                        savedPostsRecyclerAdapter.notifyDataSetChanged();
-
-                                                    }else{
-
-                                                        //user has not saved curr post
-                                                        Log.d(TAG, "onComplete: user has not saved curr post");
-
-                                                    }
-
-                                                }else{
-
-                                                    //task failed
-                                                    Log.d(TAG, "onComplete: task has failed\n" + task.getException());
-
-                                                }
-
-                                            }
-                                        });
-
-
-
-                                                *//*addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-
-                                                //check if user liked post
-                                                if (documentSnapshot.exists()) {
-
-                                                    Users user = task.getResult().toObject(Users.class);
-                                                    usersList.add(user);
-                                                    //user has liked current post, add post to saved posts
-                                                    if (isFirstPageFirstLoad) {
-                                                        //if the first page is loaded the add new post normally
-                                                        savedPostsList.add(post);
-                                                    } else {
-                                                        //add the post at position 0 of the postsList
-                                                        savedPostsList.add(0, post);
-                                                        usersList.add(0, user);
-
-                                                    }
-                                                    //notify the recycler adapter of the set change
-                                                    savedPostsRecyclerAdapter.notifyDataSetChanged();
-
-                                                }
-
-                                            }
-                                        });*//*
-                                    } else {
-
-                                        //tell user to log in
-                                        showLoginAlertDialog(getString(R.string.login_to_view_saved_items_alert_fragment_text));
-
-                                    }
-
-                                } else {
-
-                                    //task failed, faled to get users
-                                    Log.d(TAG, "onComplete: failed to get users");
-
-                                }
-
-                            }
-                        });*/
                     }
                 }
 
@@ -332,7 +310,7 @@ public class SavedFragment extends Fragment {
                 isFirstPageFirstLoad = false;
 
             }
-        });
+        });*/
 
         return view;
     }
@@ -346,23 +324,23 @@ public class SavedFragment extends Fragment {
     //loading more posts
     public void loadMorePosts() {
 
+        Log.d(TAG, "loadMorePosts: ");
         Query nextQuery = db
                 .collection("Users/" + currentUserId + "/Subscriptions").document("saved_posts")
                 .collection("SavedPosts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(10);
 
-
-        //get all posts from the database
-        //use snapshotListener to get all the data real time
         nextQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(final QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
+                Log.d(TAG, "onEvent: next query");
                 try {
                     //check if there area more posts
                     if (!queryDocumentSnapshots.isEmpty()) {
 
+                        Log.d(TAG, "onEvent: query is not empty");
                         //get the last visible post
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
@@ -372,22 +350,29 @@ public class SavedFragment extends Fragment {
                             //check if an item is added
                             if (doc.getType() == DocumentChange.Type.ADDED) {
 
-                                String postId = doc.getDocument().getId();
+                                final String postId = doc.getDocument().getId();
                                 //uses postId to retrieve post details from Posts collections
-                                db.collection("Posts").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                db.collection("Posts")
+                                        .document(postId)
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
                                         //check if task is success
                                         if (task.isSuccessful()) {
 
+                                            Log.d(TAG, "onComplete: task is successful");
                                             //check if post exists
                                             if (task.getResult().exists()) {
 
                                                 //post exists, convert post to object
-                                                final Posts post = task.getResult().toObject(Posts.class);
+                                                final Posts post = task.getResult().toObject(Posts.class).withId(postId);
 
-                                                db.collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                db.collection("Users")
+                                                        .document(currentUserId)
+                                                        .get()
+                                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -402,12 +387,10 @@ public class SavedFragment extends Fragment {
                                                             //notify the recycler adapter of the set change
                                                             savedPostsRecyclerAdapter.notifyDataSetChanged();
 
-
                                                         }
 
                                                     }
                                                 });
-
 
                                             } else {
 
@@ -427,93 +410,7 @@ public class SavedFragment extends Fragment {
                                 });
 
 
-                                /*
-                                //converting database data into objects
-                                final User post = doc.getDocument().toObject(Posts.class).withId(postId);
-                                //get user id
-                                String postUserId = doc.getDocument().getString("user_id");
-                                //get user_id for post
-                                db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
 
-                                        if (task.isSuccessful()) {
-
-                                            if (task.getResult().exists()) {
-
-                                                db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                                        //check if task is successful
-                                                        if (task.isSuccessful()) {
-
-                                                            //check if user has liked pots
-                                                            if (task.getResult().exists()) {
-
-                                                                Users user = task.getResult().toObject(Users.class);
-                                                                usersList.add(user);
-                                                                savedPostsList.add(post);
-                                                                savedPostsRecyclerAdapter.notifyDataSetChanged();
-
-                                                            } else {
-
-                                                                //user has not liked post
-                                                                Log.d(TAG, "onComplete: user has not liked post");
-
-                                                            }
-
-                                                        } else {
-
-                                                            //task failed
-                                                            Log.d(TAG, "onComplete: task failed\n" + task.getException());
-
-                                                        }
-
-
-                                                    }
-                                                });
-
-                                            }else{
-
-                                                //post user does not exist
-                                                Log.d(TAG, "onComplete: psot user does not exist");
-
-                                            }
-
-
-                                        }else{
-
-                                            //checking for post user nd current user task failed
-                                            Log.d(TAG, "onComplete: checking for post user nd current user task failed" + task.getException());
-
-                                        }
-
-
-
-                                                *//*.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-
-                                                //check if user liked post
-                                                if (documentSnapshot.exists()) {
-
-                                                    Users user = task.getResult().toObject(Users.class);
-                                                    usersList.add(user);
-                                                    //user has liked current post, add post to saved posts
-                                                    usersList.add(user);
-                                                    savedPostsList.add(post);
-                                                    savedPostsRecyclerAdapter.notifyDataSetChanged();
-                                                    //notify the recycler adapter of the set change
-                                                    savedPostsRecyclerAdapter.notifyDataSetChanged();
-
-                                                }
-
-                                            }
-                                        });*//*
-
-                                    }
-                                });*/
                             }
                         }
 

@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa.activities.posts.adapters;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -65,6 +66,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private String userId;
+    private ProgressDialog progressDialog;
 
     //empty constructor for receiving the posts
     public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList) {
@@ -301,6 +303,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
                                 }
+
                             }
                         });
                     } else {
@@ -439,6 +442,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         });
 
+
+    }
+
+    private void showProgress(String message) {
+
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage(message);
+        progressDialog.show();
 
     }
 
