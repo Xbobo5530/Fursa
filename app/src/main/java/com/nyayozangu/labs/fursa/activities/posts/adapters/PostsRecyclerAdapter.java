@@ -292,7 +292,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
                                     userId = mAuth.getCurrentUser().getUid();
                                     db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(postId).set(savesMap);
-                                    //notify user that post has been saved
                                     showSnack(holder, context.getString(R.string.added_to_saved_text));
 
                                 } else {

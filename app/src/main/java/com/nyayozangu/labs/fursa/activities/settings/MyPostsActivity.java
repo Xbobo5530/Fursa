@@ -136,69 +136,53 @@ public class MyPostsActivity extends AppCompatActivity {
         });
 
 
-        Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
-        //get all posts from the database
-        //use snapshotListener to get all the data real time
+        Query firstQuery = db
+                .collection("Posts")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(10);
         firstQuery.addSnapshotListener(MyPostsActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                //check if the data is loaded for the first time
-                /**
-                 * if new data is added it will be added to the first query not the second query
-                 */
-                if (isFirstPageFirstLoad) {
+                if (!queryDocumentSnapshots.isEmpty()) {
 
-                    //get the last visible post
-                    try {
+                    if (isFirstPageFirstLoad) {
+
+                        //get the last visible post
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
                         postsList.clear();
                         usersList.clear();
-                    } catch (Exception exception) {
-                        Log.d(TAG, "error: " + exception.getMessage());
-                    }
-
-                }
-
-
-                //create a for loop to check for document changes
-                for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                    //check if an item is added
-                    if (doc.getType() == DocumentChange.Type.ADDED) {
-                        //a new item/ post is added
-
-                        //get the post id for likes feature
-                        String postId = doc.getDocument().getId();
-
-                        //converting database data into objects
-                        //get the newly added post
-                        //pass the postId to the post model class Posts.class
-                        final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-
-                        String postUserId = doc.getDocument().getString("user_id");
-
-                        // TODO: 4/17/18 filter user posts
-
-                        filterPosts(postId, post, postUserId);
-
 
                     }
-                }
 
-                //the first page has already loaded
-                isFirstPageFirstLoad = false;
+                    //create a for loop to check for document changes
+                    for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        //check if an item is added
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
+
+                            String postId = doc.getDocument().getId();
+                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                            filterPosts(post);
+
+                        }
+                    }
+
+                    //the first page has already loaded
+                    isFirstPageFirstLoad = false;
+
+                }
 
             }
         });
 
     }
 
-    private void filterPosts(String postId, final Posts post, String postUserId) {
+    private void filterPosts(final Posts post) {
 
         //get current user id
         String currentUserId = mAuth.getCurrentUser().getUid();
-
+        String postUserId = post.getUser_id();
         //check if is current user's post
         if (postUserId.equals(currentUserId)) {
 
@@ -211,20 +195,20 @@ public class MyPostsActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
 
                         Users user = task.getResult().toObject(Users.class);
-                        usersList.add(user);
-
 
                         //add new post to the local postsList
                         if (isFirstPageFirstLoad) {
-                            //if the first page is loaded the add new post normally
+
+                            usersList.add(user);
                             postsList.add(post);
+
                         } else {
-                            //add the post at position 0 of the postsList
+
                             postsList.add(0, post);
                             usersList.add(0, user);
 
                         }
-                        //notify the recycler adapter of the set change
+
                         postsRecyclerAdapter.notifyDataSetChanged();
                     }
 
@@ -302,25 +286,11 @@ public class MyPostsActivity extends AppCompatActivity {
                         for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                             //check if an item is added
                             if (doc.getType() == DocumentChange.Type.ADDED) {
-                                //a new item/ post is added
 
-                                //get the post id for likes feature
                                 String postId = doc.getDocument().getId();
-
-                                //converting database data into objects
-                                //get the newly added post
-                                //pass the postId to the post model class Posts.class
                                 Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                                filterPosts(post);
 
-                                String postUserId = doc.getDocument().getString("user_id");
-
-                                //filter posts
-                                filterPosts(postId, post, postUserId);
-
-                                /*//add new post to the local postsList
-                                postsList.add(post);
-                                //notify the recycler adapter of the set change
-                                postsRecyclerAdapter.notifyDataSetChanged();*/
                             }
                         }
 

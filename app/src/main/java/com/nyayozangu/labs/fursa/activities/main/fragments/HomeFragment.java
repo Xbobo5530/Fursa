@@ -56,7 +56,6 @@ public class HomeFragment extends Fragment {
 
     private Boolean isFirstPageFirstLoad = true;
 
-
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -144,81 +143,66 @@ public class HomeFragment extends Fragment {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                //check if the data is loaded for the first time
-                /**
-                 * if new data is added it will be added to the first query not the second query
-                 */
-                if (isFirstPageFirstLoad) {
 
-                    //get the last visible post
-                    try {
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    //check if the data is loaded for the first time
+                    if (isFirstPageFirstLoad) {
 
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
                         postsList.clear();
                         usersList.clear();
 
-                    } catch (Exception exception) {
-
-                        Log.d(TAG, "error: " + exception.getMessage());
-
                     }
 
-                }
 
+                    //create a for loop to check for document changes
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
 
-                //create a for loop to check for document changes
-                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                    //check if an item is added
-                    if (doc.getType() == DocumentChange.Type.ADDED) {
+                        //check if an item is added
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
 
-                        //a new item/ post is added
-                        //get the post id for likes feature
-                        String postId = doc.getDocument().getId();
-                        final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-                        //get user id
-                        final String postUserId = doc.getDocument().getString("user_id");
-                        Log.d(TAG, "onEvent: user_id is " + postUserId);
-                        //get user_id for post
-                        db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            //a new item/ post is added
+                            String postId = doc.getDocument().getId();
+                            final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                            //get user id
+                            final String postUserId = doc.getDocument().getString("user_id");
+                            Log.d(TAG, "onEvent: user_id is " + postUserId);
+                            //get user_id for post
+                            db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                                //check if task is successful
-                                if (task.isSuccessful()) {
+                                    //check if task is successful
+                                    if (task.isSuccessful()) {
 
-                                    // TODO: 4/23/18 converting a user to object returns use values as null
-                                    Users mUser = task.getResult().toObject(Users.class);
-                                    Users user = task.getResult().toObject(Users.class);
-                                    Log.d(TAG, "onComplete: \ntask results: " + task.getResult().toString());
-                                    Log.d(TAG, "onComplete: user is : " + user.toString());
-                                    //add new post to the local postsList
-                                    if (isFirstPageFirstLoad) {
+                                        Users user = task.getResult().toObject(Users.class);
+                                        //add new post to the local postsList
+                                        if (isFirstPageFirstLoad) {
 
-                                        usersList.add(user);
-                                        //if the first page is loaded the add new post normally
-                                        postsList.add(post);
+                                            usersList.add(user);
+                                            postsList.add(post);
 
-                                    } else {
+                                        } else {
 
-                                        usersList.add(0, user);
-                                        //add the post at position 0 of the postsList
-                                        postsList.add(0, post);
+                                            usersList.add(0, user);
+                                            postsList.add(0, post);
 
+                                        }
+                                        //notify the recycler adapter of the set change
+                                        postsRecyclerAdapter.notifyDataSetChanged();
                                     }
-                                    //notify the recycler adapter of the set change
-                                    postsRecyclerAdapter.notifyDataSetChanged();
+
                                 }
-
-                            }
-                        });
+                            });
 
 
+                        }
                     }
-                }
 
-                //the first page has already loaded
-                isFirstPageFirstLoad = false;
+                    //the first page has already loaded
+                    isFirstPageFirstLoad = false;
+                }
 
             }
         });
@@ -232,61 +216,53 @@ public class HomeFragment extends Fragment {
                 .startAfter(lastVisiblePost)
                 .limit(10);
 
-
-        //get all posts from the database
-        //use snapshotListener to get all the data real time
         nextQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                try {
-                    //check if there area more posts
-                    if (!queryDocumentSnapshots.isEmpty()) {
+
+                //check if there area more posts
+                if (!queryDocumentSnapshots.isEmpty()) {
+
+                    //get the last visible post
+                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                            .get(queryDocumentSnapshots.size() - 1);
 
 
-                        //get the last visible post
-                        lastVisiblePost = queryDocumentSnapshots.getDocuments()
-                                .get(queryDocumentSnapshots.size() - 1);
+                    //create a for loop to check for document changes
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        //check if an item is added
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
 
+                            //get the post id for likes feature
+                            String postId = doc.getDocument().getId();
+                            final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                            String postUserId = doc.getDocument().getString("user_id");
 
-                        //create a for loop to check for document changes
-                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                            //check if an item is added
-                            if (doc.getType() == DocumentChange.Type.ADDED) {
-                                //a new item/ post is added
+                            //get user_id for post
+                            db.collection("Users")
+                                    .document(postUserId)
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                                //get the post id for likes feature
-                                String postId = doc.getDocument().getId();
+                                            //check if task is successful
+                                            if (task.isSuccessful()) {
 
-                                final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                                                Users user = task.getResult().toObject(Users.class);
+                                                usersList.add(user);
+                                                postsList.add(post);
+                                                postsRecyclerAdapter.notifyDataSetChanged();
+                                            }
 
-                                //get user id
-                                String postUserId = doc.getDocument().getString("user_id");
-
-                                //get user_id for post
-                                db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                        //check if task is successful
-                                        if (task.isSuccessful()) {
-
-                                            Users user = task.getResult().toObject(Users.class);
-                                            usersList.add(user);
-                                            postsList.add(post);
-                                            postsRecyclerAdapter.notifyDataSetChanged();
                                         }
-
-                                    }
-                                });
-                            }
+                                    });
                         }
-
                     }
-                } catch (NullPointerException nullException) {
-                    //the Query is null
-                    Log.e(TAG, "error: " + nullException.getMessage());
+
                 }
+
             }
         });
 
