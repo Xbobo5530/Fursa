@@ -166,18 +166,15 @@ public class HomeFragment extends Fragment {
                 for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                     //check if an item is added
                     if (doc.getType() == DocumentChange.Type.ADDED) {
-                        //a new item/ post is added
 
+                        //a new item/ post is added
                         //get the post id for likes feature
                         String postId = doc.getDocument().getId();
-
                         final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-
                         //get user id
                         final String postUserId = doc.getDocument().getString("user_id");
-                        Log.d(TAG, "onEvent: userId is " + postUserId);
-
-                        //get userId for post
+                        Log.d(TAG, "onEvent: user_id is " + postUserId);
+                        //get user_id for post
                         db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -186,9 +183,9 @@ public class HomeFragment extends Fragment {
                                 if (task.isSuccessful()) {
 
                                     // TODO: 4/23/18 converting a user to object returns use values as null
+                                    Users mUser = task.getResult().toObject(Users.class);
                                     Users user = task.getResult().toObject(Users.class);
-                                    Log.d(TAG, "onComplete: \ntask results: )" + task.getResult().toString());
-
+                                    Log.d(TAG, "onComplete: \ntask results: " + task.getResult().toString());
                                     Log.d(TAG, "onComplete: user is : " + user.toString());
                                     //add new post to the local postsList
                                     if (isFirstPageFirstLoad) {
@@ -261,7 +258,7 @@ public class HomeFragment extends Fragment {
                                 //get user id
                                 String postUserId = doc.getDocument().getString("user_id");
 
-                                //get userId for post
+                                //get user_id for post
                                 db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {

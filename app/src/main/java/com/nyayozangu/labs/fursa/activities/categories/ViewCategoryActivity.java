@@ -533,7 +533,7 @@ ViewCategoryActivity extends AppCompatActivity {
                             //get user id
                             String postUserId = doc.getDocument().getString("user_id");
 
-                            //get userId for post
+                            //get user_id for post
                             db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {

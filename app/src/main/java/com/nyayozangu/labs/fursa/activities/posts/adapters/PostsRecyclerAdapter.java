@@ -118,10 +118,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //handling getting the user who clicked like
         if (isLoggedIn()) {
             currentUserId = mAuth.getCurrentUser().getUid();
-            Log.d(TAG, "user is logged in\n current userId is :" + currentUserId);
+            Log.d(TAG, "user is logged in\n current user_id is :" + currentUserId);
         } else {
             currentUserId = null;
-            Log.d(TAG, "user is logged in\n current userId is :" + currentUserId);
+            Log.d(TAG, "user is logged in\n current user_id is :" + currentUserId);
         }
 
         //handle post image
@@ -132,10 +132,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //receive the post id
         final String postId = postsList.get(position).PostId;
 
-        //handle username and userImage
-        String userName = usersList.get(position).getUsername();
-        String userImageDownloadUri = usersList.get(position).getUserImage();
-        Log.d(TAG, "onBindViewHolder: \nusername is: " + userName + "\nuser image is: " + userImageDownloadUri);
+        //handle name and image
+        String userName = usersList.get(position).getName();
+        String userImageDownloadUri = usersList.get(position).getImage();
+        Log.d(TAG, "onBindViewHolder: \nname is: " + userName + "\nuser image is: " + userImageDownloadUri);
 
         holder.setUserData(userName, userImageDownloadUri);
 

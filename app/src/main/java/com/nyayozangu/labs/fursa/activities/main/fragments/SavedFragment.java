@@ -159,7 +159,7 @@ public class SavedFragment extends Fragment {
                         //get user id
                         String postUserId = doc.getDocument().getString("user_id");
 
-                        //get userId for post
+                        //get user_id for post
                         db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
@@ -278,7 +278,7 @@ public class SavedFragment extends Fragment {
                                 //get user id
                                 String postUserId = doc.getDocument().getString("user_id");
 
-                                //get userId for post
+                                //get user_id for post
                                 db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull final Task<DocumentSnapshot> task) {

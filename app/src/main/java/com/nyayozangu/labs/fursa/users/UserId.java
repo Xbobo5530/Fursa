@@ -11,7 +11,7 @@ import io.reactivex.annotations.NonNull;
 public class UserId {
 
     /**
-     * @returns a String: the userId
+     * @returns a String: the user_id
      */
     @Exclude
     public String UserId;

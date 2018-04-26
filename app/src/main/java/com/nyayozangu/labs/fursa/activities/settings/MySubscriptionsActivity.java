@@ -57,7 +57,7 @@ public class MySubscriptionsActivity extends AppCompatActivity {
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
 
-        //get userId
+        //get user_id
         String currentUserId = mAuth.getCurrentUser().getUid();
 
         catSubsArray = new ArrayList<>();

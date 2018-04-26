@@ -9,14 +9,14 @@ public class Users extends UserId {
 
     // TODO: 4/7/18 get date user joined
 
-    public String username, userId, userImage, userThumb, bio;
+    public String name, user_id, image, thumb, bio;
 
 
     public Users(String name, String user_id, String image, String thumb, String bio) {
-        this.username = name;
-        this.userId = user_id;
-        this.userImage = image;
-        this.userThumb = thumb;
+        this.name = name;
+        this.user_id = user_id;
+        this.image = image;
+        this.thumb = thumb;
         this.bio = bio;
     }
 
@@ -25,36 +25,36 @@ public class Users extends UserId {
     }
 
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUser_id() {
+        return user_id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
-    public String getUserImage() {
-        return userImage;
+    public String getImage() {
+        return image;
     }
 
-    public void setUserImage(String userImage) {
-        this.userImage = userImage;
+    public void setImage(String image) {
+        this.image = image;
     }
 
-    public String getUserThumb() {
-        return userThumb;
+    public String getThumb() {
+        return thumb;
     }
 
-    public void setUserThumb(String userThumb) {
-        this.userThumb = userThumb;
+    public void setThumb(String thumb) {
+        this.thumb = thumb;
     }
 
     public String getBio() {
@@ -66,9 +66,9 @@ public class Users extends UserId {
     }
 
     public String toString() {
-        return "username is: " + this.getUsername() +
-                "\nuserId is: " + this.getUserId() +
-                "\nuserImageUrl is: " + this.getUserImage() +
-                "\nuserThumbUrl is: " + this.getUserThumb();
+        return "name is: " + this.getName() +
+                "\nuser_id is: " + this.getUser_id() +
+                "\nuserImageUrl is: " + this.getImage() +
+                "\nuserThumbUrl is: " + this.getThumb();
     }
 }

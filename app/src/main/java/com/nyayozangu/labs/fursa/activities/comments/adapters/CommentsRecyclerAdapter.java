@@ -80,7 +80,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
         Log.d(TAG, "onBindViewHolder: \ncomment is: " + comment);
         holder.setComment(comment);
 
-        //set username
+        //set name
         String userId = commentsList.get(position).getUser_id();
         db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -96,7 +96,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                         //user exists
                         String username = documentSnapshot.get("name").toString();
 
-                        //set username to username textView
+                        //set name to name textView
                         holder.setUsername(username);
 
                         //set user image

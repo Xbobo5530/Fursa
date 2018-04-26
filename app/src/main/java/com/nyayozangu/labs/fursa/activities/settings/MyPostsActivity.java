@@ -202,7 +202,7 @@ public class MyPostsActivity extends AppCompatActivity {
         //check if is current user's post
         if (postUserId.equals(currentUserId)) {
 
-            //get userId for post
+            //get user_id for post
             db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {

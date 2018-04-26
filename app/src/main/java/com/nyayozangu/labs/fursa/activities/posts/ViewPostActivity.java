@@ -704,7 +704,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                 }
 
 
-                                //set username
+                                //set name
                                 //get user name
                                 if (documentSnapshot.get("name") != null) {
 

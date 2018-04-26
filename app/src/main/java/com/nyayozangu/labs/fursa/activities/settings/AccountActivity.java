@@ -206,7 +206,7 @@ public class AccountActivity extends AppCompatActivity {
                             userId = mAUth.getCurrentUser().getUid();
                             StorageReference imagePath = mStorageRef.child("profile_images").child(userId + ".jpg");
 
-                            Log.d(TAG, "userId is: " + userId + "imagePath is: " + imagePath);
+                            Log.d(TAG, "user_id is: " + userId + "imagePath is: " + imagePath);
 
                             //show progress bar
                             showProgress("Loading...");
@@ -295,14 +295,14 @@ public class AccountActivity extends AppCompatActivity {
 
 
                     } else {
-                        //no image selected, no username selected
-                        //update username but not the imageUri
+                        //no image selected, no name selected
+                        //update name but not the imageUri
                         updateDb(null, null, userName, userBio);
                     }
                 } else {
                     //field are empty
                     Snackbar.make(findViewById(R.id.account_layout),
-                            "Enter a username to continue", Snackbar.LENGTH_LONG).show();
+                            "Enter a name to continue", Snackbar.LENGTH_LONG).show();
 
                 }
             }

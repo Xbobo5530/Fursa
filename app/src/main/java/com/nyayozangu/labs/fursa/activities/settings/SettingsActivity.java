@@ -130,7 +130,7 @@ public class SettingsActivity extends AppCompatActivity {
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                     //check if user exists
                     if (documentSnapshot.exists()) {
-                        //set username
+                        //set name
                         String username = documentSnapshot.get("name").toString();
                         usernameTextView.setText(username);
                         //set bio
