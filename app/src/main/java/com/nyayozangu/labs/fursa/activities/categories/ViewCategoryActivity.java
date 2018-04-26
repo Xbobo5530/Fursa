@@ -189,10 +189,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
         //initiate items
         subscribeFab = findViewById(R.id.subscribeCatFab);
-
-
         swipeRefresh = findViewById(R.id.catSwipeRefresh);
-
 
         if (isConnected()) {
 
@@ -228,7 +225,10 @@ ViewCategoryActivity extends AppCompatActivity {
 
                         userId = mAuth.getCurrentUser().getUid();
 
-                        db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        db.collection("Users/" + userId + "/Subscriptions")
+                                .document("categories")
+                                .collection("Categories").document(currentCat).get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 //get data from teh likes collection
@@ -242,7 +242,10 @@ ViewCategoryActivity extends AppCompatActivity {
                                     catsMap.put("timestamp", FieldValue.serverTimestamp());
 
                                     //subscribe user
-                                    db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).set(catsMap);
+                                    db.collection("Users/" + userId + "/Subscriptions")
+                                            .document("categories")
+                                            .collection("Categories")
+                                            .document(currentCat).set(catsMap);
                                     //set image
                                     subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
                                     //subscribe to notifications
@@ -320,13 +323,15 @@ ViewCategoryActivity extends AppCompatActivity {
         });
 
 
-        Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
-        //get all posts from the database
-        //use snapshotListener to get all the data real time
+        Query firstQuery = db.
+                collection("Posts")
+                .limit(20)
+                .orderBy("timestamp", Query.Direction.DESCENDING);
         firstQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
+                Log.d(TAG, "onEvent: first Query");
                 //check if the data is loaded for the first time
                 /**
                  * if new data is added it will be added to the first query not the second query
@@ -335,22 +340,22 @@ ViewCategoryActivity extends AppCompatActivity {
 
                     //get the last visible post
                     try {
+
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
                         postsList.clear();
                         usersList.clear();
+
                     } catch (Exception exception) {
                         Log.d(TAG, "error: " + exception.getMessage());
                     }
 
                 }
 
-
                 //create a for loop to check for document changes
                 for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                     //check if an item is added
                     if (doc.getType() == DocumentChange.Type.ADDED) {
-                        //a new item/ post is added
 
                         //get the post id for likes feature
                         final String postId = doc.getDocument().getId();
@@ -375,7 +380,10 @@ ViewCategoryActivity extends AppCompatActivity {
 
         userId = mAuth.getCurrentUser().getUid();
         //check if user is subscribed
-        db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        db.collection("Users/" + userId + "/Subscriptions")
+                .document("categories")
+                .collection("Categories").document(currentCat)
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -452,6 +460,8 @@ ViewCategoryActivity extends AppCompatActivity {
     }
 
     private void processCategories(DocumentChange doc, String postId) {
+
+        Log.d(TAG, "processCategories: ");
         //get received intent
         final String category = getIntent().getStringExtra("category");
 
@@ -484,6 +494,10 @@ ViewCategoryActivity extends AppCompatActivity {
                 filterCat(doc, postId, "events");
                 break;
 
+            case "places":
+                filterCat(doc, postId, "places");
+                break;
+
             case "business":
                 filterCat(doc, postId, "business");
                 break;
@@ -511,44 +525,44 @@ ViewCategoryActivity extends AppCompatActivity {
     }
 
     private void filterCat(final DocumentChange doc, final String postId, final String category) {
+
+        Log.d(TAG, "filterCat: at filter cat");
         //check if current post contains business
-        db.collection("Posts").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                //check if post exists
-                if (documentSnapshot.exists()) {
-                    //post exists
-                    if (documentSnapshot.get("categories") != null) {
+        final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+        ArrayList catsArray = post.getCategories();
+        Log.d(TAG, "filterCat: \ncatsArray is: " + catsArray);
+        if (catsArray != null) {
 
-                        //post has categories
-                        //get cats
-                        ArrayList categories = (ArrayList) documentSnapshot.get("categories");
+            //check if post contains cat
+            if (catsArray.contains(category)) {
 
-                        if (categories.contains(category)) {
+                String postUserId = post.getUser_id();
+                db.collection("Users")
+                        .document(postUserId)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                            //cat has business
-                            final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                                if (task.isSuccessful()) {
 
-                            //get user id
-                            String postUserId = doc.getDocument().getString("user_id");
-
-                            //get user_id for post
-                            db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                    //check if task is successful
-                                    if (task.isSuccessful()) {
+                                    //check if user exists
+                                    if (task.getResult().exists()) {
 
                                         Users user = task.getResult().toObject(Users.class);
-                                        usersList.add(user);
 
                                         //add new post to the local postsList
                                         if (isFirstPageFirstLoad) {
+
+                                            Log.d(TAG, "onComplete: isFirstPageFirstLoad");
                                             //if the first page is loaded the add new post normally
                                             postsList.add(post);
+                                            usersList.add(user);
+
                                         } else {
+
+                                            Log.d(TAG, "onComplete: not isFirstPageFirstLoad");
                                             //add the post at position 0 of the postsList
                                             postsList.add(0, post);
                                             usersList.add(0, user);
@@ -556,25 +570,112 @@ ViewCategoryActivity extends AppCompatActivity {
                                         }
                                         //notify the recycler adapter of the set change
                                         categoryRecyclerAdapter.notifyDataSetChanged();
+
+                                    }
+
+                                }
+
+                            }
+                        });
+
+            }
+
+        }
+
+         /*addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                //check if post exists
+                if (documentSnapshot.exists()) {
+                    //post exists
+                    Log.d(TAG, "onEvent: document snapshot exists");
+                    if (documentSnapshot.get("categories") != null) {
+
+                        Log.d(TAG, "onEvent: categories are not null");
+                        //post has categories
+                        //get cats
+                        ArrayList categories = (ArrayList) documentSnapshot.get("categories");
+                        Log.d(TAG, "onEvent: \ncategories are: " + categories);
+
+                        if (categories.contains(category)) {
+
+                            Log.d(TAG, "onEvent: cats contain cat");
+                            //cat has business
+                            final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+                            Log.d(TAG, "onEvent: \npost is: " + post.toString());
+
+                            //get user id
+                            String postUserId = post.getUser_id();
+
+                            //get user_id for post
+                            db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                    Log.d(TAG, "onComplete: getting user details");
+                                    //check if task is successful
+                                    if (task.isSuccessful()) {
+
+
+                                        Log.d(TAG, "onComplete: task is successful");
+                                        Users user = task.getResult().toObject(Users.class);
+                                        Log.d(TAG, "onComplete: user is: " + user.toString());
+
+                                        //add new post to the local postsList
+                                        if (isFirstPageFirstLoad) {
+
+                                            Log.d(TAG, "onComplete: isFirstPageFirstLoad");
+                                            //if the first page is loaded the add new post normally
+                                            postsList.add(post);
+                                            usersList.add(user);
+
+                                        } else {
+
+                                            Log.d(TAG, "onComplete: not isFirstPageFirstLoad");
+                                            //add the post at position 0 of the postsList
+                                            postsList.add(0, post);
+                                            usersList.add(0, user);
+
+                                        }
+                                        //notify the recycler adapter of the set change
+                                        categoryRecyclerAdapter.notifyDataSetChanged();
+                                    }else{
+                                        //task failed
+                                        Log.d(TAG, "onComplete: task failed\n" + task.getException());
+
                                     }
 
                                 }
                             });
 
+                        }else{
+
+                            Log.d(TAG, "onEvent: cats do not contain cat");
                         }
 
+                    }else{
+
+                        //cat are null
+                        Log.d(TAG, "onEvent: cats are null");
                     }
+
+                }else{
+
+                    //doc snapshot does not exist
+                    Log.d(TAG, "onEvent: doc snapshot does not exist");
 
                 }
 
             }
-        });
+        });*/
     }
 
 
     //for loading more posts
     public void loadMorePosts() {
 
+        Log.d(TAG, "loadMorePosts: ");
         Query nextQuery = db.collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
@@ -587,6 +688,7 @@ ViewCategoryActivity extends AppCompatActivity {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
+                Log.d(TAG, "onEvent: nextQuery");
                 try {
                     //check if there area more posts
                     if (!queryDocumentSnapshots.isEmpty()) {
@@ -611,9 +713,9 @@ ViewCategoryActivity extends AppCompatActivity {
                         }
 
                     }
-                } catch (NullPointerException nullExeption) {
+                } catch (NullPointerException nullException) {
                     //the Query is null
-                    Log.e(TAG, "error: " + nullExeption.getMessage());
+                    Log.e(TAG, "error: " + nullException.getMessage());
                 }
             }
         });

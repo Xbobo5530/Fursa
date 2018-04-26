@@ -24,7 +24,6 @@ public class Users extends UserId {
     public Users() {
     }
 
-
     public String getName() {
         return name;
     }

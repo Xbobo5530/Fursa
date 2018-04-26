@@ -111,11 +111,12 @@ public class HomeFragment extends Fragment {
         });
 
 
-        final Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
+        final Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(20);
         //get all posts from the database
         loadPosts(firstQuery);
 
         //handle refresh
+        // TODO: 4/26/18 handle swipe to refresh better
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -151,12 +152,16 @@ public class HomeFragment extends Fragment {
 
                     //get the last visible post
                     try {
+
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
                         postsList.clear();
                         usersList.clear();
+
                     } catch (Exception exception) {
+
                         Log.d(TAG, "error: " + exception.getMessage());
+
                     }
 
                 }

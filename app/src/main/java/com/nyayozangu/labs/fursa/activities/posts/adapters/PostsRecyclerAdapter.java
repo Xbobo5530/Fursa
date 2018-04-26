@@ -176,6 +176,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             db.collection("Posts/" + postId + "/Likes").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
                     //update the like button real time
                     if (documentSnapshot.exists()) {
                         Log.d(TAG, "at get likes, updating likes real time");
