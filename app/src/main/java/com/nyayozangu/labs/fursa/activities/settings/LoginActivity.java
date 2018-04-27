@@ -174,6 +174,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                             //check if login was successful
                                             if (task.isSuccessful()) {
                                                 //login was successful
+
                                                 startMain();
                                             } else {
                                                 //login was not successful
@@ -181,8 +182,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                                                 showSnack(R.id.login_activity_layout, "Error: " + errorMessage);
 
-                                                //hide progress
-                                                progressDialog.dismiss();
                                             }
                                             //hide progress
                                             progressDialog.dismiss();
@@ -235,10 +234,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 String email = emailField.getText().toString();
                                 String password = passwordField.getText().toString();
                                 String confirmPassword = confirmPasswordField.getText().toString();
-                                Log.d(TAG, "onClick: \nemail is: " +
-                                        "\npassword is: " + password +
-                                        "\nconfirm password is: " + confirmPassword);
-
 
                                 //check if fields are empty
                                 if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(confirmPassword)) {
@@ -256,9 +251,36 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                                 if (task.isSuccessful()) {
 
                                                     //registration successful
-                                                    //go to account setup
-                                                    startActivity(new Intent(LoginActivity.this, AccountActivity.class));
-                                                    finish();
+
+                                                    // TODO: 4/27/18 show an alert dialog to inform user that email verification was sent
+                                                    AlertDialog.Builder emailVerBuilder = new AlertDialog.Builder(LoginActivity.this);
+                                                    emailVerBuilder.setTitle(R.string.email_ver_text)
+                                                            .setIcon(R.drawable.ic_action_info_grey)
+                                                            .setMessage("A verification email has been sent to your email address")
+                                                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                                    //send ver email
+                                                                    FirebaseUser user = mAuth.getCurrentUser();
+                                                                    user.sendEmailVerification()
+                                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                                    if (task.isSuccessful()) {
+                                                                                        Log.d(TAG, "Email sent.");
+                                                                                    }
+                                                                                }
+                                                                            });
+
+                                                                    //go to account setup
+                                                                    startActivity(new Intent(LoginActivity.this, AccountActivity.class));
+                                                                    finish();
+
+
+                                                                }
+                                                            })
+                                                            .show();
 
                                                 } else {
 

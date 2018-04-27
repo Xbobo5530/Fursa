@@ -32,6 +32,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     //users
     private String currentUserId;
-    private FloatingActionButton mNewPost;
+    private FloatingActionButton createPostButton;
     private BottomNavigationView mainBottomNav;
     private TextView titleBarTextView;
 
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         searchButton = findViewById(R.id.searchButton);
         searchLayout = findViewById(R.id.mainSearchConsLayout);
 
-        mNewPost = findViewById(R.id.newPostFab);
+        createPostButton = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
 
 
@@ -173,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //set the userProfile image
-        // TODO: 4/9/18 make having a profile image optional
         if (mAuth.getCurrentUser() != null) {
             //user is logged in
             String userId = mAuth.getCurrentUser().getUid();
@@ -220,18 +220,86 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        mNewPost.setOnClickListener(new View.OnClickListener() {
+        createPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //only allow the user to post if user is signed in
-                if (isLoggedIn()) {
-                    //start the new post activity
-                    goToNewPost();
-                } else {
-                    String message = "Log in to post items";
 
-                    //user is not logged in show dialog
-                    showLoginAlertDialog(message);
+                if (isConnected()) {
+
+                    //only allow the user to post if user is signed in
+                    if (isLoggedIn()) {
+
+                        //check is user has verified email
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        boolean emailVerified = user.isEmailVerified();
+                        if (emailVerified) {
+                            //start the new post activity
+                            goToNewPost();
+                        } else {
+
+                            //user has not verified email
+                            //alert user is not verified
+                            android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
+                            emailVerBuilder.setTitle(R.string.email_ver_text)
+                                    .setIcon(R.drawable.ic_action_info_grey) // TODO: 4/27/18 change the black icon to the grey icon
+                                    .setMessage("You have to verify your email address to create a post.")
+                                    .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(final DialogInterface dialog, int which) {
+
+                                            //send ver email
+                                            FirebaseUser user = mAuth.getCurrentUser();
+                                            user.sendEmailVerification()
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+
+                                                                Log.d(TAG, "Email sent.");
+                                                                //infrom user email is sent
+                                                                showSnack("Email sent");
+                                                                //close the
+                                                                dialog.dismiss();
+                                                            }
+                                                        }
+                                                    });
+
+
+                                        }
+                                    })
+                                    .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            dialog.dismiss();
+
+                                        }
+                                    })
+                                    .show();
+
+                        }
+                    } else {
+                        String message = "Log in to post items";
+
+                        //user is not logged in show dialog
+                        showLoginAlertDialog(message);
+                    }
+                } else {
+
+                    AlertDialog.Builder noNetBuilder = new AlertDialog.Builder(MainActivity.this);
+                    noNetBuilder.setTitle("Connection Error")
+                            .setIcon(R.drawable.ic_action_alert)
+                            .setMessage("Failed to connect to the internet\nCheck your connection and try again")
+                            .setPositiveButton("On", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    dialog.dismiss();
+
+                                }
+                            })
+                            .show();
+
                 }
             }
         });
@@ -242,7 +310,6 @@ public class MainActivity extends AppCompatActivity {
         mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, SearchableActivity.class)));
         mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
-
 
 
         //get the sent intent

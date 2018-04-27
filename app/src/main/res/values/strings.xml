@@ -273,6 +273,7 @@
     <string name="login_to_view_options_text">Login to view post options</string>
     <string name="login_to_like">Login to like items</string>
     <string name="default_notification_channel_name">Updates</string>
+    <string name="email_ver_text">Email Verification</string>
 
 
 </resources>
