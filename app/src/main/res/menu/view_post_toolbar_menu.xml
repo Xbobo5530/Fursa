@@ -6,8 +6,10 @@
         android:title="@string/report_text" />
     <item
         android:id="@+id/editMenuItem"
-        android:title="@string/edit_text" />
+        android:title="@string/edit_text"
+        android:visible="false" />
     <item
         android:id="@+id/deleteMenuItem"
-        android:title="@string/delete_menu_item_text" />
+        android:title="@string/delete_menu_item_text"
+        android:visible="false" />
 </menu>

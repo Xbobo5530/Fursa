@@ -274,6 +274,10 @@
     <string name="login_to_like">Login to like items</string>
     <string name="default_notification_channel_name">Updates</string>
     <string name="email_ver_text">Email Verification</string>
+    <string name="ok_text">Ok</string>
+    <string name="send_email_text">Sending Email...</string>
+    <string name="verify_to_comment_text">You have to verify your email address to comment on a post.</string>
+    <string name="login_to_create_post">Login to create a post</string>
 
 
 </resources>

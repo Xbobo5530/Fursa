@@ -49,6 +49,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.notifications.Notify;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -1061,12 +1062,24 @@ public class CreatePostActivity extends AppCompatActivity {
         Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (imageUri != null) {
 
-            // Update image Uri
-            postImageUri = imageUri;
-            Log.d(TAG, "handleSendImage: image uri is " + imageUri);
+            //check if user is logged in
+            if (isLoggedIn()) {
+                // Update image Uri
+                postImageUri = imageUri;
+                Log.d(TAG, "handleSendImage: image uri is " + imageUri);
+                //open the image cropper activity and pass in the uri
+                CropImage.activity(postImageUri)
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        /*.setAspectRatio(16, 9)*/
+                        .setMinCropResultSize(512, 512)
+                        .start(CreatePostActivity.this);
 
-            //set image
-            createPostImageView.setImageURI(postImageUri);
+            } else {
+
+                //user is not logged in
+                showLoginAlertDialog(getString(R.string.login_to_create_post));
+
+            }
 
         }
     }
@@ -1075,9 +1088,11 @@ public class CreatePostActivity extends AppCompatActivity {
     private void populateEditPostData(String postId) {
 
         showProgress("Loading...");
-
         //access db to set items
-        db.collection("Posts").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("Posts")
+                .document(postId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -1085,6 +1100,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
 
                     //set items
+                    // TODO: 4/28/18 convert task into Post object, rewrite code
 
                     //non null
                     //set title
@@ -1106,7 +1122,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         String thumbUrl = task.getResult().get("thumb_url").toString();
                         RequestOptions placeHolderOptions = new RequestOptions();
                         placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
-
                         Glide.with(getApplicationContext())
                                 .applyDefaultRequestOptions(placeHolderOptions)
                                 .load(imageUrl)
@@ -1379,6 +1394,34 @@ public class CreatePostActivity extends AppCompatActivity {
         //check if user is logged in
         return mAuth.getCurrentUser() != null;
 
+    }
+
+    private void showLoginAlertDialog(String message) {
+        //Prompt user to log in
+        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(CreatePostActivity.this);
+        loginAlertBuilder.setTitle("Login")
+                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setMessage("You are not logged in\n" + message)
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //send user to login activity
+                        goToLogin();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //cancel
+                        dialog.cancel();
+                    }
+                })
+                .show();
+    }
+
+    //go to login page
+    private void goToLogin() {
+        startActivity(new Intent(CreatePostActivity.this, LoginActivity.class));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa.activities.main;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private ConstraintLayout searchLayout;
 
     private List<String> lastSearches;
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -175,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         //set the userProfile image
         if (mAuth.getCurrentUser() != null) {
+
             //user is logged in
             String userId = mAuth.getCurrentUser().getUid();
             db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -188,8 +191,10 @@ public class MainActivity extends AppCompatActivity {
 
                             RequestOptions placeHolderOptions = new RequestOptions();
                             placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-
-                            Glide.with(MainActivity.this).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(userProfileImage);
+                            Glide.with(MainActivity.this)
+                                    .applyDefaultRequestOptions(placeHolderOptions)
+                                    .load(userImageDownloadUri)
+                                    .into(userProfileImage);
 
                         } catch (NullPointerException imageNotFoundException) {
 
@@ -199,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     } else {
+
                         //task unsuccessful handle errors
                         String errorMessage = task.getException().getMessage();
                         Log.d(TAG, "Error: " + errorMessage);
@@ -239,43 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
                             //user has not verified email
                             //alert user is not verified
-                            android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
-                            emailVerBuilder.setTitle(R.string.email_ver_text)
-                                    .setIcon(R.drawable.ic_action_info_grey) // TODO: 4/27/18 change the black icon to the grey icon
-                                    .setMessage("You have to verify your email address to create a post.")
-                                    .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(final DialogInterface dialog, int which) {
-
-                                            //send ver email
-                                            FirebaseUser user = mAuth.getCurrentUser();
-                                            user.sendEmailVerification()
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-
-                                                                Log.d(TAG, "Email sent.");
-                                                                //infrom user email is sent
-                                                                showSnack("Email sent");
-                                                                //close the
-                                                                dialog.dismiss();
-                                                            }
-                                                        }
-                                                    });
-
-
-                                        }
-                                    })
-                                    .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            dialog.dismiss();
-
-                                        }
-                                    })
-                                    .show();
+                            showVerEmailDialog();
 
                         }
                     } else {
@@ -358,6 +328,71 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void showVerEmailDialog() {
+        android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
+        emailVerBuilder.setTitle(R.string.email_ver_text)
+                .setIcon(R.drawable.ic_action_info_grey) // TODO: 4/27/18 change the black icon to the grey icon
+                .setMessage("You have to verify your email address to create a post.")
+                .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int which) {
+
+                        //send ver email
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        //show progress
+                        String sendEmailMessage = getString(R.string.send_email_text);
+                        showProgress(sendEmailMessage);
+                        sendVerEmail(dialog, user);
+                        //hide progress
+                        progressDialog.dismiss();
+
+
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .show();
+    }
+
+    private void sendVerEmail(final DialogInterface dialog, FirebaseUser user) {
+        user.sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+
+                            Log.d(TAG, "Email sent.");
+                            //inform user email is sent
+                            //close the
+                            dialog.dismiss();
+                            AlertDialog.Builder logoutConfirmEmailBuilder = new AlertDialog.Builder(MainActivity.this);
+                            logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
+                                    .setIcon(R.drawable.ic_action_info_grey)
+                                    .setMessage("A verification email has been sent to your email address.\nLogin after verifying your email to create posts.")
+                                    .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            //log use out
+                                            //take user to login screen
+                                            mAuth.signOut();
+                                            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                                            finish();
+
+                                        }
+                                    }).show();
+
+                        }
+                    }
+                });
     }
 
     private void openSearch() {
@@ -609,5 +644,14 @@ public class MainActivity extends AppCompatActivity {
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
     }
+
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
 
 }

@@ -27,6 +27,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -117,157 +118,183 @@ public class CommentsActivity extends AppCompatActivity {
         Log.d(TAG, "postId is: " + postId);
 
 
-        db.collection("Posts/" + postId + "/Comments").addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+        //check if device is connected
+        if (isConnected()) {
 
-                //check if query is empty
-                if (!queryDocumentSnapshots.isEmpty()) {
-
-                    //create a for loop to check for document changes
-                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                        //check if an item is added
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
-
-                            //a new comment is added
-                            //get the comment id for likes feature
-                            String commentId = doc.getDocument().getId();
-                            Comments comment = doc.getDocument().toObject(Comments.class);
-                            commentsList.add(comment);
-                            Log.d(TAG, "onEvent: commentsList is: " + commentsList.toString());
-                            commentsRecyclerAdapter.notifyDataSetChanged();
-
-                        }
-                    }
-                } else {
-
-                    //there are no comments
-                    // TODO: 4/13/18 handle there are no comments
-
-
-                }
-
-            }
-        });
-
-
-
-        //inform user to login to comment
-        if (isLoggedIn()) {
-
-            //user is logged in
-            userId = mAuth.getCurrentUser().getUid();
-            //user is logged in
-            db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            db.collection("Posts/" + postId + "/Comments").addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
                 @Override
-                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                    //check if user exists
-                    if (documentSnapshot.exists()) {
+                    //check if query is empty
+                    if (!queryDocumentSnapshots.isEmpty()) {
 
-                        //user exists
-                        try {
+                        //create a for loop to check for document changes
+                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                            //check if an item is added
+                            if (doc.getType() == DocumentChange.Type.ADDED) {
 
-                            //set image
-                            String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
-                            RequestOptions placeHolderOptions = new RequestOptions();
-                            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-
-                            Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
-                                    .load(userProfileImageDownloadUrl).into(currentUserImage);
-
-
-                        } catch (NullPointerException noImageFoundException) {
-
-                            currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
-
-                            Log.d(TAG, "onEvent: error: no thumb found");
-                        }
-
-                    }
-
-                }
-            });
-
-            sendButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    //get user comment
-                    if (!chatField.getText().toString().isEmpty()) {
-
-                        showProgress("Posting comment...");
-
-                        final String comment = chatField.getText().toString();
-                        //generate randomString name for image based on firebase time stamp
-                        final String randomCommentId = UUID.randomUUID().toString();
-                        //get the user id of the user posing
-
-
-                        //post a comment
-                        db.collection("Posts/" + postId + "/Comments").document(randomCommentId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                //add new comment
-                                final Map<String, Object> commentsMap = new HashMap<>();
-                                commentsMap.put("timestamp", FieldValue.serverTimestamp());
-                                commentsMap.put("comment", comment);
-                                commentsMap.put("user_id", userId);
-
-                                //upload comment to cloud
-                                db.collection("Posts/" + postId + "/Comments").document(randomCommentId).set(commentsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-
-                                        //check if task is successful
-                                        if (task.isSuccessful()) {
-
-                                            //subscribe user to post
-                                            db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).set(commentsMap);
-                                            //subscribe user to topic
-                                            //subscribe to app updates
-                                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                            Log.d(TAG, "user subscribed to topic COMMENTS");
-                                            // TODO: 4/25/18 send notifs to subscribers
-                                            new Notify().execute("comment_updates", postId);
-                                            Log.d(TAG, "onComplete: sending notification");
-
-                                        } else {
-
-                                            showSnack("Failed to post comment: " + task.getResult().toString());
-
-                                        }
-
-                                    }
-                                });
-
-
-                                progressDialog.dismiss();
+                                //a new comment is added
+                                //get the comment id for likes feature
+                                String commentId = doc.getDocument().getId();
+                                Comments comment = doc.getDocument().toObject(Comments.class);
+                                commentsList.add(comment);
+                                Log.d(TAG, "onEvent: commentsList is: " + commentsList.toString());
+                                commentsRecyclerAdapter.notifyDataSetChanged();
 
                             }
-                        });
-                        //clear text field
-                        chatField.setText("");
+                        }
+                    } else {
+
+                        //there are no comments
+                        // TODO: 4/13/18 handle there are no comments
+
+
                     }
 
                 }
             });
 
+
+            //inform user to login to comment
+            if (isLoggedIn()) {
+
+                //user is logged in
+                userId = mAuth.getCurrentUser().getUid();
+                //user is logged in
+                db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                        //check if user exists
+                        if (documentSnapshot.exists()) {
+
+                            //user exists
+                            try {
+
+                                //set image
+                                String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
+                                RequestOptions placeHolderOptions = new RequestOptions();
+                                placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
+                                Glide.with(getApplicationContext())
+                                        .applyDefaultRequestOptions(placeHolderOptions)
+                                        .load(userProfileImageDownloadUrl).into(currentUserImage);
+
+
+                            } catch (NullPointerException noImageFoundException) {
+
+                                currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                                Log.d(TAG, "onEvent: error: no thumb found");
+
+                            }
+
+                        }
+
+                    }
+                });
+
+                sendButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        //check is user has verified email
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        boolean emailVerified = user.isEmailVerified();
+                        if (emailVerified) {
+
+                            //get user comment
+                            if (!chatField.getText().toString().isEmpty()) {
+
+                                showProgress("Posting comment...");
+                                final String comment = chatField.getText().toString();
+                                //generate randomString name for image based on firebase time stamp
+                                final String randomCommentId = UUID.randomUUID().toString();
+                                //get the user id of the user posing
+                                //post a comment
+                                db.collection("Posts/" + postId + "/Comments")
+                                        .document(randomCommentId)
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                                //add new comment
+                                                final Map<String, Object> commentsMap = new HashMap<>();
+                                                commentsMap.put("timestamp", FieldValue.serverTimestamp());
+                                                commentsMap.put("comment", comment);
+                                                commentsMap.put("user_id", userId);
+
+                                                //upload comment to cloud
+                                                db.collection("Posts/" + postId + "/Comments")
+                                                        .document(randomCommentId)
+                                                        .set(commentsMap)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+
+                                                                //check if task is successful
+                                                                if (task.isSuccessful()) {
+
+                                                                    //subscribe user to post
+                                                                    db.collection("Users/" + userId + "/Subscriptions")
+                                                                            .document("comments")
+                                                                            .collection("Comments")
+                                                                            .document(postId)
+                                                                            .set(commentsMap);
+                                                                    //subscribe user to topic
+                                                                    //subscribe to app updates
+                                                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                                                                    Log.d(TAG, "user subscribed to topic COMMENTS");
+                                                                    // TODO: 4/25/18 send notifs to subscribers
+                                                                    new Notify().execute("comment_updates", postId);
+                                                                    Log.d(TAG, "onComplete: sending notification");
+
+                                                                } else {
+
+                                                                    showSnack("Failed to post comment: " + task.getResult().toString());
+
+                                                                }
+
+                                                            }
+                                                        });
+
+                                                progressDialog.dismiss();
+
+                                            }
+                                        });
+                                //clear text field
+                                chatField.setText("");
+                            }
+                        } else {
+
+                            //user has not verified email
+                            //alert user is not verified
+                            showVerEmailDialog();
+
+                        }
+
+                    }
+                });
+
+
+            } else {
+
+                currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                //clicking send to go to login with postId intent
+                sendButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "login button has clicked");
+                        String message = "Log in to comment";
+                        showLoginAlertDialog(message);
+                    }
+
+                });
+            }
 
         } else {
 
-            currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
-            //clicking send to go to login with postId intent
-            sendButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "login button has clicked");
-                    String message = "Log in to comment";
-                    showLoginAlertDialog(message);
-                }
+            Log.d(TAG, "onCreate: device is not connected to the internet");
 
-            });
         }
 
 
@@ -456,6 +483,70 @@ public class CommentsActivity extends AppCompatActivity {
         }
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
+    }
+
+    private void showVerEmailDialog() {
+        android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(CommentsActivity.this);
+        emailVerBuilder.setTitle(R.string.email_ver_text)
+                .setIcon(R.drawable.ic_action_info_grey) // TODO: 4/27/18 change the black icon to the grey icon
+                .setMessage(R.string.verify_to_comment_text)
+                .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int which) {
+
+                        //send ver email
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        //show progress
+                        String sendEmailMessage = getString(R.string.send_email_text);
+                        showProgress(sendEmailMessage);
+                        sendVerEmail(dialog, user);
+                        //hide progress
+                        progressDialog.dismiss();
+
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .show();
+    }
+
+    private void sendVerEmail(final DialogInterface dialog, FirebaseUser user) {
+        user.sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+
+                            Log.d(TAG, "Email sent.");
+                            //inform user email is sent
+                            //close the
+                            dialog.dismiss();
+                            AlertDialog.Builder logoutConfirmEmailBuilder = new AlertDialog.Builder(CommentsActivity.this);
+                            logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
+                                    .setIcon(R.drawable.ic_action_info_grey)
+                                    .setMessage("A verification email has been sent to your email address.\nLogin after verifying your email to create posts.")
+                                    .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            //log use out
+                                            //take user to login screen
+                                            mAuth.signOut();
+                                            startActivity(new Intent(CommentsActivity.this, LoginActivity.class));
+                                            finish();
+
+                                        }
+                                    }).show();
+
+                        }
+                    }
+                });
     }
 
 }
