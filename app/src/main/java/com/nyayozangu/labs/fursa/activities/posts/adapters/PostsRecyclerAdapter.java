@@ -32,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
@@ -292,7 +293,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
                                     userId = mAuth.getCurrentUser().getUid();
                                     db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(postId).set(savesMap);
-                                    showSnack(holder, context.getString(R.string.added_to_saved_text));
+                                    showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
 
                                 } else {
 
@@ -545,6 +546,22 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void showSnack(@NonNull ViewHolder holder, String message) {
         Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                 message, Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showSaveSnack(@NonNull final ViewHolder holder, String message) {
+        Snackbar.make(holder.mView.findViewById(R.id.postLayout),
+                message, Snackbar.LENGTH_LONG)
+                .setAction("See list", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Intent goToSavedIntent = new Intent(context, MainActivity.class);
+                        goToSavedIntent.putExtra("goto", "saved");
+                        context.startActivity(goToSavedIntent);
+
+                    }
+                })
+                .show();
     }
 
     private void goToLogin() {

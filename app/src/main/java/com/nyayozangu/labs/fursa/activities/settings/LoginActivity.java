@@ -41,6 +41,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
+import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.DefaultLogger;
@@ -113,7 +115,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         //get the sent intent
         Intent getPostIdIntent = getIntent();
-        String postId = getPostIdIntent.getStringExtra("postId");
+        final String postId = getPostIdIntent.getStringExtra("postId");
         Log.d(TAG, "postId is: " + postId);
         // TODO: 4/7/18 when user comes to login form comments, return user to comments after loging in
         // TODO: 4/9/18 setup intent extra receivers for source page and post ids, to return the user to a specific post/ page after login
@@ -166,20 +168,50 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
 
                                     //show progress
-                                    showProgress("Loading...");
+                                    showProgress(getString(R.string.logging_in_text));
 
                                     mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                         @Override
                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                             //check if login was successful
                                             if (task.isSuccessful()) {
-                                                //login was successful
 
-                                                startMain();
+                                                //login was successful
+                                                if (getIntent() == null) {
+                                                    startMain();
+                                                } else {
+
+                                                    Intent sourceIntent = getIntent();
+                                                    switch (sourceIntent.getStringExtra("source")) {
+
+                                                        case "comments":
+
+                                                            Intent commentsIntent = new Intent(LoginActivity.this, CommentsActivity.class);
+                                                            commentsIntent.putExtra("postId", sourceIntent.getStringExtra("postId"));
+                                                            startActivity(commentsIntent);
+                                                            finish();
+                                                            break;
+
+                                                        case "categories":
+
+                                                            Intent catsIntent = new Intent(LoginActivity.this, ViewCategoryActivity.class);
+                                                            catsIntent.putExtra("category", sourceIntent.getStringExtra("category"));
+                                                            startActivity(catsIntent);
+                                                            finish();
+                                                            break;
+
+                                                        default:
+                                                            startMain();
+
+
+                                                    }
+
+                                                }
+
                                             } else {
+
                                                 //login was not successful
                                                 String errorMessage = task.getException().getMessage();
-
                                                 showSnack(R.id.login_activity_layout, "Error: " + errorMessage);
 
                                             }
@@ -552,7 +584,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             Log.d(TAG, "signInWithCredential:success");
 
                             FirebaseUser user = mAuth.getCurrentUser();
-                            /*Toast.makeText(LoginActivity.this, "Sign in success", Toast.LENGTH_SHORT).show();*/
                             Snackbar.make(findViewById(R.id.login_activity_layout),
                                     "Sign in success", Snackbar.LENGTH_SHORT).show();
 

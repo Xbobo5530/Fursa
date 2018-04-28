@@ -49,7 +49,6 @@ dependencies {
     /*google credentials causes version conflicts and build fail*/
     /*compile 'com.google.auth:google-auth-library-oauth2-http:0.9.1'*/
 
-
     // Include all the Twitter APIs
     compile 'com.twitter.sdk.android:twitter:3.1.1'
     // (Optional) Monetize using mopub

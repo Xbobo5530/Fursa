@@ -284,10 +284,38 @@ public class MainActivity extends AppCompatActivity {
 
         //get the sent intent
         if (getIntent() != null) {
-            Log.d(TAG, "getIntent is not null");
-            Intent getPostIdIntent = getIntent();
 
-            if (getPostIdIntent.getStringExtra("notify") != null) {
+            Intent getPostIdIntent = getIntent();
+            switch (getPostIdIntent.getStringExtra("action")) {
+
+                case "notify":
+
+                    String notifyMessage = getPostIdIntent.getStringExtra("notify");
+                    Snackbar.make(findViewById(R.id.main_activity_layout),
+                            notifyMessage, Snackbar.LENGTH_LONG)
+                            .show();
+                    Log.d(TAG, "notifyMessage is: " + notifyMessage);
+                    break;
+
+                case "goto":
+
+                    switch (getPostIdIntent.getStringExtra("goto")) {
+
+                        case "saved":
+                            setFragment(savedFragment);
+                            break;
+                        default:
+                            Log.d(TAG, "onCreate: at default");
+
+                    }
+
+                default:
+                    Log.d(TAG, "onCreate: at default");
+
+            }
+
+
+            /*if (getPostIdIntent.getStringExtra("notify") != null) {
 
                 String notifyMessage = getPostIdIntent.getStringExtra("notify");
                 Snackbar.make(findViewById(R.id.main_activity_layout),
@@ -324,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-            }
+            }*/
 
         }
 

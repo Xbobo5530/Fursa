@@ -55,11 +55,10 @@ public class ViewPostActivity extends AppCompatActivity {
     // TODO: 4/21/18 check if is connected before requesting for items
 
     private static final String TAG = "Sean";
-
-
+    MenuItem editPost;
+    MenuItem deletePost;
     private ImageView viewPostImage;
     private FloatingActionButton viewPostActionsFAB;
-
     private TextView descTextView;
     private TextView timeTextView;
     private TextView priceTextView;
@@ -69,9 +68,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private TextView contactTextView;
     private TextView userTextView;
     private TextView catTextView;
-
     private CircleImageView userImage; //image of user who posted post
-
     private ConstraintLayout viewPostTitleLayout;
     private ConstraintLayout viewPostDescLayout;
     private ConstraintLayout viewPostLocationLayout;
@@ -81,10 +78,8 @@ public class ViewPostActivity extends AppCompatActivity {
     private ConstraintLayout viewPostContactLayout;
     private ConstraintLayout viewPostUserLayout;
     private ConstraintLayout viewPostCatLayout;
-
     private String postUserId;
     private String currentUserId;
-
     private ConstraintLayout actionsLayout;
     private ImageView likeButton;
     private TextView likesCountText;
@@ -92,11 +87,8 @@ public class ViewPostActivity extends AppCompatActivity {
     private TextView commentsCountText;
     private ImageView saveButton;
     private ImageView shareButton;
-
     private String contactDetails;
-
     private android.support.v7.widget.Toolbar toolbar;
-
     //progress
     private ProgressDialog progressDialog;
 
@@ -131,6 +123,11 @@ public class ViewPostActivity extends AppCompatActivity {
                 }
 
             }
+
+        } else {
+
+            editPost.setVisible(false);
+            deletePost.setVisible(false);
 
         }
 
@@ -342,36 +339,18 @@ public class ViewPostActivity extends AppCompatActivity {
                         db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                //get data from the saves collections
 
-                                //check if user has already saved the post
                                 if (!task.getResult().exists()) {
+
                                     Map<String, Object> savesMap = new HashMap<>();
                                     savesMap.put("timestamp", FieldValue.serverTimestamp());
                                     //save new post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
                                     //notify user that post has been saved
-                                    showSnack(R.id.view_post_activity_layout, "Added to saved items");
-
-                                    /*// TODO: 4/19/18 add actions to go view the saved list
-                                    Snackbar.make(findViewById(R.id.view_post_activity_layout),
-                                            "Added to saved items", Snackbar.LENGTH_LONG)
-                                            .setAction("View List", new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-
-                                                    //go to saved list
-                                                    // TODO: 4/19/18 open the saved it
-                                                    FragmentManager manager = getFragmentManager();
-                                                    FragmentTransaction transaction = manager.beginTransaction();
-                                                    transaction.replace(R.id.container, new SavedFragment());
-                                                    transaction.addToBackStack(null);
-                                                    transaction.commit();
-
-                                                }
-                                            });*/
+                                    showSaveSnack(getString(R.string.added_to_saved_text));
 
                                 } else {
+
                                     //delete saved post
                                     db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
                                 }
@@ -382,14 +361,13 @@ public class ViewPostActivity extends AppCompatActivity {
                         Log.d(TAG, "user is not logged in");
                         //notify user
 
-                        String message = "Log in to save items";
+                        String message = getString(R.string.login_to_save_text);
                         showLoginAlertDialog(message);
                     }
                 } else {
 
                     //user is not connected to the internet
-                    //show alert dialog
-                    showSnack(R.id.view_post_activity_layout, "Failed to connect to the internet");
+                    showSnack(getString(R.string.failed_to_connect_text));
 
                 }
 
@@ -420,10 +398,9 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                 //check if current user has already liked post
                                 if (!task.getResult().exists()) {
+
                                     Map<String, Object> likesMap = new HashMap<>();
                                     likesMap.put("timestamp", FieldValue.serverTimestamp());
-
-                                    //db.collection("Posts").document(postId).collection("Likes");
                                     //can alternatively ne written
                                     db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
 
@@ -439,14 +416,14 @@ public class ViewPostActivity extends AppCompatActivity {
                         Log.d(TAG, "use is not logged in");
                         //notify user
 
-                        String message = "Log in to like items";
+                        String message = getString(R.string.login_to_like);
                         showLoginAlertDialog(message);
 
                     }
                 } else {
 
                     //alert user is not connected
-                    showSnack(R.id.view_post_activity_layout, "Failed to connect to the internet\nCheck your connection and try again");
+                    showSnack(getString(R.string.failed_to_connect_text));
 
                 }
 
@@ -651,9 +628,9 @@ public class ViewPostActivity extends AppCompatActivity {
                     String postThumbUrl = post.getThumb_url();
 
                     if (postImageUri != null && postThumbUrl != null) {
+
                         RequestOptions placeHolderOptions = new RequestOptions();
                         placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
-
                         Glide.with(getApplicationContext())
                                 .applyDefaultRequestOptions(placeHolderOptions)
                                 .load(postImageUri)
@@ -970,9 +947,26 @@ public class ViewPostActivity extends AppCompatActivity {
 
     }
 
-    private void showSnack(int id, String message) {
-        Snackbar.make(findViewById(id),
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.view_post_activity_layout),
                 message, Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showSaveSnack(String message) {
+        Snackbar.make(findViewById(R.id.view_post_activity_layout),
+                message, Snackbar.LENGTH_LONG)
+                .setAction(R.string.see_list_text, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Intent goToSavedIntent = new Intent(ViewPostActivity.this, MainActivity.class);
+                        goToSavedIntent.putExtra("goto", "saved");
+                        startActivity(goToSavedIntent);
+                        finish();
+
+                    }
+                })
+                .show();
     }
 
     private void showLoginAlertDialog(String message) {

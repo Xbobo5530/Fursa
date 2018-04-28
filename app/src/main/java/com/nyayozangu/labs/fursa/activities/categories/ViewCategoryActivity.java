@@ -763,6 +763,9 @@ ViewCategoryActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
+                        Intent loginIntent = new Intent(ViewCategoryActivity.this, LoginActivity.class);
+                        loginIntent.putExtra("source", "categories");
+                        loginIntent.putExtra("category", currentCat);
                         goToLogin();
                     }
                 })

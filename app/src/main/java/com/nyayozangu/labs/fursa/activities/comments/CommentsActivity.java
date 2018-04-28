@@ -429,7 +429,12 @@ public class CommentsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        goToLogin();
+                        Intent loginIntent = new Intent(CommentsActivity.this, LoginActivity.class);
+                        loginIntent.putExtra("source", "comments");
+                        loginIntent.putExtra("postId", postId);
+                        startActivity(loginIntent);
+                        finish();
+
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

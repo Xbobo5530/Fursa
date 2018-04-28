@@ -279,5 +279,12 @@
     <string name="verify_to_comment_text">You have to verify your email address to comment on a post.</string>
     <string name="login_to_create_post">Login to create a post</string>
 
+    <string name="title_activity_view_image">ViewImageActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="logging_in_text">Logging in...</string>
+    <string name="see_list_text">See list</string>
+    <string name="login_to_save_text">Log in to save items</string>
+
 
 </resources>
