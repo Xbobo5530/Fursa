@@ -6,9 +6,13 @@ import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.nyayozangu.labs.fursa.R;
 
 /**
@@ -33,6 +37,7 @@ public class ViewImageActivity extends AppCompatActivity {
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
+    private static final String TAG = "Sean";
     private final Handler mHideHandler = new Handler();
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
@@ -45,21 +50,7 @@ public class ViewImageActivity extends AppCompatActivity {
 //            mControlsView.setVisibility(View.VISIBLE);
         }
     };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
-    private View mContentView;
+    private ImageView mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -78,12 +69,25 @@ public class ViewImageActivity extends AppCompatActivity {
         }
     };
     private Toolbar toolbar;
-    private View mControlsView;
     private boolean mVisible;
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
             hide();
+        }
+    };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
         }
     };
 
@@ -94,7 +98,6 @@ public class ViewImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_image);
 
         mVisible = true;
-//        mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
 
 
@@ -110,7 +113,34 @@ public class ViewImageActivity extends AppCompatActivity {
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);*/
+
+        //handle image intent
+        handleIntent();
     }
+
+    private void handleIntent() {
+
+        if (getIntent() != null) {
+
+            Log.d(TAG, "handleIntent: intent is now null");
+            String downloadImageUrl = getIntent().getStringExtra("imageUrl");
+            setImage(downloadImageUrl);
+        }
+
+    }
+
+    private void setImage(String downloadUrl) {
+        RequestOptions placeHolderOptions = new RequestOptions();
+        placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
+        Glide.with(getApplicationContext())
+                .applyDefaultRequestOptions(placeHolderOptions)
+                .load(downloadUrl)
+                .into(mContentView);
+
+        Log.d(TAG, "onEvent: image set");
+    }
+
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

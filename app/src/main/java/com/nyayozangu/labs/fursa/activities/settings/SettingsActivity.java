@@ -12,25 +12,21 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "Sean";
 
-    // TODO: 4/8/18 handle my posts
-    // TODO: 4/8/18 handle mysubscriptions
     // TODO: 4/8/18 handlle contact us
     // TODO: 4/8/18 handle feedback
     // TODO: 4/8/18 handle privacy policy
-
 
     private CircleImageView userImage;
     private TextView usernameTextView;
@@ -46,10 +42,6 @@ public class SettingsActivity extends AppCompatActivity {
     private Button privacyPolicyButton;
 
     private android.support.v7.widget.Toolbar toolbar;
-
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +59,6 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        //initialize Firebase
-        mAuth = FirebaseAuth.getInstance();
-        //initialize firebase storage
-        // Access a Cloud Firestore instance from your Activity
-        db = FirebaseFirestore.getInstance();
-
         userImage = findViewById(R.id.settingsUserCirleImageView);
         usernameTextView = findViewById(R.id.settingsUsernameTextView);
         userBioTextView = findViewById(R.id.settingsUserBioTextView);
@@ -88,12 +74,12 @@ public class SettingsActivity extends AppCompatActivity {
 
 
         //handle logout
-        if (mAuth.getCurrentUser() != null) {
+        if (new CoMeth().isLoggedIn()) {
 
             logoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mAuth.signOut();
+                    new CoMeth().signOut();
                     Log.d(TAG, "user is logged out");
                     goToMain();
                 }
@@ -122,12 +108,16 @@ public class SettingsActivity extends AppCompatActivity {
 
 
         //check is user is logged in
-        if (isLoggedIn()) {
+        if (new CoMeth().isLoggedIn()) {
             //get current user is
-            String userId = mAuth.getCurrentUser().getUid();
-            db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            String userId = new CoMeth().getUid();
+            new CoMeth().getDb()
+                    .collection("Users")
+                    .document(userId)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
                     //check if user exists
                     if (documentSnapshot.exists()) {
                         //set name
@@ -176,7 +166,7 @@ public class SettingsActivity extends AppCompatActivity {
         myPostsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isLoggedIn()) {
+                if (new CoMeth().isLoggedIn()) {
 
                     //open the users posts page
                     goToMyPosts();
@@ -196,7 +186,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //check if is logged in
-                if (isLoggedIn()) {
+                if (new CoMeth().isLoggedIn()) {
 
                     //user is logged in
                     goToMySubs();
@@ -228,28 +218,24 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-    private boolean isLoggedIn() {
-        return mAuth.getCurrentUser() != null;
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
 
         //handle logout
-        if (mAuth.getCurrentUser() != null) {
+        if (new CoMeth().isLoggedIn()) {
 
             logoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mAuth.signOut();
+                    new CoMeth().signOut();
                     Log.d(TAG, "user is logged out");
                     goToMain();
                 }
             });
         } else {
             //user is signed out
-            logoutButton.setText("Login");
+            logoutButton.setText(getString(R.string.login_text));
             logoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

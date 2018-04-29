@@ -43,7 +43,7 @@ import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
-import com.nyayozangu.labs.fursa.commonmethods.CommonMethods;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.List;
 
@@ -55,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
     // TODO: 4/7/18 add back twice to exit
 
     private static final String TAG = "Sean";
+
+    //common methods
+    private CoMeth coMeth;
 
     //users
     private String currentUserId;
@@ -88,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //common methods
+        coMeth = new CoMeth();
+
         //subscribe to app updates
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
         Log.d(TAG, "user subscribed to topic UPDATES");
@@ -119,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (!new CommonMethods().isConnected()) {
+        if (!coMeth.isConnected()) {
 
             //notify user is not connected
             showSnack(getString(R.string.failed_to_connect_text));
@@ -143,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.bottomNavSavedItem:
 
-                        if (new CommonMethods().isLoggedIn()) {
+                        if (coMeth.isLoggedIn()) {
                             setFragment(savedFragment);
 
                         } else {
@@ -166,11 +172,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //set the userProfile image
-        if (new CommonMethods().isLoggedIn()) {
+        if (coMeth.isLoggedIn()) {
 
             //user is logged in
-            String userId = new CommonMethods().getUid();
-            new CommonMethods().getDb().collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            String userId = new CoMeth().getUid();
+            new CoMeth().getDb().collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     //check if successful
@@ -220,10 +226,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (new CommonMethods().isConnected()) {
+                if (coMeth.isConnected()) {
 
                     //only allow the user to post if user is signed in
-                    if (new CommonMethods().isLoggedIn()) {
+                    if (coMeth.isLoggedIn()) {
 
                         //check is user has verified email
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -247,8 +253,8 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     } else {
-                        String message = "Log in to post items";
 
+                        String message = "Log in to post items";
                         //user is not logged in show dialog
                         showLoginAlertDialog(message);
                     }
@@ -334,14 +340,13 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(final DialogInterface dialog, int which) {
 
                         //send ver email
-                        FirebaseUser user = new CommonMethods().getAuth().getCurrentUser();
+                        FirebaseUser user = new CoMeth().getAuth().getCurrentUser();
                         //show progress
                         String sendEmailMessage = getString(R.string.send_email_text);
                         showProgress(sendEmailMessage);
                         sendVerEmail(dialog, user);
                         //hide progress
                         progressDialog.dismiss();
-
 
                     }
                 })
@@ -377,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
 
                                             //log use out
                                             //take user to login screen
-                                            new CommonMethods().signOut();
+                                            new CoMeth().signOut();
                                             startActivity(new Intent(MainActivity.this, LoginActivity.class));
                                             finish();
 
@@ -408,8 +413,6 @@ public class MainActivity extends AppCompatActivity {
                 .getResources()
                 .getIdentifier("android:id/search_src_text", null, null);
         TextView textView = mainSearchView.findViewById(textViewId);
-        /*textView.setTextColor(Color.WHITE);*/
-        /*textView.setHintTextColor(getResources().getColor(R.color.colorWhiteTransparent));*/
 
         mainSearchView.setSubmitButtonEnabled(true);
         mainSearchView.setIconifiedByDefault(true);
@@ -489,14 +492,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, AccountActivity.class));
     }
 
-    private void logout() {
-        new CommonMethods().signOut();
-        //send alert user is signed out
-        Log.d(TAG, "user has signed out");
-        String logoutMessage = "You are now signed out";
-        showSnack(logoutMessage);
-    }
-
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.main_activity_layout),
                 message, Snackbar.LENGTH_SHORT).show();
@@ -513,16 +508,16 @@ public class MainActivity extends AppCompatActivity {
 
 
         //check if user is logged in
-        if (!new CommonMethods().isLoggedIn()) {
+        if (!coMeth.isLoggedIn()) {
             //user is not logged in
             Log.d(TAG, "user not logged in");
         } else {
             //user is signed in
             Log.d(TAG, "user not logged in");
             //check if user exists in db
-            currentUserId = new CommonMethods().getUid();
+            currentUserId = new CoMeth().getUid();
 
-            new CommonMethods().getDb().collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            coMeth.getDb().collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     //check if user exists
@@ -561,15 +556,6 @@ public class MainActivity extends AppCompatActivity {
         doubleBackToExit();
     }
 
-    private void sendToLogin() {
-        Log.d(TAG, "at sendToLogin()");
-        //send to sing log in page
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        startActivity(loginIntent);
-        finish();
-    }
-
-
     private void setFragment(Fragment fragment) {
 
         //begin transaction
@@ -579,9 +565,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * handles back backButton press when there's no history and/or user is at homescreen
-     */
     public void doubleBackToExit() {
         Log.d(TAG, "at doubleBackToExit");
 
@@ -617,11 +600,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showProgress(String message) {
+
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
         progressDialog.show();
+
     }
 
 

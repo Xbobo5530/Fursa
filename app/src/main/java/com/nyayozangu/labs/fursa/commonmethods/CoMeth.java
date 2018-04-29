@@ -15,11 +15,11 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * commonly used methods throughout the app
  */
 
-public class CommonMethods {
+public class CoMeth {
 
     private static final String TAG = "Sean";
 
-    public CommonMethods() {
+    public CoMeth() {
     } //empty constructor
 
     //public methods

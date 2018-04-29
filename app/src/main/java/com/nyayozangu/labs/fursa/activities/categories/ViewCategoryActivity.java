@@ -1,11 +1,8 @@
 package com.nyayozangu.labs.fursa.activities.categories;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -22,12 +19,10 @@ import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -36,6 +31,7 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
@@ -47,9 +43,6 @@ public class
 ViewCategoryActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
 
     private RecyclerView catFeed;
     private SwipeRefreshLayout swipeRefresh;
@@ -59,6 +52,9 @@ ViewCategoryActivity extends AppCompatActivity {
     //retrieve posts
     private List<Posts> postsList;
     private List<Users> usersList;
+
+    //common methods
+    private CoMeth coMeth;
 
     //recycler adapter
     private PostsRecyclerAdapter categoryRecyclerAdapter;
@@ -78,6 +74,9 @@ ViewCategoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_category);
+
+        //initiate common methods
+        coMeth = new CoMeth();
 
         Toolbar toolbar = findViewById(R.id.viewCatToolbar);
         setSupportActionBar(toolbar);
@@ -104,13 +103,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
         //set an adapter for the recycler view
         catFeed.setAdapter(categoryRecyclerAdapter);
-
-        //initiate firebase auth
-        mAuth = FirebaseAuth.getInstance();
-
-        //initiate the firebase elements
-        db = FirebaseFirestore.getInstance();
-
 
         //get the sent intent
         if (getIntent() != null) {
@@ -191,9 +183,9 @@ ViewCategoryActivity extends AppCompatActivity {
         subscribeFab = findViewById(R.id.subscribeCatFab);
         swipeRefresh = findViewById(R.id.catSwipeRefresh);
 
-        if (isConnected()) {
+        if (coMeth.isConnected()) {
 
-            if (isLoggedIn()) {
+            if (coMeth.isLoggedIn()) {
 
                 //check if user is subscribed and set fab
                 setFab();
@@ -212,20 +204,20 @@ ViewCategoryActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //check if device is connected
-                if (isConnected()) {
+                if (coMeth.isConnected()) {
                     Log.d(TAG, "onClick: is connected");
 
                     //check if user is logged in
-                    if (isLoggedIn()) {
+                    if (coMeth.isLoggedIn()) {
                         Log.d(TAG, "onClick: is logged in");
 
 
                         //show progress
                         showProgress("Subscribing...");
 
-                        userId = mAuth.getCurrentUser().getUid();
+                        userId = coMeth.getUid();
 
-                        db.collection("Users/" + userId + "/Subscriptions")
+                        coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
                                 .document("categories")
                                 .collection("Categories").document(currentCat).get()
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -242,7 +234,7 @@ ViewCategoryActivity extends AppCompatActivity {
                                     catsMap.put("timestamp", FieldValue.serverTimestamp());
 
                                     //subscribe user
-                                    db.collection("Users/" + userId + "/Subscriptions")
+                                    coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
                                             .document("categories")
                                             .collection("Categories")
                                             .document(currentCat).set(catsMap);
@@ -258,7 +250,11 @@ ViewCategoryActivity extends AppCompatActivity {
                                 } else {
 
                                     //unsubscribe
-                                    db.collection("Users/" + userId + "/Subscriptions").document("categories").collection("Categories").document(currentCat).delete();
+                                    coMeth.getDb()
+                                            .collection("Users/" + userId + "/Subscriptions")
+                                            .document("categories")
+                                            .collection("Categories")
+                                            .document(currentCat).delete();
                                     //unsubscribe to app updates
                                     FirebaseMessaging.getInstance().unsubscribeFromTopic(currentCat);
                                     Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
@@ -296,7 +292,6 @@ ViewCategoryActivity extends AppCompatActivity {
                 super.onScrolled(recyclerView, dx, dy);
 
                 Boolean reachedBottom = !catFeed.canScrollVertically(1);
-
                 if (reachedBottom) {
 
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
@@ -310,7 +305,6 @@ ViewCategoryActivity extends AppCompatActivity {
             public void onRefresh() {
 
                 categoryRecyclerAdapter.notifyDataSetChanged();
-
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -323,7 +317,7 @@ ViewCategoryActivity extends AppCompatActivity {
         });
 
 
-        Query firstQuery = db.
+        Query firstQuery = coMeth.getDb().
                 collection("Posts")
                 .limit(20)
                 .orderBy("timestamp", Query.Direction.DESCENDING);
@@ -333,9 +327,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
                 Log.d(TAG, "onEvent: first Query");
                 //check if the data is loaded for the first time
-                /**
-                 * if new data is added it will be added to the first query not the second query
-                 */
+
                 if (isFirstPageFirstLoad) {
 
                     //get the last visible post
@@ -361,7 +353,6 @@ ViewCategoryActivity extends AppCompatActivity {
                         final String postId = doc.getDocument().getId();
                         processCategories(doc, postId);
 
-
                     }
                 }
 
@@ -378,9 +369,10 @@ ViewCategoryActivity extends AppCompatActivity {
 
         Log.d(TAG, "setFab: called");
 
-        userId = mAuth.getCurrentUser().getUid();
+        userId = coMeth.getUid();
         //check if user is subscribed
-        db.collection("Users/" + userId + "/Subscriptions")
+        coMeth.getDb()
+                .collection("Users/" + userId + "/Subscriptions")
                 .document("categories")
                 .collection("Categories").document(currentCat)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -408,56 +400,7 @@ ViewCategoryActivity extends AppCompatActivity {
     }
 
 
-    private String getKey(String catValue) {
 
-
-        switch (catValue) {
-
-            /*
-            "Featured",
-            "Popular",
-            "UpComing",
-            "Events",
-            "Business",
-            "Buy and sell",
-            "Education",
-            "Jobs",
-            "Queries"*/
-
-            case "Featured":
-                return "featured";
-
-            case "Popular":
-                return "popular";
-
-            case "Up coming":
-                return "upcoming";
-
-            case "Events":
-                return "events";
-
-            case "Business":
-                return "business";
-
-            case "Buying and sell":
-                return "buysell";
-
-            case "Education":
-                return "education";
-
-            case "Jobs":
-                return "jobs";
-
-
-            case "Queries":
-                return "queries";
-
-            default:
-                return "catValue";
-
-        }
-
-    }
 
     private void processCategories(DocumentChange doc, String postId) {
 
@@ -538,7 +481,8 @@ ViewCategoryActivity extends AppCompatActivity {
             if (catsArray.contains(category)) {
 
                 String postUserId = post.getUser_id();
-                db.collection("Users")
+                coMeth.getDb()
+                        .collection("Users")
                         .document(postUserId)
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -582,93 +526,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
         }
 
-         /*addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                //check if post exists
-                if (documentSnapshot.exists()) {
-                    //post exists
-                    Log.d(TAG, "onEvent: document snapshot exists");
-                    if (documentSnapshot.get("categories") != null) {
-
-                        Log.d(TAG, "onEvent: categories are not null");
-                        //post has categories
-                        //get cats
-                        ArrayList categories = (ArrayList) documentSnapshot.get("categories");
-                        Log.d(TAG, "onEvent: \ncategories are: " + categories);
-
-                        if (categories.contains(category)) {
-
-                            Log.d(TAG, "onEvent: cats contain cat");
-                            //cat has business
-                            final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-                            Log.d(TAG, "onEvent: \npost is: " + post.toString());
-
-                            //get user id
-                            String postUserId = post.getUser_id();
-
-                            //get user_id for post
-                            db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                    Log.d(TAG, "onComplete: getting user details");
-                                    //check if task is successful
-                                    if (task.isSuccessful()) {
-
-
-                                        Log.d(TAG, "onComplete: task is successful");
-                                        Users user = task.getResult().toObject(Users.class);
-                                        Log.d(TAG, "onComplete: user is: " + user.toString());
-
-                                        //add new post to the local postsList
-                                        if (isFirstPageFirstLoad) {
-
-                                            Log.d(TAG, "onComplete: isFirstPageFirstLoad");
-                                            //if the first page is loaded the add new post normally
-                                            postsList.add(post);
-                                            usersList.add(user);
-
-                                        } else {
-
-                                            Log.d(TAG, "onComplete: not isFirstPageFirstLoad");
-                                            //add the post at position 0 of the postsList
-                                            postsList.add(0, post);
-                                            usersList.add(0, user);
-
-                                        }
-                                        //notify the recycler adapter of the set change
-                                        categoryRecyclerAdapter.notifyDataSetChanged();
-                                    }else{
-                                        //task failed
-                                        Log.d(TAG, "onComplete: task failed\n" + task.getException());
-
-                                    }
-
-                                }
-                            });
-
-                        }else{
-
-                            Log.d(TAG, "onEvent: cats do not contain cat");
-                        }
-
-                    }else{
-
-                        //cat are null
-                        Log.d(TAG, "onEvent: cats are null");
-                    }
-
-                }else{
-
-                    //doc snapshot does not exist
-                    Log.d(TAG, "onEvent: doc snapshot does not exist");
-
-                }
-
-            }
-        });*/
     }
 
 
@@ -676,7 +534,8 @@ ViewCategoryActivity extends AppCompatActivity {
     public void loadMorePosts() {
 
         Log.d(TAG, "loadMorePosts: ");
-        Query nextQuery = db.collection("Posts")
+        Query nextQuery = coMeth.getDb()
+                .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
                 .limit(10);
@@ -728,31 +587,6 @@ ViewCategoryActivity extends AppCompatActivity {
                 message, Snackbar.LENGTH_LONG).show();
     }
 
-
-    //check if device is connected to the internet
-    private boolean isConnected() {
-
-        //check if there's a connection
-        Log.d(TAG, "at isConnected");
-        Context context = getApplicationContext();
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = null;
-        if (cm != null) {
-
-            activeNetwork = cm.getActiveNetworkInfo();
-
-        }
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
-    }
-
-    private boolean isLoggedIn() {
-        //determine if user is logged in
-        return mAuth.getCurrentUser() != null;
-    }
-
-
     private void showLoginAlertDialog(String message) {
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(ViewCategoryActivity.this);
@@ -792,6 +626,5 @@ ViewCategoryActivity extends AppCompatActivity {
         progressDialog.setMessage(message);
         progressDialog.show();
     }
-
 
 }

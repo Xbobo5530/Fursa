@@ -15,17 +15,16 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
@@ -38,9 +37,6 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "Sean";
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
 
     private RecyclerView homeFeedView;
     private SwipeRefreshLayout swipeRefresh;
@@ -60,7 +56,6 @@ public class HomeFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
@@ -77,18 +72,11 @@ public class HomeFragment extends Fragment {
         //initiate the PostsRecyclerAdapter
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
 
-
         //set a layout manager for homeFeedView (recycler view)
         homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         //set an adapter for the recycler view
         homeFeedView.setAdapter(postsRecyclerAdapter);
-
-        //initiate firebase auth
-        mAuth = FirebaseAuth.getInstance();
-
-        //initiate the firebase elements
-        db = FirebaseFirestore.getInstance();
 
         //initiate swipe refresh
         swipeRefresh = view.findViewById(R.id.homeSwipeRefresh);
@@ -110,7 +98,10 @@ public class HomeFragment extends Fragment {
         });
 
 
-        final Query firstQuery = db.collection("Posts").orderBy("timestamp", Query.Direction.DESCENDING).limit(20);
+        final Query firstQuery = new CoMeth().getDb()
+                .collection("Posts")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(10);
         //get all posts from the database
         loadPosts(firstQuery);
 
@@ -122,7 +113,6 @@ public class HomeFragment extends Fragment {
 
                 //get new posts
                 postsRecyclerAdapter.notifyDataSetChanged();
-
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -142,7 +132,6 @@ public class HomeFragment extends Fragment {
         firstQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
 
                 if (!queryDocumentSnapshots.isEmpty()) {
                     //check if the data is loaded for the first time
@@ -169,7 +158,7 @@ public class HomeFragment extends Fragment {
                             final String postUserId = doc.getDocument().getString("user_id");
                             Log.d(TAG, "onEvent: user_id is " + postUserId);
                             //get user_id for post
-                            db.collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            new CoMeth().getDb().collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -211,7 +200,7 @@ public class HomeFragment extends Fragment {
     //for loading more posts
     public void loadMorePosts() {
 
-        Query nextQuery = db.collection("Posts")
+        Query nextQuery = new CoMeth().getDb().collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
                 .limit(10);
@@ -220,14 +209,12 @@ public class HomeFragment extends Fragment {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-
                 //check if there area more posts
                 if (!queryDocumentSnapshots.isEmpty()) {
 
                     //get the last visible post
                     lastVisiblePost = queryDocumentSnapshots.getDocuments()
                             .get(queryDocumentSnapshots.size() - 1);
-
 
                     //create a for loop to check for document changes
                     for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
@@ -240,7 +227,7 @@ public class HomeFragment extends Fragment {
                             String postUserId = doc.getDocument().getString("user_id");
 
                             //get user_id for post
-                            db.collection("Users")
+                            new CoMeth().getDb().collection("Users")
                                     .document(postUserId)
                                     .get()
                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

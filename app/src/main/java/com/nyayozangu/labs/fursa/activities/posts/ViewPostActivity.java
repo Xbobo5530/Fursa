@@ -2,11 +2,8 @@ package com.nyayozangu.labs.fursa.activities.posts;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,19 +25,19 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -51,12 +48,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ViewPostActivity extends AppCompatActivity {
 
-
-    // TODO: 4/21/18 check if is connected before requesting for items
-
     private static final String TAG = "Sean";
     MenuItem editPost;
     MenuItem deletePost;
+    //post image
+    String postImageUri;
+    String postThumbUrl;
     private ImageView viewPostImage;
     private FloatingActionButton viewPostActionsFAB;
     private TextView descTextView;
@@ -91,25 +88,20 @@ public class ViewPostActivity extends AppCompatActivity {
     private android.support.v7.widget.Toolbar toolbar;
     //progress
     private ProgressDialog progressDialog;
-
     //save categories to list
     private ArrayList<String> catArray;
     private ArrayList catKeys;
-
-
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-
     //postId
     private String postId;
+    //common methods
+    private CoMeth coMeth = new CoMeth();
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
-        if (isConnected()) {
-            if (isLoggedIn()) {
-                currentUserId = mAuth.getCurrentUser().getUid();
+        if (coMeth.isConnected()) {
+            if (coMeth.isLoggedIn()) {
+                currentUserId = new CoMeth().getUid();
 
                 MenuItem editPost = menu.findItem(R.id.editMenuItem);
                 MenuItem deletePost = menu.findItem(R.id.deleteMenuItem);
@@ -132,7 +124,6 @@ public class ViewPostActivity extends AppCompatActivity {
         }
 
         return true;
-
     }
 
     @Override
@@ -172,27 +163,27 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private void deletePost(final String postId) {
 
-        String delConfirmMessage = "Are you sure you want to delete this post?";
+        String confirmDelMessage = getString(R.string.confirm_del_text);
         //add alert Dialog
         AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(ViewPostActivity.this);
-        deleteBuilder.setTitle("Delete Post")
-                .setMessage(delConfirmMessage)
+        deleteBuilder.setTitle(R.string.del_post_text)
+                .setMessage(confirmDelMessage)
                 .setIcon(getDrawable(R.drawable.ic_action_alert))
                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                         showProgress("Deleting...");
-                        db.collection("Posts").document(postId).delete();
+                        new CoMeth().getDb().collection("Posts").document(postId).delete();
                         progressDialog.dismiss();
                         Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-                        delResultIntent.putExtra("notify", "Post successfully Deleted");
+                        delResultIntent.putExtra("notify", getString(R.string.del_success_text));
                         startActivity(delResultIntent);
                         finish();
 
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -229,13 +220,6 @@ public class ViewPostActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        //initialize Firebase
-        mAuth = FirebaseAuth.getInstance();
-
-        //initialize firebase storage
-        // Access a Cloud Firestore instance from your Activity
-        db = FirebaseFirestore.getInstance();
 
         //initialize items
         actionsLayout = findViewById(R.id.viewPostActionsLayout);
@@ -329,14 +313,17 @@ public class ViewPostActivity extends AppCompatActivity {
                 saveButton.setClickable(false);
 
                 //check if user is connected to the internet
-                if (isConnected()) {
+                if (coMeth.isConnected()) {
 
                     //check if user is logged in
-                    if (isLoggedIn()) {
+                    if (coMeth.isLoggedIn()) {
 
-                        final String currentUserId = mAuth.getCurrentUser().getUid();
+                        final String currentUserId = coMeth.getUid();
 
-                        db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        coMeth.getDb()
+                                .collection("Posts/" + postId + "/Saves")
+                                .document(currentUserId).get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -345,14 +332,16 @@ public class ViewPostActivity extends AppCompatActivity {
                                     Map<String, Object> savesMap = new HashMap<>();
                                     savesMap.put("timestamp", FieldValue.serverTimestamp());
                                     //save new post
-                                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
+                                    coMeth.getDb().collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
                                     //notify user that post has been saved
                                     showSaveSnack(getString(R.string.added_to_saved_text));
 
                                 } else {
 
                                     //delete saved post
-                                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
+                                    coMeth.getDb().collection("Posts/" + postId + "/Saves")
+                                            .document(currentUserId)
+                                            .delete();
                                 }
                             }
                         });
@@ -385,13 +374,17 @@ public class ViewPostActivity extends AppCompatActivity {
                 //disable button
                 likeButton.setClickable(false);
 
-                if (isConnected()) {
+                if (coMeth.isConnected()) {
 
-                    if (isLoggedIn()) {
+                    if (coMeth.isLoggedIn()) {
 
-                        final String currentUserId = mAuth.getCurrentUser().getUid();
+                        final String currentUserId = coMeth.getUid();
 
-                        db.collection("Posts/" + postId + "/Likes").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        coMeth.getDb()
+                                .collection("Posts/" + postId + "/Likes")
+                                .document(currentUserId)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 //get data from teh likes collection
@@ -402,11 +395,11 @@ public class ViewPostActivity extends AppCompatActivity {
                                     Map<String, Object> likesMap = new HashMap<>();
                                     likesMap.put("timestamp", FieldValue.serverTimestamp());
                                     //can alternatively ne written
-                                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
+                                    coMeth.getDb().collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
 
                                 } else {
                                     //delete the like
-                                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
+                                    coMeth.getDb().collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
                                 }
                             }
                         });
@@ -435,7 +428,9 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
         //set likes
-        db.collection("Posts/" + postId + "/Likes").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Likes")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
                 //check if exits
@@ -450,7 +445,9 @@ public class ViewPostActivity extends AppCompatActivity {
         });
 
         //set comments
-        db.collection("Posts/" + postId + "/Comments").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Comments")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
@@ -466,13 +463,16 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
         //set like button
-        if (isLoggedIn()) {
+        if (coMeth.isLoggedIn()) {
             //get likes
             //determine likes by current user
 
-            String currentUserId = mAuth.getCurrentUser().getUid();
+            String currentUserId = coMeth.getUid();
 
-            db.collection("Posts/" + postId + "/Likes").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            coMeth.getDb()
+                    .collection("Posts/" + postId + "/Likes")
+                    .document(currentUserId)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -491,8 +491,11 @@ public class ViewPostActivity extends AppCompatActivity {
                 }
             });
 
-            //get saves
-            db.collection("Posts/" + postId + "/Saves").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            //set saves
+            coMeth.getDb()
+                    .collection("Posts/" + postId + "/Saves")
+                    .document(currentUserId)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -515,7 +518,9 @@ public class ViewPostActivity extends AppCompatActivity {
         }
 
         //set contents
-        db.collection("Posts").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -624,8 +629,8 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     //set post image
                     //add the placeholder image
-                    String postImageUri = post.getImage_url();
-                    String postThumbUrl = post.getThumb_url();
+                    postImageUri = post.getImage_url();
+                    postThumbUrl = post.getThumb_url();
 
                     if (postImageUri != null && postThumbUrl != null) {
 
@@ -650,7 +655,10 @@ public class ViewPostActivity extends AppCompatActivity {
                     postUserId = post.getUser_id();
 
                     //check db for user
-                    db.collection("Users").document(postUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    coMeth.getDb()
+                            .collection("Users")
+                            .document(postUserId)
+                            .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
                         public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -764,6 +772,19 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
+        //handle clicks
+        viewPostImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //open image in full screen
+                Intent openImageIntent = new Intent(ViewPostActivity.this, ViewImageActivity.class);
+                openImageIntent.putExtra("imageUrl", postImageUri);
+                startActivity(openImageIntent);
+
+            }
+        });
+
 
         //set onclick listener for category layout
         viewPostCatLayout.setOnClickListener(new View.OnClickListener() {
@@ -809,29 +830,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
             }
         });
-
-    }
-
-    private boolean isConnected() {
-
-        //check if there's a connection
-        Log.d(TAG, "at isConnected");
-        Context context = getApplicationContext();
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = null;
-        if (cm != null) {
-
-            activeNetwork = cm.getActiveNetworkInfo();
-
-        }
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-    }
-
-    private boolean isLoggedIn() {
-
-        //check if user is logged in
-        return mAuth.getCurrentUser() != null;
 
     }
 
@@ -894,7 +892,8 @@ public class ViewPostActivity extends AppCompatActivity {
         RequestOptions placeHolderOptions = new RequestOptions();
         placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
 
-        Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
+        Glide.with(getApplicationContext())
+                .applyDefaultRequestOptions(placeHolderOptions)
                 .load(downloadUrl).into(userImage);
 
         Log.d(TAG, "onEvent: image set");
@@ -928,7 +927,6 @@ public class ViewPostActivity extends AppCompatActivity {
         }
 
         return postId;
-
 
     }
 

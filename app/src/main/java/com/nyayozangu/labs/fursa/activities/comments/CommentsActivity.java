@@ -1,11 +1,8 @@
 package com.nyayozangu.labs.fursa.activities.comments;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -32,7 +29,6 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -42,6 +38,7 @@ import com.nyayozangu.labs.fursa.activities.comments.adapters.CommentsRecyclerAd
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
 
 import java.util.ArrayList;
@@ -64,12 +61,11 @@ public class CommentsActivity extends AppCompatActivity {
     private CommentsRecyclerAdapter commentsRecyclerAdapter;
     private List<Comments> commentsList;
 
+    //common methods
+    private CoMeth cometh;
+
     //progress
     private ProgressDialog progressDialog;
-
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
 
     private String postId;
     private String userId;
@@ -81,6 +77,9 @@ public class CommentsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
 
+        //common methods
+        cometh = new CoMeth();
+
         toolbar = findViewById(R.id.commentsToolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Comments");
@@ -91,14 +90,6 @@ public class CommentsActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        //initialize Firebase
-        mAuth = FirebaseAuth.getInstance();
-
-        //initialize firebase storage
-        // Access a Cloud Firestore instance from your Activity
-        db = FirebaseFirestore.getInstance();
-
 
         sendButton = findViewById(R.id.commentsSendBottonImageView);
         chatField = findViewById(R.id.commentsChatEditText);
@@ -131,9 +122,10 @@ public class CommentsActivity extends AppCompatActivity {
         });
 
         //check if device is connected
-        if (isConnected()) {
+        if (cometh.isConnected()) {
 
-            db.collection("Posts/" + postId + "/Comments")
+            cometh.getDb()
+                    .collection("Posts/" + postId + "/Comments")
                     .orderBy("timestamp", Query.Direction.ASCENDING)
                     .addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
                 @Override
@@ -171,12 +163,15 @@ public class CommentsActivity extends AppCompatActivity {
 
 
             //inform user to login to comment
-            if (isLoggedIn()) {
+            if (cometh.isLoggedIn()) {
 
                 //user is logged in
-                userId = mAuth.getCurrentUser().getUid();
+                userId = cometh.getUid();
                 //user is logged in
-                db.collection("Users").document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                cometh.getDb()
+                        .collection("Users")
+                        .document(userId)
+                        .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -229,7 +224,8 @@ public class CommentsActivity extends AppCompatActivity {
                                 final String randomCommentId = UUID.randomUUID().toString();
                                 //get the user id of the user posing
                                 //post a comment
-                                db.collection("Posts/" + postId + "/Comments")
+                                cometh.getDb()
+                                        .collection("Posts/" + postId + "/Comments")
                                         .document(randomCommentId)
                                         .get()
                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -243,7 +239,8 @@ public class CommentsActivity extends AppCompatActivity {
                                                 commentsMap.put("user_id", userId);
 
                                                 //upload comment to cloud
-                                                db.collection("Posts/" + postId + "/Comments")
+                                                cometh.getDb()
+                                                        .collection("Posts/" + postId + "/Comments")
                                                         .document(randomCommentId)
                                                         .set(commentsMap)
                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -254,7 +251,8 @@ public class CommentsActivity extends AppCompatActivity {
                                                                 if (task.isSuccessful()) {
 
                                                                     //subscribe user to post
-                                                                    db.collection("Users/" + userId + "/Subscriptions")
+                                                                    cometh.getDb()
+                                                                            .collection("Users/" + userId + "/Subscriptions")
                                                                             .document("comments")
                                                                             .collection("Comments")
                                                                             .document(postId)
@@ -321,13 +319,17 @@ public class CommentsActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
-        if (isConnected()) {
-            if (isLoggedIn()) {
-                userId = mAuth.getCurrentUser().getUid();
+        if (cometh.isConnected()) {
+            if (cometh.isLoggedIn()) {
+                userId = cometh.getUid();
 
                 final MenuItem subscribeButton = menu.findItem(R.id.comSubMenuItem);
 
-                db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                cometh.getDb()
+                        .collection("Users/" + userId + "/Subscriptions")
+                        .document("comments").collection("Comments")
+                        .document(postId)
+                        .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
 
@@ -371,10 +373,16 @@ public class CommentsActivity extends AppCompatActivity {
 
             case R.id.comSubMenuItem:
 
-                if (isLoggedIn()) {
+                if (cometh.isLoggedIn()) {
 
                     //check if user is already subscribed
-                    db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    cometh.getDb()
+                            .collection("Users/" + userId + "/Subscriptions")
+                            .document("comments")
+                            .collection("Comments")
+                            .document(postId)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -386,7 +394,11 @@ public class CommentsActivity extends AppCompatActivity {
 
                                     //user has already subscribed to current post
                                     //unsubscribe user
-                                    db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).delete();
+                                    cometh.getDb().collection("Users/" + userId + "/Subscriptions")
+                                            .document("comments")
+                                            .collection("Comments")
+                                            .document(postId)
+                                            .delete();
                                     FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
                                     Log.d(TAG, "user subscribed to topic {CURRENT POST}");
 
@@ -397,7 +409,12 @@ public class CommentsActivity extends AppCompatActivity {
                                     Map<String, Object> commentsSubMap = new HashMap<>();
                                     commentsSubMap.put("timestamp", FieldValue.serverTimestamp());
                                     //user is not yet subscribed
-                                    db.collection("Users/" + userId + "/Subscriptions").document("comments").collection("Comments").document(postId).set(commentsSubMap);
+                                    cometh.getDb()
+                                            .collection("Users/" + userId + "/Subscriptions")
+                                            .document("comments")
+                                            .collection("Comments")
+                                            .document(postId)
+                                            .set(commentsSubMap);
                                     //subscribe to topic
                                     FirebaseMessaging.getInstance().subscribeToTopic(postId);
                                     Log.d(TAG, "user subscribed to topic COMMENTS");
@@ -484,28 +501,6 @@ public class CommentsActivity extends AppCompatActivity {
                 message, Snackbar.LENGTH_LONG).show();
     }
 
-
-    private boolean isLoggedIn() {
-        //determine if user is logged in
-        return mAuth.getCurrentUser() != null;
-    }
-
-    private boolean isConnected() {
-
-        //check if there's a connection
-        Log.d(TAG, "at isConnected");
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = null;
-        if (cm != null) {
-
-            activeNetwork = cm.getActiveNetworkInfo();
-
-        }
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
-    }
-
     private void showVerEmailDialog() {
         android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(CommentsActivity.this);
         emailVerBuilder.setTitle(R.string.email_ver_text)
@@ -516,7 +511,7 @@ public class CommentsActivity extends AppCompatActivity {
                     public void onClick(final DialogInterface dialog, int which) {
 
                         //send ver email
-                        FirebaseUser user = mAuth.getCurrentUser();
+                        FirebaseUser user = new CoMeth().getAuth().getCurrentUser();
                         //show progress
                         String sendEmailMessage = getString(R.string.send_email_text);
                         showProgress(sendEmailMessage);
@@ -558,7 +553,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                                             //log use out
                                             //take user to login screen
-                                            mAuth.signOut();
+                                            cometh.signOut();
                                             startActivity(new Intent(CommentsActivity.this, LoginActivity.class));
                                             finish();
 

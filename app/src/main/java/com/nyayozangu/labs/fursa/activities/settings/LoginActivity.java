@@ -54,9 +54,7 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    // TODO: 4/5/18 when user has types email and pass, then clicks register, send typed details to register page
     // TODO: 4/14/18 connect social accs to single user
-
 
     private static final String TAG = "Sean";
     private static final int RC_SIGN_IN = 0;
@@ -68,7 +66,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private Button loginButton;
     private Button loginRegistrationButton;
     private ImageButton closeLoginButton;
-
     private ProgressDialog progressDialog;
 
     //social login buttons
@@ -115,7 +112,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Intent getPostIdIntent = getIntent();
         final String postId = getPostIdIntent.getStringExtra("postId");
         Log.d(TAG, "postId is: " + postId);
-        // TODO: 4/7/18 when user comes to login form comments, return user to comments after loging in
         // TODO: 4/9/18 setup intent extra receivers for source page and post ids, to return the user to a specific post/ page after login
 
 
@@ -127,7 +123,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
             }
         });
-
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -268,7 +263,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                                                                 @Override
                                                                                 public void onComplete(@NonNull Task<Void> task) {
                                                                                     if (task.isSuccessful()) {
-                                                                                        Log.d(TAG, "Email sent.");
+                                                                                        Log.d(TAG, getString(R.string.email_sent_text));
                                                                                     }
                                                                                 }
                                                                             });
@@ -321,7 +316,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
