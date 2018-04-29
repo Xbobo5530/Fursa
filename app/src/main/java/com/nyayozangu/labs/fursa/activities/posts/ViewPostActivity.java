@@ -646,7 +646,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     }
 
-
                     //get user id for the post
                     postUserId = post.getUser_id();
 
@@ -657,8 +656,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
                             //check if user exists
                             if (documentSnapshot.exists()) {
-
-                                Log.d(TAG, "onEvent: user exists");
 
                                 //user exists
                                 if (documentSnapshot.get("thumb") != null) {
@@ -960,7 +957,8 @@ public class ViewPostActivity extends AppCompatActivity {
                     public void onClick(View v) {
 
                         Intent goToSavedIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-                        goToSavedIntent.putExtra("goto", "saved");
+                        goToSavedIntent.putExtra("action", "goto");
+                        goToSavedIntent.putExtra("destination", "saved");
                         startActivity(goToSavedIntent);
                         finish();
 

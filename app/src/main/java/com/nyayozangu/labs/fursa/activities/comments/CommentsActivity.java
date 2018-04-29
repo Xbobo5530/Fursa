@@ -34,12 +34,14 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.adapters.CommentsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.notifications.Notify;
 
 import java.util.ArrayList;
@@ -117,11 +119,23 @@ public class CommentsActivity extends AppCompatActivity {
         postId = getPostIdIntent.getStringExtra("postId");
         Log.d(TAG, "postId is: " + postId);
 
+        //go to user profile
+        currentUserImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //go to current user profile
+                startActivity(new Intent(CommentsActivity.this, SettingsActivity.class));
+
+            }
+        });
 
         //check if device is connected
         if (isConnected()) {
 
-            db.collection("Posts/" + postId + "/Comments").addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
+            db.collection("Posts/" + postId + "/Comments")
+                    .orderBy("timestamp", Query.Direction.ASCENDING)
+                    .addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
@@ -140,6 +154,7 @@ public class CommentsActivity extends AppCompatActivity {
                                 commentsList.add(comment);
                                 Log.d(TAG, "onEvent: commentsList is: " + commentsList.toString());
                                 commentsRecyclerAdapter.notifyDataSetChanged();
+                                commentsRecyclerView.scrollToPosition(commentsList.size() - 1);
 
                             }
                         }
@@ -177,7 +192,8 @@ public class CommentsActivity extends AppCompatActivity {
                                 placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
                                 Glide.with(getApplicationContext())
                                         .applyDefaultRequestOptions(placeHolderOptions)
-                                        .load(userProfileImageDownloadUrl).into(currentUserImage);
+                                        .load(userProfileImageDownloadUrl)
+                                        .into(currentUserImage);
 
 
                             } catch (NullPointerException noImageFoundException) {
@@ -199,7 +215,10 @@ public class CommentsActivity extends AppCompatActivity {
                         //check is user has verified email
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         boolean emailVerified = user.isEmailVerified();
-                        if (emailVerified) {
+                        if (emailVerified
+                                || user.getProviders().contains("facebook.com")
+                                || user.getProviders().contains("twitter.com")
+                                || user.getProviders().contains("google.com")) {
 
                             //get user comment
                             if (!chatField.getText().toString().isEmpty()) {
@@ -241,11 +260,9 @@ public class CommentsActivity extends AppCompatActivity {
                                                                             .document(postId)
                                                                             .set(commentsMap);
                                                                     //subscribe user to topic
-                                                                    //subscribe to app updates
-                                                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                                                                    FirebaseMessaging.getInstance().subscribeToTopic(postId); //subscribe to app updates
                                                                     Log.d(TAG, "user subscribed to topic COMMENTS");
-                                                                    // TODO: 4/25/18 send notifs to subscribers
-                                                                    new Notify().execute("comment_updates", postId);
+                                                                    new Notify().execute("comment_updates", postId); //notify subscribers
                                                                     Log.d(TAG, "onComplete: sending notification");
 
                                                                 } else {
@@ -267,8 +284,7 @@ public class CommentsActivity extends AppCompatActivity {
                         } else {
 
                             //user has not verified email
-                            //alert user is not verified
-                            showVerEmailDialog();
+                            showVerEmailDialog(); //alert user is not verified
 
                         }
 

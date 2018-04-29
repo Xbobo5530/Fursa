@@ -10,7 +10,7 @@
         android:icon="@drawable/ic_action_categories"
         android:title="Categories" />
     <item
-        android:id="@+id/bottomNavSavedIted"
+        android:id="@+id/bottomNavSavedItem"
         android:icon="@drawable/ic_action_bookmark"
         android:title="Saved" />
 </menu>

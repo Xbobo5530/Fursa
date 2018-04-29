@@ -41,8 +41,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
-import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.DefaultLogger;
@@ -176,37 +174,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                             //check if login was successful
                                             if (task.isSuccessful()) {
 
-                                                //login was successful
-                                                if (getIntent() == null) {
-                                                    startMain();
-                                                } else {
-
-                                                    Intent sourceIntent = getIntent();
-                                                    switch (sourceIntent.getStringExtra("source")) {
-
-                                                        case "comments":
-
-                                                            Intent commentsIntent = new Intent(LoginActivity.this, CommentsActivity.class);
-                                                            commentsIntent.putExtra("postId", sourceIntent.getStringExtra("postId"));
-                                                            startActivity(commentsIntent);
-                                                            finish();
-                                                            break;
-
-                                                        case "categories":
-
-                                                            Intent catsIntent = new Intent(LoginActivity.this, ViewCategoryActivity.class);
-                                                            catsIntent.putExtra("category", sourceIntent.getStringExtra("category"));
-                                                            startActivity(catsIntent);
-                                                            finish();
-                                                            break;
-
-                                                        default:
-                                                            startMain();
-
-
-                                                    }
-
-                                                }
+                                                processLoginIntent();
 
                                             } else {
 
@@ -436,6 +404,46 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         });
 
 
+    }
+
+    private void processLoginIntent() {
+        //login was successful
+        if (getIntent() == null) {
+            goToAccSettings();
+        } else {
+
+            Intent sourceIntent = getIntent();
+            if (sourceIntent.getStringExtra("source") != null) {
+
+                switch (sourceIntent.getStringExtra("source")) {
+
+                    case "comments":
+
+                        Intent commentsIntent = new Intent(LoginActivity.this, AccountActivity.class);
+                        commentsIntent.putExtra("postId", sourceIntent.getStringExtra("postId"));
+                        startActivity(commentsIntent);
+                        finish();
+                        break;
+
+                    case "categories":
+
+                        Intent catsIntent = new Intent(LoginActivity.this, AccountActivity.class);
+                        catsIntent.putExtra("category", sourceIntent.getStringExtra("category"));
+                        startActivity(catsIntent);
+                        finish();
+                        break;
+
+                    default:
+                        goToAccSettings();
+
+                }
+            } else {
+
+                goToAccSettings();
+
+            }
+
+        }
     }
 
     private void showSnack(int id, String message) {

@@ -556,7 +556,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     public void onClick(View v) {
 
                         Intent goToSavedIntent = new Intent(context, MainActivity.class);
-                        goToSavedIntent.putExtra("goto", "saved");
+                        goToSavedIntent.putExtra("action", "goto");
+                        goToSavedIntent.putExtra("destination", "saved");
                         context.startActivity(goToSavedIntent);
 
                     }

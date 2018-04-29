@@ -6,8 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -35,7 +33,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
@@ -46,6 +43,7 @@ import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CommonMethods;
 
 import java.util.List;
 
@@ -57,9 +55,6 @@ public class MainActivity extends AppCompatActivity {
     // TODO: 4/7/18 add back twice to exit
 
     private static final String TAG = "Sean";
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
 
     //users
     private String currentUserId;
@@ -97,12 +92,6 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
         Log.d(TAG, "user subscribed to topic UPDATES");
 
-        //initialize Firebase
-        mAuth = FirebaseAuth.getInstance();
-        //initialize firebase storage
-        // Access a Cloud Firestore instance from your Activity
-        db = FirebaseFirestore.getInstance();
-
         //initiate fragments
         homeFragment = new HomeFragment();
         categoriesFragment = new CategoriesFragment();
@@ -130,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (!isConnected()) {
+        if (!new CommonMethods().isConnected()) {
 
             //notify user is not connected
             showSnack(getString(R.string.failed_to_connect_text));
@@ -152,8 +141,9 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.bottomNavCatItem:
                         setFragment(categoriesFragment);
                         return true;
-                    case R.id.bottomNavSavedIted:
-                        if (isLoggedIn()) {
+                    case R.id.bottomNavSavedItem:
+
+                        if (new CommonMethods().isLoggedIn()) {
                             setFragment(savedFragment);
 
                         } else {
@@ -176,11 +166,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //set the userProfile image
-        if (mAuth.getCurrentUser() != null) {
+        if (new CommonMethods().isLoggedIn()) {
 
             //user is logged in
-            String userId = mAuth.getCurrentUser().getUid();
-            db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            String userId = new CommonMethods().getUid();
+            new CommonMethods().getDb().collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     //check if successful
@@ -230,15 +220,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (isConnected()) {
+                if (new CommonMethods().isConnected()) {
 
                     //only allow the user to post if user is signed in
-                    if (isLoggedIn()) {
+                    if (new CommonMethods().isLoggedIn()) {
 
                         //check is user has verified email
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         boolean emailVerified = user.isEmailVerified();
-                        if (emailVerified) {
+
+                        Log.d(TAG, "onClick: \nprovider is: " + user.getProviderId() +
+                                "\nproviders are: " + user.getProviders() +
+                                "\nemail is verified: " + emailVerified);
+
+                        if (emailVerified
+                                || user.getProviders().contains("facebook.com")
+                                || user.getProviders().contains("twitter.com")
+                                || user.getProviders().contains("google.com")) {
                             //start the new post activity
                             goToNewPost();
                         } else {
@@ -286,73 +284,41 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent() != null) {
 
             Intent getPostIdIntent = getIntent();
-            switch (getPostIdIntent.getStringExtra("action")) {
+            if (getPostIdIntent.getStringExtra("action") != null) {
+                switch (getPostIdIntent.getStringExtra("action")) {
 
-                case "notify":
+                    case "notify":
 
-                    String notifyMessage = getPostIdIntent.getStringExtra("notify");
-                    Snackbar.make(findViewById(R.id.main_activity_layout),
-                            notifyMessage, Snackbar.LENGTH_LONG)
-                            .show();
-                    Log.d(TAG, "notifyMessage is: " + notifyMessage);
-                    break;
+                        String notifyMessage = getPostIdIntent.getStringExtra("notify");
+                        Snackbar.make(findViewById(R.id.main_activity_layout),
+                                notifyMessage, Snackbar.LENGTH_LONG)
+                                .show();
+                        Log.d(TAG, "notifyMessage is: " + notifyMessage);
+                        break;
 
-                case "goto":
+                    case "goto":
 
-                    switch (getPostIdIntent.getStringExtra("goto")) {
+                        switch (getPostIdIntent.getStringExtra("destination")) {
 
-                        case "saved":
-                            setFragment(savedFragment);
-                            break;
-                        default:
-                            Log.d(TAG, "onCreate: at default");
+                            case "saved":
 
-                    }
+                                mainBottomNav.setSelectedItemId(R.id.bottomNavSavedItem);
+                                break;
 
-                default:
-                    Log.d(TAG, "onCreate: at default");
+                            default:
 
+                                Log.d(TAG, "onCreate: at default");
+
+                        }
+
+                    default:
+                        Log.d(TAG, "onCreate: at default");
+
+                }
             }
 
 
-            /*if (getPostIdIntent.getStringExtra("notify") != null) {
 
-                String notifyMessage = getPostIdIntent.getStringExtra("notify");
-                Snackbar.make(findViewById(R.id.main_activity_layout),
-                        notifyMessage, Snackbar.LENGTH_LONG)
-                        .show();
-                Log.d(TAG, "notifyMessage is: " + notifyMessage);
-
-            } else if (getPostIdIntent.getStringExtra("error") != null) {
-
-                String errorMessage = getPostIdIntent.getStringExtra("error");
-
-                if (errorMessage.equals(getString(R.string.post_not_found_text))) {
-
-                    Snackbar.make(findViewById(R.id.main_activity_layout),
-                            errorMessage, Snackbar.LENGTH_LONG)
-                            .show();
-                    Log.d(TAG, "errorMessage is: " + errorMessage);
-
-                } else if (errorMessage.equals(getString(R.string.not_logged_in_text))) {
-
-                    Snackbar.make(findViewById(R.id.main_activity_layout),
-                            errorMessage, Snackbar.LENGTH_LONG)
-                            .setAction(getString(R.string.login_text), new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-
-                                    //go to log in
-                                    goToLogin();
-
-                                }
-                            })
-                            .show();
-                    Log.d(TAG, "errorMessage is: " + errorMessage);
-
-                }
-
-            }*/
 
         }
 
@@ -361,14 +327,14 @@ public class MainActivity extends AppCompatActivity {
     private void showVerEmailDialog() {
         android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
         emailVerBuilder.setTitle(R.string.email_ver_text)
-                .setIcon(R.drawable.ic_action_info_grey) // TODO: 4/27/18 change the black icon to the grey icon
+                .setIcon(R.drawable.ic_action_info_grey)
                 .setMessage("You have to verify your email address to create a post.")
                 .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
 
                         //send ver email
-                        FirebaseUser user = mAuth.getCurrentUser();
+                        FirebaseUser user = new CommonMethods().getAuth().getCurrentUser();
                         //show progress
                         String sendEmailMessage = getString(R.string.send_email_text);
                         showProgress(sendEmailMessage);
@@ -411,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
 
                                             //log use out
                                             //take user to login screen
-                                            mAuth.signOut();
+                                            new CommonMethods().signOut();
                                             startActivity(new Intent(MainActivity.this, LoginActivity.class));
                                             finish();
 
@@ -524,7 +490,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        mAuth.signOut();
+        new CommonMethods().signOut();
         //send alert user is signed out
         Log.d(TAG, "user has signed out");
         String logoutMessage = "You are now signed out";
@@ -547,16 +513,16 @@ public class MainActivity extends AppCompatActivity {
 
 
         //check if user is logged in
-        if (!isLoggedIn()) {
+        if (!new CommonMethods().isLoggedIn()) {
             //user is not logged in
             Log.d(TAG, "user not logged in");
         } else {
             //user is signed in
             Log.d(TAG, "user not logged in");
             //check if user exists in db
-            currentUserId = mAuth.getCurrentUser().getUid();
+            currentUserId = new CommonMethods().getUid();
 
-            db.collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            new CommonMethods().getDb().collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     //check if user exists
@@ -613,12 +579,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private boolean isLoggedIn() {
-        //determine if user is logged in
-        return mAuth.getCurrentUser() != null;
-    }
-
-
     /**
      * handles back backButton press when there's no history and/or user is at homescreen
      */
@@ -654,23 +614,6 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
                 .show();
-    }
-
-    private boolean isConnected() {
-
-        //check if there's a connection
-        Log.d(TAG, "at isConnected");
-        Context context = getApplicationContext();
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = null;
-        if (cm != null) {
-
-            activeNetwork = cm.getActiveNetworkInfo();
-
-        }
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
     }
 
     private void showProgress(String message) {

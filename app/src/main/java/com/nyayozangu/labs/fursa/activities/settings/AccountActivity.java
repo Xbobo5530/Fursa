@@ -195,28 +195,26 @@ public class AccountActivity extends AppCompatActivity {
                 //check if userNameField is empty
                 if (!TextUtils.isEmpty(userName)) {
 
+                    //show progress bar
+                    showProgress("Loading...");
                     //generate randomString name for image based on firebase time stamp
                     final String randomName = UUID.randomUUID().toString();
-
                     //check if data (image) has changed
                     if (imageIsChanged) {
 
                         try {
+
                             //upload the image to firebase
                             userId = mAUth.getCurrentUser().getUid();
                             StorageReference imagePath = mStorageRef.child("profile_images").child(userId + ".jpg");
-
                             Log.d(TAG, "user_id is: " + userId + "imagePath is: " + imagePath);
 
-                            //show progress bar
-                            showProgress("Loading...");
                             //start handling data with firebase
                             imagePath.putFile(userImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
-                                    //show progress bar after starting
-                                    Log.d(TAG, "at onComplete");
 
+                                    Log.d(TAG, "at onComplete");
                                     //check if is complete.
                                     if (task.isSuccessful()) {
                                     /*//update the database
@@ -264,9 +262,6 @@ public class AccountActivity extends AppCompatActivity {
 
                                                 Snackbar.make(findViewById(R.id.account_layout),
                                                         "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                                                //hide progress bar
-                                                progressDialog.dismiss();
 
                                             }
                                         });
@@ -340,7 +335,8 @@ public class AccountActivity extends AppCompatActivity {
         } catch (NullPointerException dbUpdateNull) {
 
             Log.e(TAG, "updateDb: ", dbUpdateNull);
-            finish();
+//            finish();
+            processLoginIntent();
 
         }
 
@@ -363,8 +359,6 @@ public class AccountActivity extends AppCompatActivity {
                             "Database error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
 
                 }
-                //hide progress  after finishing
-                progressDialog.dismiss();
             }
         });
 
@@ -416,5 +410,45 @@ public class AccountActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(AccountActivity.this);
         progressDialog.setMessage(message);
         progressDialog.show();
+    }
+
+    private void processLoginIntent() {
+        //login was successful
+        if (getIntent() == null) {
+            goToMain();
+        } else {
+
+            Intent sourceIntent = getIntent();
+            if (sourceIntent.getStringExtra("source") != null) {
+
+                switch (sourceIntent.getStringExtra("source")) {
+
+                    case "comments":
+
+                        Intent commentsIntent = new Intent(AccountActivity.this, AccountActivity.class);
+                        commentsIntent.putExtra("postId", sourceIntent.getStringExtra("postId"));
+                        startActivity(commentsIntent);
+                        finish();
+                        break;
+
+                    case "categories":
+
+                        Intent catsIntent = new Intent(AccountActivity.this, AccountActivity.class);
+                        catsIntent.putExtra("category", sourceIntent.getStringExtra("category"));
+                        startActivity(catsIntent);
+                        finish();
+                        break;
+
+                    default:
+                        goToMain();
+
+                }
+            } else {
+
+                goToMain();
+
+            }
+
+        }
     }
 }
