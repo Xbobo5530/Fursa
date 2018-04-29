@@ -1,13 +1,22 @@
 package com.nyayozangu.labs.fursa.commonmethods;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 
+import static android.support.v4.content.ContextCompat.startActivity;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
@@ -75,6 +84,12 @@ public class CoMeth {
 
     }
 
+    public StorageReference getStorageRef(){
+
+        return FirebaseStorage.getInstance().getReference();
+
+    }
+
     /*public void showProgress(String message) {
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
@@ -82,4 +97,15 @@ public class CoMeth {
         progressDialog.setMessage(message);
         progressDialog.show();
     }*/
+
+    public void setImage(int placeholderDrawable, String imageUrl, ImageView targetImageView) {
+        RequestOptions placeHolderRequest = new RequestOptions();
+        placeHolderRequest.placeholder(placeholderDrawable);
+        //loading the string for url to the image view
+        Glide.with(getApplicationContext())
+                .setDefaultRequestOptions(placeHolderRequest)
+                .load(imageUrl)
+                .into(targetImageView);
+    }
+
 }

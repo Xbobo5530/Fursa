@@ -39,17 +39,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -96,6 +94,7 @@ public class CreatePostActivity extends AppCompatActivity {
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     //for file compression
     Bitmap compressedImageFile;
+    private CoMeth coMeth = new CoMeth();
     private android.support.v7.widget.Toolbar toolbar;
     private ImageView createPostImageView;
     private FloatingActionButton editImageFAB;
@@ -130,10 +129,6 @@ public class CreatePostActivity extends AppCompatActivity {
     private String contactEmail;
     private ArrayList<String> contactDetails;
 
-    //Firebase
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-    private StorageReference mStorageRef;
     //user
     private String currentUserId;
     private Date eventDate;
@@ -159,13 +154,6 @@ public class CreatePostActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        //initiate firebase
-        mAuth = FirebaseAuth.getInstance();
-        // Access a Cloud Firestore instance from your Activity
-        db = FirebaseFirestore.getInstance();
-        //initiate storage reference
-        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         createPostImageView = findViewById(R.id.createPostImageView);
         submitButton = findViewById(R.id.createPostSubmitButton);
@@ -196,15 +184,16 @@ public class CreatePostActivity extends AppCompatActivity {
         priceTextView = findViewById(R.id.createPostPriceTextView);
 
 
-        if (isLoggedIn()) {
+        if (coMeth.isLoggedIn()) {
 
-            currentUserId = mAuth.getCurrentUser().getUid();
+            currentUserId = coMeth.getUid();
 
         } else {
 
             //user is not logged in
             Intent homeIntent = new Intent(CreatePostActivity.this, MainActivity.class);
-            homeIntent.putExtra("error", "You are not logged in");
+            homeIntent.putExtra("action", "notify");
+            homeIntent.putExtra("message", "You are not logged in");
             startActivity(homeIntent);
             finish();
 
@@ -216,15 +205,15 @@ public class CreatePostActivity extends AppCompatActivity {
 
         }
 
-
         descField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 //crate a dialog tha twill have a
                 AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
                 builder.setTitle("Post Description")
                         .setIcon(R.drawable.ic_action_descritption);
-
+                //construct the view
                 final EditText input = new EditText(CreatePostActivity.this);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -235,14 +224,14 @@ public class CreatePostActivity extends AppCompatActivity {
                 if (!postDescTextView.getText().toString().isEmpty()) {
                     input.setText(postDescTextView.getText().toString());
                 }
-                builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         desc = input.getText().toString().trim();
                         postDescTextView.setText(desc);
                     }
                 })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
@@ -267,7 +256,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 contactDialogBuilder.setTitle("Contact Details")
                         .setIcon(R.drawable.ic_action_contact)
                         .setView(alertView)
-                        .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //user clicks done
@@ -367,9 +356,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                     }
                                 }
-
-                                Log.d(TAG, "at positive button clicked: \n contact name: " + contactName +
-                                        "\ncontact phone: " + contactPhone + "\ncontact email: " + contactEmail);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -433,7 +419,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 for (int i = 0; i < mSelectedCats.size(); i++) {
 
-
                                     //check if is last item
                                     if (i == mSelectedCats.size() - 1) {
 
@@ -493,7 +478,6 @@ public class CreatePostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
                 //open the pick location activity
                 try {
                     Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -515,7 +499,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 }
                             })
-
                             //show the dialog
                             .show();
 
@@ -529,9 +512,8 @@ public class CreatePostActivity extends AppCompatActivity {
         eventDateField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 //open date picker dialog
-
-
                 Calendar calendar = Calendar.getInstance();
                 int YEAR = calendar.get(Calendar.YEAR);
                 int MONTH = calendar.get(Calendar.MONTH);
@@ -599,10 +581,8 @@ public class CreatePostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                // TODO: 4/20/18 check if getIntent is null, if its editing post, delete the old post
-
                 //check if internet is connected
-                if (isConnected()) {
+                if (coMeth.isConnected()) {
 
                     //start submitting
                     //get desc
@@ -612,7 +592,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
                     //check if description field is empty
-                    // TODO: 4/15/18 make it so that posts dont need to have images to be posted, use default image for posts
                     if (!TextUtils.isEmpty(desc) && !TextUtils.isEmpty(title)) {
                         //description is not empty and image is not null
                         showProgress("Posting...");
@@ -631,7 +610,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 final String randomName = UUID.randomUUID().toString();
 
                                 //define path to upload image
-                                StorageReference filePath = mStorageRef.child("post_images").child(randomName + ".jpg");
+                                StorageReference filePath = coMeth.getStorageRef().child("post_images").child(randomName + ".jpg");
 
                                 //upload the image
                                 filePath.putFile(postImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -640,7 +619,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                         //get download url
                                         downloadUri = task.getResult().getDownloadUrl().toString();
-
                                         //handle results after attempting to upload
                                         if (task.isSuccessful()) {
                                             //upload complete
@@ -666,7 +644,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                             byte[] thumbData = baos.toByteArray();
 
                                             //uploading the thumbnail
-                                            UploadTask uploadTask = mStorageRef.child("post_images/thumbs")
+                                            UploadTask uploadTask = coMeth.getStorageRef().child("post_images/thumbs")
                                                     .child(randomName + ".jpg")
                                                     .putBytes(thumbData);
 
@@ -682,7 +660,10 @@ public class CreatePostActivity extends AppCompatActivity {
                                                     //upload
 
                                                     //check if its update or new post
-                                                    db.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                    coMeth.getDb()
+                                                            .collection("Posts")
+                                                            .add(postMap)
+                                                            .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<DocumentReference> task) {
 
@@ -692,22 +673,20 @@ public class CreatePostActivity extends AppCompatActivity {
                                                                 //db update successful
                                                                 Log.d(TAG, "Db Update successful");
                                                                 goToMain();
-                                                                progressDialog.dismiss();
                                                                 //notify users subscribed to cats
                                                                 notifyNewPostCatsUpdates(catsStringsArray);
                                                                 Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
 
                                                             } else {
+
                                                                 //upload failed
                                                                 String errorMessage = task.getException().getMessage();
                                                                 Log.d(TAG, "Db Update failed: " + errorMessage);
-
                                                                 Snackbar.make(findViewById(R.id.createPostActivityLayout),
                                                                         "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
 
-                                                                progressDialog.dismiss();
-
                                                             }
+                                                            progressDialog.dismiss();
 
                                                         }
                                                     });
@@ -731,15 +710,13 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
                                         } else {
+
                                             //post failed
                                             String errorMessage = task.getException().getMessage();
-
                                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-
                                             showSnack(R.id.createPostActivityLayout, "Failed to upload image: " + errorMessage);
-
-                                            progressDialog.dismiss();
                                         }
+                                        progressDialog.dismiss();
                                     }
                                 });
 
@@ -751,7 +728,10 @@ public class CreatePostActivity extends AppCompatActivity {
                                 Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
 
                                 showProgress(getString(R.string.posting_text));
-                                db.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                coMeth.getDb()
+                                        .collection("Posts")
+                                        .add(postMap)
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentReference> task) {
 
@@ -759,7 +739,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                         if (task.isSuccessful()) {
 
                                             goToMain();
-                                            progressDialog.dismiss();
                                             //notify users subscribed to cats
                                             notifyNewPostCatsUpdates(catsStringsArray);
                                             Log.d(TAG, "onComplete: posted post without image");
@@ -772,6 +751,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                         }
 
+                                        progressDialog.dismiss();
+
                                     }
                                 });
 
@@ -779,7 +760,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         } else {
 
                             //is edit post
-
+                            Log.d(TAG, "onClick: is edit post");
                             //get map
                             Map postMap = handleMap(downloadThumbUri, downloadUri);
 
@@ -789,7 +770,10 @@ public class CreatePostActivity extends AppCompatActivity {
                             Log.d(TAG, "postId is: " + postId);
 
                             //update post
-                            db.collection("Posts").document(postId).set(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                            coMeth.getDb()
+                                    .collection("Posts")
+                                    .document(postId).set(postMap)
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentReference> task) {
 
@@ -811,9 +795,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                         Log.d(TAG, "Db Update failed: " + errorMessage);
                                         Snackbar.make(findViewById(R.id.createPostActivityLayout),
                                                 "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-                                        progressDialog.dismiss();
 
                                     }
+                                    progressDialog.dismiss();
 
                                 }
                             });
@@ -824,12 +808,6 @@ public class CreatePostActivity extends AppCompatActivity {
                     } else {
                         //desc is empty
                         //upload failed
-                        Log.d(TAG, "Fields are empty " +
-                                "\nTitle is: " + postTitleEditText.getText().toString() +
-                                "\ndesc is " + postDescTextView.getText().toString() +
-                                "\nStringUtils for title is empty: " + TextUtils.isEmpty(postTitleEditText.getText().toString().trim()) +
-                                "\nStringUtils for desc is empty: " + TextUtils.isEmpty(postDescTextView.getText().toString().trim()));
-
                         showSnack(R.id.createPostActivityLayout, "Enter your post details to proceed");
 
                     }
@@ -1063,7 +1041,7 @@ public class CreatePostActivity extends AppCompatActivity {
         if (imageUri != null) {
 
             //check if user is logged in
-            if (isLoggedIn()) {
+            if (coMeth.isLoggedIn()) {
                 // Update image Uri
                 postImageUri = imageUri;
                 Log.d(TAG, "handleSendImage: image uri is " + imageUri);
@@ -1089,7 +1067,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
         showProgress("Loading...");
         //access db to set items
-        db.collection("Posts")
+        coMeth.getDb()
+                .collection("Posts")
                 .document(postId)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -1239,10 +1218,10 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 }
 
+                progressDialog.dismiss();
+
             }
         });
-
-        progressDialog.dismiss();
 
     }
 
@@ -1312,23 +1291,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
     }
 
-    private boolean isConnected() {
-
-        //check if there's a connection
-        Log.d(TAG, "at isConnected");
-        Context context = getApplicationContext();
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = null;
-        if (cm != null) {
-
-            activeNetwork = cm.getActiveNetworkInfo();
-
-        }
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
-    }
-
     private void showSnack(int id, String message) {
         Snackbar.make(findViewById(id),
                 message, Snackbar.LENGTH_LONG).show();
@@ -1389,12 +1351,6 @@ public class CreatePostActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isLoggedIn() {
-
-        //check if user is logged in
-        return mAuth.getCurrentUser() != null;
-
-    }
 
     private void showLoginAlertDialog(String message) {
         //Prompt user to log in

@@ -289,6 +289,7 @@
     <string name="confirm_del_text">Are you sure you want to delete this post?</string>
     <string name="del_post_text">Delete Post</string>
     <string name="del_success_text">Post successfully Deleted</string>
+    <string name="loading_text">Loading...</string>
 
 
 </resources>

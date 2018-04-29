@@ -20,6 +20,7 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.common.Common;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -42,6 +43,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.DefaultLogger;
 import com.twitter.sdk.android.core.Result;
@@ -56,6 +58,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     // TODO: 4/14/18 connect social accs to single user
 
+    //common methods
+    private CoMeth coMeth = new CoMeth();
     private static final String TAG = "Sean";
     private static final int RC_SIGN_IN = 0;
     //for google sign in
@@ -71,7 +75,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     //social login buttons
     private SignInButton googleSignInButton;
     private TwitterLoginButton twitterLoginButton;
-    private FirebaseAuth mAuth;
     private GoogleApiClient mGoogleApiClient;
     private View registerView;
     private View loginView;
@@ -79,11 +82,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        Log.d(TAG, "at LoginActivity, at onCreate");
-
         super.onCreate(savedInstanceState);
-
 
         TwitterConfig config = new TwitterConfig.Builder(this)
                 .logger(new DefaultLogger(Log.DEBUG))
@@ -95,9 +94,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         setContentView(R.layout.activity_login);
 
-        //Initiating Firebase instance
-        mAuth = FirebaseAuth.getInstance();
-
         //initiating elements
         loginButton = findViewById(R.id.loginButton);
         loginRegistrationButton = findViewById(R.id.loginRegisterButton);
@@ -106,7 +102,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         //social login
         googleSignInButton = findViewById(R.id.google_sign_in_button);
         twitterLoginButton = findViewById(R.id.twitter_login_button);
-
 
         //get the sent intent
         Intent getPostIdIntent = getIntent();
@@ -163,7 +158,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                     //show progress
                                     showProgress(getString(R.string.logging_in_text));
 
-                                    mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    coMeth.getAuth()
+                                            .signInWithEmailAndPassword(email, password)
+                                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                         @Override
                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                             //check if login was successful
@@ -207,7 +204,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onClick(View v) {
 
-                Log.d(TAG, "onClick: login button clicked");
                 //open dialog
                 LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
                 registerView = inflater.inflate(R.layout.register_alert_dialog_content, null);
@@ -224,7 +220,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 EditText emailField = registerView.findViewById(R.id.regEmailEditText);
                                 EditText passwordField = registerView.findViewById(R.id.regPassEditText);
                                 EditText confirmPasswordField = registerView.findViewById(R.id.regConfirmPassEditText);
-                                Log.d(TAG, "onClick: initialized login dialog items");
 
                                 String email = emailField.getText().toString();
                                 String password = passwordField.getText().toString();
@@ -239,25 +234,25 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                         showProgress("Registering...");
 
                                         //create new user
-                                        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                        coMeth.getAuth()
+                                                .createUserWithEmailAndPassword(email, password)
+                                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                             @Override
                                             public void onComplete(@NonNull Task<AuthResult> task) {
                                                 //check registration status
                                                 if (task.isSuccessful()) {
 
                                                     //registration successful
-
-                                                    // TODO: 4/27/18 show an alert dialog to inform user that email verification was sent
                                                     AlertDialog.Builder emailVerBuilder = new AlertDialog.Builder(LoginActivity.this);
                                                     emailVerBuilder.setTitle(R.string.email_ver_text)
                                                             .setIcon(R.drawable.ic_action_info_grey)
                                                             .setMessage("A verification email has been sent to your email address")
-                                                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                                            .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                                                                 @Override
                                                                 public void onClick(DialogInterface dialog, int which) {
 
                                                                     //send ver email
-                                                                    FirebaseUser user = mAuth.getCurrentUser();
+                                                                    FirebaseUser user = coMeth.getAuth().getCurrentUser();
                                                                     user.sendEmailVerification()
                                                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                                 @Override
@@ -446,18 +441,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 message, Snackbar.LENGTH_LONG).show();
     }
 
-    //check to see if the user is logged in
-    @Override
-    public void onStart() {
-
-        Log.d(TAG, "at onStart");
-
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-    }
-
     private void startMain() {
         //send user to Main
         Intent mainIntent = new Intent(this, MainActivity.class);
@@ -465,13 +448,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         finish();
     }
 
-
     //sign in with google
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
 
     //for google sign in result
     @Override
@@ -510,14 +491,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Log.d(TAG, "handleFacebookAccessToken:" + token);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
+        coMeth.getAuth()
+                .signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            FirebaseUser user = coMeth.getAuth().getCurrentUser();
                             goToAccSettings();
                         } else {
                             // If sign in fails, display a message to the user.
@@ -539,14 +521,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 session.getAuthToken().token,
                 session.getAuthToken().secret);
 
-        mAuth.signInWithCredential(credential)
+        coMeth.getAuth()
+                .signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
                             //take user to acc settings after
                             goToAccSettings();
                         } else {
@@ -577,7 +559,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
+        coMeth.getAuth()
+                .signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -585,11 +568,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             // Sign in success, update UI with the signed-in user's information
 
                             Log.d(TAG, "signInWithCredential:success");
-
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Snackbar.make(findViewById(R.id.login_activity_layout),
-                                    "Sign in success", Snackbar.LENGTH_SHORT).show();
-
                             //go to acc settings
                             goToAccSettings();
 

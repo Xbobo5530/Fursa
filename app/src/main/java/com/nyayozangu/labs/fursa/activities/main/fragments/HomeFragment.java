@@ -71,16 +71,12 @@ public class HomeFragment extends Fragment {
 
         //initiate the PostsRecyclerAdapter
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
-
         //set a layout manager for homeFeedView (recycler view)
         homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         //set an adapter for the recycler view
         homeFeedView.setAdapter(postsRecyclerAdapter);
-
         //initiate swipe refresh
         swipeRefresh = view.findViewById(R.id.homeSwipeRefresh);
-
         //listen for scrolling on the homeFeedView
         homeFeedView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

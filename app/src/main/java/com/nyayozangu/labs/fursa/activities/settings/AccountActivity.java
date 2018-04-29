@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -34,6 +35,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -49,7 +51,10 @@ import id.zelory.compressor.Compressor;
 
 public class AccountActivity extends AppCompatActivity {
 
+
+    // TODO: 4/29/18 user image place holder does not load
     private static final String TAG = "Sean";
+    private CoMeth coMeth = new CoMeth();
     Bitmap compressedImageFile;
     private CircleImageView setupImage;
     private Uri userImageUri = null;
@@ -60,14 +65,6 @@ public class AccountActivity extends AppCompatActivity {
     private FloatingActionButton editImageFab;
     //user
     private String userId;
-
-    //uploading image to Firebase
-    private StorageReference mStorageRef;
-    private FirebaseAuth mAUth;
-
-    //Firebase database
-    private FirebaseFirestore db;
-
     private boolean imageIsChanged = false;
     private ProgressDialog progressDialog;
 
@@ -76,10 +73,6 @@ public class AccountActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
-
-        //initiating the Firebase reference
-        mStorageRef = FirebaseStorage.getInstance().getReference();
-        mAUth = FirebaseAuth.getInstance();
 
         //initiate elements
 
@@ -90,19 +83,20 @@ public class AccountActivity extends AppCompatActivity {
         userBioField = findViewById(R.id.accSettingAboutEditText);
 
         //user
-        userId = mAUth.getCurrentUser().getUid();
-
-        // Access a Cloud Firestore instance from your Activity
-        db = FirebaseFirestore.getInstance();
+        userId = coMeth.getUid();
 
         //show progress
-        showProgress("Saving...");
+        showProgress(getString(R.string.loading_text));
 
         //disable save button
         saveButton.setEnabled(false);
 
         //retrieve data if any
-        db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        coMeth.getDb()
+                .collection("Users")
+                .document(userId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -110,9 +104,9 @@ public class AccountActivity extends AppCompatActivity {
 
                     //check if data exists
                     if (task.getResult().exists()) {
+
                         //data exists
                         Log.d(TAG, "data exists");
-
                         //retrieve data
                         String name = task.getResult().getString("name");
                         String bio = task.getResult().getString("bio");
@@ -123,11 +117,19 @@ public class AccountActivity extends AppCompatActivity {
                         userBioField.setText(bio);
 
                         try {
+
+                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                    image,
+                                    setupImage);
+                            // TODO: 4/29/18 test setting image with coMeth
+                            /*
                             RequestOptions placeHolderRequest = new RequestOptions();
                             placeHolderRequest.placeholder(R.drawable.ic_action_person_placeholder);
-
                             //loading the string for url to the image view
-                            Glide.with(getApplicationContext()).setDefaultRequestOptions(placeHolderRequest).load(image).into(setupImage);
+                            Glide.with(getApplicationContext())
+                                    .setDefaultRequestOptions(placeHolderRequest)
+                                    .load(image)
+                                    .into(setupImage);*/
 
                             //update the imageUri
                             userImageUri = Uri.parse(image);
@@ -139,7 +141,17 @@ public class AccountActivity extends AppCompatActivity {
                         }
 
                     } else {
+                        //new user
+                        //get user email and set it to username
+                        FirebaseUser user = coMeth.getAuth().getCurrentUser();
+                        String userEmail = user.getEmail();
+                        String userDisplayName = user.getDisplayName();
+                        if(userDisplayName != null){userNameField.setText(userDisplayName);}
+                        else if(userEmail != null){userNameField.setText(userEmail);}
+
+                        // TODO: 4/29/18 test user display name and user email (esp for twitter)
                         Log.d(TAG, "data does not exist");
+
                     }
 
                 } else {
@@ -205,9 +217,10 @@ public class AccountActivity extends AppCompatActivity {
                         try {
 
                             //upload the image to firebase
-                            userId = mAUth.getCurrentUser().getUid();
-                            StorageReference imagePath = mStorageRef.child("profile_images").child(userId + ".jpg");
-                            Log.d(TAG, "user_id is: " + userId + "imagePath is: " + imagePath);
+                            userId = coMeth.getUid();
+                            StorageReference imagePath = coMeth.getStorageRef()
+                                    .child("profile_images")
+                                    .child(userId + ".jpg");
 
                             //start handling data with firebase
                             imagePath.putFile(userImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -240,7 +253,8 @@ public class AccountActivity extends AppCompatActivity {
                                         byte[] thumbData = baos.toByteArray();
 
                                         //uploading the thumbnail
-                                        UploadTask uploadTask = mStorageRef.child("profile_images/thumbs")
+                                        UploadTask uploadTask = coMeth.getStorageRef()
+                                                .child("profile_images/thumbs")
                                                 .child(randomName + ".jpg")
                                                 .putBytes(thumbData);
                                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -256,10 +270,10 @@ public class AccountActivity extends AppCompatActivity {
                                         }).addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
+
                                                 //upload failed
                                                 String errorMessage = task.getException().getMessage();
                                                 Log.d(TAG, "Db Update failed: " + errorMessage);
-
                                                 Snackbar.make(findViewById(R.id.account_layout),
                                                         "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
 
@@ -268,10 +282,10 @@ public class AccountActivity extends AppCompatActivity {
 
 
                                     } else {
+
                                         //upload failed
                                         Log.d(TAG, "upload failed");
                                         String errorMessage = task.getException().getMessage();
-
                                         Snackbar.make(findViewById(R.id.account_layout),
                                                 "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();
 
@@ -304,7 +318,10 @@ public class AccountActivity extends AppCompatActivity {
         });
     }
 
-    private void updateDb(@NonNull Task<UploadTask.TaskSnapshot> task, UploadTask.TaskSnapshot uploadTaskSnapshot, String userName, String userBio) {
+    private void updateDb(@NonNull Task<UploadTask.TaskSnapshot> task,
+                          UploadTask.TaskSnapshot uploadTaskSnapshot,
+                          String userName,
+                          String userBio) {
         //upload successful
         Log.d(TAG, "upload successful");
 
@@ -335,14 +352,18 @@ public class AccountActivity extends AppCompatActivity {
         } catch (NullPointerException dbUpdateNull) {
 
             Log.e(TAG, "updateDb: ", dbUpdateNull);
-//            finish();
+            // TODO: 4/29/18 check the login intent issue
             processLoginIntent();
 
         }
 
 
         //store data to db
-        db.collection("Users").document(userId).set(usersMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+        coMeth.getDb()
+                .collection("Users")
+                .document(userId)
+                .set(usersMap)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
 

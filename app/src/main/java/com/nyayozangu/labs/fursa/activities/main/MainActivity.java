@@ -295,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
                     case "notify":
 
-                        String notifyMessage = getPostIdIntent.getStringExtra("notify");
+                        String notifyMessage = getPostIdIntent.getStringExtra("message");
                         Snackbar.make(findViewById(R.id.main_activity_layout),
                                 notifyMessage, Snackbar.LENGTH_LONG)
                                 .show();
