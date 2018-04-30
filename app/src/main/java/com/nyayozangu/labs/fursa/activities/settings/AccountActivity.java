@@ -20,17 +20,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
@@ -54,8 +49,8 @@ public class AccountActivity extends AppCompatActivity {
 
     // TODO: 4/29/18 user image place holder does not load
     private static final String TAG = "Sean";
-    private CoMeth coMeth = new CoMeth();
     Bitmap compressedImageFile;
+    private CoMeth coMeth = new CoMeth();
     private CircleImageView setupImage;
     private Uri userImageUri = null;
     private Uri userThumbUri = null;
@@ -121,7 +116,6 @@ public class AccountActivity extends AppCompatActivity {
                             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                     image,
                                     setupImage);
-                            // TODO: 4/29/18 test setting image with coMeth
                             /*
                             RequestOptions placeHolderRequest = new RequestOptions();
                             placeHolderRequest.placeholder(R.drawable.ic_action_person_placeholder);

@@ -19,8 +19,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -183,12 +181,16 @@ public class CommentsActivity extends AppCompatActivity {
 
                                 //set image
                                 String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
-                                RequestOptions placeHolderOptions = new RequestOptions();
+                                cometh.setImage(R.drawable.ic_action_person_placeholder,
+                                        userProfileImageDownloadUrl,
+                                        currentUserImage);
+
+                                /*RequestOptions placeHolderOptions = new RequestOptions();
                                 placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
                                 Glide.with(getApplicationContext())
                                         .applyDefaultRequestOptions(placeHolderOptions)
                                         .load(userProfileImageDownloadUrl)
-                                        .into(currentUserImage);
+                                        .into(currentUserImage);*/
 
 
                             } catch (NullPointerException noImageFoundException) {
@@ -511,7 +513,7 @@ public class CommentsActivity extends AppCompatActivity {
                     public void onClick(final DialogInterface dialog, int which) {
 
                         //send ver email
-                        FirebaseUser user = new CoMeth().getAuth().getCurrentUser();
+                        FirebaseUser user = cometh.getAuth().getCurrentUser();
                         //show progress
                         String sendEmailMessage = getString(R.string.send_email_text);
                         showProgress(sendEmailMessage);

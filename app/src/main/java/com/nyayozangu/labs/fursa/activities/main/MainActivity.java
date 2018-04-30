@@ -26,8 +26,6 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -185,12 +183,10 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             String userImageDownloadUri = task.getResult().get("image").toString();
 
-                            RequestOptions placeHolderOptions = new RequestOptions();
-                            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-                            Glide.with(MainActivity.this)
-                                    .applyDefaultRequestOptions(placeHolderOptions)
-                                    .load(userImageDownloadUri)
-                                    .into(userProfileImage);
+                            //set image
+                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                    userImageDownloadUri,
+                                    userProfileImage);
 
                         } catch (NullPointerException imageNotFoundException) {
 
@@ -497,62 +493,8 @@ public class MainActivity extends AppCompatActivity {
                 message, Snackbar.LENGTH_SHORT).show();
     }
 
-    //check to see if the user is logged in
-    @Override
-    public void onStart() {
-
-        Log.d(TAG, "at onStart");
-
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-
-
-        //check if user is logged in
-        if (!coMeth.isLoggedIn()) {
-            //user is not logged in
-            Log.d(TAG, "user not logged in");
-        } else {
-            //user is signed in
-            Log.d(TAG, "user not logged in");
-            //check if user exists in db
-            currentUserId = new CoMeth().getUid();
-
-            coMeth.getDb().collection("Users").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    //check if user exists
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "task is successful");
-                        //check is user exist
-                        if (!task.getResult().exists()) {
-                            //user does not exist
-                            Log.d(TAG, "user exists");
-                            //send user to login activity
-                        } else {
-                            //user exists
-                            Log.d(TAG, "user exists");
-
-                        }
-
-                    } else {
-                        //task was not successful
-                        Log.d(TAG, "task not successful");
-                        //handle error
-                        String errorMessage = task.getException().getMessage();
-                        Log.d(TAG, "failed to get user\n error message is: " + errorMessage);
-                        Snackbar.make(findViewById(R.id.main_activity_layout),
-                                "Failed to get user details: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-                    }
-
-                }
-            });
-        }
-
-    }
-
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         doubleBackToExit();
     }
 
@@ -566,16 +508,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void doubleBackToExit() {
-        Log.d(TAG, "at doubleBackToExit");
 
         if (doubleBackToExitPressedOnce) {
             Log.d(TAG, "pressed once");
             //back button is pressed for the first time
             super.onBackPressed();
-            return;
+            /*return;*/
         }
         //change the back button pressed once true
-        this.doubleBackToExitPressedOnce = true;
+        doubleBackToExitPressedOnce = true;
         promptExit();
         //create a delay to listen to the second time back is ressed
         new Handler().postDelayed(new Runnable() {
@@ -588,14 +529,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void promptExit() {
-        Snackbar.make(findViewById(R.id.main_activity_layout), "Are you you want to exit?", Snackbar.LENGTH_LONG)
-                .setAction("Exit", new View.OnClickListener() {
+
+        Snackbar.make(findViewById(R.id.main_activity_layout), getString(R.string.confirm_ext_text), Snackbar.LENGTH_LONG)
+                .setAction(getString(R.string.exit_text), new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         finish();
                     }
                 })
-                .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
                 .show();
     }
 

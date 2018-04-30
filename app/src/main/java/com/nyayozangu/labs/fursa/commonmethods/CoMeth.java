@@ -1,7 +1,6 @@
 package com.nyayozangu.labs.fursa.commonmethods;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -13,10 +12,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 
-import static android.support.v4.content.ContextCompat.startActivity;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
@@ -27,11 +23,44 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class CoMeth {
 
     private static final String TAG = "Sean";
+    public final String[] categories = new String[]{
+
+            "Business",
+            "Events",
+            "Buying and selling",
+            "Education",
+            "Jobs",
+            "Places",
+            "Queries"
+
+    };
+
+    //public methods
+    public final String[] catKeys = new String[]{
+
+            "business",
+            "events",
+            "buysell",
+            "education",
+            "jobs",
+            "places",
+            "queries"
+
+    };
+    public final String[] reportList = new String[]{
+
+            "Spam, Fake news, or Unauthorized content",
+
+            "Sexually explicit, nudity, inappropriate content",
+
+            "Hate speech, Harassment, bullying or violence",
+
+            "Something else"
+
+    };
 
     public CoMeth() {
     } //empty constructor
-
-    //public methods
 
     //is logged in
     public boolean isLoggedIn() {
@@ -42,7 +71,6 @@ public class CoMeth {
         //determine if user is logged in
         return mAuth.getCurrentUser() != null;
     }
-
 
     //is connected
     public boolean isConnected() {
@@ -69,10 +97,17 @@ public class CoMeth {
 
     }
 
-
     public FirebaseAuth getAuth() {
         return FirebaseAuth.getInstance();
     }
+
+    /*public void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        ProgressDialog progressDialog = new ProgressDialog(getApplicationContext());
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }*/
 
     public String getUid() {
         return this.getAuth().getUid();
@@ -84,19 +119,11 @@ public class CoMeth {
 
     }
 
-    public StorageReference getStorageRef(){
+    public StorageReference getStorageRef() {
 
         return FirebaseStorage.getInstance().getReference();
 
     }
-
-    /*public void showProgress(String message) {
-        Log.d(TAG, "at showProgress\n message is: " + message);
-        //construct the dialog box
-        ProgressDialog progressDialog = new ProgressDialog(getApplicationContext());
-        progressDialog.setMessage(message);
-        progressDialog.show();
-    }*/
 
     public void setImage(int placeholderDrawable, String imageUrl, ImageView targetImageView) {
         RequestOptions placeHolderRequest = new RequestOptions();
@@ -107,5 +134,6 @@ public class CoMeth {
                 .load(imageUrl)
                 .into(targetImageView);
     }
+
 
 }

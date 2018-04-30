@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -95,16 +94,17 @@ public class ViewPostActivity extends AppCompatActivity {
     private String postId;
     //common methods
     private CoMeth coMeth = new CoMeth();
+    private ArrayList reportedItems;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
+        MenuItem editPost = menu.findItem(R.id.editMenuItem);
+        MenuItem deletePost = menu.findItem(R.id.deleteMenuItem);
+
         if (coMeth.isConnected()) {
             if (coMeth.isLoggedIn()) {
                 currentUserId = new CoMeth().getUid();
-
-                MenuItem editPost = menu.findItem(R.id.editMenuItem);
-                MenuItem deletePost = menu.findItem(R.id.deleteMenuItem);
 
                 if (currentUserId.equals(postUserId)) {
                     editPost.setVisible(true);
@@ -141,9 +141,18 @@ public class ViewPostActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case R.id.reportMenuItem:
-                Toast.makeText(this, item.getItemId(), Toast.LENGTH_SHORT)
-                        .show();
+
+                if (coMeth.isLoggedIn()) {
+
+                    showReportDialog();
+
+                } else {
+
+                    showLoginAlertDialog("Log in to report content");
+
+                }
                 break;
+
             case R.id.editMenuItem:
                 //open edit post
                 goToEdit();
@@ -159,6 +168,96 @@ public class ViewPostActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    private void showReportDialog() {
+
+        final AlertDialog.Builder reportBuilder = new AlertDialog.Builder(ViewPostActivity.this);
+        reportBuilder.setTitle(getString(R.string.report_text))
+                .setIcon(R.drawable.ic_action_report)
+                .setMultiChoiceItems(coMeth.reportList, null, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+
+                        //what happens when an item is checked
+                        if (isChecked) {
+
+                            // If the user checked the item, add it to the selected items
+                            reportedItems.add(which);
+
+                        } else if (reportedItems.contains(which)) {
+
+                            // Else, if the item is already in the array, remove it
+                            reportedItems.remove(Integer.valueOf(which));
+
+                        }
+
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        showProgress("Submitting...");
+                        //add post details to db
+                        Map<String, Object> reportMap = new HashMap<>();
+                        reportMap.put("reporterUserId", coMeth.getUid());
+                        reportMap.put("postId", postId);
+                        reportMap.put("timestamp", FieldValue.serverTimestamp());
+                        reportMap.put("flags", reportedItems);
+                        coMeth.getDb()
+                                .collection("Flags")
+                                .document(postId)
+                                .set(reportMap)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+
+                                        progressDialog.dismiss();
+                                        if (task.isSuccessful()) {
+
+                                            //alert user
+                                            showConfirmReport();
+
+                                        } else {
+
+                                            showSnack(getString(R.string.report_submit_failed_text));
+                                            Log.d(TAG, "onComplete: " + task.getException());
+
+                                        }
+
+                                    }
+                                });
+
+
+                    }
+                })
+                .setCancelable(false)
+                .show();
+
+    }
+
+    private void showConfirmReport() {
+        AlertDialog.Builder reportSuccessBuilder = new AlertDialog.Builder(ViewPostActivity.this);
+        reportSuccessBuilder.setTitle(getString(R.string.report_text))
+                .setIcon(R.drawable.ic_action_report)
+                .setMessage("Your report has been submitted for reviews.")
+                .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                }).show();
     }
 
     private void deletePost(final String postId) {
@@ -256,6 +355,7 @@ public class ViewPostActivity extends AppCompatActivity {
         catTextView = findViewById(R.id.viewPostCatTextView);
         catArray = new ArrayList<>();
         catKeys = new ArrayList();
+        reportedItems = new ArrayList();
 
 
         if (getIntent() != null) {
@@ -670,15 +770,18 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                     //user has thumb
                                     String userThumbDwnUrl = documentSnapshot.get("thumb").toString();
-                                    setImage(userThumbDwnUrl);
+                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                            userThumbDwnUrl,
+                                            userImage);
                                     Log.d(TAG, "onEvent: user thumb set");
 
                                 } else if (documentSnapshot.get("image") != null) {
 
-
                                     //use has no thumb but has image
                                     String userImageDwnUrl = documentSnapshot.get("image").toString();
-                                    setImage(userImageDwnUrl);
+                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                            userImageDwnUrl,
+                                            userImage);
                                     Log.d(TAG, "onEvent: user thumb set");
 
                                 } else {
@@ -835,12 +938,12 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private String getCatValue(String catValue) {
 
-        /*
+            /*
             "Featured",
             "Popular",
             "UpComing",
             "Events",
-            "Places"
+            "Places",
             "Business",
             "Buy and sell",
             "Education",

@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -28,6 +26,7 @@ public class SettingsActivity extends AppCompatActivity {
     // TODO: 4/8/18 handle feedback
     // TODO: 4/8/18 handle privacy policy
 
+    private CoMeth coMeth = new CoMeth();
     private CircleImageView userImage;
     private TextView usernameTextView;
     private TextView userBioTextView;
@@ -110,7 +109,7 @@ public class SettingsActivity extends AppCompatActivity {
         //check is user is logged in
         if (new CoMeth().isLoggedIn()) {
             //get current user is
-            String userId = new CoMeth().getUid();
+            final String userId = new CoMeth().getUid();
             new CoMeth().getDb()
                     .collection("Users")
                     .document(userId)
@@ -135,16 +134,19 @@ public class SettingsActivity extends AppCompatActivity {
                         //set image
                         try {
                             String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
-                            RequestOptions placeHolderOptions = new RequestOptions();
-                            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
 
+                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                    userProfileImageDownloadUrl,
+                                    userImage);
+
+                            /*RequestOptions placeHolderOptions = new RequestOptions();
+                            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
                             Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
-                                    .load(userProfileImageDownloadUrl).into(userImage);
+                                    .load(userProfileImageDownloadUrl).into(userImage);*/
                         } catch (NullPointerException userImageException) {
 
                             //user image is null
                             Log.e(TAG, "onEvent: ", userImageException);
-
 
                         }
 

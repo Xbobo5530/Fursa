@@ -2,12 +2,9 @@ package com.nyayozangu.labs.fursa.activities.posts;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -67,7 +64,7 @@ import id.zelory.compressor.Compressor;
 public class CreatePostActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
-    private final String[] categories = new String[]{
+    /*private final String[] categories = new String[]{
 
             "Business",
             "Events",
@@ -89,7 +86,7 @@ public class CreatePostActivity extends AppCompatActivity {
             "places",
             "queries"
 
-    };
+    };*/
 
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     //for file compression
@@ -137,7 +134,6 @@ public class CreatePostActivity extends AppCompatActivity {
     private ArrayList<String> catsStringsArray;
     private ArrayList<String> locationArray;
     private Date timestamp;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -386,7 +382,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 AlertDialog.Builder catPickerBuilder = new AlertDialog.Builder(CreatePostActivity.this);
                 catPickerBuilder.setTitle("Categories")
                         .setIcon(getDrawable(R.drawable.ic_action_cat_light))
-                        .setMultiChoiceItems(categories, null, new DialogInterface.OnMultiChoiceClickListener() {
+                        .setMultiChoiceItems(coMeth.categories, null, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 
@@ -425,20 +421,20 @@ public class CreatePostActivity extends AppCompatActivity {
                                         Log.d(TAG, "onClick: \nat if for loop, which is: " + which);
                                         //this is the last item
                                         //concat a string without comma
-                                        catsString = catsString.concat(categories[mSelectedCats.get(i)]);
+                                        catsString = catsString.concat(coMeth.categories[mSelectedCats.get(i)]);
 
                                     } else {
 
                                         //concat a string
-                                        catsString = catsString.concat(categories[mSelectedCats.get(i)] + ", ");
+                                        catsString = catsString.concat(coMeth.categories[mSelectedCats.get(i)] + ", ");
 
                                     }
 
                                     //update cats string array
-                                    if (!catsStringsArray.contains(categories[mSelectedCats.get(i)])) {
+                                    if (!catsStringsArray.contains(coMeth.categories[mSelectedCats.get(i)])) {
 
                                         //only add items to the array if they are not already there
-                                        catsStringsArray.add(catKeys[mSelectedCats.get(i)]);
+                                        catsStringsArray.add(coMeth.catKeys[mSelectedCats.get(i)]);
                                         Log.d(TAG, "onClick: \n catsStringArray is: " + catsStringsArray);
 
                                     }
@@ -1099,6 +1095,8 @@ public class CreatePostActivity extends AppCompatActivity {
                     if (task.getResult().get("image_url") != null) {
                         String imageUrl = task.getResult().get("image_url").toString();
                         String thumbUrl = task.getResult().get("thumb_url").toString();
+
+
                         RequestOptions placeHolderOptions = new RequestOptions();
                         placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
                         Glide.with(getApplicationContext())
@@ -1257,13 +1255,6 @@ public class CreatePostActivity extends AppCompatActivity {
                 //save the location
                 postPlace = place;
 
-                Log.i(TAG, "PlaceName: " + place.getName() +
-                        "\nAddress is: " + place.getAddress() +
-                        "\ntoString: " + place.toString() +
-                        "\nplaceId: " + place.getId() +
-                        "\ngetLocale: " + place.getLocale() +
-                        "\ngetLatLng: " + place.getLatLng());
-
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
                 // TODO: Handle the error when the creating post process is incomplete. the on desctroy error
@@ -1379,5 +1370,6 @@ public class CreatePostActivity extends AppCompatActivity {
     private void goToLogin() {
         startActivity(new Intent(CreatePostActivity.this, LoginActivity.class));
     }
+
 
 }
