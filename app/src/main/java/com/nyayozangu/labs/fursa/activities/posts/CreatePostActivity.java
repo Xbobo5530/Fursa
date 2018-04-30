@@ -418,15 +418,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                     //check if is last item
                                     if (i == mSelectedCats.size() - 1) {
 
-                                        Log.d(TAG, "onClick: \nat if for loop, which is: " + which);
                                         //this is the last item
                                         //concat a string without comma
-                                        catsString = catsString.concat(coMeth.categories[mSelectedCats.get(i)]);
-
-                                    } else {
-
-                                        //concat a string
-                                        catsString = catsString.concat(coMeth.categories[mSelectedCats.get(i)] + ", ");
+                                        catsString = catsString.concat(coMeth.categories[mSelectedCats.get(i)] + "\n");
 
                                     }
 
@@ -434,7 +428,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                     if (!catsStringsArray.contains(coMeth.categories[mSelectedCats.get(i)])) {
 
                                         //only add items to the array if they are not already there
-                                        catsStringsArray.add(coMeth.catKeys[mSelectedCats.get(i)]);
+                                        catsStringsArray.add(coMeth.catKeys[mSelectedCats.get(i)].trim());
                                         Log.d(TAG, "onClick: \n catsStringArray is: " + catsStringsArray);
 
                                     }
@@ -484,7 +478,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     Log.e(TAG, "onClick: " + e.getMessage());
                     AlertDialog.Builder locationErrorBuilder = new AlertDialog.Builder(CreatePostActivity.this);
                     locationErrorBuilder.setTitle("Error")
-                            .setIcon(getDrawable(R.drawable.ic_action_alert))
+                            .setIcon(getDrawable(R.drawable.ic_action_red_alert))
                             .setMessage("Failed to load locations at this moment\n Please try again later")
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 @Override
@@ -949,43 +943,36 @@ public class CreatePostActivity extends AppCompatActivity {
         }
 
         //put items to Map
-        try {
 
-            //location
-            if (locationArray.size() > 0) {
+        //location
+        if (locationArray != null && locationArray.size() > 0) {
 
-                //loc array has content
-                postMap.put("location", locationArray);
+            //loc array has content
+            postMap.put("location", locationArray);
 
-            }
-            //event date
-            if (eventDate != null) {
-
-                postMap.put("event_date", eventDate);
-
-            }
-            //contact details
-            if (contactDetails.size() > 0) {
-
-                postMap.put("contact_details", contactDetails);
-
-            }
-            //price
-            if (price != null) {
-
-                postMap.put("price", price);
-
-            }
-            //categories
-            if (catsStringsArray.size() > 0) {
-
-                postMap.put("categories", catsStringsArray);
-
-            }
-
-        } catch (NullPointerException e) {
-            Log.d(TAG, "Error: " + e.getMessage());
         }
+        //event date
+        if (eventDate != null) {
+
+            postMap.put("event_date", eventDate);
+
+        }
+        //contact details
+        if (contactDetails != null && contactDetails.size() > 0) {
+
+            postMap.put("contact_details", contactDetails);
+
+        }
+        //price
+        if (price != null) {
+
+            postMap.put("price", price);
+
+        }
+        //categories
+        Log.d(TAG, "handleMap: catsStringArray has content\n" + catsStringsArray);
+        postMap.put("categories", catsStringsArray);
+
         return postMap;
     }
 

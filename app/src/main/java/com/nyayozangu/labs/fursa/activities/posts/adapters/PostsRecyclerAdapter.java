@@ -184,7 +184,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     if (documentSnapshot.exists()) {
                         Log.d(TAG, "at get likes, updating likes real time");
                         //user has liked
-                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_accent));
+                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
                     } else {
                         //current user has not liked the post
                         holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
@@ -597,7 +597,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(context);
         loginAlertBuilder.setTitle(context.getString(R.string.login_text))
-                .setIcon(context.getDrawable(R.drawable.ic_action_alert))
+                .setIcon(context.getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage(context.getString(R.string.not_logged_in_text) + message)
                 .setPositiveButton(context.getString(R.string.login_text), new DialogInterface.OnClickListener() {
                     @Override
@@ -780,8 +780,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             //add the placeholder image
             RequestOptions placeHolderOptions = new RequestOptions();
             placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-
-            Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(userImageDownloadUri).into(postUserImageCircleView);
+            Glide.with(context)
+                    .applyDefaultRequestOptions(placeHolderOptions)
+                    .load(userImageDownloadUri)
+                    .into(postUserImageCircleView);
 
         }
     }

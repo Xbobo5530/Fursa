@@ -49,13 +49,8 @@ public class CoMeth {
     };
     public final String[] reportList = new String[]{
 
-            "Spam, Fake news, or Unauthorized content",
-
-            "Sexually explicit, nudity, inappropriate content",
-
-            "Hate speech, Harassment, bullying or violence",
-
-            "Something else"
+            "Spam",
+            "Inappropriate content"
 
     };
 

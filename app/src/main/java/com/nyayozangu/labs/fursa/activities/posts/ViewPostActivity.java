@@ -89,12 +89,12 @@ public class ViewPostActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     //save categories to list
     private ArrayList<String> catArray;
-    private ArrayList catKeys;
+    private ArrayList<String> catKeys;
     //postId
     private String postId;
     //common methods
     private CoMeth coMeth = new CoMeth();
-    private ArrayList reportedItems;
+    private ArrayList<String> reportedItems;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -148,7 +148,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                 } else {
 
-                    showLoginAlertDialog("Log in to report content");
+                    showLoginAlertDialog(getString(R.string.login_to_report));
 
                 }
                 break;
@@ -174,7 +174,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
         final AlertDialog.Builder reportBuilder = new AlertDialog.Builder(ViewPostActivity.this);
         reportBuilder.setTitle(getString(R.string.report_text))
-                .setIcon(R.drawable.ic_action_report)
+                .setIcon(R.drawable.ic_action_red_flag)
                 .setMultiChoiceItems(coMeth.reportList, null, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -183,12 +183,12 @@ public class ViewPostActivity extends AppCompatActivity {
                         if (isChecked) {
 
                             // If the user checked the item, add it to the selected items
-                            reportedItems.add(which);
+                            reportedItems.add(coMeth.reportList[which]);
 
-                        } else if (reportedItems.contains(which)) {
+                        } else if (reportedItems.contains(coMeth.reportList[which])) {
 
                             // Else, if the item is already in the array, remove it
-                            reportedItems.remove(Integer.valueOf(which));
+                            reportedItems.remove(coMeth.reportList[which]);
 
                         }
 
@@ -206,37 +206,46 @@ public class ViewPostActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        showProgress("Submitting...");
-                        //add post details to db
-                        Map<String, Object> reportMap = new HashMap<>();
-                        reportMap.put("reporterUserId", coMeth.getUid());
-                        reportMap.put("postId", postId);
-                        reportMap.put("timestamp", FieldValue.serverTimestamp());
-                        reportMap.put("flags", reportedItems);
-                        coMeth.getDb()
-                                .collection("Flags")
-                                .document(postId)
-                                .set(reportMap)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
+                        if (coMeth.isConnected()) {
 
-                                        progressDialog.dismiss();
-                                        if (task.isSuccessful()) {
+                            showProgress("Submitting...");
+                            //add post details to db
+                            Map<String, Object> reportMap = new HashMap<>();
+                            reportMap.put("reporterUserId", coMeth.getUid());
+                            reportMap.put("postId", postId);
+                            reportMap.put("timestamp", FieldValue.serverTimestamp());
+                            reportMap.put("flags", reportedItems);
+                            coMeth.getDb()
+                                    .collection("Flags")
+                                    .document(postId)
+                                    .set(reportMap)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
 
-                                            //alert user
-                                            showConfirmReport();
+                                            progressDialog.dismiss();
+                                            if (task.isSuccessful()) {
 
-                                        } else {
+                                                //alert user
+                                                showConfirmReport();
 
-                                            showSnack(getString(R.string.report_submit_failed_text));
-                                            Log.d(TAG, "onComplete: " + task.getException());
+                                            } else {
+
+                                                showSnack(getString(R.string.report_submit_failed_text));
+                                                Log.d(TAG, "onComplete: " + task.getException());
+
+                                            }
 
                                         }
+                                    });
 
-                                    }
-                                });
+                        } else {
 
+                            //alert user is not connected
+                            dialog.dismiss();
+                            showSnack(getString(R.string.failed_to_connect_text));
+
+                        }
 
                     }
                 })
@@ -248,7 +257,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private void showConfirmReport() {
         AlertDialog.Builder reportSuccessBuilder = new AlertDialog.Builder(ViewPostActivity.this);
         reportSuccessBuilder.setTitle(getString(R.string.report_text))
-                .setIcon(R.drawable.ic_action_report)
+                .setIcon(R.drawable.ic_action_red_flag)
                 .setMessage("Your report has been submitted for reviews.")
                 .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                     @Override
@@ -267,7 +276,7 @@ public class ViewPostActivity extends AppCompatActivity {
         AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(ViewPostActivity.this);
         deleteBuilder.setTitle(R.string.del_post_text)
                 .setMessage(confirmDelMessage)
-                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -354,8 +363,8 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostCatLayout = findViewById(R.id.viewPostCatLayout);
         catTextView = findViewById(R.id.viewPostCatTextView);
         catArray = new ArrayList<>();
-        catKeys = new ArrayList();
-        reportedItems = new ArrayList();
+        catKeys = new ArrayList<>();
+        reportedItems = new ArrayList<String>();
 
 
         if (getIntent() != null) {
@@ -581,7 +590,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         Log.d(TAG, "at get likes, updating likes real time");
                         //user has liked
-                        likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_accent));
+                        likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_liked));
 
                     } else {
 
@@ -645,7 +654,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     Log.d(TAG, "onEvent: desc set");
 
                     //set the contact info
-                    ArrayList contactArray = post.getContact_details();
+                    ArrayList<String> contactArray = post.getContact_details();
                     if (contactArray != null) {
 
                         Log.d(TAG, "onEvent: has contact details");
@@ -670,7 +679,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
                     //set location
-                    ArrayList locationArray = post.getLocation();
+                    ArrayList<String> locationArray = post.getLocation();
                     String locationString = "";
 
                     if (locationArray != null) {
