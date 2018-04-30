@@ -870,6 +870,52 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
         //handle contact details
+        processContactDetails();
+
+        //handle location
+        if (postPlace != null) {
+
+            //set up an array for location
+            locationArray.add(postPlace.getName().toString());
+            locationArray.add(postPlace.getAddress().toString());
+
+        }
+
+        //put items to Map
+
+        //location
+        if (locationArray != null && locationArray.size() > 0) {
+
+            //loc array has content
+            postMap.put("location", locationArray);
+
+        }
+        //event date
+        if (eventDate != null) {
+
+            postMap.put("event_date", eventDate);
+
+        }
+        //contact details
+        if (contactDetails != null && contactDetails.size() > 0) {
+
+            postMap.put("contact_details", contactDetails);
+
+        }
+        //price
+        if (price != null) {
+
+            postMap.put("price", price);
+
+        }
+        //categories
+        Log.d(TAG, "handleMap: catsStringArray has content\n" + catsStringsArray);
+        postMap.put("categories", catsStringsArray);
+
+        return postMap;
+    }
+
+    private void processContactDetails() {
         if (contactName != null) {
 
             if (contactPhone != null) {
@@ -932,48 +978,6 @@ public class CreatePostActivity extends AppCompatActivity {
             }
 
         }
-
-        //handle location
-        if (postPlace != null) {
-
-            //set up an array for location
-            locationArray.add(postPlace.getName().toString());
-            locationArray.add(postPlace.getAddress().toString());
-
-        }
-
-        //put items to Map
-
-        //location
-        if (locationArray != null && locationArray.size() > 0) {
-
-            //loc array has content
-            postMap.put("location", locationArray);
-
-        }
-        //event date
-        if (eventDate != null) {
-
-            postMap.put("event_date", eventDate);
-
-        }
-        //contact details
-        if (contactDetails != null && contactDetails.size() > 0) {
-
-            postMap.put("contact_details", contactDetails);
-
-        }
-        //price
-        if (price != null) {
-
-            postMap.put("price", price);
-
-        }
-        //categories
-        Log.d(TAG, "handleMap: catsStringArray has content\n" + catsStringsArray);
-        postMap.put("categories", catsStringsArray);
-
-        return postMap;
     }
 
     private boolean isEditPost() {

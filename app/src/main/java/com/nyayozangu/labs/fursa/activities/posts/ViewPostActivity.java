@@ -183,12 +183,12 @@ public class ViewPostActivity extends AppCompatActivity {
                         if (isChecked) {
 
                             // If the user checked the item, add it to the selected items
-                            reportedItems.add(coMeth.reportList[which]);
+                            reportedItems.add(coMeth.reportListKey[which]);
 
-                        } else if (reportedItems.contains(coMeth.reportList[which])) {
+                        } else if (reportedItems.contains(coMeth.reportListKey[which])) {
 
                             // Else, if the item is already in the array, remove it
-                            reportedItems.remove(coMeth.reportList[which]);
+                            reportedItems.remove(coMeth.reportListKey[which]);
 
                         }
 
@@ -218,6 +218,8 @@ public class ViewPostActivity extends AppCompatActivity {
                             coMeth.getDb()
                                     .collection("Flags")
                                     .document(postId)
+                                    .collection("Flags")
+                                    .document(coMeth.getUid())
                                     .set(reportMap)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
@@ -847,7 +849,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         }
 
-
                         Log.d(TAG, "onEvent: categories are " + categories);
                         for (int i = 0; i < categories.size(); i++) {
 
@@ -919,9 +920,6 @@ public class ViewPostActivity extends AppCompatActivity {
                                 finish();
 
                                 Log.d(TAG, "onClick: \nuser selected cat is: " + catKeys.get(which));
-
-
-
                             }
                         })
                         .show();

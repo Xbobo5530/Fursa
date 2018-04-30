@@ -54,6 +54,13 @@ public class CoMeth {
 
     };
 
+    public final String[] reportListKey = new String[]{
+
+            "spam",
+            "inappropriate"
+
+    };
+
     public CoMeth() {
     } //empty constructor
 
