@@ -11,6 +11,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,6 +39,7 @@ import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,7 +90,8 @@ public class ViewPostActivity extends AppCompatActivity {
     //save categories to list
     private ArrayList<String> catArray;
     private ArrayList<String> catKeys;
-    //postId
+    //post content
+    private String desc;
     private String postId;
     //common methods
     private CoMeth coMeth = new CoMeth();
@@ -239,6 +242,8 @@ public class ViewPostActivity extends AppCompatActivity {
                                         }
                                     });
 
+                            progressDialog.dismiss();
+
                         } else {
 
                             //alert user is not connected
@@ -258,7 +263,7 @@ public class ViewPostActivity extends AppCompatActivity {
         AlertDialog.Builder reportSuccessBuilder = new AlertDialog.Builder(ViewPostActivity.this);
         reportSuccessBuilder.setTitle(getString(R.string.report_text))
                 .setIcon(R.drawable.ic_action_red_flag)
-                .setMessage("Your report has been submitted for reviews.")
+                .setMessage(R.string.report_submitted_text)
                 .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -285,7 +290,8 @@ public class ViewPostActivity extends AppCompatActivity {
                         new CoMeth().getDb().collection("Posts").document(postId).delete();
                         progressDialog.dismiss();
                         Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-                        delResultIntent.putExtra("notify", getString(R.string.del_success_text));
+                        delResultIntent.putExtra("action", "notify");
+                        delResultIntent.putExtra("message", getString(R.string.del_success_text));
                         startActivity(delResultIntent);
                         finish();
 
@@ -340,13 +346,12 @@ public class ViewPostActivity extends AppCompatActivity {
 
         titleTextView = findViewById(R.id.viewPostTitleTextView);
         descTextView = findViewById(R.id.viewPostDescTextView);
-        eventDateTextView = findViewById(R.id.createPostEventDateTextView);
+        eventDateTextView = findViewById(R.id.viewPostEventDateTextView);
         timeTextView = findViewById(R.id.viewPostTimeTextView);
         priceTextView = findViewById(R.id.viewPostPriceTextView);
         locationTextView = findViewById(R.id.viewPostLocationTextView);
         viewPostImage = findViewById(R.id.viewPostImageView);
         contactTextView = findViewById(R.id.viewPostContactTextView);
-
         userImage = findViewById(R.id.viewPostUserImageView);
 
         viewPostTitleLayout = findViewById(R.id.viewPostTitleLayout);
@@ -649,7 +654,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     getSupportActionBar().setTitle(title);
 
                     //set the description
-                    String desc = post.getDesc();
+                    desc = post.getDesc();
                     descTextView.setText(desc);
                     Log.d(TAG, "onEvent: desc set");
 
@@ -694,47 +699,39 @@ public class ViewPostActivity extends AppCompatActivity {
                         }
 
                         locationTextView.setText(locationString.trim());
-                        Log.d(TAG, "onEvent: location set");
 
                     } else {
 
                         viewPostLocationLayout.setVisibility(View.GONE);
-                        Log.d(TAG, "onEvent: has no location");
                     }
 
                     //set price
                     String price = post.getPrice();
                     if (price != null) {
 
-                        Log.d(TAG, "onEvent: has price");
-
                         priceTextView.setText(price);
 
-                        Log.d(TAG, "onEvent: price set");
                     } else {
 
                         viewPostPriceLayout.setVisibility(View.GONE);
-                        Log.d(TAG, "onEvent: has no price");
 
                     }
 
                     //set event date
-                    // TODO: 4/8/18 fix setting date to view post view
-                    /*Log.d(TAG,  post.getEvent_date().toString());
-                    if (true) {
+                    if (post.getEvent_date() != null) {
                         long eventDate = post.getEvent_date().getTime();
                         Log.d(TAG, String.valueOf(eventDate));
-                        String eventDateString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(eventDate)).toString();
+                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(eventDate)).toString();
+                        Log.d(TAG, "onEvent: \nebentDateString: " + eventDateString);
                         eventDateTextView.setText(eventDateString);
                     }else{
                         viewPostEventDateLayout.setVisibility(View.GONE);
-                    }*/
+                    }
 
                     //set the time
                     long millis = post.getTimestamp().getTime();
-                    //String dateString = DateFormat.format("EEE, MMM d, yyyy - h:mm a", new Date(millis)).toString();
                     String dateString = coMeth.processPostDate(millis);
-                    String date = "Posted:\n" + dateString;
+                    String date = getString(R.string.posted_text) + ":\n" + dateString;
                     timeTextView.setText(date);
 
                     //set post image
@@ -869,22 +866,27 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     }
 
+                    progressDialog.dismiss();
+
 
                 } else {
                     //post does not exist
                     Log.d(TAG, "Error: post does not exist");
                     //save error and notify in main
                     Intent postNotFountIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-                    // TODO: 4/21/18 handle cant find post exception
-//                    postNotFountIntent.putExtra("error", "Could not find post");
+                    postNotFountIntent.putExtra("action", "notify");
+                    postNotFountIntent.putExtra("message", "Could not find post");
                     startActivity(postNotFountIntent);
                     finish();
                 }
+
                 progressDialog.dismiss();
+
             }
         });
 
         //handle clicks
+        //post image click
         viewPostImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -898,7 +900,34 @@ public class ViewPostActivity extends AppCompatActivity {
         });
 
 
-        //set onclick listener for category layout
+        //desc layout click
+        viewPostDescLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //get post description
+
+
+                //open alert Dialog with full desc
+                AlertDialog.Builder descBuilder = new AlertDialog.Builder(ViewPostActivity.this);
+                descBuilder.setTitle(getString(R.string.desc_text))
+                        .setIcon(R.drawable.ic_action_descritption)
+                        .setMessage(desc)
+                        .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                dialog.dismiss();
+
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+
+            }
+        });
+
+        //category layout click
         viewPostCatLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

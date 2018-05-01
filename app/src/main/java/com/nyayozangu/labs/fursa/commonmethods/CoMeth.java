@@ -258,7 +258,7 @@ public class CoMeth {
 
         } else {
 
-            return DateFormat.format("EEE, MMM d - h:mm a", new Date(millis)).toString();
+            return DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(millis)).toString();
 
         }
     }

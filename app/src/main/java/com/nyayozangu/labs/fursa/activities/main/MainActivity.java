@@ -287,10 +287,9 @@ public class MainActivity extends AppCompatActivity {
 
                     case "notify":
 
+                        // TODO: 5/1/18 check on deleting post notify message comes as error post not found
                         String notifyMessage = getPostIdIntent.getStringExtra("message");
-                        Snackbar.make(findViewById(R.id.main_activity_layout),
-                                notifyMessage, Snackbar.LENGTH_LONG)
-                                .show();
+                        showSnack(notifyMessage);
                         Log.d(TAG, "notifyMessage is: " + notifyMessage);
                         break;
 

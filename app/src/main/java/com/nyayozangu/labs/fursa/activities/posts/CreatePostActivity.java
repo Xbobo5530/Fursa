@@ -43,6 +43,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
@@ -516,7 +517,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         eventDate = new Date(year, month, dayOfMonth);
                         Log.d(TAG, "date selected is: " + eventDate.toString());
                         //set selected date to the eventDate textView
-                        eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, yyyy - h:mm a", eventDate).toString());
+                        eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, 20yy\nh:mm a", eventDate).toString());
 
                     }
                 }, YEAR, MONTH, DAY);
@@ -691,7 +692,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                                     String errorMessage = task.getException().getMessage();
                                                     Log.d(TAG, "Db Update failed: " + errorMessage);
 
-                                                    showSnack(R.id.createPostActivityLayout, "Failed to upload image: " + errorMessage);
+                                                    showSnack(getString(R.string.failed_to_upload_image_text));
                                                     /*//hide progress bar
                                                     newPostProgressBar.setVisibility(View.INVISIBLE);*/
                                                     progressDialog.dismiss();
@@ -704,7 +705,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                             //post failed
                                             String errorMessage = task.getException().getMessage();
                                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                                            showSnack(R.id.createPostActivityLayout, "Failed to upload image: " + errorMessage);
+                                            showSnack(getString(R.string.failed_to_upload_image_text));
                                         }
                                         progressDialog.dismiss();
                                     }
@@ -737,7 +738,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                             //posting failed
                                             String errorMessage = task.getException().getMessage();
-                                            showSnack(R.id.createPostActivityLayout, "Failed to post: " + errorMessage);
+                                            showSnack(getString(R.string.failed_to_post_text));
 
                                         }
 
@@ -787,24 +788,24 @@ public class CreatePostActivity extends AppCompatActivity {
                                                 "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
 
                                     }
-                                    progressDialog.dismiss();
 
                                 }
-                            });
+                                    });
 
                         }
 
+                        progressDialog.dismiss();
 
                     } else {
                         //desc is empty
                         //upload failed
-                        showSnack(R.id.createPostActivityLayout, "Enter your post details to proceed");
+                        showSnack(getString(R.string.enter_post_details_text));
 
                     }
                 } else {
 
                     //notify user is not connected and cant post
-                    showSnack(R.id.createPostActivityLayout, "Failed to connect to the internet");
+                    showSnack(getString(R.string.failed_to_connect_text));
 
                 }
 
@@ -916,8 +917,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
         }
 
-
         return postMap;
+
     }
 
     private void processContactDetails() {
@@ -1068,14 +1069,15 @@ public class CreatePostActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
                 //check if result is successful
-                if (task.isSuccessful()) {
+                if (task.isSuccessful() && task.getResult().exists()) {
 
                     //set items
                     // TODO: 4/28/18 convert task into Post object, rewrite code
+                    Posts post = task.getResult().toObject(Posts.class);
 
                     //non null
                     //set title
-                    String title = task.getResult().get("title").toString();
+                    String title = post.getTitle();
                     postTitleEditText.setText(title);
 
                     //set desc
@@ -1115,25 +1117,12 @@ public class CreatePostActivity extends AppCompatActivity {
                         String catsString = "";
                         for (int i = 0; i < catsArray.size(); i++) {
 
-                            Log.d(TAG, "onComplete: i = " + i);
-                            if (i == (catsArray.size()) - 1) {
-
-                                //is last item
-                                catsString = catsString.concat(getCatValue(catsArray.get(i).toString()));
-                                Log.d(TAG, "onComplete: last item");
-
-                            } else {
-
-                                //middle item
-                                catsString = catsString.concat(getCatValue(catsArray.get(i).toString()) + "\n");
-                                Log.d(TAG, "onComplete: middle item\n catString is: " + catsString + "\ni is: " + i);
-
-                            }
+                            catsString = catsString.concat(getCatValue(catsArray.get(i).toString()) + "\n");
 
                         }
 
                         //set cat string
-                        catsTextView.setText(catsString);
+                        catsTextView.setText(catsString.trim());
                         Log.d(TAG, "onComplete: \n catString is: " + catsString);
 
                     }
@@ -1210,6 +1199,17 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     }
 
+                } else {
+
+                    //post does not exist
+                    Log.d(TAG, "onComplete: post does not exist" + task.getException());
+                    //go to main with error message
+                    Intent postNotFountIntent = new Intent(CreatePostActivity.this, MainActivity.class);
+                    postNotFountIntent.putExtra("action", "notify");
+                    postNotFountIntent.putExtra("message", getString(R.string.post_not_found_text));
+                    startActivity(postNotFountIntent);
+                    finish();
+
                 }
 
                 progressDialog.dismiss();
@@ -1278,8 +1278,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
     }
 
-    private void showSnack(int id, String message) {
-        Snackbar.make(findViewById(id),
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.createPostActivityLayout),
                 message, Snackbar.LENGTH_LONG).show();
     }
 

@@ -243,7 +243,7 @@
     <string name="save_text">Save</string>
     <string name="share_text">Share</string>
     <string name="title_view_post_text">Title</string>
-    <string name="desc_text">Desc</string>
+    <string name="desc_text">Description</string>
     <string name="contact_view_post_text">Contact</string>
     <string name="location_view_post_text">Location</string>
     <string name="event_date_view_post_text">Event Date</string>
@@ -304,6 +304,12 @@
     <string name="spam_text">Spam</string>
     <string name="inapropriate_text">Inappropriate content</string>
     <string name="mins_ago_text">minutes ago</string>
+    <string name="view_full_desc_text">View full description</string>
+    <string name="posted_text">Posted</string>
+    <string name="report_submitted_text">Your report has been submitted for reviews.</string>
+    <string name="enter_post_details_text">Enter your post details to proceed</string>
+    <string name="failed_to_post_text">Failed to post</string>
+    <string name="failed_to_upload_image_text">Failed to upload image</string>
 
 
 </resources>

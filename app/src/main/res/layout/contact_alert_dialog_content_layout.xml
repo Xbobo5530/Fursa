@@ -12,6 +12,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:background="@android:color/transparent"
+        android:capitalize="words"
         android:ems="10"
         android:hint="@string/enter_contact_name_contact_dialog_text"
         android:inputType="textPersonName"
