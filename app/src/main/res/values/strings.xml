@@ -294,6 +294,7 @@
     <string name="confirm_ext_text">Are you you want to exit?</string>
     <string name="report_submit_failed_text">Failed to submit report</string>
     <string name="login_to_report">Log in to report content</string>
+    <string name="categories_text">Categories</string>
 
 
 </resources>

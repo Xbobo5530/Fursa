@@ -139,10 +139,6 @@ public class SettingsActivity extends AppCompatActivity {
                                     userProfileImageDownloadUrl,
                                     userImage);
 
-                            /*RequestOptions placeHolderOptions = new RequestOptions();
-                            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-                            Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions)
-                                    .load(userProfileImageDownloadUrl).into(userImage);*/
                         } catch (NullPointerException userImageException) {
 
                             //user image is null

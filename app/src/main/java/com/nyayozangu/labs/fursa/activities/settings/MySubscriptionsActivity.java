@@ -1,37 +1,34 @@
 package com.nyayozangu.labs.fursa.activities.settings;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.Toast;
+import android.widget.Button;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.activities.categories.models.Categories;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class MySubscriptionsActivity extends AppCompatActivity {
 
 
     private static final String TAG = "Sean";
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-
-    private ArrayList catSubsArray;
+    private CoMeth coMeth = new CoMeth();
+    private Button catsButton;
+    private ArrayList<String> catSubsArray;
 
 
     @Override
@@ -50,81 +47,125 @@ public class MySubscriptionsActivity extends AppCompatActivity {
             }
         });
 
+        catsButton = findViewById(R.id.subsCatButton);
+        catSubsArray = new ArrayList<String>();
 
-        //initialize Firebase
-        mAuth = FirebaseAuth.getInstance();
-        //initialize firebase storage
-        // Access a Cloud Firestore instance from your Activity
-        db = FirebaseFirestore.getInstance();
-
-        //get user_id
-        String currentUserId = mAuth.getCurrentUser().getUid();
-
-        catSubsArray = new ArrayList<>();
-
-        //get current user subs
-        String catDoc = "categories";
-        db.collection("Users/" + currentUserId + "/Subscriptions/categories/Categories").addSnapshotListener(MySubscriptionsActivity.this, new EventListener<QuerySnapshot>() {
+        catsButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
-                //check if query is empty
-                if (!queryDocumentSnapshots.isEmpty()) {
-
-                    //user has cats
-                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
+            public void onClick(View v) {
 
 
-                            Categories cat = doc.getDocument().toObject(Categories.class);
+                //check if user is logged in
+                if (coMeth.isConnected() && coMeth.isConnected()) {
+                    //get user_id
+                    String currentUserId = coMeth.getUid();
+                    //get current user subs
+                    String catDoc = "categories";
+                    coMeth.getDb()
+                            .collection("Users/" + currentUserId + "/Subscriptions/categories/Categories")
+                            .addSnapshotListener(MySubscriptionsActivity.this, new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                            //add cat to list
-                            catSubsArray.add(cat.getValue());
+                                    //check if query is empty
+                                    if (!queryDocumentSnapshots.isEmpty()) {
 
-                        }
+                                        //user has cats
+                                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+
+                                            if (doc.getType() == DocumentChange.Type.ADDED) {
+
+                                                Categories cat = doc.getDocument().toObject(Categories.class);
+
+                                                //add cat to list
+                                                catSubsArray.add(cat.getValue());
+
+                                            }
+
+                                        }
+
+                                        Log.d(TAG, "onEvent: \ncatSubArray contains: " + catSubsArray);
+
+                                        final String[] catsListItems = catSubsArray.toArray((new String[catSubsArray.size()]));
+
+                                        //open an an alert dialog for the subd cats
+                                        AlertDialog.Builder catsSubBuilder = new AlertDialog.Builder(MySubscriptionsActivity.this);
+                                        catsSubBuilder.setTitle(getString(R.string.categories_text))
+                                                .setIcon(R.drawable.ic_action_categories)
+                                                .setItems(catsListItems, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+
+                                                        //open the view category activity
+                                                        openCat(coMeth.getCatKey(catsListItems[which]));
+                                                        Log.d(TAG, "onClick: " + which);
+
+                                                    }
+                                                })
+                                                .show();
+
+                                    }
+
+                                }
+                            });
+                } else {
+
+                    if (!coMeth.isConnected()) {
+
+                        showSnack(getString(R.string.failed_to_connect_text));
+
+                    } else if (!coMeth.isLoggedIn()) {
+
+                        showLoginAlertDialog(getString(R.string.login_to_view_subs_text));
 
                     }
-
-                    Log.d(TAG, "onEvent: \ncatSubArray contains: " + catSubsArray);
-
-                    //create a simple adapter
-
-                    List<HashMap<String, String>> aList = new ArrayList<>();
-
-                    Log.d(TAG, "onCreate: at hashMap, catSubsArray contains " + catSubsArray);
-
-                    for (int i = 0; i < catSubsArray.size(); i++) {
-                        HashMap<String, String> hm = new HashMap<>();
-                        hm.put("listView_title", (String) catSubsArray.get(i));
-                        hm.put("unSubIcon", String.valueOf(R.drawable.ic_action_close));
-                        aList.add(hm);
-
-                    }
-
-                    Log.d(TAG, "onCreate: aList is " + aList);
-
-                    String[] from = {"listView_title", "unSubIcon"};
-                    int[] to = {R.id.subListItemTextView, R.id.unsubImageButton};
-
-                    SimpleAdapter simpleAdapter = new SimpleAdapter(getBaseContext(), aList, R.layout.subs_list_item, from, to);
-                    ListView subsListView = findViewById(R.id.subsListView);
-                    subsListView.setAdapter(simpleAdapter);
-
-                    subsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                            Toast.makeText(MySubscriptionsActivity.this, position, Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-
                 }
 
             }
         });
 
 
+    }
+
+    public void showLoginAlertDialog(String message) {
+        //Prompt user to log in
+        android.support.v7.app.AlertDialog.Builder loginAlertBuilder = new android.support.v7.app.AlertDialog.Builder(this);
+        loginAlertBuilder.setTitle("Login")
+                .setIcon(getApplicationContext().getDrawable(R.drawable.ic_action_alert))
+                .setMessage("You are not logged in\n" + message)
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //send user to login activity
+                        goToLogin();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //cancel
+                        dialog.cancel();
+                    }
+                })
+                .show();
+    }
+
+    private void goToLogin() {
+
+        Intent loginIntent = new Intent(MySubscriptionsActivity.this, LoginActivity.class);
+        loginIntent.putExtra("source", "MySub");
+        startActivity(loginIntent);
+
+    }
+
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.mysubs_layout),
+                message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void openCat(String catKey) {
+        Intent openCatIntent = new Intent(MySubscriptionsActivity.this, ViewCategoryActivity.class);
+        openCatIntent.putExtra("category", catKey);
+        startActivity(openCatIntent);
     }
 }

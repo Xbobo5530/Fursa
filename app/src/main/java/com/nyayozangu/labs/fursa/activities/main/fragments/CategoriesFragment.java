@@ -14,6 +14,7 @@ import android.widget.SimpleAdapter;
 
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.List;
 public class CategoriesFragment extends Fragment {
 
     private static final String TAG = "Sean";
+    private CoMeth coMeth = new CoMeth();
     //cat texts Array
 
     public CategoriesFragment() {
@@ -107,7 +109,7 @@ public class CategoriesFragment extends Fragment {
 
                 Log.d(TAG, "onItemClick: ");
 
-                openCat(getCatKey(catTitle[position]));
+                openCat(coMeth.getCatKey(catTitle[position]));
 
                 /*//use position to open catViewActivity
                 switch (position) {
@@ -159,39 +161,10 @@ public class CategoriesFragment extends Fragment {
 
     }
 
-    private String getCatKey(String catValue) {
 
-        switch (catValue) {
-
-            case "Featured":
-                return "featured";
-            case "Popular":
-                return "popular";
-            case "Up Coming":
-                return "upcoming";
-            case "Events":
-                return "events";
-            case "Places":
-                return "places";
-            case "Business":
-                return "business";
-            case "Buy and sell":
-                return "buysell";
-            case "Education":
-                return "education";
-            case "Jobs":
-                return "jobs";
-            case "Queries":
-                return "queries";
-            default:
-                return null;
-        }
-
-    }
-
-    private void openCat(String catValue) {
+    private void openCat(String catKey) {
         Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);
-        openCatIntent.putExtra("category", catValue);
+        openCatIntent.putExtra("category", catKey);
         startActivity(openCatIntent);
     }
 
