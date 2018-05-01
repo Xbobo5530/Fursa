@@ -38,6 +38,7 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "Sean";
+    private CoMeth coMeth = new CoMeth();
 
     private RecyclerView homeFeedView;
     private SwipeRefreshLayout swipeRefresh;
@@ -49,9 +50,7 @@ public class HomeFragment extends Fragment {
     //recycler adapter
     private PostsRecyclerAdapter postsRecyclerAdapter;
     private DocumentSnapshot lastVisiblePost;
-
     private Boolean isFirstPageFirstLoad = true;
-    private CoMeth coMeth = new CoMeth();
     private ProgressDialog progressDialog;
 
     public HomeFragment() {
@@ -144,7 +143,6 @@ public class HomeFragment extends Fragment {
                         usersList.clear();
 
                     }
-
 
                     //create a for loop to check for document changes
                     for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
