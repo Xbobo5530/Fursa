@@ -172,8 +172,6 @@ public class AccountActivity extends AppCompatActivity {
                     if (ContextCompat.checkSelfPermission(AccountActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         //permission not yet granted
                         //ask for permission
-                        Snackbar.make(findViewById(R.id.account_layout),
-                                "Permission denied", Snackbar.LENGTH_SHORT).show();
                         ActivityCompat.requestPermissions(AccountActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
 

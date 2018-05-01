@@ -95,13 +95,8 @@ ViewCategoryActivity extends AppCompatActivity {
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
 
-        //initiate the PostsRecyclerAdapter
         categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
-
-        //set a layout manager for catFeed (recycler view)
         catFeed.setLayoutManager(new LinearLayoutManager(this));
-
-        //set an adapter for the recycler view
         catFeed.setAdapter(categoryRecyclerAdapter);
 
         //get the sent intent
@@ -177,7 +172,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
         }
 
-
         //initiate items
         subscribeFab = findViewById(R.id.subscribeCatFab);
         swipeRefresh = findViewById(R.id.catSwipeRefresh);
@@ -220,49 +214,49 @@ ViewCategoryActivity extends AppCompatActivity {
                                 .document("categories")
                                 .collection("Categories").document(currentCat).get()
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                //get data from teh likes collection
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        //get data from teh likes collection
 
-                                //check if current user has already subscribed
-                                if (!task.getResult().exists()) {
-                                    Map<String, Object> catsMap = new HashMap<>();
-                                    catsMap.put("key", currentCat);
-                                    catsMap.put("value", getSupportActionBar().getTitle());
-                                    catsMap.put("desc", catDesc);
-                                    catsMap.put("timestamp", FieldValue.serverTimestamp());
+                                        //check if current user has already subscribed
+                                        if (!task.getResult().exists()) {
+                                            Map<String, Object> catsMap = new HashMap<>();
+                                            catsMap.put("key", currentCat);
+                                            catsMap.put("value", getSupportActionBar().getTitle());
+                                            catsMap.put("desc", catDesc);
+                                            catsMap.put("timestamp", FieldValue.serverTimestamp());
 
-                                    //subscribe user
-                                    coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
-                                            .document("categories")
-                                            .collection("Categories")
-                                            .document(currentCat).set(catsMap);
-                                    //set image
-                                    subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
-                                    //subscribe to notifications
-                                    //subscribe to app updates
-                                    FirebaseMessaging.getInstance().subscribeToTopic(currentCat);
-                                    Log.d(TAG, "user subscribed to topic {CURRENT CAT}");
-                                    //notify user
-                                    showSnack(R.id.viewCatLayout, "Subscribed to " + getSupportActionBar().getTitle());
+                                            //subscribe user
+                                            coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
+                                                    .document("categories")
+                                                    .collection("Categories")
+                                                    .document(currentCat).set(catsMap);
+                                            //set image
+                                            subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
+                                            //subscribe to notifications
+                                            //subscribe to app updates
+                                            FirebaseMessaging.getInstance().subscribeToTopic(currentCat);
+                                            Log.d(TAG, "user subscribed to topic {CURRENT CAT}");
+                                            //notify user
+                                            showSnack(R.id.viewCatLayout, "Subscribed to " + getSupportActionBar().getTitle());
 
-                                } else {
+                                        } else {
 
-                                    //unsubscribe
-                                    coMeth.getDb()
-                                            .collection("Users/" + userId + "/Subscriptions")
-                                            .document("categories")
-                                            .collection("Categories")
-                                            .document(currentCat).delete();
-                                    //unsubscribe to app updates
-                                    FirebaseMessaging.getInstance().unsubscribeFromTopic(currentCat);
-                                    Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
-                                    //set fab image
-                                    subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
+                                            //unsubscribe
+                                            coMeth.getDb()
+                                                    .collection("Users/" + userId + "/Subscriptions")
+                                                    .document("categories")
+                                                    .collection("Categories")
+                                                    .document(currentCat).delete();
+                                            //unsubscribe to app updates
+                                            FirebaseMessaging.getInstance().unsubscribeFromTopic(currentCat);
+                                            Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
+                                            //set fab image
+                                            subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
 
-                                }
-                            }
-                        });
+                                        }
+                                    }
+                                });
 
                         progressDialog.dismiss();
 
@@ -299,11 +293,19 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         });
 
+
+        final Query firstQuery = coMeth.getDb().
+                collection("Posts")
+                .limit(20)
+                .orderBy("timestamp", Query.Direction.DESCENDING);
+        loadPosts(firstQuery);
+
+
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                categoryRecyclerAdapter.notifyDataSetChanged();
+                loadPosts(firstQuery);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -314,12 +316,9 @@ ViewCategoryActivity extends AppCompatActivity {
 
             }
         });
+    }
 
-
-        Query firstQuery = coMeth.getDb().
-                collection("Posts")
-                .limit(20)
-                .orderBy("timestamp", Query.Direction.DESCENDING);
+    private void loadPosts(Query firstQuery) {
         firstQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -360,8 +359,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
 
     private void setFab() {
@@ -583,7 +580,17 @@ ViewCategoryActivity extends AppCompatActivity {
     //show snack
     private void showSnack(int layoutId, String message) {
         Snackbar.make(findViewById(layoutId),
-                message, Snackbar.LENGTH_LONG).show();
+                message, Snackbar.LENGTH_LONG)
+                .setAction(getString(R.string.see_list_text), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        //go to my subscriptions
+                        coMeth.goToMySubscriptions();
+
+                    }
+                })
+                .show();
     }
 
     private void showLoginAlertDialog(String message) {

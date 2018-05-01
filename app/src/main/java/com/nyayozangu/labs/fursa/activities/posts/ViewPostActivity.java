@@ -11,7 +11,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,7 +37,6 @@ import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -734,8 +732,9 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     //set the time
                     long millis = post.getTimestamp().getTime();
-                    String dateString = DateFormat.format("EEE, MMM d, yyyy - h:mm a", new Date(millis)).toString();
-                    String date = "Posted on:\n" + dateString;
+                    //String dateString = DateFormat.format("EEE, MMM d, yyyy - h:mm a", new Date(millis)).toString();
+                    String dateString = coMeth.processPostDate(millis);
+                    String date = "Posted:\n" + dateString;
                     timeTextView.setText(date);
 
                     //set post image
@@ -1079,7 +1078,7 @@ public class ViewPostActivity extends AppCompatActivity {
         //Prompt user to log in
         android.support.v7.app.AlertDialog.Builder loginAlertBuilder = new android.support.v7.app.AlertDialog.Builder(this);
         loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage("You are not logged in\n" + message)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override

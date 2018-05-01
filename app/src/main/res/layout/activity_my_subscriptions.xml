@@ -28,7 +28,7 @@
         android:layout_marginTop="8dp"
         android:background="@color/cardview_light_background"
         android:text="@string/categories_text"
-        android:textAlignment="viewStart"
+        android:textAlignment="textStart"
         android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

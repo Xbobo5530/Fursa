@@ -29,6 +29,7 @@ public class MySubscriptionsActivity extends AppCompatActivity {
     private CoMeth coMeth = new CoMeth();
     private Button catsButton;
     private ArrayList<String> catSubsArray;
+    private String[] catsListItems;
 
 
     @Override
@@ -54,9 +55,8 @@ public class MySubscriptionsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
                 //check if user is logged in
-                if (coMeth.isConnected() && coMeth.isConnected()) {
+                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
                     //get user_id
                     String currentUserId = coMeth.getUid();
                     //get current user subs
@@ -86,7 +86,8 @@ public class MySubscriptionsActivity extends AppCompatActivity {
 
                                         Log.d(TAG, "onEvent: \ncatSubArray contains: " + catSubsArray);
 
-                                        final String[] catsListItems = catSubsArray.toArray((new String[catSubsArray.size()]));
+                                        Log.d(TAG, "onClick: \ncatsListItems: " + catsListItems);
+                                        catsListItems = catSubsArray.toArray((new String[catSubsArray.size()]));
 
                                         //open an an alert dialog for the subd cats
                                         AlertDialog.Builder catsSubBuilder = new AlertDialog.Builder(MySubscriptionsActivity.this);
@@ -98,11 +99,12 @@ public class MySubscriptionsActivity extends AppCompatActivity {
 
                                                         //open the view category activity
                                                         openCat(coMeth.getCatKey(catsListItems[which]));
-                                                        Log.d(TAG, "onClick: " + which);
 
                                                     }
                                                 })
                                                 .show();
+                                        //empty the catSubsArray
+                                        catSubsArray.clear();
 
                                     }
 

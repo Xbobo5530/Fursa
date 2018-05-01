@@ -18,11 +18,9 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -30,6 +28,7 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
@@ -42,10 +41,7 @@ import java.util.List;
 public class SavedFragment extends Fragment {
 
     private static final String TAG = "Sean";
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-
+    private CoMeth coMeth = new CoMeth();
     private RecyclerView savedPostsView;
 
     //retrieve posts
@@ -79,21 +75,9 @@ public class SavedFragment extends Fragment {
         savedPostsList = new ArrayList<>();
         usersList = new ArrayList<>();
 
-        //initiate the PostsRecyclerAdapter
         savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList);
-
-
-        //set a layout manager for homeFeedView (recycler view)
         savedPostsView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        //set an adapter for the recycler view
         savedPostsView.setAdapter(savedPostsRecyclerAdapter);
-
-        //initiate firebase auth
-        mAuth = FirebaseAuth.getInstance();
-
-        //initiate the firebase elements
-        db = FirebaseFirestore.getInstance();
 
         //listen for scrolling on the homeFeedView
         /*savedPostsView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -111,14 +95,25 @@ public class SavedFragment extends Fragment {
             }
         });*/
 
-        if (isLoggedIn()) {
 
-            currentUserId = mAuth.getCurrentUser().getUid();
+        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+
+            currentUserId = coMeth.getUid();
+
+        } else {
+
+            if (!coMeth.isConnected()) {
+
+                showSnack(getString(R.string.failed_to_connect_text));
+
+            }
+
+
         }
 
         Log.d(TAG, "onCreateView: \ncurrentUserId is: " + currentUserId);
 
-        db.collection("Users/" + currentUserId + "/Subscriptions")
+        coMeth.getDb().collection("Users/" + currentUserId + "/Subscriptions")
                 .document("saved_posts")
                 .collection("SavedPosts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -131,7 +126,7 @@ public class SavedFragment extends Fragment {
                             for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
 
                                 final String postId = doc.getDocument().getId();
-                                db.collection("Posts")
+                                coMeth.getDb().collection("Posts")
                                         .document(postId)
                                         .get()
                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -145,7 +140,7 @@ public class SavedFragment extends Fragment {
 
                                                         final Posts post = task.getResult().toObject(Posts.class).withId(postId);
                                                         String postUserId = post.getUser_id();
-                                                        db.collection("Users")
+                                                        coMeth.getDb().collection("Users")
                                                                 .document(postUserId)
                                                                 .get()
                                                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -325,7 +320,7 @@ public class SavedFragment extends Fragment {
     public void loadMorePosts() {
 
         Log.d(TAG, "loadMorePosts: ");
-        Query nextQuery = db
+        Query nextQuery = coMeth.getDb()
                 .collection("Users/" + currentUserId + "/Subscriptions").document("saved_posts")
                 .collection("SavedPosts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -352,7 +347,7 @@ public class SavedFragment extends Fragment {
 
                                 final String postId = doc.getDocument().getId();
                                 //uses postId to retrieve post details from Posts collections
-                                db.collection("Posts")
+                                coMeth.getDb().collection("Posts")
                                         .document(postId)
                                         .get()
                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -369,7 +364,7 @@ public class SavedFragment extends Fragment {
                                                 //post exists, convert post to object
                                                 final Posts post = task.getResult().toObject(Posts.class).withId(postId);
 
-                                                db.collection("Users")
+                                                coMeth.getDb().collection("Users")
                                                         .document(currentUserId)
                                                         .get()
                                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -427,10 +422,6 @@ public class SavedFragment extends Fragment {
 
     }
 
-    private boolean isLoggedIn() {
-        //determine if user is logged in
-        return mAuth.getCurrentUser() != null;
-    }
 
 
     //failed to get users
@@ -443,7 +434,7 @@ public class SavedFragment extends Fragment {
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(getContext());
         loginAlertBuilder.setTitle("Login")
-                .setIcon(getActivity().getDrawable(R.drawable.ic_action_alert))
+                .setIcon(getActivity().getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage("You are not logged in\n" + message)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override

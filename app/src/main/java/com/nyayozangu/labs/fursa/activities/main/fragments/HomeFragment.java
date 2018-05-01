@@ -51,6 +51,7 @@ public class HomeFragment extends Fragment {
     private DocumentSnapshot lastVisiblePost;
 
     private Boolean isFirstPageFirstLoad = true;
+    private CoMeth coMeth = new CoMeth();
 
     public HomeFragment() {
         // Required empty public constructor
@@ -64,6 +65,7 @@ public class HomeFragment extends Fragment {
 
         //initiate items
         homeFeedView = view.findViewById(R.id.homeFeedView);
+        swipeRefresh = view.findViewById(R.id.homeSwipeRefresh);
 
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
@@ -71,12 +73,9 @@ public class HomeFragment extends Fragment {
 
         //initiate the PostsRecyclerAdapter
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
-        //set a layout manager for homeFeedView (recycler view)
         homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //set an adapter for the recycler view
         homeFeedView.setAdapter(postsRecyclerAdapter);
-        //initiate swipe refresh
-        swipeRefresh = view.findViewById(R.id.homeSwipeRefresh);
+
         //listen for scrolling on the homeFeedView
         homeFeedView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -94,7 +93,7 @@ public class HomeFragment extends Fragment {
         });
 
 
-        final Query firstQuery = new CoMeth().getDb()
+        final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(10);
@@ -102,18 +101,20 @@ public class HomeFragment extends Fragment {
         loadPosts(firstQuery);
 
         //handle refresh
-        // TODO: 4/26/18 handle swipe to refresh better
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
                 //get new posts
-                postsRecyclerAdapter.notifyDataSetChanged();
+                postsList.clear();
+                usersList.clear();
+                loadPosts(firstQuery);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
 
                         swipeRefresh.setRefreshing(false);
+
                     }
                 }, 1500);
             }

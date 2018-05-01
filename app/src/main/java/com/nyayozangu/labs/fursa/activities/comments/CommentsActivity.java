@@ -119,6 +119,7 @@ public class CommentsActivity extends AppCompatActivity {
             }
         });
 
+        //retrieve comments
         //check if device is connected
         if (cometh.isConnected()) {
 
@@ -138,11 +139,9 @@ public class CommentsActivity extends AppCompatActivity {
                             if (doc.getType() == DocumentChange.Type.ADDED) {
 
                                 //a new comment is added
-                                //get the comment id for likes feature
                                 String commentId = doc.getDocument().getId();
                                 Comments comment = doc.getDocument().toObject(Comments.class);
                                 commentsList.add(comment);
-                                Log.d(TAG, "onEvent: commentsList is: " + commentsList.toString());
                                 commentsRecyclerAdapter.notifyDataSetChanged();
                                 commentsRecyclerView.scrollToPosition(commentsList.size() - 1);
 
@@ -184,13 +183,6 @@ public class CommentsActivity extends AppCompatActivity {
                                 cometh.setImage(R.drawable.ic_action_person_placeholder,
                                         userProfileImageDownloadUrl,
                                         currentUserImage);
-
-                                /*RequestOptions placeHolderOptions = new RequestOptions();
-                                placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-                                Glide.with(getApplicationContext())
-                                        .applyDefaultRequestOptions(placeHolderOptions)
-                                        .load(userProfileImageDownloadUrl)
-                                        .into(currentUserImage);*/
 
 
                             } catch (NullPointerException noImageFoundException) {
@@ -261,9 +253,7 @@ public class CommentsActivity extends AppCompatActivity {
                                                                             .set(commentsMap);
                                                                     //subscribe user to topic
                                                                     FirebaseMessaging.getInstance().subscribeToTopic(postId); //subscribe to app updates
-                                                                    Log.d(TAG, "user subscribed to topic COMMENTS");
                                                                     new Notify().execute("comment_updates", postId); //notify subscribers
-                                                                    Log.d(TAG, "onComplete: sending notification");
 
                                                                 } else {
 

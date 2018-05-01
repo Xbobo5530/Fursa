@@ -909,8 +909,13 @@ public class CreatePostActivity extends AppCompatActivity {
 
         }
         //categories
-        Log.d(TAG, "handleMap: catsStringArray has content\n" + catsStringsArray);
-        postMap.put("categories", catsStringsArray);
+        if (!catsStringsArray.isEmpty()) {
+
+            Log.d(TAG, "handleMap: catsStringArray has content\n" + catsStringsArray);
+            postMap.put("categories", catsStringsArray);
+
+        }
+
 
         return postMap;
     }

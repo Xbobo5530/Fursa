@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,9 +36,9 @@ import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +67,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private FirebaseFirestore db;
     private String userId;
     private ProgressDialog progressDialog;
+    private CoMeth coMeth = new CoMeth();
 
     //empty constructor for receiving the posts
     public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList) {
@@ -138,21 +138,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //handle name and image
         String userName = usersList.get(position).getName();
         String userImageDownloadUri = usersList.get(position).getImage();
-        Log.d(TAG, "onBindViewHolder: \nname is: " + userName + "\nuser image is: " + userImageDownloadUri);
 
         holder.setUserData(userName, userImageDownloadUri);
 
         //handle date for posts
         // TODO: 4/5/18 looking into the timestamp bug; app crashes on creating new post
-        try {
+        if (postsList.get(position).getTimestamp() != null) {
             long millis = postsList.get(position).getTimestamp().getTime();
-            //convert millis to date time format
-            String dateString = DateFormat.format("EEE, MMM d, ''yy - h:mm a", new Date(millis)).toString();
+            String dateString = coMeth.processPostDate(millis);
             holder.setPostDate(dateString);
-        } catch (NullPointerException nullException) {
-            Log.d(TAG, "error: " + nullException);
         }
-
 
         //get likes count
         //create query to count
@@ -444,6 +439,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
     }
+
 
     private void showProgress(String message) {
 
@@ -758,7 +754,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
             postLikesCount.setText(String.valueOf(likesCount));
-
 
         }
 

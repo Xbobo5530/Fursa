@@ -37,10 +37,8 @@ import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
-import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
-import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.List;
@@ -140,30 +138,33 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.bottomNavHomeItem:
+
                         setFragment(homeFragment);
                         return true;
+
                     case R.id.bottomNavCatItem:
+
                         setFragment(categoriesFragment);
                         return true;
+
                     case R.id.bottomNavSavedItem:
 
                         if (coMeth.isLoggedIn()) {
+
                             setFragment(savedFragment);
 
                         } else {
+
                             setFragment(alertFragment);
-                            Snackbar.make(findViewById(R.id.main_activity_layout),
-                                    "Log in to view saved items", Snackbar.LENGTH_SHORT)
-                                    .setAction("Login", new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            goToLogin();
-                                        }
-                                    }).show();
+
                         }
+
                         return true;
+
                     default:
+
                         return false;
+
                 }
 
             }
@@ -181,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         //task is successful
                         try {
-                            String userImageDownloadUri = task.getResult().get("image").toString();
 
+                            String userImageDownloadUri = task.getResult().get("image").toString();
                             //set image
                             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                     userImageDownloadUri,
@@ -213,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToSettings();
+                coMeth.goToSettings();
             }
         });
 
@@ -230,17 +231,12 @@ public class MainActivity extends AppCompatActivity {
                         //check is user has verified email
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         boolean emailVerified = user.isEmailVerified();
-
-                        Log.d(TAG, "onClick: \nprovider is: " + user.getProviderId() +
-                                "\nproviders are: " + user.getProviders() +
-                                "\nemail is verified: " + emailVerified);
-
                         if (emailVerified
                                 || user.getProviders().contains("facebook.com")
                                 || user.getProviders().contains("twitter.com")
                                 || user.getProviders().contains("google.com")) {
                             //start the new post activity
-                            goToNewPost();
+                            coMeth.goToCreatePost();
                         } else {
 
                             //user has not verified email
@@ -454,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        goToLogin();
+                        coMeth.goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -467,20 +463,6 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void goToSettings() {
-        //to to settings page
-        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-    }
-
-    //go to new post page
-    private void goToNewPost() {
-        startActivity(new Intent(MainActivity.this, CreatePostActivity.class));
-    }
-
-    //go to login page
-    private void goToLogin() {
-        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-    }
 
 
     private void goToAccount() {

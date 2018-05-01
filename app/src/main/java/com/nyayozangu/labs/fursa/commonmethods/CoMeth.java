@@ -1,10 +1,10 @@
 package com.nyayozangu.labs.fursa.commonmethods;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -15,7 +15,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.activities.settings.MySubscriptionsActivity;
+import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
+
+import java.util.Date;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -29,13 +34,13 @@ public class CoMeth {
     private static final String TAG = "Sean";
     public final String[] categories = new String[]{
 
-            "Business",
-            "Events",
-            "Buying and selling",
-            "Education",
-            "Jobs",
-            "Places",
-            "Queries"
+            getApplicationContext().getString(R.string.cat_business),
+            getApplicationContext().getString(R.string.cat_events),
+            getApplicationContext().getString(R.string.cat_buysell),
+            getApplicationContext().getString(R.string.cat_education),
+            getApplicationContext().getString(R.string.cat_jobs),
+            getApplicationContext().getString(R.string.cat_places),
+            getApplicationContext().getString(R.string.cat_queries)
 
     };
 
@@ -53,8 +58,10 @@ public class CoMeth {
     };
     public final String[] reportList = new String[]{
 
-            "Spam",
-            "Inappropriate content"
+            getApplicationContext().getString(R.string.spam_text),
+            getApplicationContext().getString(R.string.inapropriate_text)
+
+
 
     };
 
@@ -142,11 +149,11 @@ public class CoMeth {
     }
 
 
-    public void showLoginAlertDialog(String message) {
+    /*public void showLoginAlertDialog(String message) {
         //Prompt user to log in
         android.support.v7.app.AlertDialog.Builder loginAlertBuilder = new android.support.v7.app.AlertDialog.Builder(getApplicationContext());
         loginAlertBuilder.setTitle("Login")
-                .setIcon(getApplicationContext().getDrawable(R.drawable.ic_action_alert))
+                .setIcon(getApplicationContext().getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage("You are not logged in\n" + message)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override
@@ -164,13 +171,22 @@ public class CoMeth {
                 })
                 .show();
     }
-
+*/
     public void goToLogin() {
 
         getApplicationContext().startActivity(new Intent(getApplicationContext(), LoginActivity.class));
 
     }
 
+    public void goToCreatePost() {
+        getApplicationContext().startActivity(new Intent(getApplicationContext(), CreatePostActivity.class));
+    }
+
+    public void goToMySubscriptions() {
+
+        getApplicationContext().startActivity(new Intent(getApplicationContext(), MySubscriptionsActivity.class));
+
+    }
 
     public String getCatKey(String catValue) {
 
@@ -202,5 +218,56 @@ public class CoMeth {
 
     }
 
+    public String processPostDate(long millis) {
+
+        //get current date
+        long now = new Date().getTime();
+        long timeLapsed = (now - millis) / (1000 * 60);
+        //minutes ago
+        if (timeLapsed < 1) {
+
+            return getApplicationContext().getString(R.string.min_ago_text);
+
+        } else if (timeLapsed > 1 && timeLapsed < 60) {
+
+            return String.valueOf(timeLapsed) + " " + getApplicationContext().getString(R.string.mins_ago_text);
+
+        } else if (timeLapsed >= 60 && timeLapsed < 3600) {
+
+            return getApplicationContext().getString(R.string.hr_ago_text);
+
+        } else if (timeLapsed / 60 > 1 && timeLapsed / 60 < 24) {
+
+            return timeLapsed / 60 + " " + getApplicationContext().getString(R.string.hrs_ago_text);
+
+        } else if (timeLapsed / (60 * 24) >= 1 && timeLapsed / (60 * 24) < 2) {
+
+            return "Yesterday";
+
+        } else if (timeLapsed / (60 * 24) >= 2 && timeLapsed / (60 * 24) < 7) {
+
+            return timeLapsed / (60 * 24) + " " + getApplicationContext().getString(R.string.day_ago_text);
+
+        } else if (timeLapsed / (60 * 24 * 7) > 1 && timeLapsed / (60 * 24 * 7) <= 4) {
+
+            return timeLapsed / (60 * 24 * 7) + " " + getApplicationContext().getString(R.string.weeks_ago_text);
+
+        } else if (timeLapsed / (60 * 24 * 7 * 4) > 1 && timeLapsed / (60 * 24 * 7 * 4) <= 12) {
+
+            return timeLapsed / (60 * 24 * 7 * 4) + " " + getApplicationContext().getString(R.string.months_ago_text);
+
+        } else {
+
+            return DateFormat.format("EEE, MMM d - h:mm a", new Date(millis)).toString();
+
+        }
+    }
+
+
+    public void goToSettings() {
+
+        getApplicationContext().startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+
+    }
 
 }

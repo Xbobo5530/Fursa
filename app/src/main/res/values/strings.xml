@@ -295,6 +295,15 @@
     <string name="report_submit_failed_text">Failed to submit report</string>
     <string name="login_to_report">Log in to report content</string>
     <string name="categories_text">Categories</string>
+    <string name="min_ago_text">1 minute ago</string>
+    <string name="hr_ago_text">1 hour ago</string>
+    <string name="hrs_ago_text">hours ago</string>
+    <string name="day_ago_text">days ago</string>
+    <string name="weeks_ago_text">weeks ago</string>
+    <string name="months_ago_text">months ago</string>
+    <string name="spam_text">Spam</string>
+    <string name="inapropriate_text">Inappropriate content</string>
+    <string name="mins_ago_text">minutes ago</string>
 
 
 </resources>
