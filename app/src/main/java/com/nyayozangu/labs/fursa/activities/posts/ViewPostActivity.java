@@ -640,8 +640,8 @@ public class ViewPostActivity extends AppCompatActivity {
 
                 Log.d(TAG, "at view post query");
                 //show progress
-                // TODO: 4/22/18 check on editing post showing this progress dialog crashes the app
                 showProgress("Loading...");
+
                 //check if post exists
                 if (documentSnapshot.exists()) {
 
@@ -729,10 +729,12 @@ public class ViewPostActivity extends AppCompatActivity {
                     }
 
                     //set the time
-                    long millis = post.getTimestamp().getTime();
-                    String dateString = coMeth.processPostDate(millis);
-                    String date = getString(R.string.posted_text) + ":\n" + dateString;
-                    timeTextView.setText(date);
+                    if (post.getTimestamp() != null) {
+                        long millis = post.getTimestamp().getTime();
+                        String dateString = coMeth.processPostDate(millis);
+                        String date = getString(R.string.posted_text) + ":\n" + dateString;
+                        timeTextView.setText(date);
+                    }
 
                     //set post image
                     //add the placeholder image
@@ -871,6 +873,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                 } else {
                     //post does not exist
+                    progressDialog.dismiss();
                     Log.d(TAG, "Error: post does not exist");
                     //save error and notify in main
                     Intent postNotFountIntent = new Intent(ViewPostActivity.this, MainActivity.class);
@@ -1076,7 +1079,9 @@ public class ViewPostActivity extends AppCompatActivity {
         progressDialog.setMessage(message);
 
         // TODO: 4/22/18 when editing post, saving a post crashes the app due to showing porogress bar
-        progressDialog.show();
+        if (!(ViewPostActivity.this.isFinishing())) {
+            progressDialog.show();
+        }
 
     }
 

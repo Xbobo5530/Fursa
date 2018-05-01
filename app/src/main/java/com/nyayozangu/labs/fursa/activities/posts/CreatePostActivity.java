@@ -14,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,6 +94,9 @@ public class CreatePostActivity extends AppCompatActivity {
     //for file compression
     Bitmap compressedImageFile;
     private CoMeth coMeth = new CoMeth();
+
+    private String postId;
+
     private android.support.v7.widget.Toolbar toolbar;
     private ImageView createPostImageView;
     private FloatingActionButton editImageFAB;
@@ -135,6 +139,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private ArrayList<String> catsStringsArray;
     private ArrayList<String> locationArray;
     private Date timestamp;
+    private ArrayList<String> cats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -587,211 +592,107 @@ public class CreatePostActivity extends AppCompatActivity {
                         //description is not empty and image is not null
                         showProgress("Posting...");
 
-
                         //check if is new post or edit post
                         if (!isEditPost()) {
 
                             //is new post
                             Log.d(TAG, "onClick: is new post");
-
-                            //check if post has image
-                            if (postImageUri != null) {
-
-                                //generate randomString name for image based on firebase time stamp
-                                final String randomName = UUID.randomUUID().toString();
-
-                                //define path to upload image
-                                StorageReference filePath = coMeth.getStorageRef().child("post_images").child(randomName + ".jpg");
-
-                                //upload the image
-                                filePath.putFile(postImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
-
-                                        //get download url
-                                        downloadUri = task.getResult().getDownloadUrl().toString();
-                                        //handle results after attempting to upload
-                                        if (task.isSuccessful()) {
-                                            //upload complete
-                                            Log.d(TAG, "upload successful");
-
-                                            File newImageFile = new File(postImageUri.getPath());
-                                            Log.d(TAG, "onComplete: newImageFile is" + newImageFile);
+                            submitPost();
 
 
-                                            try {
-                                                compressedImageFile = new Compressor(CreatePostActivity.this)
-                                                        .setMaxWidth(100)
-                                                        .setMaxHeight(100)
-                                                        .setQuality(5)
-                                                        .compressToBitmap(newImageFile);
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-
-                                            //handle Bitmap
-                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                            compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                            byte[] thumbData = baos.toByteArray();
-
-                                            //uploading the thumbnail
-                                            UploadTask uploadTask = coMeth.getStorageRef().child("post_images/thumbs")
-                                                    .child(randomName + ".jpg")
-                                                    .putBytes(thumbData);
-
-                                            //on success listener
-                                            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                @Override
-                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                                    //get downloadUri for thumbnail
-                                                    downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
-                                                    //on success
-                                                    Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
-                                                    //upload
-
-                                                    //check if its update or new post
-                                                    coMeth.getDb()
-                                                            .collection("Posts")
-                                                            .add(postMap)
-                                                            .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentReference> task) {
-
-                                                            //check the result
-                                                            if (task.isSuccessful()) {
-
-                                                                //db update successful
-                                                                Log.d(TAG, "Db Update successful");
-                                                                goToMain();
-                                                                //notify users subscribed to cats
-                                                                notifyNewPostCatsUpdates(catsStringsArray);
-                                                                Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
-
-                                                            } else {
-
-                                                                //upload failed
-                                                                String errorMessage = task.getException().getMessage();
-                                                                Log.d(TAG, "Db Update failed: " + errorMessage);
-                                                                Snackbar.make(findViewById(R.id.createPostActivityLayout),
-                                                                        "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                                                            }
-                                                            progressDialog.dismiss();
-
-                                                        }
-                                                    });
-
-
-                                                }
-                                            }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    //on failure
-                                                    //upload failed
-                                                    String errorMessage = task.getException().getMessage();
-                                                    Log.d(TAG, "Db Update failed: " + errorMessage);
-
-                                                    showSnack(getString(R.string.failed_to_upload_image_text));
-                                                    /*//hide progress bar
-                                                    newPostProgressBar.setVisibility(View.INVISIBLE);*/
-                                                    progressDialog.dismiss();
-                                                }
-                                            });
-
-
-                                        } else {
-
-                                            //post failed
-                                            String errorMessage = task.getException().getMessage();
-                                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                                            showSnack(getString(R.string.failed_to_upload_image_text));
-                                        }
-                                        progressDialog.dismiss();
-                                    }
-                                });
-
-                            } else {
-
-
-                                //post has no image
-                                //get map
-                                Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
-
-                                showProgress(getString(R.string.posting_text));
-                                coMeth.getDb()
-                                        .collection("Posts")
-                                        .add(postMap)
-                                        .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentReference> task) {
-
-                                        //check if postig is successful
-                                        if (task.isSuccessful()) {
-
-                                            goToMain();
-                                            //notify users subscribed to cats
-                                            notifyNewPostCatsUpdates(catsStringsArray);
-                                            Log.d(TAG, "onComplete: posted post without image");
-
-                                        } else {
-
-                                            //posting failed
-                                            String errorMessage = task.getException().getMessage();
-                                            showSnack(getString(R.string.failed_to_post_text));
-
-                                        }
-
-                                        progressDialog.dismiss();
-
-                                    }
-                                });
-
-                            }
                         } else {
 
                             //is edit post
                             Log.d(TAG, "onClick: is edit post");
-                            //get map
-                            Map postMap = handleMap(downloadThumbUri, downloadUri);
-
                             //get the sent intent
                             Intent getEditPostIdIntent = getIntent();
-                            String postId = getEditPostIdIntent.getStringExtra("editPost");
+                            postId = getEditPostIdIntent.getStringExtra("editPost");
                             Log.d(TAG, "postId is: " + postId);
-
-                            //update post
+                            //update post details
                             coMeth.getDb()
                                     .collection("Posts")
-                                    .document(postId).set(postMap)
-                                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentReference> task) {
+                                    .document(postId)
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                                    //check the result
-                                    if (task.isSuccessful()) {
+                                            //check if task is successful
+                                            if (task.isSuccessful()) {
 
-                                        //db update successful
-                                        Log.d(TAG, "Db Update successful");
-                                        //go back to main feed
-                                        startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
-                                        finish();
-                                        //notify users subscribed to cats
-                                        notifyNewPostCatsUpdates(catsStringsArray);
+                                                if (task.getResult().exists()) {
 
-                                    } else {
+                                                    Posts post = task.getResult().toObject(Posts.class);
+                                                    if (post.getImage_url() != null)
+                                                        downloadUri = post.getImage_url();
+                                                    if (post.getThumb_url() != null)
+                                                        downloadThumbUri = post.getThumb_url();
+                                                    /*if (post.getTitle() != null) title = post.getTitle();
+                                                    if (post.getDesc() != null) desc = post.getDesc();*/
+                                                    if (post.getCategories() != null)
+                                                        cats = post.getCategories();
+                                                    if (post.getLocation() != null)
+                                                        locationArray = post.getLocation();
+                                                    if (post.getContact_details() != null)
+                                                        contactDetails = post.getContact_details();
+                                                    if (post.getEvent_date() != null)
+                                                        eventDate = post.getEvent_date();
+                                                    if (post.getPrice() != null)
+                                                        price = post.getPrice();
 
-                                        //upload failed
-                                        String errorMessage = task.getException().getMessage();
-                                        Log.d(TAG, "Db Update failed: " + errorMessage);
-                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
-                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+                                                    submitPost();
 
-                                    }
+                                                    /*//get map
+                                                    Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
+                                                    //update post
+                                                    coMeth.getDb()
+                                                            .collection("Posts")
+                                                            .document(postId)
+                                                            .set(postMap)
+                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task) {
 
-                                }
+                                                                    //check the result
+                                                                    if (task.isSuccessful()) {
+
+                                                                        //db update successful
+                                                                        Log.d(TAG, "Db Update successful");
+                                                                        //go back to main feed
+                                                                        startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
+                                                                        finish();
+                                                                        //notify users subscribed to cats
+                                                                        notifyNewPostCatsUpdates(catsStringsArray);
+
+                                                                    } else {
+
+                                                                        //upload failed
+                                                                        String errorMessage = task.getException().getMessage();
+                                                                        Log.d(TAG, "Db Update failed: " + errorMessage);
+                                                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
+                                                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                                                    }
+
+                                                                }
+                                                            });*/
+
+                                                } else {
+
+                                                    //post no longer exists
+                                                    Log.d(TAG, "onComplete: post does not exist");
+
+                                                }
+
+                                            } else {
+
+                                                //task failed
+                                                Log.d(TAG, "onComplete: task failed" + task.getException());
+
+                                            }
+
+                                        }
                                     });
-
                         }
 
                         progressDialog.dismiss();
@@ -831,6 +732,230 @@ public class CreatePostActivity extends AppCompatActivity {
 
     }
 
+    private void submitPost() {
+        //check if post has image
+        if (postImageUri != null) {
+
+            //generate randomString name for image based on firebase time stamp
+            final String randomName = UUID.randomUUID().toString();
+            //define path to upload image
+            StorageReference filePath = coMeth.getStorageRef().child("post_images").child(randomName + ".jpg");
+            //upload the image
+            filePath.putFile(postImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+
+                    //get download url
+                    downloadUri = task.getResult().getDownloadUrl().toString();
+                    //handle results after attempting to upload
+                    if (task.isSuccessful()) {
+
+                        //upload complete
+                        Log.d(TAG, "upload successful");
+                        File newImageFile = new File(postImageUri.getPath());
+                        Log.d(TAG, "onComplete: newImageFile is" + newImageFile);
+
+                        try {
+                            compressedImageFile = new Compressor(CreatePostActivity.this)
+                                    .setMaxWidth(100)
+                                    .setMaxHeight(100)
+                                    .setQuality(5)
+                                    .compressToBitmap(newImageFile);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        //handle Bitmap
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] thumbData = baos.toByteArray();
+                        //uploading the thumbnail
+                        UploadTask uploadTask = coMeth.getStorageRef().child("post_images/thumbs")
+                                .child(randomName + ".jpg")
+                                .putBytes(thumbData);
+
+                        //on success listener
+                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                //get downloadUri for thumbnail
+                                downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
+                                //on success
+                                Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
+                                //upload
+                                //check if its update or new post
+                                if (!isEditPost()) {
+
+                                    //is new post
+                                    coMeth.getDb()
+                                            .collection("Posts")
+                                            .add(postMap)
+                                            .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentReference> task) {
+
+                                                    //check the result
+                                                    if (task.isSuccessful()) {
+
+                                                        //db update successful
+                                                        Log.d(TAG, "Db Update successful");
+                                                        goToMain();
+                                                        //notify users subscribed to cats
+                                                        notifyNewPostCatsUpdates(catsStringsArray);
+                                                        Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
+
+                                                    } else {
+
+                                                        //upload failed
+                                                        String errorMessage = task.getException().getMessage();
+                                                        Log.d(TAG, "Db Update failed: " + errorMessage);
+                                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
+                                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                                    }
+                                                    progressDialog.dismiss();
+
+                                                }
+                                            });
+
+                                } else {
+
+                                    //is edit post
+                                    coMeth.getDb()
+                                            .collection("Posts")
+                                            .document(postId)
+                                            .set(postMap)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+
+                                                    //check the result
+                                                    if (task.isSuccessful()) {
+
+                                                        //db update successful
+                                                        Log.d(TAG, "Db Update successful");
+                                                        goToMain();
+                                                        //notify users subscribed to cats
+                                                        notifyNewPostCatsUpdates(catsStringsArray);
+                                                        Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
+
+                                                    } else {
+
+                                                        //upload failed
+                                                        String errorMessage = task.getException().getMessage();
+                                                        Log.d(TAG, "Db Update failed: " + errorMessage);
+                                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
+                                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+
+                                                    }
+                                                    progressDialog.dismiss();
+
+                                                }
+                                            });
+
+                                }
+
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                //on failure
+                                //upload failed
+                                String errorMessage = task.getException().getMessage();
+                                Log.d(TAG, "Db Update failed: " + errorMessage);
+                                showSnack(getString(R.string.failed_to_upload_image_text));
+                                progressDialog.dismiss();
+                            }
+                        });
+
+
+                    } else {
+
+                        //post failed
+                        String errorMessage = task.getException().getMessage();
+                        Log.w(TAG, "signInWithCredential:failure", task.getException());
+                        showSnack(getString(R.string.failed_to_upload_image_text));
+                    }
+                    progressDialog.dismiss();
+                }
+            });
+
+        } else {
+
+
+            //post has no image
+            //get map
+            Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
+
+            if (!isEditPost()) {
+                showProgress(getString(R.string.posting_text));
+                coMeth.getDb()
+                        .collection("Posts")
+                        .add(postMap)
+                        .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentReference> task) {
+
+                                //check if postig is successful
+                                if (task.isSuccessful()) {
+
+                                    goToMain();
+                                    //notify users subscribed to cats
+                                    notifyNewPostCatsUpdates(catsStringsArray);
+                                    Log.d(TAG, "onComplete: posted post without image");
+
+                                } else {
+
+                                    //posting failed
+                                    String errorMessage = task.getException().getMessage();
+                                    showSnack(getString(R.string.failed_to_post_text));
+
+                                }
+
+                                progressDialog.dismiss();
+
+                            }
+                        });
+            } else {
+
+                //for edit post
+                showProgress(getString(R.string.posting_text));
+                coMeth.getDb()
+                        .collection("Posts")
+                        .document(postId)
+                        .set(postMap)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                //check if posting is successful
+                                if (task.isSuccessful()) {
+
+                                    goToMain();
+                                    //notify users subscribed to cats
+                                    notifyNewPostCatsUpdates(catsStringsArray);
+                                    Log.d(TAG, "onComplete: posted post without image");
+
+                                } else {
+
+                                    //posting failed
+                                    String errorMessage = task.getException().getMessage();
+                                    showSnack(getString(R.string.failed_to_post_text));
+
+                                }
+
+                                progressDialog.dismiss();
+
+                            }
+                        });
+
+            }
+
+        }
+    }
+
     private void notifyNewPostCatsUpdates(ArrayList<String> catsStringsArray) {
 
         //send notifications to all users subscribed to cats in catStringArray
@@ -864,15 +989,14 @@ public class CreatePostActivity extends AppCompatActivity {
         postMap.put("desc", desc);
         postMap.put("user_id", currentUserId);
 
-        // TODO: 4/20/18 check if user is editing post, and save timestamp
-
         //get the current time
         postMap.put("timestamp", FieldValue.serverTimestamp());
-
-
         //handle contact details
-        processContactDetails();
+        if (contactDetails != null) {
 
+            processContactDetails();
+
+        }
         //handle location
         if (postPlace != null) {
 
@@ -881,9 +1005,6 @@ public class CreatePostActivity extends AppCompatActivity {
             locationArray.add(postPlace.getAddress().toString());
 
         }
-
-        //put items to Map
-
         //location
         if (locationArray != null && locationArray.size() > 0) {
 
@@ -922,6 +1043,8 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void processContactDetails() {
+
+
         if (contactName != null) {
 
             if (contactPhone != null) {
@@ -1072,25 +1195,19 @@ public class CreatePostActivity extends AppCompatActivity {
                 if (task.isSuccessful() && task.getResult().exists()) {
 
                     //set items
-                    // TODO: 4/28/18 convert task into Post object, rewrite code
                     Posts post = task.getResult().toObject(Posts.class);
-
                     //non null
                     //set title
                     String title = post.getTitle();
                     postTitleEditText.setText(title);
-
                     //set desc
                     String desc = task.getResult().get("desc").toString();
                     postDescTextView.setText(desc);
-
                     /*//update the  original timestamp
                     timestamp = (Date) task.getResult().get("timestamp");*/
-
                     //nullable
-
                     //set image
-                    if (task.getResult().get("image_url") != null) {
+                    if (post.getImage_url() != null) {
                         String imageUrl = task.getResult().get("image_url").toString();
                         String thumbUrl = task.getResult().get("thumb_url").toString();
 
@@ -1110,7 +1227,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     }
 
                     //set categories
-                    if (task.getResult().get("categories") != null) {
+                    if (post.getCategories() != null) {
 
                         ArrayList catsArray = (ArrayList) task.getResult().get("categories");
                         Log.d(TAG, "onComplete: \n catsArray on edit is: " + catsArray);
@@ -1128,7 +1245,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     }
 
                     //set contact details
-                    if (task.getResult().get("contact_details") != null) {
+                    if (post.getContact_details() != null) {
 
                         ArrayList contactArray = (ArrayList) task.getResult().get("contact_details");
                         String contactString = "";
@@ -1154,7 +1271,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     }
 
                     //set location
-                    if (task.getResult().get("location") != null) {
+                    if (post.getLocation() != null) {
 
                         ArrayList locationArray = (ArrayList) task.getResult().get("location");
                         String locationString = "";
@@ -1178,21 +1295,17 @@ public class CreatePostActivity extends AppCompatActivity {
                     }
 
                     //set event date
-                    if (task.getResult().get("event_date") != null) {
-
-                        Date eventDate = (Date) task.getResult().get("event_date");
-                        // TODO: 4/21/18 handle date bug
-
-
-                        //convert millis to date time format
-//                        String eventDateString = DateFormat.format("EEE, MMM d, yyyy - h:mm a", new Date(eventDateMils)).toString();
-//                        eventDateTextView.setText(eventDateString);
-
-
+                    if (post.getEvent_date() != null) {
+                        long eventDate = post.getEvent_date().getTime();
+                        Log.d(TAG, String.valueOf(eventDate));
+                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(eventDate)).toString();
+                        Log.d(TAG, "onEvent: \nebentDateString: " + eventDateString);
+                        eventDateTextView.setText(eventDateString);
                     }
 
+
                     //set price
-                    if (task.getResult().get("price") != null) {
+                    if (post.getPrice() != null) {
 
                         String price = task.getResult().get("price").toString();
                         priceTextView.setText(price);
