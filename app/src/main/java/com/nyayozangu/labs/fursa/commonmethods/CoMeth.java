@@ -226,38 +226,47 @@ public class CoMeth {
         //minutes ago
         if (timeLapsed < 1) {
 
+            //when less than a min has passed
             return getApplicationContext().getString(R.string.min_ago_text);
 
         } else if (timeLapsed > 1 && timeLapsed < 60) {
 
+            //when more than a min but less than an hour has lapsed
             return String.valueOf(timeLapsed) + " " + getApplicationContext().getString(R.string.mins_ago_text);
 
-        } else if (timeLapsed >= 60 && timeLapsed < 3600) {
+        } else if (timeLapsed >= 60 && timeLapsed <= 120) {
 
+            //when more than an hour, less than 2 has lapsed
             return getApplicationContext().getString(R.string.hr_ago_text);
 
         } else if (timeLapsed / 60 > 1 && timeLapsed / 60 < 24) {
 
+            //when more than n hour, less than a day has lapsed
             return timeLapsed / 60 + " " + getApplicationContext().getString(R.string.hrs_ago_text);
 
         } else if (timeLapsed / (60 * 24) >= 1 && timeLapsed / (60 * 24) < 2) {
 
+            //when a day has lapsed, less than 2 days
             return "Yesterday";
 
         } else if (timeLapsed / (60 * 24) >= 2 && timeLapsed / (60 * 24) < 7) {
 
+            //when more than 2 days, less than a week has lapsed
             return timeLapsed / (60 * 24) + " " + getApplicationContext().getString(R.string.day_ago_text);
 
         } else if (timeLapsed / (60 * 24 * 7) > 1 && timeLapsed / (60 * 24 * 7) <= 4) {
 
+            //when more than a week, less than a month have lapsed
             return timeLapsed / (60 * 24 * 7) + " " + getApplicationContext().getString(R.string.weeks_ago_text);
 
         } else if (timeLapsed / (60 * 24 * 7 * 4) > 1 && timeLapsed / (60 * 24 * 7 * 4) <= 12) {
 
+            //when more than a month, less than a year has lapsed
             return timeLapsed / (60 * 24 * 7 * 4) + " " + getApplicationContext().getString(R.string.months_ago_text);
 
         } else {
 
+            //when more than a year has lapsed
             return DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(millis)).toString();
 
         }

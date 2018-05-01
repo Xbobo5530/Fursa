@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa.activities.main;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -53,6 +54,7 @@ public class SearchableActivity extends AppCompatActivity {
     private DocumentSnapshot lastVisiblePost;
     private Boolean isFirstPageFirstLoad = true;
     private String locString = "";
+    private ProgressDialog progressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,8 +92,6 @@ public class SearchableActivity extends AppCompatActivity {
 
         //set an adapter for the recycler view
         searchFeed.setAdapter(searchRecyclerAdapter);
-
-
         handleIntent(getIntent());
 
     }
@@ -141,6 +141,9 @@ public class SearchableActivity extends AppCompatActivity {
             }
         });
 
+
+        //loading
+        showProgress(getString(R.string.loading_text));
 
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
@@ -219,34 +222,57 @@ public class SearchableActivity extends AppCompatActivity {
                     .document(postUserId)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                    //check if task is successful
-                    if (task.isSuccessful()) {
+                            //check if task is successful
+                            if (task.isSuccessful() && task.getResult().exists()) {
 
-                        Users user = task.getResult().toObject(Users.class);
+                                Users user = task.getResult().toObject(Users.class);
 
-                        //add new post to the local postsList
-                        if (isFirstPageFirstLoad) {
+                                //add new post to the local postsList
+                                if (isFirstPageFirstLoad) {
 
-                            //if the first page is loaded the add new post normally
-                            postsList.add(post);
-                            usersList.add(user);
+                                    //if the first page is loaded the add new post normally
+                                    postsList.add(post);
+                                    usersList.add(user);
 
-                        } else {
+                                } else {
 
-                            //add the post at position 0 of the postsList
-                            postsList.add(0, post);
-                            usersList.add(0, user);
+                                    //add the post at position 0 of the postsList
+                                    postsList.add(0, post);
+                                    usersList.add(0, user);
+
+                                }
+                                //notify the recycler adapter of the set change
+                                searchRecyclerAdapter.notifyDataSetChanged();
+                                progressDialog.dismiss();
+                            } else {
+
+                                //task failed
+                                if (!task.isSuccessful()) {
+
+                                    Log.d(TAG, "onComplete: getting users task failed " + task.getException());
+
+                                } else if (!task.getResult().exists()) {
+
+                                    //user does not exist
+                                    Log.d(TAG, "onComplete: user does not exist");
+
+                                }
+
+                            }
+
 
                         }
-                        //notify the recycler adapter of the set change
-                        searchRecyclerAdapter.notifyDataSetChanged();
-                    }
+                    });
+        } else {
 
-                }
-            });
+            //not posts
+            progressDialog.dismiss();
+            // TODO: 5/1/18 set the zero search results view
+
+
         }
 
     }
@@ -291,6 +317,14 @@ public class SearchableActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
     }
 
 }
