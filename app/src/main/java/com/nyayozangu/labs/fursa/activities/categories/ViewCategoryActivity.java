@@ -277,6 +277,9 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         });
 
+        //loading
+        showProgress(getString(R.string.loading_text));
+
         //handle showing posts
         //listen for scrolling on the homeFeedView
         catFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -296,15 +299,20 @@ ViewCategoryActivity extends AppCompatActivity {
 
         final Query firstQuery = coMeth.getDb().
                 collection("Posts")
-                .limit(20)
+                .limit(10)
                 .orderBy("timestamp", Query.Direction.DESCENDING);
         loadPosts(firstQuery);
+
 
 
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
+                //get new posts
+                postsList.clear();
+                usersList.clear();
+                catFeed.getRecycledViewPool().clear();
                 loadPosts(firstQuery);
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -473,6 +481,7 @@ ViewCategoryActivity extends AppCompatActivity {
         Log.d(TAG, "filterCat: \ncatsArray is: " + catsArray);
         if (catsArray != null) {
 
+            Log.d(TAG, "filterCat: catsArray is not null");
             //check if post contains cat
             if (catsArray.contains(category)) {
 
@@ -510,13 +519,32 @@ ViewCategoryActivity extends AppCompatActivity {
                                         }
                                         //notify the recycler adapter of the set change
                                         categoryRecyclerAdapter.notifyDataSetChanged();
+                                        progressDialog.dismiss();
+
+                                    } else {
+
+                                        //cat has no posts
+                                        // TODO: 5/1/18 set the no posts view
+                                        Log.d(TAG, "onComplete: cat has no posts");
+                                        progressDialog.dismiss();
 
                                     }
+
+                                } else {
+
+                                    //task has failed
+                                    progressDialog.dismiss();
+                                    Log.d(TAG, "onComplete: task has failed: " + task.getException());
 
                                 }
 
                             }
                         });
+
+            } else {
+
+                //posts dont have current cat
+                progressDialog.dismiss();
 
             }
 

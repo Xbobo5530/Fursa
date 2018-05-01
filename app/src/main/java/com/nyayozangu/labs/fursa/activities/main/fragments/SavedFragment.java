@@ -1,13 +1,16 @@
 package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,6 +46,7 @@ public class SavedFragment extends Fragment {
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
     private RecyclerView savedPostsView;
+    private SwipeRefreshLayout swipeRefresh;
 
     //retrieve posts
     private List<Posts> savedPostsList;
@@ -50,12 +54,11 @@ public class SavedFragment extends Fragment {
 
     //recycler adapter
     private PostsRecyclerAdapter savedPostsRecyclerAdapter;
-
     private DocumentSnapshot lastVisiblePost;
-
     private Boolean isFirstPageFirstLoad = true;
 
     private String currentUserId;
+    private ProgressDialog progressDialog;
 
     public SavedFragment() {
         // Required empty public constructor
@@ -70,6 +73,7 @@ public class SavedFragment extends Fragment {
 
         //initiate elements
         savedPostsView = view.findViewById(R.id.savedPostView);
+        swipeRefresh = view.findViewById(R.id.savedSwipeRefresh);
 
         //initiate an arrayList to hold all the posts
         savedPostsList = new ArrayList<>();
@@ -78,6 +82,9 @@ public class SavedFragment extends Fragment {
         savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList);
         savedPostsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         savedPostsView.setAdapter(savedPostsRecyclerAdapter);
+
+        //loading
+        showProgress(getString(R.string.loading_text));
 
         //listen for scrolling on the homeFeedView
         /*savedPostsView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -107,86 +114,32 @@ public class SavedFragment extends Fragment {
                 showSnack(getString(R.string.failed_to_connect_text));
 
             }
-
-
         }
+
+        //handle refresh
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                //get new posts
+                savedPostsList.clear();
+                usersList.clear();
+                savedPostsView.getRecycledViewPool().clear();
+                loadPosts();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        swipeRefresh.setRefreshing(false);
+
+                    }
+                }, 1500);
+            }
+        });
 
         Log.d(TAG, "onCreateView: \ncurrentUserId is: " + currentUserId);
 
-        coMeth.getDb().collection("Users/" + currentUserId + "/Subscriptions")
-                .document("saved_posts")
-                .collection("SavedPosts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-
-                        if (!queryDocumentSnapshots.isEmpty()) {
-
-                            for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-
-                                final String postId = doc.getDocument().getId();
-                                coMeth.getDb().collection("Posts")
-                                        .document(postId)
-                                        .get()
-                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                                //check if task is successful
-                                                if (task.isSuccessful()) {
-
-                                                    if (task.getResult().exists()) {
-
-                                                        final Posts post = task.getResult().toObject(Posts.class).withId(postId);
-                                                        String postUserId = post.getUser_id();
-                                                        coMeth.getDb().collection("Users")
-                                                                .document(postUserId)
-                                                                .get()
-                                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                                                        if (task.isSuccessful()) {
-
-                                                                            Users user = task.getResult().toObject(Users.class);
-                                                                            savedPostsList.add(post);
-                                                                            usersList.add(user);
-                                                                            savedPostsRecyclerAdapter.notifyDataSetChanged();
-
-                                                                        } else {
-
-                                                                            Log.d(TAG, "onComplete: task filed\n" + task.getException());
-
-                                                                        }
-
-                                                                    }
-                                                                });
-
-                                                    } else {
-
-                                                        Log.d(TAG, "onComplete: post does not exist");
-
-                                                    }
-
-                                                } else {
-
-                                                    Log.d(TAG, "onComplete: task for getting posts failed\n" + task.getException());
-                                                }
-
-                                            }
-                                        });
-
-                            }
-
-                        } else {
-
-                            Log.d(TAG, "onEvent: user has no liked posts");
-
-                        }
-
-                    }
-                });
+        loadPosts();
 
 
         /*Query firstQuery = db
@@ -308,6 +261,85 @@ public class SavedFragment extends Fragment {
         });*/
 
         return view;
+    }
+
+    private void loadPosts() {
+        coMeth.getDb().collection("Users/" + currentUserId + "/Subscriptions")
+                .document("saved_posts")
+                .collection("SavedPosts")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+
+                        if (!queryDocumentSnapshots.isEmpty()) {
+
+                            for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+
+                                final String postId = doc.getDocument().getId();
+                                coMeth.getDb().collection("Posts")
+                                        .document(postId)
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                                //check if task is successful
+                                                if (task.isSuccessful()) {
+
+                                                    if (task.getResult().exists()) {
+
+                                                        final Posts post = task.getResult().toObject(Posts.class).withId(postId);
+                                                        String postUserId = post.getUser_id();
+                                                        coMeth.getDb().collection("Users")
+                                                                .document(postUserId)
+                                                                .get()
+                                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                                                        if (task.isSuccessful()) {
+
+                                                                            Users user = task.getResult().toObject(Users.class);
+                                                                            savedPostsList.add(post);
+                                                                            usersList.add(user);
+                                                                            savedPostsRecyclerAdapter.notifyDataSetChanged();
+                                                                            progressDialog.dismiss();
+
+                                                                        } else {
+
+                                                                            Log.d(TAG, "onComplete: task filed\n" + task.getException());
+
+                                                                        }
+
+                                                                    }
+                                                                });
+
+                                                    } else {
+
+                                                        Log.d(TAG, "onComplete: post does not exist");
+
+                                                    }
+
+                                                } else {
+
+                                                    Log.d(TAG, "onComplete: task for getting posts failed\n" + task.getException());
+                                                }
+
+                                            }
+                                        });
+
+                            }
+
+                        } else {
+
+                            Log.d(TAG, "onEvent: user has no liked posts");
+                            progressDialog.dismiss();
+
+                        }
+
+                    }
+                });
     }
 
     private void goToLogin() {
@@ -451,5 +483,14 @@ public class SavedFragment extends Fragment {
                     }
                 })
                 .show();
+    }
+
+    //show progress
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(message);
+        progressDialog.show();
     }
 }

@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -47,15 +48,14 @@ public class HomeFragment extends Fragment {
 
     //recycler adapter
     private PostsRecyclerAdapter postsRecyclerAdapter;
-
     private DocumentSnapshot lastVisiblePost;
 
     private Boolean isFirstPageFirstLoad = true;
     private CoMeth coMeth = new CoMeth();
+    private ProgressDialog progressDialog;
 
     public HomeFragment() {
-        // Required empty public constructor
-    }
+    } // Required empty public constructor
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
@@ -75,6 +75,9 @@ public class HomeFragment extends Fragment {
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
         homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
         homeFeedView.setAdapter(postsRecyclerAdapter);
+
+        //loading
+        showProgress(getString(R.string.loading_text));
 
         //listen for scrolling on the homeFeedView
         homeFeedView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -108,6 +111,7 @@ public class HomeFragment extends Fragment {
                 //get new posts
                 postsList.clear();
                 usersList.clear();
+                homeFeedView.getRecycledViewPool().clear();
                 loadPosts(firstQuery);
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -120,9 +124,9 @@ public class HomeFragment extends Fragment {
             }
         });
 
-
         // Inflate the layout for this fragment
         return view;
+
     }
 
     private void loadPosts(Query firstQuery) {
@@ -155,7 +159,11 @@ public class HomeFragment extends Fragment {
                             final String postUserId = doc.getDocument().getString("user_id");
                             Log.d(TAG, "onEvent: user_id is " + postUserId);
                             //get user_id for post
-                            new CoMeth().getDb().collection("Users").document(postUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            new CoMeth().getDb()
+                                    .collection("Users")
+                                    .document(postUserId)
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -177,6 +185,13 @@ public class HomeFragment extends Fragment {
                                         }
                                         //notify the recycler adapter of the set change
                                         postsRecyclerAdapter.notifyDataSetChanged();
+                                        progressDialog.dismiss();
+
+                                    } else {
+
+                                        //no posts
+                                        progressDialog.dismiss();
+
                                     }
 
                                 }
@@ -251,6 +266,15 @@ public class HomeFragment extends Fragment {
         });
 
 
+    }
+
+    //show progress
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(message);
+        progressDialog.show();
     }
 
 }
