@@ -19,6 +19,7 @@ import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.settings.FeedbackActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.MySubscriptionsActivity;
+import com.nyayozangu.labs.fursa.activities.settings.PrivacyPolicyActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 
 import java.util.Date;
@@ -284,5 +285,10 @@ public class CoMeth {
 
         getApplicationContext().startActivity(new Intent(getApplicationContext(), FeedbackActivity.class));
 
+    }
+
+    public void goToPrivacyPolicy() {
+
+        getApplicationContext().startActivity(new Intent(getApplicationContext(), PrivacyPolicyActivity.class));
     }
 }

@@ -315,6 +315,8 @@
     <string name="thanks_feedback_text">Thank you for your feedback</string>
     <string name="failed_to_submit_text">Failed to submit your feedback, please try again later</string>
     <string name="family_email">family@nyayozangu.com</string>
+    <string name="privacy_policy_text">Privacy Policy</string>
+    <string name="privacy_policy_url">http://fursa.nyayozangu.com/privacy_policy/</string>
 
 
 </resources>

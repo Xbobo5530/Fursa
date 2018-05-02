@@ -227,6 +227,16 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        //handle privacy policy
+        privacyPolicyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                coMeth.goToPrivacyPolicy();
+
+            }
+        });
+
     }
 
 
