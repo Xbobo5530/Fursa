@@ -140,8 +140,8 @@ ViewCategoryActivity extends AppCompatActivity {
                         break;
 
                     case "places":
-                        // TODO: 4/25/18 check the open cat places, sets title business bug
                         getSupportActionBar().setTitle(getString(R.string.cat_places));
+                        break;
 
                     case "business":
                         getSupportActionBar().setTitle(getString(R.string.cat_business));

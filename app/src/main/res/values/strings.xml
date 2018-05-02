@@ -214,7 +214,6 @@
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
 
     <string name="pref_title_new_message_notifications">New message notifications</string>
@@ -252,9 +251,9 @@
     <string name="user_view_post_text">User</string>
     <string name="login_alert_fragment_text">Login</string>
     <string name="login_to_view_saved_items_alert_fragment_text">Login to view saved items</string>
-    <string name="date_post_placeholder_text">Jan 14 2022</string>
+    <string name="date_post_placeholder_text">Jan 14 2018</string>
     <string name="username_post_placeholder_text">Username</string>
-    <string name="desc_post_placeholder_text">this is random text for teh placeholder of the image veia hdod lookd i=too maih intteo iwws</string>
+    <string name="desc_post_placeholder_text">this is random text for the placeholder of the image veia hdod lookd i=too maih intteo iwws</string>
     <string name="location__post_placeholder_text">Dar es Salaam Tanzania</string>
     <string name="post_title__post_placeholder_text">Post Title</string>
     <string name="name_text">Name</string>
@@ -267,7 +266,7 @@
     <string name="delete_menu_item_text">Delete</string>
     <string name="login_with_email_text">Login with Email</string>
     <string name="post_not_found_text">Could not find post</string>
-    <string name="posting_text">Posting...</string>
+    <string name="posting_text">Posting…</string>
     <string name="internet_fail">Failed to connect to the internet</string>
     <string name="added_to_saved_text">Added to saved items</string>
     <string name="login_to_view_options_text">Login to view post options</string>
@@ -275,23 +274,22 @@
     <string name="default_notification_channel_name">Updates</string>
     <string name="email_ver_text">Email Verification</string>
     <string name="ok_text">Ok</string>
-    <string name="send_email_text">Sending Email...</string>
+    <string name="send_email_text">Sending Email…</string>
     <string name="verify_to_comment_text">You have to verify your email address to comment on a post.</string>
     <string name="login_to_create_post">Login to create a post</string>
-
     <string name="title_activity_view_image">ViewImageActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="logging_in_text">Logging in...</string>
+    <string name="logging_in_text">Logging in…</string>
     <string name="see_list_text">See list</string>
     <string name="login_to_save_text">Log in to save items</string>
     <string name="email_sent_text">Email sent</string>
     <string name="confirm_del_text">Are you sure you want to delete this post?</string>
     <string name="del_post_text">Delete Post</string>
     <string name="del_success_text">Post successfully Deleted</string>
-    <string name="loading_text">Loading...</string>
+    <string name="loading_text">Loading…</string>
     <string name="exit_text">Exit</string>
-    <string name="confirm_ext_text">Are you you want to exit?</string>
+    <string name="confirm_ext_text">Are you sure you want to exit?</string>
     <string name="report_submit_failed_text">Failed to submit report</string>
     <string name="login_to_report">Log in to report content</string>
     <string name="categories_text">Categories</string>
@@ -317,6 +315,5 @@
     <string name="family_email">family@nyayozangu.com</string>
     <string name="privacy_policy_text">Privacy Policy</string>
     <string name="privacy_policy_url">http://fursa.nyayozangu.com/privacy_policy/</string>
-
 
 </resources>

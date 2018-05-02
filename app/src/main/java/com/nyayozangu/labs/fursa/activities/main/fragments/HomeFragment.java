@@ -154,10 +154,10 @@ public class HomeFragment extends Fragment {
                             String postId = doc.getDocument().getId();
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                             //get user id
-                            final String postUserId = doc.getDocument().getString("user_id");
+                            final String postUserId = post.getUser_id();
                             Log.d(TAG, "onEvent: user_id is " + postUserId);
                             //get user_id for post
-                            new CoMeth().getDb()
+                            coMeth.getDb()
                                     .collection("Users")
                                     .document(postUserId)
                                     .get()
@@ -210,7 +210,8 @@ public class HomeFragment extends Fragment {
     //for loading more posts
     public void loadMorePosts() {
 
-        Query nextQuery = new CoMeth().getDb().collection("Posts")
+        Query nextQuery = coMeth.getDb()
+                .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
                 .limit(10);

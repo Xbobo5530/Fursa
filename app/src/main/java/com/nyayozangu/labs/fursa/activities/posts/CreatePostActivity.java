@@ -589,19 +589,17 @@ public class CreatePostActivity extends AppCompatActivity {
                     //get title
                     title = postTitleEditText.getText().toString().trim();
 
-
                     //check if description field is empty
                     if (!TextUtils.isEmpty(desc) && !TextUtils.isEmpty(title)) {
+
                         //description is not empty and image is not null
                         showProgress("Posting...");
-
                         //check if is new post or edit post
                         if (!isEditPost()) {
 
                             //is new post
                             Log.d(TAG, "onClick: is new post");
                             submitPost();
-
 
                         } else {
 
@@ -1111,6 +1109,7 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     void handleSendText(Intent intent) {
+
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
 
@@ -1346,12 +1345,15 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
     private void goToMain() {
+
         //go to main feed
         startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
         finish();
+
     }
 
     private void showProgress(String message) {
+
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
         progressDialog = new ProgressDialog(CreatePostActivity.this);
@@ -1419,7 +1421,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
         }
     }
-
 
     private void showLoginAlertDialog(String message) {
         //Prompt user to log in
