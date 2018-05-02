@@ -2,6 +2,7 @@ package com.nyayozangu.labs.fursa.activities.settings;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -210,6 +211,18 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 coMeth.goToFeedback();
+
+            }
+        });
+
+        //handle contact us
+        contactUsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                        "mailto", getString(R.string.family_email), null));
+                startActivity(Intent.createChooser(emailIntent, "Contact us"));
 
             }
         });

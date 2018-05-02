@@ -314,6 +314,7 @@
     <string name="submitting">Submitting</string>
     <string name="thanks_feedback_text">Thank you for your feedback</string>
     <string name="failed_to_submit_text">Failed to submit your feedback, please try again later</string>
+    <string name="family_email">family@nyayozangu.com</string>
 
 
 </resources>
