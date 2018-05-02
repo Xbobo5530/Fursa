@@ -325,4 +325,37 @@ public class SearchableActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
+
+    /*public class MySearchRecentSuggestionsProvider extends SearchRecentSuggestionsProvider {
+
+        String mIconUri = String.valueOf(R.drawable.ic_action_time); // a drawable ID as a String will also do!
+
+        public Cursor query(Uri uri, String[] projection, String selection,
+                            String[] selectionArgs, String sortOrder) {
+
+            class Wrapper extends CursorWrapper {
+                Wrapper(Cursor c) {
+                    super(c);
+                }
+
+                public String getString(int columnIndex) {
+                    if (columnIndex != -1
+                            && columnIndex == getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))
+                        return mIconUri;
+
+                    return super.getString(columnIndex);
+                }
+            }
+
+            return new Wrapper(super.query(Uri uri, String[] projection, String selection,
+                    String[] selectionArgs, String sortOrder);
+        }
+
+    }*/
+
+
+
+
+
+
 }

@@ -16,6 +16,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
+import com.nyayozangu.labs.fursa.activities.settings.FeedbackActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.MySubscriptionsActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
@@ -279,4 +280,9 @@ public class CoMeth {
 
     }
 
+    public void goToFeedback() {
+
+        getApplicationContext().startActivity(new Intent(getApplicationContext(), FeedbackActivity.class));
+
+    }
 }

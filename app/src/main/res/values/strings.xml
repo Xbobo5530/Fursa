@@ -310,6 +310,10 @@
     <string name="enter_post_details_text">Enter your post details to proceed</string>
     <string name="failed_to_post_text">Failed to post</string>
     <string name="failed_to_upload_image_text">Failed to upload image</string>
+    <string name="feedback_title_text">Feedback</string>
+    <string name="submitting">Submitting</string>
+    <string name="thanks_feedback_text">Thank you for your feedback</string>
+    <string name="failed_to_submit_text">Failed to submit your feedback, please try again later</string>
 
 
 </resources>

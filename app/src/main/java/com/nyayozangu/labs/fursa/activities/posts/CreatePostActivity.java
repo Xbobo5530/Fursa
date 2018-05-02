@@ -45,7 +45,6 @@ import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
-import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -515,20 +514,24 @@ public class CreatePostActivity extends AppCompatActivity {
                 int MONTH = calendar.get(Calendar.MONTH);
                 int DAY = calendar.get(Calendar.DAY_OF_MONTH);
 
-                final DatePickerDialog eventDatePickerDialog = new DatePickerDialog(CreatePostActivity.this, new DatePickerDialog.OnDateSetListener() {
+                final DatePickerDialog eventDatePickerDialog = new DatePickerDialog(CreatePostActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
+                        // save date to eventDate
                         eventDate = new Date(year, month, dayOfMonth);
+                        // TODO: 5/2/18 check setting event date on edit post fails
                         Log.d(TAG, "date selected is: " + eventDate.toString());
                         //set selected date to the eventDate textView
                         eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, 20yy\nh:mm a", eventDate).toString());
+
 
                     }
                 }, YEAR, MONTH, DAY);
                 eventDatePickerDialog.show();
 
-                // save date to eventDate
+
             }
         });
 
@@ -642,40 +645,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                                     submitPost();
 
-                                                    /*//get map
-                                                    Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
-                                                    //update post
-                                                    coMeth.getDb()
-                                                            .collection("Posts")
-                                                            .document(postId)
-                                                            .set(postMap)
-                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<Void> task) {
 
-                                                                    //check the result
-                                                                    if (task.isSuccessful()) {
-
-                                                                        //db update successful
-                                                                        Log.d(TAG, "Db Update successful");
-                                                                        //go back to main feed
-                                                                        startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
-                                                                        finish();
-                                                                        //notify users subscribed to cats
-                                                                        notifyNewPostCatsUpdates(catsStringsArray);
-
-                                                                    } else {
-
-                                                                        //upload failed
-                                                                        String errorMessage = task.getException().getMessage();
-                                                                        Log.d(TAG, "Db Update failed: " + errorMessage);
-                                                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
-                                                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                                                                    }
-
-                                                                }
-                                                            });*/
 
                                                 } else {
 
@@ -810,8 +780,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         //upload failed
                                                         String errorMessage = task.getException().getMessage();
                                                         Log.d(TAG, "Db Update failed: " + errorMessage);
-                                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
-                                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+                                                        showSnack(getString(R.string.failed_to_upload_image_text));
 
                                                     }
                                                     progressDialog.dismiss();
@@ -1462,7 +1431,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        goToLogin();
+                        coMeth.goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -1475,10 +1444,6 @@ public class CreatePostActivity extends AppCompatActivity {
                 .show();
     }
 
-    //go to login page
-    private void goToLogin() {
-        startActivity(new Intent(CreatePostActivity.this, LoginActivity.class));
-    }
 
 
 }

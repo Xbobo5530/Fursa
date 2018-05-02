@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:contentScrim="?attr/colorPrimary"
-            app:toolbarId="@+id/toolbar">
+            app:toolbarId="@+id/feedbackToolbar">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/searchToolbar"

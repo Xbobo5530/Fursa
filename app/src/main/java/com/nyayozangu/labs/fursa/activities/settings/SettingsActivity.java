@@ -48,15 +48,6 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         toolbar = findViewById(R.id.settingsToolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Settings");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         userImage = findViewById(R.id.settingsUserCirleImageView);
         usernameTextView = findViewById(R.id.settingsUsernameTextView);
@@ -71,6 +62,16 @@ public class SettingsActivity extends AppCompatActivity {
         contactUsButton = findViewById(R.id.settingsContactButton);
         privacyPolicyButton = findViewById(R.id.settingsPolicyButton);
 
+        //handle toolbar
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Settings");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //handle logout
         if (new CoMeth().isLoggedIn()) {
@@ -153,6 +154,7 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
         } else {
+
             //user is not logged in
             usernameTextView.setVisibility(View.GONE);
             userBioTextView.setText("You are currently not logged in \nclick the login button to log in");
@@ -161,6 +163,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         }
 
+        //handle my posts
         myPostsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -179,6 +182,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        //handle my subscriptions
         mySubsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -200,7 +204,20 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        //handle feedback
+        feedbackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                coMeth.goToFeedback();
+
+            }
+        });
+
     }
+
+
+
 
     private void goToMySubs() {
 
