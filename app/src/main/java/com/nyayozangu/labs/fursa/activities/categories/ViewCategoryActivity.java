@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 public class
 ViewCategoryActivity extends AppCompatActivity {
 
@@ -69,7 +71,6 @@ ViewCategoryActivity extends AppCompatActivity {
     private String currentCat;
     private String catDesc;
     private ProgressDialog progressDialog;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -307,9 +308,9 @@ ViewCategoryActivity extends AppCompatActivity {
                 collection("Posts")
                 .limit(10)
                 .orderBy("timestamp", Query.Direction.DESCENDING);
+        postsList.clear();
+        usersList.clear();
         loadPosts(firstQuery);
-
-
 
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -522,12 +523,18 @@ ViewCategoryActivity extends AppCompatActivity {
         } else if (category.equals("featured")) {
 
             //cat is featured
-            Log.d(TAG, "filterCat: cat is featured");
+            Log.d(TAG, "filterCat: cat is " + category);
 
         } else if (category.equals("popular")) {
 
             ///cat is popular
-            Log.d(TAG, "filterCat: cat is popular");
+            Log.d(TAG, "filterCat: cat is " + category);
+            //open db and get post likes
+
+            processCounts(postId, post, "Likes");
+            processCounts(postId, post, "Saves");
+            processCounts(postId, post, "Comments");
+
 
         } else {
 
@@ -551,6 +558,56 @@ ViewCategoryActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void processCounts(String postId, final Posts post, final String collectionName) {
+
+        Log.d(TAG, "processCounts: ");
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .collection(collectionName)
+                .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+
+                        if (!queryDocumentSnapshots.isEmpty()) {
+
+                            int count = queryDocumentSnapshots.size();
+                            Log.d(TAG, "onEvent: likes count inside is " + count);
+                            switch (collectionName) {
+
+                                case "Likes":
+                                    if (count > 1) {
+                                        if (!postsList.contains(post)) {
+                                            getFilteredPosts(post);
+                                        }
+                                    }
+                                    break;
+                                case "Saves":
+                                    if (count > 1) {
+                                        if (!postsList.contains(post)) {
+                                            getFilteredPosts(post);
+                                        }
+                                    }
+                                    break;
+                                case "Comments":
+                                    if (count > 10) {
+                                        if (!postsList.contains(post)) {
+                                            getFilteredPosts(post);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    Log.d(TAG, "onEvent: on popular default");
+
+                            }
+
+
+                        }
+
+                    }
+                });
     }
 
     private void getFilteredPosts(final Posts post) {

@@ -162,6 +162,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     //post has likes
                     int numberOfLikes = queryDocumentSnapshots.size();
                     holder.updateLikesCount(numberOfLikes);
+
                 } else {
                     //post has no likes
                     holder.updateLikesCount(0);
