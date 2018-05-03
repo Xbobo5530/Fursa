@@ -205,7 +205,7 @@ public class ViewPostActivity extends AppCompatActivity {
                 })
                 .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(final DialogInterface dialog, int which) {
 
                         if (coMeth.isConnected()) {
 
@@ -226,9 +226,9 @@ public class ViewPostActivity extends AppCompatActivity {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
 
-//                                            progressDialog.dismiss();
                                             if (task.isSuccessful()) {
 
+                                                coMeth.stopLoading(progressDialog, null);
                                                 //alert user
                                                 showConfirmReport();
 
@@ -242,7 +242,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                         }
                                     });
 
-//                            progressDialog.dismiss();
+                            coMeth.stopLoading(progressDialog, null);
 
                         } else {
 
@@ -287,8 +287,8 @@ public class ViewPostActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         showProgress("Deleting...");
-                        new CoMeth().getDb().collection("Posts").document(postId).delete();
-//                        progressDialog.dismiss();
+                        coMeth.getDb().collection("Posts").document(postId).delete();
+                        coMeth.stopLoading(progressDialog, null);
                         Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
                         delResultIntent.putExtra("action", "notify");
                         delResultIntent.putExtra("message", getString(R.string.del_success_text));
@@ -519,10 +519,10 @@ public class ViewPostActivity extends AppCompatActivity {
                         });
 
                     } else {
+
                         //user is not logged in
                         Log.d(TAG, "use is not logged in");
                         //notify user
-
                         String message = getString(R.string.login_to_like);
                         showLoginAlertDialog(message);
 
@@ -634,13 +634,13 @@ public class ViewPostActivity extends AppCompatActivity {
         //set contents
         coMeth.getDb()
                 .collection("Posts")
-                .document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                .document(postId).addSnapshotListener(ViewPostActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
                 Log.d(TAG, "at view post query");
                 //show progress
-//                showProgress("Loading...");
+                showProgress("Loading...");
 
                 //check if post exists
                 if (documentSnapshot.exists()) {
@@ -868,7 +868,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     }
 
-//                    progressDialog.dismiss();
+                    coMeth.stopLoading(progressDialog, null);
 
 
                 } else {
@@ -883,7 +883,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     finish();
                 }
 
-//                progressDialog.dismiss();
+                coMeth.stopLoading(progressDialog, null);
 
             }
         });

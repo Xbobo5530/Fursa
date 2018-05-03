@@ -550,9 +550,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 if (coMeth.isConnected()) {
 
                     //start submitting
-                    //get desc
                     desc = postDescTextView.getText().toString().trim();
-                    //get title
                     title = postTitleEditText.getText().toString().trim();
 
                     //check if description field is empty
@@ -561,7 +559,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         //disable the submit button
                         submitButton.setClickable(false);
                         //description is not empty and image is not null
-                        showProgress("Posting...");
+
                         //check if is new post or edit post
                         if (!isEditPost()) {
 
@@ -632,7 +630,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         }
 
                         //hide loading
-                        progressDialog.dismiss();
+                        coMeth.stopLoading(progressDialog, null);
                         //re-enable submit button
                         submitButton.setClickable(true);
 
@@ -672,8 +670,10 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void submitPost() {
-        //check if post has image
 
+        //show progress
+        showProgress(getString(R.string.submitting));
+        //check if post has image
         Log.d(TAG, "submitPost: at submit post");
         if (postImageUri != null) {
 
@@ -755,7 +755,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         showSnack(getString(R.string.failed_to_upload_image_text));
 
                                                     }
-                                                    progressDialog.dismiss();
+                                                    coMeth.stopLoading(progressDialog, null);
 
                                                 }
                                             });
@@ -790,7 +790,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                                                 "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
 
                                                     }
-                                                    progressDialog.dismiss();
+                                                    coMeth.stopLoading(progressDialog, null);
 
                                                 }
                                             });
@@ -802,12 +802,11 @@ public class CreatePostActivity extends AppCompatActivity {
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                //on failure
                                 //upload failed
                                 String errorMessage = task.getException().getMessage();
                                 Log.d(TAG, "Db Update failed: " + errorMessage);
                                 showSnack(getString(R.string.failed_to_upload_image_text));
-                                progressDialog.dismiss();
+                                coMeth.stopLoading(progressDialog, null);
                             }
                         });
 
@@ -819,7 +818,9 @@ public class CreatePostActivity extends AppCompatActivity {
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
                         showSnack(getString(R.string.failed_to_upload_image_text));
                     }
-                    progressDialog.dismiss();
+
+                    coMeth.stopLoading(progressDialog, null);
+
                 }
             });
 
@@ -855,8 +856,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 }
 
-                                progressDialog.dismiss();
-
                             }
                         });
             } else {
@@ -886,8 +885,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                     showSnack(getString(R.string.failed_to_post_text));
 
                                 }
-
-                                progressDialog.dismiss();
 
                             }
                         });
@@ -1267,7 +1264,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 }
 
-                progressDialog.dismiss();
+                coMeth.stopLoading(progressDialog, null);
 
             }
         });

@@ -3,7 +3,6 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -71,7 +70,8 @@ public class HomeFragment extends Fragment {
         usersList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
+        String className = "HomeFragment";
+        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
         homeFeedView.setAdapter(postsRecyclerAdapter);
 
@@ -112,14 +112,7 @@ public class HomeFragment extends Fragment {
                 usersList.clear();
                 homeFeedView.getRecycledViewPool().clear();
                 loadPosts(firstQuery);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
 
-                        swipeRefresh.setRefreshing(false);
-
-                    }
-                }, 1500);
             }
         });
 
@@ -183,12 +176,12 @@ public class HomeFragment extends Fragment {
                                         }
                                         //notify the recycler adapter of the set change
                                         postsRecyclerAdapter.notifyDataSetChanged();
-                                        progressDialog.dismiss();
+                                        coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                     } else {
 
                                         //no posts
-                                        progressDialog.dismiss();
+                                        coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                     }
 
@@ -201,6 +194,8 @@ public class HomeFragment extends Fragment {
 
                     //the first page has already loaded
                     isFirstPageFirstLoad = false;
+                    //stop loading
+                    coMeth.stopLoading(progressDialog, swipeRefresh);
                 }
 
             }
@@ -274,6 +269,30 @@ public class HomeFragment extends Fragment {
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage(message);
         progressDialog.show();
+    }
+
+    /*private void hideProgress() {
+        if (progressDialog.isShowing()){
+            progressDialog.dismiss();
+        }
+    }
+
+    private void stopRefreshing() {
+        if (swipeRefresh.isRefreshing()){
+            swipeRefresh.setRefreshing(false);
+        }
+    }*/
+
+    private void stopLoading() {
+
+        Log.d(TAG, "stopLoading: ");
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+
+        if (swipeRefresh.isRefreshing()) {
+            swipeRefresh.setRefreshing(false);
+        }
     }
 
 }

@@ -79,7 +79,8 @@ public class MyPostsActivity extends AppCompatActivity {
         usersList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
+        String className = "MyPostsActivity";
+        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         myPostsFeed.setLayoutManager(new LinearLayoutManager(MyPostsActivity.this));
         myPostsFeed.setAdapter(postsRecyclerAdapter);
 

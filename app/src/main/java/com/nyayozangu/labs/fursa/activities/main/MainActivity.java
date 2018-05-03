@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
 
                     AlertDialog.Builder noNetBuilder = new AlertDialog.Builder(MainActivity.this);
                     noNetBuilder.setTitle("Connection Error")
-                            .setIcon(R.drawable.ic_action_alert)
+                            .setIcon(R.drawable.ic_action_red_alert)
                             .setMessage("Failed to connect to the internet\nCheck your connection and try again")
                             .setPositiveButton("On", new DialogInterface.OnClickListener() {
                                 @Override
@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
                         showProgress(sendEmailMessage);
                         sendVerEmail(dialog, user);
                         //hide progress
-                        progressDialog.dismiss();
+                        hideProgress();
 
                     }
                 })
@@ -525,6 +525,12 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage(message);
         progressDialog.show();
 
+    }
+
+    private void hideProgress() {
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
 

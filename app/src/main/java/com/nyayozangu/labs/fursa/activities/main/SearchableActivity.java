@@ -86,7 +86,8 @@ public class SearchableActivity extends AppCompatActivity {
         usersList = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
-        searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
+        String className = "SearchableActivity";
+        searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         //set a layout manager for searchFeed (recycler view)
         searchFeed.setLayoutManager(new LinearLayoutManager(this));
         //set an adapter for the recycler view

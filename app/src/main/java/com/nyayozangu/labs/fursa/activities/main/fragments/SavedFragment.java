@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -79,7 +78,8 @@ public class SavedFragment extends Fragment {
         savedPostsList = new ArrayList<>();
         usersList = new ArrayList<>();
 
-        savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList);
+        String className = "SavedFragment";
+        savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList, className);
         savedPostsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         savedPostsView.setAdapter(savedPostsRecyclerAdapter);
 
@@ -126,14 +126,16 @@ public class SavedFragment extends Fragment {
                 usersList.clear();
                 savedPostsView.getRecycledViewPool().clear();
                 loadPosts();
-                new Handler().postDelayed(new Runnable() {
+
+                /*new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
 
                         swipeRefresh.setRefreshing(false);
 
                     }
-                }, 1500);
+                }, 1500);*/
+
             }
         });
 
@@ -304,7 +306,6 @@ public class SavedFragment extends Fragment {
                                                                             savedPostsList.add(post);
                                                                             usersList.add(user);
                                                                             savedPostsRecyclerAdapter.notifyDataSetChanged();
-                                                                            progressDialog.dismiss();
 
                                                                         } else {
 
@@ -334,13 +335,17 @@ public class SavedFragment extends Fragment {
                         } else {
 
                             Log.d(TAG, "onEvent: user has no liked posts");
-                            progressDialog.dismiss();
 
                         }
+
+                        //stop loading
+                        coMeth.stopLoading(progressDialog, swipeRefresh);
+
 
                     }
                 });
     }
+
 
     private void goToLogin() {
         //go to login page

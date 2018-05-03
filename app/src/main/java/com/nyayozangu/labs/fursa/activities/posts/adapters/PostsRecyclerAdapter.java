@@ -66,15 +66,17 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private String userId;
+    private String className;
     private ProgressDialog progressDialog;
     private CoMeth coMeth = new CoMeth();
 
     //empty constructor for receiving the posts
-    public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList) {
+    public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList, String className) {
 
         //store received posts
         this.postsList = postsList;
         this.usersList = usersList;
+        this.className = className;
     }
 
     @NonNull
@@ -205,7 +207,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         }
 
-
         //likes feature
         //set an a click listener to the like button
         holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
@@ -219,24 +220,33 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                     if (isLoggedIn()) {
 
-                        db.collection("Posts/" + postId + "/Likes").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                //get data from teh likes collection
+                        try {
+                            db.collection("Posts/" + postId + "/Likes")
+                                    .document(currentUserId)
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            //get data from teh likes collection
+                                            //check if current user has already liked post
+                                            if (!task.getResult().exists()) {
 
-                                //check if current user has already liked post
-                                if (!task.getResult().exists()) {
-                                    Map<String, Object> likesMap = new HashMap<>();
-                                    likesMap.put("timestamp", FieldValue.serverTimestamp());
+                                                Map<String, Object> likesMap = new HashMap<>();
+                                                likesMap.put("timestamp", FieldValue.serverTimestamp());
+                                                db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
 
-                                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
+                                            } else {
+                                                //delete the like
+                                                db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
+                                            }
+                                        }
+                                    });
 
-                                } else {
-                                    //delete the like
-                                    db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
-                                }
-                            }
-                        });
+                        } catch (Exception connectionException) {
+
+                            Log.d(TAG, "onClick: " + connectionException);
+
+                        }
 
                     } else {
                         //user is not logged in
@@ -260,7 +270,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
-        //set a click listener to the save button
+        //save button click listener
         holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -545,20 +555,40 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     }
 
     private void showSaveSnack(@NonNull final ViewHolder holder, String message) {
-        Snackbar.make(holder.mView.findViewById(R.id.postLayout),
-                message, Snackbar.LENGTH_LONG)
-                .setAction("See list", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
 
-                        Intent goToSavedIntent = new Intent(context, MainActivity.class);
-                        goToSavedIntent.putExtra("action", "goto");
-                        goToSavedIntent.putExtra("destination", "saved");
-                        context.startActivity(goToSavedIntent);
+        //check current class
+        String homeFragmentText = "HomeFragment";
+        String savedFragmentText = "SavedFragment";
+        if (className.equals(homeFragmentText)) {
 
-                    }
-                })
-                .show();
+            //dont show the see list snackbar action 
+            Snackbar.make(holder.mView.findViewById(R.id.postLayout),
+                    message, Snackbar.LENGTH_SHORT)
+                    .show();
+
+        } else if (className.equals(savedFragmentText)) {
+
+            //do nothing
+            Log.d(TAG, "showSaveSnack: liked on saved fragment");
+
+        } else {
+
+            Snackbar.make(holder.mView.findViewById(R.id.postLayout),
+                    message, Snackbar.LENGTH_LONG)
+                    .setAction("See list", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            Intent goToSavedIntent = new Intent(context, MainActivity.class);
+                            goToSavedIntent.putExtra("action", "goto");
+                            goToSavedIntent.putExtra("destination", "saved");
+                            context.startActivity(goToSavedIntent);
+
+                        }
+                    })
+                    .show();
+
+        }
     }
 
     private void goToLogin() {

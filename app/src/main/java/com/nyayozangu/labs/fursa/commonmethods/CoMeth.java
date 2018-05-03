@@ -1,9 +1,11 @@
 package com.nyayozangu.labs.fursa.commonmethods;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.ImageView;
@@ -345,5 +347,25 @@ public class CoMeth {
     public void goToPrivacyPolicy() {
 
         getApplicationContext().startActivity(new Intent(getApplicationContext(), PrivacyPolicyActivity.class));
+    }
+
+    public void stopLoading(ProgressDialog progressDialog, SwipeRefreshLayout swipeRefreshLayout) {
+
+        if (progressDialog != null) {
+
+            if (progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+
+        }
+        if (swipeRefreshLayout != null) {
+
+            if (swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+        }
+
+
     }
 }

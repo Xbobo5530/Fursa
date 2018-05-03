@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -95,7 +94,8 @@ ViewCategoryActivity extends AppCompatActivity {
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
 
-        categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList);
+        String className = "ViewCategoryActivity";
+        categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         catFeed.setLayoutManager(new LinearLayoutManager(this));
         catFeed.setAdapter(categoryRecyclerAdapter);
 
@@ -314,13 +314,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 usersList.clear();
                 catFeed.getRecycledViewPool().clear();
                 loadPosts(firstQuery);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
 
-                        swipeRefresh.setRefreshing(false);
-                    }
-                }, 1500);
 
             }
         });
@@ -364,6 +358,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
                 //the first page has already loaded
                 isFirstPageFirstLoad = false;
+                coMeth.stopLoading(progressDialog, swipeRefresh);
 
             }
         });
@@ -402,8 +397,6 @@ ViewCategoryActivity extends AppCompatActivity {
         });
 
     }
-
-
 
 
     private void processCategories(DocumentChange doc, String postId) {
@@ -500,18 +493,15 @@ ViewCategoryActivity extends AppCompatActivity {
                                     if (task.getResult().exists()) {
 
                                         Users user = task.getResult().toObject(Users.class);
-
                                         //add new post to the local postsList
                                         if (isFirstPageFirstLoad) {
 
-                                            Log.d(TAG, "onComplete: isFirstPageFirstLoad");
                                             //if the first page is loaded the add new post normally
                                             postsList.add(post);
                                             usersList.add(user);
 
                                         } else {
 
-                                            Log.d(TAG, "onComplete: not isFirstPageFirstLoad");
                                             //add the post at position 0 of the postsList
                                             postsList.add(0, post);
                                             usersList.add(0, user);
@@ -519,21 +509,18 @@ ViewCategoryActivity extends AppCompatActivity {
                                         }
                                         //notify the recycler adapter of the set change
                                         categoryRecyclerAdapter.notifyDataSetChanged();
-                                        progressDialog.dismiss();
 
                                     } else {
 
                                         //cat has no posts
                                         showSnack("There are no posts in this category");
                                         Log.d(TAG, "onComplete: cat has no posts");
-                                        progressDialog.dismiss();
 
                                     }
 
                                 } else {
 
                                     //task has failed
-                                    progressDialog.dismiss();
                                     Log.d(TAG, "onComplete: task has failed: " + task.getException());
 
                                 }
@@ -544,7 +531,7 @@ ViewCategoryActivity extends AppCompatActivity {
             } else {
 
                 //posts dont have current cat
-                progressDialog.dismiss();
+                // TODO: 5/3/18 show the no posts in current cat
 
             }
 
@@ -564,9 +551,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 .startAfter(lastVisiblePost)
                 .limit(10);
 
-
         //get all posts from the database
-        //use snapshotListener to get all the data real time
         nextQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -579,17 +564,14 @@ ViewCategoryActivity extends AppCompatActivity {
                         //get the last visible post
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
-
-
                         //create a for loop to check for document changes
                         for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+
                             //check if an item is added
                             if (doc.getType() == DocumentChange.Type.ADDED) {
+
                                 //a new item/ post is added
-
-                                //get the post id for likes feature
                                 String postId = doc.getDocument().getId();
-
                                 processCategories(doc, postId);
 
                             }
@@ -651,7 +633,6 @@ ViewCategoryActivity extends AppCompatActivity {
     private void goToLogin() {
         startActivity(new Intent(ViewCategoryActivity.this, LoginActivity.class));
     }
-
 
     private void showProgress(String message) {
         Log.d(TAG, "at showProgress\n message is: " + message);
