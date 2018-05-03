@@ -187,7 +187,7 @@ ViewCategoryActivity extends AppCompatActivity {
         } else {
 
             //user is not connected to internet
-            showSnack(R.id.viewCatLayout, getString(R.string.failed_to_connect_text));
+            showSnack(getString(R.string.failed_to_connect_text));
 
         }
 
@@ -238,7 +238,7 @@ ViewCategoryActivity extends AppCompatActivity {
                                             FirebaseMessaging.getInstance().subscribeToTopic(currentCat);
                                             Log.d(TAG, "user subscribed to topic {CURRENT CAT}");
                                             //notify user
-                                            showSnack(R.id.viewCatLayout, "Subscribed to " + getSupportActionBar().getTitle());
+                                            showSnack("Subscribed to " + getSupportActionBar().getTitle());
 
                                         } else {
 
@@ -270,7 +270,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 } else {
 
                     //user is not connected to internet
-                    showSnack(R.id.viewCatLayout, getString(R.string.failed_to_connect_text));
+                    showSnack(getString(R.string.failed_to_connect_text));
 
                 }
 
@@ -524,7 +524,7 @@ ViewCategoryActivity extends AppCompatActivity {
                                     } else {
 
                                         //cat has no posts
-                                        // TODO: 5/1/18 set the no posts view
+                                        showSnack("There are no posts in this category");
                                         Log.d(TAG, "onComplete: cat has no posts");
                                         progressDialog.dismiss();
 
@@ -606,8 +606,8 @@ ViewCategoryActivity extends AppCompatActivity {
 
 
     //show snack
-    private void showSnack(int layoutId, String message) {
-        Snackbar.make(findViewById(layoutId),
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.viewCatLayout),
                 message, Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.see_list_text), new View.OnClickListener() {
                     @Override
@@ -625,7 +625,7 @@ ViewCategoryActivity extends AppCompatActivity {
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(ViewCategoryActivity.this);
         loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage("You are not logged in\n" + message)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override

@@ -305,7 +305,7 @@
     <string name="view_full_desc_text">View full description</string>
     <string name="posted_text">Posted</string>
     <string name="report_submitted_text">Your report has been submitted for reviews.</string>
-    <string name="enter_post_details_text">Enter your post details to proceed</string>
+    <string name="enter_post_details_text">Enter post details to proceed</string>
     <string name="failed_to_post_text">Failed to post</string>
     <string name="failed_to_upload_image_text">Failed to upload image</string>
     <string name="feedback_title_text">Feedback</string>

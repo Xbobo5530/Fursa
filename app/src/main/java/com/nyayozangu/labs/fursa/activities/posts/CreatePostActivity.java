@@ -65,29 +65,6 @@ import id.zelory.compressor.Compressor;
 public class CreatePostActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
-    /*private final String[] categories = new String[]{
-
-            "Business",
-            "Events",
-            "Buying and selling",
-            "Education",
-            "Jobs",
-            "Places",
-            "Queries"
-
-    };
-
-    private final String[] catKeys = new String[]{
-
-            "business",
-            "events",
-            "buysell",
-            "education",
-            "jobs",
-            "places",
-            "queries"
-
-    };*/
 
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     //for file compression
@@ -122,7 +99,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private ConstraintLayout contactField;
     private TextView locationTextView;
     private Place postPlace = null;
-    private View alertView;
+    private View contactDialogView;
 
     //contact details
     private String contactName;
@@ -142,6 +119,9 @@ public class CreatePostActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.d(TAG, "at CreatePostActivity, onCreate()");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_post);
 
@@ -180,10 +160,8 @@ public class CreatePostActivity extends AppCompatActivity {
         contactTextView = findViewById(R.id.createPostContactTextView);
         contactDetails = new ArrayList<String>();
 
-
         priceField = findViewById(R.id.createPostPriceLayout);
         priceTextView = findViewById(R.id.createPostPriceTextView);
-
 
         if (coMeth.isLoggedIn()) {
 
@@ -248,7 +226,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
         //open a dialog for contact details
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-        alertView = inflater.inflate(R.layout.contact_alert_dialog_content_layout, null);
+        contactDialogView = inflater.inflate(R.layout.contact_alert_dialog_content_layout, null);
 
         contactField.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -256,14 +234,14 @@ public class CreatePostActivity extends AppCompatActivity {
                 final AlertDialog.Builder contactDialogBuilder = new AlertDialog.Builder(CreatePostActivity.this);
                 contactDialogBuilder.setTitle("Contact Details")
                         .setIcon(R.drawable.ic_action_contact)
-                        .setView(alertView)
+                        .setView(contactDialogView)
                         .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //user clicks done
-                                EditText contactNameField = alertView.findViewById(R.id.contactNameDialogEditText);
-                                EditText contactPhoneField = alertView.findViewById(R.id.contactPhoneDialogEditText);
-                                EditText contactEmailField = alertView.findViewById(R.id.contactEmailDialogEditText);
+                                EditText contactNameField = contactDialogView.findViewById(R.id.contactNameDialogEditText);
+                                EditText contactPhoneField = contactDialogView.findViewById(R.id.contactPhoneDialogEditText);
+                                EditText contactEmailField = contactDialogView.findViewById(R.id.contactEmailDialogEditText);
 
                                 //get values
                                 contactName = contactNameField.getText().toString().trim();
@@ -370,30 +348,28 @@ public class CreatePostActivity extends AppCompatActivity {
                         .setCancelable(false);
 
                 //check if view already has parent
-                if (alertView.getParent() != null) {
-                    ((ViewGroup) alertView.getParent()).removeView(alertView);
+                if (contactDialogView.getParent() != null) {
+                    ((ViewGroup) contactDialogView.getParent()).removeView(contactDialogView);
                 }
                 contactDialogBuilder.show();
             }
         });
 
 
-        //set an on click listener for the categories field
+        //categories field on click listener
         categoriesField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 //alert dialog builder
                 AlertDialog.Builder catPickerBuilder = new AlertDialog.Builder(CreatePostActivity.this);
-                catPickerBuilder.setTitle("Categories")
+                catPickerBuilder.setTitle(getString(R.string.categories_text))
                         .setIcon(getDrawable(R.drawable.ic_action_cat_light))
                         .setMultiChoiceItems(coMeth.categories, null, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 
-                                //when the alert dialog is opened first populate it with items from the mselected list(itema that are already selected)
-                                //empty all fields
-
+                                // TODO: 5/3/18 set checked items for categories
                                 //what happens when an item is checked
                                 if (isChecked) {
 
@@ -420,32 +396,20 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 for (int i = 0; i < mSelectedCats.size(); i++) {
 
-                                    //check if is last item
-                                    if (i == mSelectedCats.size() - 1) {
-
-                                        //this is the last item
-                                        //concat a string without comma
-                                        catsString = catsString.concat(coMeth.categories[mSelectedCats.get(i)] + "\n");
-
-                                    }
-
-                                    //update cats string array
-                                    if (!catsStringsArray.contains(coMeth.categories[mSelectedCats.get(i)])) {
-
-                                        //only add items to the array if they are not already there
-                                        catsStringsArray.add(coMeth.catKeys[mSelectedCats.get(i)].trim());
-                                        Log.d(TAG, "onClick: \n catsStringArray is: " + catsStringsArray);
-
-                                    }
+                                    //concat catString string
+                                    catsString = catsString.concat(coMeth.categories[mSelectedCats.get(i)] + "\n");
+                                    //add items to catArray
+                                    catsStringsArray.add(coMeth.getCatKey(coMeth.categories[mSelectedCats.get(i)]));
 
                                 }
 
+                                // TODO: 5/3/18 chcek on createing pst selecting cats does not
                                 catsTextView.setText(catsString.trim());
                             }
                         })
 
                         //set negative buttton
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
@@ -463,6 +427,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 //show the dialog
                 catPickerBuilder.show();
+
+                // TODO: 5/3/18 test clearing items after showing dialog
 
             }
         });
@@ -592,6 +558,8 @@ public class CreatePostActivity extends AppCompatActivity {
                     //check if description field is empty
                     if (!TextUtils.isEmpty(desc) && !TextUtils.isEmpty(title)) {
 
+                        //disable the submit button
+                        submitButton.setClickable(false);
                         //description is not empty and image is not null
                         showProgress("Posting...");
                         //check if is new post or edit post
@@ -663,7 +631,10 @@ public class CreatePostActivity extends AppCompatActivity {
                                     });
                         }
 
+                        //hide loading
                         progressDialog.dismiss();
+                        //re-enable submit button
+                        submitButton.setClickable(true);
 
                     } else {
                         //desc is empty
@@ -702,6 +673,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
     private void submitPost() {
         //check if post has image
+
+        Log.d(TAG, "submitPost: at submit post");
         if (postImageUri != null) {
 
             //generate randomString name for image based on firebase time stamp
@@ -771,7 +744,8 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         goToMain();
                                                         //notify users subscribed to cats
                                                         notifyNewPostCatsUpdates(catsStringsArray);
-                                                        Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
+                                                        Log.d(TAG, "onComplete: about to upload " +
+                                                                "\ncategproes are: " + catsStringsArray);
 
                                                     } else {
 
@@ -1202,7 +1176,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         String catsString = "";
                         for (int i = 0; i < catsArray.size(); i++) {
 
-                            catsString = catsString.concat(getCatValue(catsArray.get(i).toString()) + "\n");
+                            catsString = catsString.concat(coMeth.getCatValue(catsArray.get(i).toString()) + "\n");
 
                         }
 
@@ -1367,66 +1341,11 @@ public class CreatePostActivity extends AppCompatActivity {
                 message, Snackbar.LENGTH_LONG).show();
     }
 
-    private String getCatValue(String catValue) {
-
-        /*
-            "Featured",
-            "Popular",
-            "UpComing",
-            "Events",
-            "Places"
-            "Business",
-            "Buy and sell",
-            "Education",
-            "Jobs",
-            "Queries"*/
-
-
-        //return value for key
-        switch (catValue) {
-
-            case "featured":
-                return getString(R.string.cat_featured);
-
-            case "popular":
-                return getString(R.string.cat_popular);
-
-            case "upcoming":
-                return getString(R.string.cat_upcoming);
-
-            case "events":
-                return getString(R.string.cat_events);
-
-            case "places":
-                return getString(R.string.cat_places);
-
-            case "business":
-                return getString(R.string.cat_business);
-
-            case "buysell":
-                return getString(R.string.cat_buysell);
-
-            case "education":
-                return getString(R.string.cat_education);
-
-            case "jobs":
-                return getString(R.string.cat_jobs);
-
-            case "queries":
-                return getString(R.string.cat_queries);
-
-            default:
-                Log.d(TAG, "getCatValue: default");
-                return "";
-
-        }
-    }
-
     private void showLoginAlertDialog(String message) {
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(CreatePostActivity.this);
         loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage("You are not logged in\n" + message)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override

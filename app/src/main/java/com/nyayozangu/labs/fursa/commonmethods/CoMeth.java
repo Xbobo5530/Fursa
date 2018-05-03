@@ -220,6 +220,61 @@ public class CoMeth {
 
     }
 
+    public String getCatValue(String catValue) {
+
+            /*
+            "Featured",
+            "Popular",
+            "UpComing",
+            "Events",
+            "Places",
+            "Business",
+            "Buy and sell",
+            "Education",
+            "Jobs",
+            "Queries"*/
+
+
+        //return value for key
+        switch (catValue) {
+
+            case "featured":
+                return getApplicationContext().getString(R.string.cat_featured);
+
+            case "popular":
+                return getApplicationContext().getString(R.string.cat_popular);
+
+            case "upcoming":
+                return getApplicationContext().getString(R.string.cat_upcoming);
+
+            case "events":
+                return getApplicationContext().getString(R.string.cat_events);
+
+            case "places":
+                return getApplicationContext().getString(R.string.cat_places);
+
+            case "business":
+                return getApplicationContext().getString(R.string.cat_business);
+
+            case "buysell":
+                return getApplicationContext().getString(R.string.cat_buysell);
+
+            case "education":
+                return getApplicationContext().getString(R.string.cat_education);
+
+            case "jobs":
+                return getApplicationContext().getString(R.string.cat_jobs);
+
+            case "queries":
+                return getApplicationContext().getString(R.string.cat_queries);
+
+            default:
+                Log.d(TAG, "getCatValue: default");
+                return "";
+
+        }
+    }
+
     public String processPostDate(long millis) {
 
         //get current date

@@ -48,12 +48,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity {
 
     // TODO: 4/6/18 add bottom navigation fade in feature
-    // TODO: 4/7/18 add back twice to exit
 
     private static final String TAG = "Sean";
 
     //common methods
-    private CoMeth coMeth;
+    private CoMeth coMeth = new CoMeth();
 
     //users
     private String currentUserId;
@@ -86,9 +85,6 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //common methods
-        coMeth = new CoMeth();
 
         //subscribe to app updates
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");

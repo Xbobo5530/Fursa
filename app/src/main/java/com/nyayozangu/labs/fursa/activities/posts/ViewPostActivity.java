@@ -226,7 +226,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
 
-                                            progressDialog.dismiss();
+//                                            progressDialog.dismiss();
                                             if (task.isSuccessful()) {
 
                                                 //alert user
@@ -242,7 +242,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                         }
                                     });
 
-                            progressDialog.dismiss();
+//                            progressDialog.dismiss();
 
                         } else {
 
@@ -288,7 +288,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         showProgress("Deleting...");
                         new CoMeth().getDb().collection("Posts").document(postId).delete();
-                        progressDialog.dismiss();
+//                        progressDialog.dismiss();
                         Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
                         delResultIntent.putExtra("action", "notify");
                         delResultIntent.putExtra("message", getString(R.string.del_success_text));
@@ -640,7 +640,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                 Log.d(TAG, "at view post query");
                 //show progress
-                showProgress("Loading...");
+//                showProgress("Loading...");
 
                 //check if post exists
                 if (documentSnapshot.exists()) {
@@ -842,7 +842,7 @@ public class ViewPostActivity extends AppCompatActivity {
                         for (int i = 0; i < catKeys.size(); i++) {
 
                             //go through catKeys and get values
-                            String catValue = getCatValue(catKeys.get(i).toString());
+                            String catValue = coMeth.getCatValue(catKeys.get(i).toString());
                             categories.add(catValue);
 
                         }
@@ -868,7 +868,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     }
 
-                    progressDialog.dismiss();
+//                    progressDialog.dismiss();
 
 
                 } else {
@@ -883,7 +883,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     finish();
                 }
 
-                progressDialog.dismiss();
+//                progressDialog.dismiss();
 
             }
         });
@@ -974,60 +974,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
     }
 
-    private String getCatValue(String catValue) {
 
-            /*
-            "Featured",
-            "Popular",
-            "UpComing",
-            "Events",
-            "Places",
-            "Business",
-            "Buy and sell",
-            "Education",
-            "Jobs",
-            "Queries"*/
-
-
-        //return value for key
-        switch (catValue) {
-
-            case "featured":
-                return getString(R.string.cat_featured);
-
-            case "popular":
-                return getString(R.string.cat_popular);
-
-            case "upcoming":
-                return getString(R.string.cat_upcoming);
-
-            case "events":
-                return getString(R.string.cat_events);
-
-            case "places":
-                return getString(R.string.cat_places);
-
-            case "business":
-                return getString(R.string.cat_business);
-
-            case "buysell":
-                return getString(R.string.cat_buysell);
-
-            case "education":
-                return getString(R.string.cat_education);
-
-            case "jobs":
-                return getString(R.string.cat_jobs);
-
-            case "queries":
-                return getString(R.string.cat_queries);
-
-            default:
-                Log.d(TAG, "getCatValue: default");
-                return "";
-
-        }
-    }
 
     private void setImage(String downloadUrl) {
         RequestOptions placeHolderOptions = new RequestOptions();
@@ -1078,10 +1025,12 @@ public class ViewPostActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(ViewPostActivity.this);
         progressDialog.setMessage(message);
 
-        // TODO: 4/22/18 when editing post, saving a post crashes the app due to showing porogress bar
+        progressDialog.show();
+
+       /* // TODO: 4/22/18 when editing post, saving a post crashes the app due to showing porogress bar
         if (!(ViewPostActivity.this.isFinishing())) {
             progressDialog.show();
-        }
+        }*/
 
     }
 

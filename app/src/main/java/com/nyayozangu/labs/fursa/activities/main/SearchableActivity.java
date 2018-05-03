@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -183,6 +184,13 @@ public class SearchableActivity extends AppCompatActivity {
 
                     }
                 }
+                // TODO: 5/2/18 hanlde no posts found notif
+                /*if (postsList.isEmpty()) {
+
+                    //no posts
+                    showSnack("Posts not found");
+
+                }*/
 
                 //the first page has already loaded
                 isFirstPageFirstLoad = false;
@@ -266,12 +274,10 @@ public class SearchableActivity extends AppCompatActivity {
                     });
         } else {
 
-            //not posts
             progressDialog.dismiss();
-            // TODO: 5/1/18 set the zero search results view
-
 
         }
+
 
     }
 
@@ -352,6 +358,13 @@ public class SearchableActivity extends AppCompatActivity {
         }
 
     }*/
+
+    //show snack
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.searchView),
+                message, Snackbar.LENGTH_LONG)
+                .show();
+    }
 
 
 

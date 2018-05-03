@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -69,6 +70,7 @@ public class CommentsActivity extends AppCompatActivity {
     private String userId;
 
     private android.support.v7.widget.Toolbar toolbar;
+    private ConstraintLayout alertView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +104,7 @@ public class CommentsActivity extends AppCompatActivity {
         commentsRecyclerView.setHasFixedSize(true);
         commentsRecyclerView.setAdapter(commentsRecyclerAdapter);
 
+        alertView = findViewById(R.id.commentsAlertView);
 
         //get the sent intent
         Intent getPostIdIntent = getIntent();
@@ -142,6 +145,8 @@ public class CommentsActivity extends AppCompatActivity {
                                 String commentId = doc.getDocument().getId();
                                 Comments comment = doc.getDocument().toObject(Comments.class);
                                 commentsList.add(comment);
+                                //hide alert view
+                                alertView.setVisibility(View.GONE);
                                 commentsRecyclerAdapter.notifyDataSetChanged();
                                 commentsRecyclerView.scrollToPosition(commentsList.size() - 1);
 
@@ -150,7 +155,7 @@ public class CommentsActivity extends AppCompatActivity {
                     } else {
 
                         //there are no comments
-                        // TODO: 4/13/18 handle there are no comments
+                        alertView.setVisibility(View.VISIBLE);
 
 
                     }
@@ -496,7 +501,7 @@ public class CommentsActivity extends AppCompatActivity {
     private void showVerEmailDialog() {
         android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(CommentsActivity.this);
         emailVerBuilder.setTitle(R.string.email_ver_text)
-                .setIcon(R.drawable.ic_action_info_grey) // TODO: 4/27/18 change the black icon to the grey icon
+                .setIcon(R.drawable.ic_action_info_grey)
                 .setMessage(R.string.verify_to_comment_text)
                 .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
                     @Override
