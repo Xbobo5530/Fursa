@@ -143,6 +143,10 @@ ViewCategoryActivity extends AppCompatActivity {
                         getSupportActionBar().setTitle(getString(R.string.cat_places));
                         break;
 
+                    case "services":
+                        getSupportActionBar().setTitle(getString(R.string.cat_services));
+                        break;
+
                     case "business":
                         getSupportActionBar().setTitle(getString(R.string.cat_business));
                         break;
@@ -436,6 +440,10 @@ ViewCategoryActivity extends AppCompatActivity {
 
             case "places":
                 filterCat(doc, postId, "places");
+                break;
+
+            case "services":
+                filterCat(doc, postId, "services");
                 break;
 
             case "business":

@@ -42,6 +42,7 @@ public class CategoriesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
 
 
+
         final String[] catTitle = new String[]{
 
                 getResources().getString(R.string.cat_featured),
@@ -49,6 +50,7 @@ public class CategoriesFragment extends Fragment {
                 getResources().getString(R.string.cat_upcoming),
                 getResources().getString(R.string.cat_events),
                 getString(R.string.cat_places),
+                getResources().getString(R.string.cat_services),
                 getResources().getString(R.string.cat_business),
                 getResources().getString(R.string.cat_buysell),
                 getResources().getString(R.string.cat_education),
@@ -65,6 +67,7 @@ public class CategoriesFragment extends Fragment {
                 R.drawable.upcoming,
                 R.drawable.events,
                 R.drawable.places,
+                R.drawable.services,
                 R.drawable.business,
                 R.drawable.buysell,
                 R.drawable.school,

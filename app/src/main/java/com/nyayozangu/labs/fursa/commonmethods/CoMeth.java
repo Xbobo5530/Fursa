@@ -43,6 +43,7 @@ public class CoMeth {
             getApplicationContext().getString(R.string.cat_buysell),
             getApplicationContext().getString(R.string.cat_education),
             getApplicationContext().getString(R.string.cat_jobs),
+            getApplicationContext().getString(R.string.cat_services),
             getApplicationContext().getString(R.string.cat_places),
             getApplicationContext().getString(R.string.cat_queries)
 
@@ -56,6 +57,7 @@ public class CoMeth {
             "buysell",
             "education",
             "jobs",
+            "services",
             "places",
             "queries"
 
@@ -206,6 +208,8 @@ public class CoMeth {
                 return "events";
             case "Places":
                 return "places";
+            case "Services":
+                return "services";
             case "Business":
                 return "business";
             case "Buy and sell":
@@ -230,6 +234,7 @@ public class CoMeth {
             "UpComing",
             "Events",
             "Places",
+            "Services",
             "Business",
             "Buy and sell",
             "Education",
@@ -254,6 +259,9 @@ public class CoMeth {
 
             case "places":
                 return getApplicationContext().getString(R.string.cat_places);
+
+            case "services":
+                return getApplicationContext().getString(R.string.cat_services);
 
             case "business":
                 return getApplicationContext().getString(R.string.cat_business);
