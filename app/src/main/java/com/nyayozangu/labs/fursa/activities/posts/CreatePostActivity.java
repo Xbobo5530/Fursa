@@ -556,6 +556,8 @@ public class CreatePostActivity extends AppCompatActivity {
                     //check if description field is empty
                     if (!TextUtils.isEmpty(desc) && !TextUtils.isEmpty(title)) {
 
+                        //show progress
+                        showProgress(getString(R.string.submitting));
                         //disable the submit button
                         submitButton.setClickable(false);
                         //description is not empty and image is not null
@@ -609,12 +611,17 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                                     submitPost();
 
-
-
                                                 } else {
 
                                                     //post no longer exists
                                                     Log.d(TAG, "onComplete: post does not exist");
+                                                    coMeth.stopLoading(progressDialog, null);
+                                                    //go to main
+                                                    Intent postNotFoundIntent = new Intent(CreatePostActivity.this, MainActivity.class);
+                                                    postNotFoundIntent.putExtra("action", "notify");
+                                                    postNotFoundIntent.putExtra("message", getString(R.string.post_not_found_text));
+                                                    startActivity(postNotFoundIntent);
+                                                    finish();
 
                                                 }
 
@@ -622,6 +629,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                                 //task failed
                                                 Log.d(TAG, "onComplete: task failed" + task.getException());
+                                                showSnack(getString(R.string.failed_to_complete_text));
 
                                             }
 
@@ -671,8 +679,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
     private void submitPost() {
 
-        //show progress
-        showProgress(getString(R.string.submitting));
         //check if post has image
         Log.d(TAG, "submitPost: at submit post");
         if (postImageUri != null) {

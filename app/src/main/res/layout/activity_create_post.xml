@@ -29,6 +29,7 @@
                 android:id="@+id/createPostImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="50dp"
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_action_image_placeholder" />
 

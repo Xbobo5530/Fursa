@@ -315,5 +315,7 @@
     <string name="family_email">family@nyayozangu.com</string>
     <string name="privacy_policy_text">Privacy Policy</string>
     <string name="privacy_policy_url">http://fursa.nyayozangu.com/privacy_policy/</string>
+    <string name="searching_text">Searching...</string>
+    <string name="failed_to_complete_text">Failed to complete action</string>
 
 </resources>

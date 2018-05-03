@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 
@@ -30,6 +31,7 @@ import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -107,6 +109,7 @@ public class SearchableActivity extends AppCompatActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
             searchQuery = intent.getStringExtra(SearchManager.QUERY).toLowerCase();
+            Log.d(TAG, "handleIntent: \nquery is" + searchQuery);
             // TODO: 4/16/18 continue suggested query search
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(
                     this,
@@ -143,7 +146,7 @@ public class SearchableActivity extends AppCompatActivity {
 
 
         //loading
-        showProgress(getString(R.string.loading_text));
+        showProgress(getString(R.string.searching_text));
 
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
@@ -201,10 +204,32 @@ public class SearchableActivity extends AppCompatActivity {
     }
 
 
-    private void filterPosts(final Posts post, String searchQuery) {
+    private void filterPosts(final Posts post, final String searchQuery) {
 
         String title = post.getTitle().toLowerCase();
         String desc = post.getDesc().toLowerCase();
+        //handle price
+        if (post.getPrice() != null) {
+            String price = post.getPrice();
+        }
+        //handle categories
+        String catString = "";
+        if (post.getCategories() != null) {
+            ArrayList catsArray = post.getCategories();
+            for (int i = 0; i < catsArray.size(); i++) {
+
+                catString = catString.concat(coMeth.getCatValue((String) catsArray.get(i)) + " ");
+
+            }
+        }
+        // handle contact
+        ArrayList contactArray = new ArrayList();
+        if (post.getContact_details() != null) {
+
+            contactArray = post.getContact_details();
+
+        }
+        //handle location search
         locString = "";
         if (post.getLocation() != null) {
 
@@ -216,70 +241,121 @@ public class SearchableActivity extends AppCompatActivity {
             }
 
         }
+        //handle postUser
+        String postUserId = post.getUser_id();
+        coMeth.getDb()
+                .collection("Users")
+                .document(postUserId)
+                .get()
+                .addOnCompleteListener(this, new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-        // TODO: 4/19/18 refine search, the || might have errors
-        if (title.contains(searchQuery) ||
-                desc.contains(searchQuery) ||
-                locString.contains(searchQuery)) {
+                        if (task.isSuccessful() && task.getResult().exists()) {
 
-            //get user_id for post
-            String postUserId = post.getUser_id();
-            coMeth.getDb()
-                    .collection("Users")
-                    .document(postUserId)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                            //check if task is successful
-                            if (task.isSuccessful() && task.getResult().exists()) {
-
-                                Users user = task.getResult().toObject(Users.class);
-
-                                //add new post to the local postsList
-                                if (isFirstPageFirstLoad) {
-
-                                    //if the first page is loaded the add new post normally
-                                    postsList.add(post);
-                                    usersList.add(user);
-
-                                } else {
-
-                                    //add the post at position 0 of the postsList
-                                    postsList.add(0, post);
-                                    usersList.add(0, user);
-
-                                }
-                                //notify the recycler adapter of the set change
-                                searchRecyclerAdapter.notifyDataSetChanged();
-                                progressDialog.dismiss();
-                            } else {
-
-                                //task failed
-                                if (!task.isSuccessful()) {
-
-                                    Log.d(TAG, "onComplete: getting users task failed " + task.getException());
-
-                                } else if (!task.getResult().exists()) {
-
-                                    //user does not exist
-                                    Log.d(TAG, "onComplete: user does not exist");
-
-                                }
-
-                            }
-
+                            Users user = task.getResult().toObject(Users.class);
+                            String username = user.getName();
+                            if (username.contains(searchQuery)) getFilteredPosts(post);
 
                         }
-                    });
-        } else {
 
-            progressDialog.dismiss();
+                    }
+                });
+        //handle event date
+        String eventDateString = "";
+        if (post.getEvent_date() != null) {
+
+            Date eventDate = post.getEvent_date();
+            long eventDateMils = eventDate.getTime();
+            eventDateString = DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(eventDateMils)).toString();
 
         }
 
+        if (title.toLowerCase().contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
+        if (desc.toLowerCase().contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
+        if (locString.toLowerCase().contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
+        if (catString.toLowerCase().contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
+        if (contactArray.contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
+        if (eventDateString.toLowerCase().contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
 
+        Log.d(TAG, "filterPosts: " +
+                "\nlocString: " + locString +
+                "\ncatString: " + catString +
+                "\ncontactArray: " + contactArray +
+                "\neventDateString: " + eventDateString);
+    }
+
+    private void getFilteredPosts(final Posts post) {
+
+        Log.d(TAG, "getFilteredPosts: called");
+        //get user_id for post
+        String postUserId = post.getUser_id();
+        coMeth.getDb()
+                .collection("Users")
+                .document(postUserId)
+                .get()
+                .addOnCompleteListener(this, new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                        //check if task is successful
+                        if (task.isSuccessful() && task.getResult().exists()) {
+
+                            Users user = task.getResult().toObject(Users.class);
+
+                            //add new post to the local postsList
+                            if (isFirstPageFirstLoad) {
+
+                                //if the first page is loaded the add new post normally
+                                postsList.add(post);
+                                usersList.add(user);
+
+                            } else {
+
+                                //add the post at position 0 of the postsList
+                                postsList.add(0, post);
+                                usersList.add(0, user);
+
+                            }
+                            //notify the recycler adapter of the set change
+                            searchRecyclerAdapter.notifyDataSetChanged();
+                            coMeth.stopLoading(progressDialog, null);
+
+                        } else {
+
+                            //task failed
+                            if (!task.isSuccessful()) {
+
+                                Log.d(TAG, "onComplete: getting users task failed " + task.getException());
+
+                            } else if (!task.getResult().exists()) {
+
+                                //user does not exist
+                                Log.d(TAG, "onComplete: user does not exist");
+
+                            }
+
+                            coMeth.stopLoading(progressDialog, null);
+
+
+                        }
+
+                        coMeth.stopLoading(progressDialog, null);
+
+                    }
+                });
     }
 
     //for loading more posts
@@ -332,44 +408,11 @@ public class SearchableActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
-
-    /*public class MySearchRecentSuggestionsProvider extends SearchRecentSuggestionsProvider {
-
-        String mIconUri = String.valueOf(R.drawable.ic_action_time); // a drawable ID as a String will also do!
-
-        public Cursor query(Uri uri, String[] projection, String selection,
-                            String[] selectionArgs, String sortOrder) {
-
-            class Wrapper extends CursorWrapper {
-                Wrapper(Cursor c) {
-                    super(c);
-                }
-
-                public String getString(int columnIndex) {
-                    if (columnIndex != -1
-                            && columnIndex == getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))
-                        return mIconUri;
-
-                    return super.getString(columnIndex);
-                }
-            }
-
-            return new Wrapper(super.query(Uri uri, String[] projection, String selection,
-                    String[] selectionArgs, String sortOrder);
-        }
-
-    }*/
-
     //show snack
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.searchView),
                 message, Snackbar.LENGTH_LONG)
                 .show();
     }
-
-
-
-
-
 
 }

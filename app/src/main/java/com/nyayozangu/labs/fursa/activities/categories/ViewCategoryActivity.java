@@ -213,7 +213,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
                                 .document("categories")
                                 .collection("Categories").document(currentCat).get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                         //get data from teh likes collection
@@ -483,7 +483,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         .collection("Users")
                         .document(postUserId)
                         .get()
-                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -509,12 +509,14 @@ ViewCategoryActivity extends AppCompatActivity {
                                         }
                                         //notify the recycler adapter of the set change
                                         categoryRecyclerAdapter.notifyDataSetChanged();
+                                        coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                     } else {
 
                                         //cat has no posts
                                         showSnack("There are no posts in this category");
                                         Log.d(TAG, "onComplete: cat has no posts");
+                                        coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                     }
 
@@ -522,6 +524,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
                                     //task has failed
                                     Log.d(TAG, "onComplete: task has failed: " + task.getException());
+                                    coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                 }
 
@@ -532,6 +535,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
                 //posts dont have current cat
                 // TODO: 5/3/18 show the no posts in current cat
+                coMeth.stopLoading(progressDialog, swipeRefresh);
 
             }
 
@@ -616,7 +620,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         Intent loginIntent = new Intent(ViewCategoryActivity.this, LoginActivity.class);
                         loginIntent.putExtra("source", "categories");
                         loginIntent.putExtra("category", currentCat);
-                        goToLogin();
+                        coMeth.goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -627,11 +631,6 @@ ViewCategoryActivity extends AppCompatActivity {
                     }
                 })
                 .show();
-    }
-
-    //go to login page
-    private void goToLogin() {
-        startActivity(new Intent(ViewCategoryActivity.this, LoginActivity.class));
     }
 
     private void showProgress(String message) {
