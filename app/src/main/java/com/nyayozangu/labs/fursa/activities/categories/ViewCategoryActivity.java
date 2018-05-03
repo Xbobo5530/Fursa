@@ -34,6 +34,8 @@ import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -407,7 +409,9 @@ ViewCategoryActivity extends AppCompatActivity {
 
         Log.d(TAG, "processCategories: ");
         //get received intent
+
         final String category = getIntent().getStringExtra("category");
+        Log.d(TAG, "processCategories: \ncategory is: " + category);
 
         switch (category) {
 
@@ -474,82 +478,134 @@ ViewCategoryActivity extends AppCompatActivity {
 
     private void filterCat(final DocumentChange doc, final String postId, final String category) {
 
-        Log.d(TAG, "filterCat: at filter cat");
+        Log.d(TAG, "filterCat: at filter cat\ncat is: " + category);
         //check if current post contains business
 
         final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
         ArrayList catsArray = post.getCategories();
         Log.d(TAG, "filterCat: \ncatsArray is: " + catsArray);
-        if (catsArray != null) {
 
-            Log.d(TAG, "filterCat: catsArray is not null");
-            //check if post contains cat
-            if (catsArray.contains(category)) {
+        if (category.equals("upcoming")) {
 
-                String postUserId = post.getUser_id();
-                coMeth.getDb()
-                        .collection("Users")
-                        .document(postUserId)
-                        .get()
-                        .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            Log.d(TAG, "filterCat: cat is upcoming");
+            //check if post has event date
+            if (post.getEvent_date() != null) {
 
-                                if (task.isSuccessful()) {
+                Date eventDate = post.getEvent_date();
+                Log.d(TAG, "filterCat: post has event date\nevent date is: " + eventDate);
+                Long eventDateMils = (eventDate.getTime());
+                Long nowMils = new Date().getTime();
 
-                                    //check if user exists
-                                    if (task.getResult().exists()) {
 
-                                        Users user = task.getResult().toObject(Users.class);
-                                        //add new post to the local postsList
-                                        if (isFirstPageFirstLoad) {
+                Calendar endCal = Calendar.getInstance();
+                Log.d(TAG, "filterCat: event cal is " + endCal);
+                endCal.add(Calendar.MONTH, 6);
+                Log.d(TAG, "filterCat: event cal after 6 months is " + endCal);
 
-                                            //if the first page is loaded the add new post normally
-                                            postsList.add(post);
-                                            usersList.add(user);
+                Calendar eventCal = Calendar.getInstance();
+                eventCal.set(eventDate.getYear(),
+                        eventDate.getMonth(),
+                        eventDate.getDay());
+                Log.d(TAG, "filterCat: eventCal is " + eventCal);
 
-                                        } else {
 
-                                            //add the post at position 0 of the postsList
-                                            postsList.add(0, post);
-                                            usersList.add(0, user);
+                if (eventDate.after(new Date()) && eventCal.before(endCal)) {
 
-                                        }
-                                        //notify the recycler adapter of the set change
-                                        categoryRecyclerAdapter.notifyDataSetChanged();
-                                        coMeth.stopLoading(progressDialog, swipeRefresh);
+                    postsList.clear();
+                    usersList.clear();
+                    getFilteredPosts(post);
 
-                                    } else {
-
-                                        //cat has no posts
-                                        showSnack("There are no posts in this category");
-                                        Log.d(TAG, "onComplete: cat has no posts");
-                                        coMeth.stopLoading(progressDialog, swipeRefresh);
-
-                                    }
-
-                                } else {
-
-                                    //task has failed
-                                    Log.d(TAG, "onComplete: task has failed: " + task.getException());
-                                    coMeth.stopLoading(progressDialog, swipeRefresh);
-
-                                }
-
-                            }
-                        });
-
-            } else {
-
-                //posts dont have current cat
-                // TODO: 5/3/18 show the no posts in current cat
-                coMeth.stopLoading(progressDialog, swipeRefresh);
+                }
 
             }
 
+        } else if (category.equals("featured")) {
+
+            //cat is featured
+            Log.d(TAG, "filterCat: cat is featured");
+
+        } else if (category.equals("popular")) {
+
+            ///cat is popular
+            Log.d(TAG, "filterCat: cat is popular");
+
+        } else {
+
+            if (catsArray != null) {
+
+                Log.d(TAG, "filterCat: catsArray is not null");
+                //check if post contains cat
+                if (catsArray.contains(category)) {
+
+                    getFilteredPosts(post);
+
+                } else {
+
+                    //posts dont have current cat
+                    // TODO: 5/3/18 show the no posts in current cat
+                    coMeth.stopLoading(progressDialog, swipeRefresh);
+
+                }
+
+            }
         }
 
 
+    }
+
+    private void getFilteredPosts(final Posts post) {
+        String postUserId = post.getUser_id();
+        coMeth.getDb()
+                .collection("Users")
+                .document(postUserId)
+                .get()
+                .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                        if (task.isSuccessful()) {
+
+                            //check if user exists
+                            if (task.getResult().exists()) {
+
+                                Users user = task.getResult().toObject(Users.class);
+                                //add new post to the local postsList
+                                if (isFirstPageFirstLoad) {
+
+                                    //if the first page is loaded the add new post normally
+                                    postsList.add(post);
+                                    usersList.add(user);
+
+                                } else {
+
+                                    //add the post at position 0 of the postsList
+                                    postsList.add(0, post);
+                                    usersList.add(0, user);
+
+                                }
+                                //notify the recycler adapter of the set change
+                                categoryRecyclerAdapter.notifyDataSetChanged();
+                                coMeth.stopLoading(progressDialog, swipeRefresh);
+
+                            } else {
+
+                                //cat has no posts
+                                showSnack("There are no posts in this category");
+                                Log.d(TAG, "onComplete: cat has no posts");
+                                coMeth.stopLoading(progressDialog, swipeRefresh);
+
+                            }
+
+                        } else {
+
+                            //task has failed
+                            Log.d(TAG, "onComplete: task has failed: " + task.getException());
+                            coMeth.stopLoading(progressDialog, swipeRefresh);
+
+                        }
+
+                    }
+                });
     }
 
 
