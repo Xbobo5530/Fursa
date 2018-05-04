@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -32,7 +31,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
-import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
@@ -56,6 +54,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
     private static final String TAG = "Sean";
+
     //member variables for storing posts
     public List<Posts> postsList;
     public List<Users> usersList;
@@ -86,14 +85,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
-
-        //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
-
-        //initialize firebase storage
-        // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
-
         return new ViewHolder(view);
     }
 
@@ -107,16 +100,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         String titleData = postsList.get(position).getTitle();
         //set the post title
         holder.setTitle(titleData);
-
         //set the data after the viewHolder has been bound
         String descData = postsList.get(position).getDesc();
         //set the description to the view holder
         holder.setDesc(descData);
-
         //set location
         ArrayList locationArray = postsList.get(position).getLocation();
         holder.setPostLocation(locationArray);
-
 
         final String currentUserId;
 
@@ -136,19 +126,17 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //receive the post id
         final String postId = postsList.get(position).PostId;
-
         //handle name and image
         String userName = usersList.get(position).getName();
         String userImageDownloadUri = usersList.get(position).getImage();
-
         holder.setUserData(userName, userImageDownloadUri);
-
         //handle date for posts
-        // TODO: 4/5/18 looking into the timestamp bug; app crashes on creating new post
         if (postsList.get(position).getTimestamp() != null) {
+
             long millis = postsList.get(position).getTimestamp().getTime();
             String dateString = coMeth.processPostDate(millis);
             holder.setPostDate(dateString);
+
         }
 
         //get likes count
@@ -174,7 +162,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         if (isLoggedIn()) {
             //get likes
             //determine likes by current user
-            db.collection("Posts/" + postId + "/Likes").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            db.collection("Posts/" + postId + "/Likes")
+                    .document(currentUserId)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -191,7 +181,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             });
 
             //get saves
-            db.collection("Posts/" + postId + "/Saves").document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            db.collection("Posts/" + postId + "/Saves")
+                    .document(currentUserId)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                     //update the save button real time
@@ -270,7 +262,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         });
 
-
         //save button click listener
         holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -285,11 +276,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     //check if user is logged in
                     if (isLoggedIn()) {
 
-                        db.collection("Posts/" + postId + "/Saves").document(currentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        db.collection("Posts/" + postId + "/Saves")
+                                .document(currentUserId)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                //get data from the saves collections
 
+                                //get data from the saves collections
                                 //check if user has already saved the post
                                 if (!task.getResult().exists()) {
 
@@ -319,7 +313,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         //notify user
                         String message = "Log in to save items";
                         showLoginAlertDialog(message);
-
 
                     }
                 } else {
@@ -361,7 +354,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                 Log.d(TAG, "post image is clicked");
                 openPost(postId);
-                /*((Activity)context).finish();*/
             }
         });
 
@@ -389,7 +381,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
         //count comments
-        db.collection("Posts/" + postId + "/Comments").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("Posts/" + postId + "/Comments")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
                 Log.d(TAG, "at onEvent, when likes change");
@@ -409,56 +402,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         holder.postCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Log.d(TAG, "post image is clicked");
                 Intent openPostIntent = new Intent(context, CommentsActivity.class);
                 openPostIntent.putExtra("postId", postId);
                 context.startActivity(openPostIntent);
-            }
-        });
-
-
-        //post menu click action
-        holder.postMenuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                db.collection("Posts").document(postId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                        //check if task is successful
-                        if (task.isSuccessful()) {
-
-                            //get postUserId
-                            String postUserId = task.getResult().get("user_id").toString();
-                            //open menu
-                            openPostMenu(postId, currentUserId, postUserId);
-
-                        } else {
-
-                            //task failed
-                            Log.d(TAG, "onComplete: " + task.getException().getMessage());
-
-                        }
-
-                    }
-                });
-
 
             }
         });
 
-
-    }
-
-
-    private void showProgress(String message) {
-
-        Log.d(TAG, "at showProgress\n message is: " + message);
-        //construct the dialog box
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage(message);
-        progressDialog.show();
 
     }
 
@@ -466,88 +418,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         Intent openPostIntent = new Intent(context, ViewPostActivity.class);
         openPostIntent.putExtra("postId", postId);
         context.startActivity(openPostIntent);
-    }
-
-    private void openPostMenu(final String postId, final String currentUserId, final String postUserId) {
-
-        if (isConnected()) {
-
-            if (isLoggedIn()) {
-
-                //normal menu
-                AlertDialog.Builder postMenuBuilder = new AlertDialog.Builder(context);
-                postMenuBuilder.setItems(getPostMenuItems(currentUserId, postUserId), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        //open the feedback page
-                        switch (getPostMenuItems(currentUserId, postUserId)[which].toLowerCase()) {
-
-                            case "report":
-                                //open report page
-                                Toast.makeText(context, "Report", Toast.LENGTH_SHORT).show();
-                                break;
-                            case "edit":
-                                //open edit post
-                                Intent editIntent = new Intent(context, CreatePostActivity.class);
-                                editIntent.putExtra("editPost", postId);
-                                context.startActivity(editIntent);
-                                break;
-
-                        }
-
-
-                    }
-                })
-                        .show();
-
-            } else {
-
-                //user is not logged in
-                showLoginAlertDialog(context.getString(R.string.login_to_view_options_text));
-
-            }
-
-        } else {
-
-            // TODO: 4/24/18 notify user failed to connect
-            /*showSnack (holder, "Failed to connect to the internet");*/
-
-        }
-
-    }
-
-    private String[] getPostMenuItems(String currentUserId, String postUserId) {
-
-        if (isConnected()) {
-
-            if (isLoggedIn()) {
-
-                if (currentUserId.equals(postUserId)) {
-
-                    //menu items
-                    return new String[]{
-
-                            context.getString(R.string.edit_text),
-                            context.getString(R.string.report_text),
-
-                    };
-                } else {
-
-                    //menu items
-                    return new String[]{
-
-                            context.getString(R.string.report_text)
-
-                    };
-
-                }
-
-            }
-
-        }
-
-        return new String[0];
     }
 
     private void showSnack(@NonNull ViewHolder holder, String message) {

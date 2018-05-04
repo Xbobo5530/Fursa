@@ -912,6 +912,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
                 //open alert Dialog with full desc
+                // TODO: 5/4/18 use a custom view so that the content in the desc can still be autolinked
                 AlertDialog.Builder descBuilder = new AlertDialog.Builder(ViewPostActivity.this);
                 descBuilder.setTitle(getString(R.string.desc_text))
                         .setIcon(R.drawable.ic_action_descritption)

@@ -189,6 +189,7 @@ public class CreatePostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //crate a dialog tha twill have a
+                // TODO: 5/4/18 use a cutom view to properly align the desc text
                 AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
                 builder.setTitle("Post Description")
                         .setIcon(R.drawable.ic_action_descritption);
@@ -753,9 +754,11 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         Log.d(TAG, "onComplete: about to upload " +
                                                                 "\ncategproes are: " + catsStringsArray);
 
+
                                                     } else {
 
                                                         //upload failed
+                                                        coMeth.stopLoading(progressDialog, null);
                                                         String errorMessage = task.getException().getMessage();
                                                         Log.d(TAG, "Db Update failed: " + errorMessage);
                                                         showSnack(getString(R.string.failed_to_upload_image_text));
@@ -790,10 +793,8 @@ public class CreatePostActivity extends AppCompatActivity {
                                                     } else {
 
                                                         //upload failed
-                                                        String errorMessage = task.getException().getMessage();
-                                                        Log.d(TAG, "Db Update failed: " + errorMessage);
-                                                        Snackbar.make(findViewById(R.id.createPostActivityLayout),
-                                                                "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
+                                                        Log.d(TAG, "Db Update failed: " + task.getException());
+                                                        showSnack(getString(R.string.failed_to_upload_image_text));
 
                                                     }
                                                     coMeth.stopLoading(progressDialog, null);
@@ -809,8 +810,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 //upload failed
-                                String errorMessage = task.getException().getMessage();
-                                Log.d(TAG, "Db Update failed: " + errorMessage);
+                                Log.d(TAG, "Db Update failed: " + task.getException());
                                 showSnack(getString(R.string.failed_to_upload_image_text));
                                 coMeth.stopLoading(progressDialog, null);
                             }
@@ -820,7 +820,6 @@ public class CreatePostActivity extends AppCompatActivity {
                     } else {
 
                         //post failed
-                        String errorMessage = task.getException().getMessage();
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
                         showSnack(getString(R.string.failed_to_upload_image_text));
                     }
@@ -838,7 +837,6 @@ public class CreatePostActivity extends AppCompatActivity {
             Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
 
             if (!isEditPost()) {
-                showProgress(getString(R.string.posting_text));
                 coMeth.getDb()
                         .collection("Posts")
                         .add(postMap)
@@ -857,7 +855,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 } else {
 
                                     //posting failed
-                                    String errorMessage = task.getException().getMessage();
+                                    Log.d(TAG, "onComplete: " + task.getException());
                                     showSnack(getString(R.string.failed_to_post_text));
 
                                 }
@@ -867,7 +865,6 @@ public class CreatePostActivity extends AppCompatActivity {
             } else {
 
                 //for edit post
-                showProgress(getString(R.string.posting_text));
                 coMeth.getDb()
                         .collection("Posts")
                         .document(postId)
@@ -1196,22 +1193,11 @@ public class CreatePostActivity extends AppCompatActivity {
                         String contactString = "";
                         for (int i = 0; i < contactArray.size(); i++) {
 
-                            if (i == contactArray.size() - 1) {
-
-                                //is last item
-                                contactString = contactString.concat(contactArray.get(i).toString());
-
-                            } else {
-
-                                //middle item
-                                contactString = contactString.concat(contactArray.get(i).toString() + "\n");
-
-                            }
+                            contactString = contactString.concat(contactArray.get(i).toString() + "\n");
 
                         }
 
                         contactTextView.setText(contactString.trim());
-
 
                     }
 
@@ -1223,19 +1209,11 @@ public class CreatePostActivity extends AppCompatActivity {
 
                         for (int i = 0; i < locationArray.size(); i++) {
 
-                            if (i == locationArray.size() - 1) {
-
-                                locationString = locationString.concat(locationArray.get(i).toString());
-
-                            } else {
-
-                                locationString = locationString.concat(locationArray.get(i).toString() + "\n");
-
-                            }
+                            locationString = locationString.concat(locationArray.get(i).toString() + "\n");
 
                         }
 
-                        locationTextView.setText(locationString);
+                        locationTextView.setText(locationString.trim());
 
                     }
 
@@ -1247,7 +1225,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         Log.d(TAG, "onEvent: \nebentDateString: " + eventDateString);
                         eventDateTextView.setText(eventDateString);
                     }
-
 
                     //set price
                     if (post.getPrice() != null) {
@@ -1297,7 +1274,6 @@ public class CreatePostActivity extends AppCompatActivity {
                 Exception error = result.getError();
             }
         }
-
 
         //for google places
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
@@ -1366,7 +1342,4 @@ public class CreatePostActivity extends AppCompatActivity {
                 })
                 .show();
     }
-
-
-
 }
