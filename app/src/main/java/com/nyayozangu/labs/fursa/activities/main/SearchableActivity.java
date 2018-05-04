@@ -175,7 +175,6 @@ public class SearchableActivity extends AppCompatActivity {
 
                 }
 
-
                 //create a for loop to check for document changes
                 for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                     //check if an item is added
@@ -210,7 +209,7 @@ public class SearchableActivity extends AppCompatActivity {
         String desc = post.getDesc().toLowerCase();
         //handle price
         if (post.getPrice() != null) {
-            String price = post.getPrice();
+            String price = post.getPrice().toLowerCase();
         }
         //handle categories
         String catString = "";
@@ -218,16 +217,22 @@ public class SearchableActivity extends AppCompatActivity {
             ArrayList catsArray = post.getCategories();
             for (int i = 0; i < catsArray.size(); i++) {
 
-                catString = catString.concat(coMeth.getCatValue((String) catsArray.get(i)) + " ");
+                catString = catString.concat(coMeth.getCatValue((catsArray.get(i)).toString()).toLowerCase() + " ");
 
             }
         }
         // handle contact
         ArrayList contactArray = new ArrayList();
+        String contactString = "";
         if (post.getContact_details() != null) {
 
             contactArray = post.getContact_details();
 
+            for (int i = 0; i < contactArray.size(); i++) {
+
+                contactString = contactString.concat(contactArray.get(i).toString().toLowerCase() + " ");
+
+            }
         }
         //handle location search
         locString = "";
@@ -236,7 +241,7 @@ public class SearchableActivity extends AppCompatActivity {
             ArrayList locArray = post.getLocation();
             for (int i = 0; i < locArray.size(); i++) {
 
-                locString = locString.concat(locArray.get(i).toString() + " ");
+                locString = locString.concat(locArray.get(i).toString().toLowerCase() + " ");
 
             }
 
@@ -254,7 +259,7 @@ public class SearchableActivity extends AppCompatActivity {
                         if (task.isSuccessful() && task.getResult().exists()) {
 
                             Users user = task.getResult().toObject(Users.class);
-                            String username = user.getName();
+                            String username = user.getName().toLowerCase();
                             if (username.contains(searchQuery)) getFilteredPosts(post);
 
                         }
@@ -267,33 +272,35 @@ public class SearchableActivity extends AppCompatActivity {
 
             Date eventDate = post.getEvent_date();
             long eventDateMils = eventDate.getTime();
-            eventDateString = DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(eventDateMils)).toString();
+            eventDateString = DateFormat.format("EEE, MMM d, 20yy", new Date(eventDateMils)).toString().toLowerCase();
 
         }
 
-        if (title.toLowerCase().contains(searchQuery)) {
+        coMeth.stopLoading(progressDialog, null);
+
+        if (title.contains(searchQuery)) {
             getFilteredPosts(post);
         }
-        if (desc.toLowerCase().contains(searchQuery)) {
+        if (desc.contains(searchQuery)) {
             getFilteredPosts(post);
         }
-        if (locString.toLowerCase().contains(searchQuery)) {
+        if (locString.contains(searchQuery)) {
             getFilteredPosts(post);
         }
-        if (catString.toLowerCase().contains(searchQuery)) {
+        if (catString.contains(searchQuery)) {
             getFilteredPosts(post);
         }
-        if (contactArray.contains(searchQuery)) {
+        if (contactString.contains(searchQuery)) {
             getFilteredPosts(post);
         }
-        if (eventDateString.toLowerCase().contains(searchQuery)) {
+        if (eventDateString.contains(searchQuery)) {
             getFilteredPosts(post);
         }
 
         Log.d(TAG, "filterPosts: " +
                 "\nlocString: " + locString +
                 "\ncatString: " + catString +
-                "\ncontactArray: " + contactArray +
+                "\ncontactString: " + contactString +
                 "\neventDateString: " + eventDateString);
     }
 
@@ -314,7 +321,6 @@ public class SearchableActivity extends AppCompatActivity {
                         if (task.isSuccessful() && task.getResult().exists()) {
 
                             Users user = task.getResult().toObject(Users.class);
-
                             //add new post to the local postsList
                             if (isFirstPageFirstLoad) {
 
@@ -331,7 +337,13 @@ public class SearchableActivity extends AppCompatActivity {
                             }
                             //notify the recycler adapter of the set change
                             searchRecyclerAdapter.notifyDataSetChanged();
+                            //stop loafing
                             coMeth.stopLoading(progressDialog, null);
+                            //check if search returned results
+                            if (postsList.isEmpty()) {
+                                showSnack(getString(R.string.post_not_found_text));
+                            }
+                            Log.d(TAG, "onComplete: fildtered posts are " + postsList);
 
                         } else {
 
@@ -339,6 +351,7 @@ public class SearchableActivity extends AppCompatActivity {
                             if (!task.isSuccessful()) {
 
                                 Log.d(TAG, "onComplete: getting users task failed " + task.getException());
+                                showSnack(getString(R.string.failed_to_complete_text));
 
                             } else if (!task.getResult().exists()) {
 

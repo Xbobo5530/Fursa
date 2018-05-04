@@ -67,8 +67,6 @@ public class CoMeth {
             getApplicationContext().getString(R.string.spam_text),
             getApplicationContext().getString(R.string.inapropriate_text)
 
-
-
     };
 
     public final String[] reportListKey = new String[]{
@@ -376,4 +374,15 @@ public class CoMeth {
 
 
     }
+
+    /*public void hideKeyBoard() {
+
+        try {
+            InputMethodManager imm = (InputMethodManager)getApplicationContext().getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+            Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
+        }
+
+    }*/
 }

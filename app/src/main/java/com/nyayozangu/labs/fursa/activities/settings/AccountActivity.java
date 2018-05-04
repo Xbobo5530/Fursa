@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -116,14 +117,6 @@ public class AccountActivity extends AppCompatActivity {
                             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                     image,
                                     setupImage);
-                            /*
-                            RequestOptions placeHolderRequest = new RequestOptions();
-                            placeHolderRequest.placeholder(R.drawable.ic_action_person_placeholder);
-                            //loading the string for url to the image view
-                            Glide.with(getApplicationContext())
-                                    .setDefaultRequestOptions(placeHolderRequest)
-                                    .load(image)
-                                    .into(setupImage);*/
 
                             //update the imageUri
                             userImageUri = Uri.parse(image);
@@ -137,14 +130,17 @@ public class AccountActivity extends AppCompatActivity {
                     } else {
                         //new user
                         //get user email and set it to username
+                        Log.d(TAG, "data does not exist");
                         FirebaseUser user = coMeth.getAuth().getCurrentUser();
                         String userEmail = user.getEmail();
                         String userDisplayName = user.getDisplayName();
-                        if(userDisplayName != null){userNameField.setText(userDisplayName);}
-                        else if(userEmail != null){userNameField.setText(userEmail);}
-
-                        // TODO: 4/29/18 test user display name and user email (esp for twitter)
-                        Log.d(TAG, "data does not exist");
+                        if (userDisplayName != null) {
+                            userNameField.setText(userDisplayName);
+                        } else {
+                            if (userEmail != null) {
+                                userNameField.setText(userEmail);
+                            }
+                        }
 
                     }
 
@@ -155,7 +151,7 @@ public class AccountActivity extends AppCompatActivity {
                             "Data retrieve error : " + errorMessage, Snackbar.LENGTH_SHORT).show();
                 }
                 //hide progress
-                progressDialog.dismiss();
+                coMeth.stopLoading(progressDialog, null);
                 saveButton.setEnabled(true);
             }
         });
@@ -199,6 +195,8 @@ public class AccountActivity extends AppCompatActivity {
                 //check if userNameField is empty
                 if (!TextUtils.isEmpty(userName)) {
 
+                    //hide keyboard
+                    hideKeyBoard();
                     //show progress bar
                     showProgress("Loading...");
                     //generate randomString name for image based on firebase time stamp
@@ -463,5 +461,17 @@ public class AccountActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    private void hideKeyBoard() {
+
+        Log.d(TAG, "hideKeyBoard: ");
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+            Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
+        }
+
     }
 }

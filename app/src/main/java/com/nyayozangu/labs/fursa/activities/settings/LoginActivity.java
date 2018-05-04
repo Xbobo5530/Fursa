@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -152,6 +153,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                                 if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
 
+                                    //hide keyboard
+                                    hideKeyBoard();
                                     //show progress
                                     showProgress(getString(R.string.logging_in_text));
 
@@ -227,6 +230,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                     //check for confirm password
                                     if (password.equals(confirmPassword)) {
 
+                                        //hide keyboard
+                                        hideKeyBoard();
                                         // show progress
                                         showProgress("Registering...");
 
@@ -609,6 +614,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Snackbar.make(findViewById(R.id.login_activity_layout),
                 "Google Play Services error.", Snackbar.LENGTH_SHORT).show();
+
+    }
+
+    private void hideKeyBoard() {
+
+        Log.d(TAG, "hideKeyBoard: ");
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+            Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
+        }
 
     }
 }

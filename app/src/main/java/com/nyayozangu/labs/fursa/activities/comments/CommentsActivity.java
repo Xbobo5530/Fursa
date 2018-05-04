@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,8 +16,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,10 +36,12 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.adapters.CommentsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
+import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
+import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,18 +53,18 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentsActivity extends AppCompatActivity {
 
-
     private static final String TAG = "Sean";
     private ImageView sendButton;
     private EditText chatField;
-    private CircleImageView currentUserImage;
+    private CircleImageView currentUserImage, postUserImage;
+    private TextView postUsernameField, postTitleField;
 
     private RecyclerView commentsRecyclerView;
     private CommentsRecyclerAdapter commentsRecyclerAdapter;
     private List<Comments> commentsList;
 
     //common methods
-    private CoMeth cometh;
+    private CoMeth coMeth;
 
     //progress
     private ProgressDialog progressDialog;
@@ -70,7 +73,6 @@ public class CommentsActivity extends AppCompatActivity {
     private String userId;
 
     private android.support.v7.widget.Toolbar toolbar;
-    private ConstraintLayout alertView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,23 +80,15 @@ public class CommentsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_comments);
 
         //common methods
-        cometh = new CoMeth();
-
+        coMeth = new CoMeth();
+        //initiate items
+        postUserImage = findViewById(R.id.commentsPostUserImageView);
+        postUsernameField = findViewById(R.id.commentsPostUsernameTextView);
+        postTitleField = findViewById(R.id.commentsPostTitleTextView);
         toolbar = findViewById(R.id.commentsToolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Comments");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         sendButton = findViewById(R.id.commentsSendBottonImageView);
         chatField = findViewById(R.id.commentsChatEditText);
         currentUserImage = findViewById(R.id.commentsCurrentUserImageView);
-
         commentsRecyclerView = findViewById(R.id.commentsRecyclerView);
 
         //initiate an arrayList to hold all the posts
@@ -104,7 +98,16 @@ public class CommentsActivity extends AppCompatActivity {
         commentsRecyclerView.setHasFixedSize(true);
         commentsRecyclerView.setAdapter(commentsRecyclerAdapter);
 
-        alertView = findViewById(R.id.commentsAlertView);
+        //handle tooolbar
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Comments");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //get the sent intent
         Intent getPostIdIntent = getIntent();
@@ -122,11 +125,98 @@ public class CommentsActivity extends AppCompatActivity {
             }
         });
 
-        //retrieve comments
         //check if device is connected
-        if (cometh.isConnected()) {
+        if (coMeth.isConnected()) {
 
-            cometh.getDb()
+            //set post details
+            //access posts and get post user id
+            coMeth.getDb()
+                    .collection("Posts")
+                    .document(postId)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                            if (task.isSuccessful() && task.getResult().exists()) {
+
+                                //convert post to object
+                                Posts post = task.getResult().toObject(Posts.class);
+                                String postUserId = post.getUser_id();
+
+                                //set post details
+                                String postTitle = post.getTitle();
+                                postTitleField.setText(postTitle);
+
+                                //access users to get user details
+                                coMeth.getDb()
+                                        .collection("Users")
+                                        .document(postUserId)
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                                if (task.isSuccessful() && task.getResult().exists()) {
+
+                                                    //get user details
+                                                    //convert user to object
+                                                    Users user = task.getResult().toObject(Users.class);
+                                                    String username = user.getName();
+                                                    //set username
+                                                    postUsernameField.setText(username);
+                                                    //set user image
+                                                    String userImageDownloadUrl = user.getImage();
+                                                    String userThumbDownloadUrl = user.getThumb();
+                                                    if (userThumbDownloadUrl != null) {
+
+                                                        coMeth.setImage(R.drawable.ic_action_person_placeholder, userThumbDownloadUrl, postUserImage);
+
+                                                    } else {
+
+                                                        coMeth.setImage(R.drawable.ic_action_person_placeholder, userImageDownloadUrl, postUserImage);
+
+                                                    }
+
+                                                } else {
+
+                                                    if (!task.isSuccessful()) {
+
+                                                        // TODO: 5/4/18 handle task failed
+
+                                                    }
+                                                    if (!task.getResult().exists()) {
+
+                                                        // TODO: 5/4/18 handle user does not exist
+                                                    }
+
+                                                }
+
+                                            }
+                                        });
+
+                            } else {
+
+                                if (!task.isSuccessful()) {
+
+                                    //getting posts failed
+                                    // TODO: 5/4/18 handle task failed
+
+                                }
+                                if (!task.getResult().exists()) {
+
+                                    //post doesn not exist
+                                    // TODO: 5/4/18 handle post does not exist
+
+                                }
+
+                            }
+
+                        }
+                    });
+
+            //retrieve comments
+            coMeth.getDb()
                     .collection("Posts/" + postId + "/Comments")
                     .orderBy("timestamp", Query.Direction.ASCENDING)
                     .addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
@@ -145,8 +235,6 @@ public class CommentsActivity extends AppCompatActivity {
                                 String commentId = doc.getDocument().getId();
                                 Comments comment = doc.getDocument().toObject(Comments.class);
                                 commentsList.add(comment);
-                                //hide alert view
-                                alertView.setVisibility(View.GONE);
                                 commentsRecyclerAdapter.notifyDataSetChanged();
                                 commentsRecyclerView.scrollToPosition(commentsList.size() - 1);
 
@@ -155,7 +243,7 @@ public class CommentsActivity extends AppCompatActivity {
                     } else {
 
                         //there are no comments
-                        alertView.setVisibility(View.VISIBLE);
+                        Log.d(TAG, "onEvent: post has no comments");
 
 
                     }
@@ -165,12 +253,12 @@ public class CommentsActivity extends AppCompatActivity {
 
 
             //inform user to login to comment
-            if (cometh.isLoggedIn()) {
+            if (coMeth.isLoggedIn()) {
 
                 //user is logged in
-                userId = cometh.getUid();
+                userId = coMeth.getUid();
                 //user is logged in
-                cometh.getDb()
+                coMeth.getDb()
                         .collection("Users")
                         .document(userId)
                         .addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -185,7 +273,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                                 //set image
                                 String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
-                                cometh.setImage(R.drawable.ic_action_person_placeholder,
+                                coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                         userProfileImageDownloadUrl,
                                         currentUserImage);
 
@@ -217,13 +305,16 @@ public class CommentsActivity extends AppCompatActivity {
                             //get user comment
                             if (!chatField.getText().toString().isEmpty()) {
 
+                                //hide keyboard
+                                hideKeyBoard();
+                                //show progress
                                 showProgress("Posting comment...");
                                 final String comment = chatField.getText().toString();
                                 //generate randomString name for image based on firebase time stamp
                                 final String randomCommentId = UUID.randomUUID().toString();
                                 //get the user id of the user posing
                                 //post a comment
-                                cometh.getDb()
+                                coMeth.getDb()
                                         .collection("Posts/" + postId + "/Comments")
                                         .document(randomCommentId)
                                         .get()
@@ -238,7 +329,7 @@ public class CommentsActivity extends AppCompatActivity {
                                                 commentsMap.put("user_id", userId);
 
                                                 //upload comment to cloud
-                                                cometh.getDb()
+                                                coMeth.getDb()
                                                         .collection("Posts/" + postId + "/Comments")
                                                         .document(randomCommentId)
                                                         .set(commentsMap)
@@ -250,7 +341,7 @@ public class CommentsActivity extends AppCompatActivity {
                                                                 if (task.isSuccessful()) {
 
                                                                     //subscribe user to post
-                                                                    cometh.getDb()
+                                                                    coMeth.getDb()
                                                                             .collection("Users/" + userId + "/Subscriptions")
                                                                             .document("comments")
                                                                             .collection("Comments")
@@ -311,18 +402,30 @@ public class CommentsActivity extends AppCompatActivity {
 
     }
 
+    private void hideKeyBoard() {
+
+        Log.d(TAG, "hideKeyBoard: ");
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+            Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
+        }
+
+    }
+
 
     //setting sub icon on toolbar
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
-        if (cometh.isConnected()) {
-            if (cometh.isLoggedIn()) {
-                userId = cometh.getUid();
+        if (coMeth.isConnected()) {
+            if (coMeth.isLoggedIn()) {
+                userId = coMeth.getUid();
 
                 final MenuItem subscribeButton = menu.findItem(R.id.comSubMenuItem);
 
-                cometh.getDb()
+                coMeth.getDb()
                         .collection("Users/" + userId + "/Subscriptions")
                         .document("comments").collection("Comments")
                         .document(postId)
@@ -370,10 +473,10 @@ public class CommentsActivity extends AppCompatActivity {
 
             case R.id.comSubMenuItem:
 
-                if (cometh.isLoggedIn()) {
+                if (coMeth.isLoggedIn()) {
 
                     //check if user is already subscribed
-                    cometh.getDb()
+                    coMeth.getDb()
                             .collection("Users/" + userId + "/Subscriptions")
                             .document("comments")
                             .collection("Comments")
@@ -391,7 +494,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                                     //user has already subscribed to current post
                                     //unsubscribe user
-                                    cometh.getDb().collection("Users/" + userId + "/Subscriptions")
+                                    coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
                                             .document("comments")
                                             .collection("Comments")
                                             .document(postId)
@@ -406,7 +509,7 @@ public class CommentsActivity extends AppCompatActivity {
                                     Map<String, Object> commentsSubMap = new HashMap<>();
                                     commentsSubMap.put("timestamp", FieldValue.serverTimestamp());
                                     //user is not yet subscribed
-                                    cometh.getDb()
+                                    coMeth.getDb()
                                             .collection("Users/" + userId + "/Subscriptions")
                                             .document("comments")
                                             .collection("Comments")
@@ -508,7 +611,7 @@ public class CommentsActivity extends AppCompatActivity {
                     public void onClick(final DialogInterface dialog, int which) {
 
                         //send ver email
-                        FirebaseUser user = cometh.getAuth().getCurrentUser();
+                        FirebaseUser user = coMeth.getAuth().getCurrentUser();
                         //show progress
                         String sendEmailMessage = getString(R.string.send_email_text);
                         showProgress(sendEmailMessage);
@@ -550,7 +653,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                                             //log use out
                                             //take user to login screen
-                                            cometh.signOut();
+                                            coMeth.signOut();
                                             startActivity(new Intent(CommentsActivity.this, LoginActivity.class));
                                             finish();
 

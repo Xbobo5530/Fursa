@@ -45,7 +45,7 @@ public class CategoriesFragment extends Fragment {
 
         final String[] catTitle = new String[]{
 
-                getResources().getString(R.string.cat_featured),
+//                getResources().getString(R.string.cat_featured),
                 getResources().getString(R.string.cat_popular),
                 getResources().getString(R.string.cat_upcoming),
                 getResources().getString(R.string.cat_events),
@@ -62,7 +62,7 @@ public class CategoriesFragment extends Fragment {
         //categories images Array
         int catImages[] = {
 
-                R.drawable.featured,
+//                R.drawable.featured,
                 R.drawable.popular,
                 R.drawable.upcoming,
                 R.drawable.events,
@@ -111,50 +111,7 @@ public class CategoriesFragment extends Fragment {
                 "Queries"*/
 
                 Log.d(TAG, "onItemClick: ");
-
                 openCat(coMeth.getCatKey(catTitle[position]));
-
-                /*//use position to open catViewActivity
-                switch (position) {
-
-
-                    case catTitle[position]
-
-                    case 0:
-                        openCat("featured");
-                        break;
-                    case 1:
-                        openCat("popular");
-                        break;
-                    case 2:
-                        openCat("upcoming");
-                        break;
-                    case 3:
-                        openCat("events");
-                        break;
-                    case 3:
-                        openCat("places");
-                        break;
-                    case 4:
-                        openCat("business");
-                        break;
-                    case 5:
-                        openCat("buysell");
-                        break;
-                    case 6:
-                        openCat("education");
-                        break;
-                    case 7:
-                        openCat("jobs");
-                        break;
-                    case 8:
-                        openCat("queries");
-                        break;
-
-                    default:
-                        Log.d(TAG, "onItemClick: default");
-
-                }*/
 
             }
         });

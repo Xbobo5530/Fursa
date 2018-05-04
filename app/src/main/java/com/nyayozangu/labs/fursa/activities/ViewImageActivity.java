@@ -15,6 +15,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.nyayozangu.labs.fursa.R;
 
+import uk.co.senab.photoview.PhotoViewAttacher;
+
 
 public class ViewImageActivity extends AppCompatActivity {
 
@@ -55,7 +57,6 @@ public class ViewImageActivity extends AppCompatActivity {
             hide();
         }
     };
-
     private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -71,11 +72,8 @@ public class ViewImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_view_image);
-
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
-
-
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,9 +81,18 @@ public class ViewImageActivity extends AppCompatActivity {
                 toggle();
             }
         });
-
+        //handle zoom
+        PhotoViewAttacher mAttacher = new PhotoViewAttacher(mContentView);
+        mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+            @Override
+            public void onPhotoTap(View view, float x, float y) {
+                toggle();
+            }
+        });
+        mAttacher.update();
         //handle image intent
         handleIntent();
+
     }
 
     private void handleIntent() {

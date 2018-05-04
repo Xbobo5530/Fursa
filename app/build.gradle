@@ -53,6 +53,9 @@ dependencies {
     compile 'com.twitter.sdk.android:twitter:3.1.1'
     // (Optional) Monetize using mopub
     compile 'com.twitter.sdk.android:twitter-mopub:3.1.1'
+
+    //zooming
+    compile 'com.commit451:PhotoView:1.2.4'
 }
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.android.application'
