@@ -165,13 +165,13 @@ public class HomeFragment extends Fragment {
                                         //add new post to the local postsList
                                         if (isFirstPageFirstLoad) {
 
-                                            usersList.add(user);
-                                            postsList.add(post);
+                                            usersList.add(0, user);
+                                            postsList.add(0, post);
 
                                         } else {
 
-                                            usersList.add(0, user);
-                                            postsList.add(0, post);
+                                            usersList.add(user);
+                                            postsList.add(post);
 
                                         }
                                         //notify the recycler adapter of the set change

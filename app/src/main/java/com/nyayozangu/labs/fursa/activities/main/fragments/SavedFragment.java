@@ -127,14 +127,6 @@ public class SavedFragment extends Fragment {
                 savedPostsView.getRecycledViewPool().clear();
                 loadPosts();
 
-                /*new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        swipeRefresh.setRefreshing(false);
-
-                    }
-                }, 1500);*/
 
             }
         });

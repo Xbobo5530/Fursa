@@ -4,8 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -21,11 +19,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
@@ -61,9 +57,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     public Context context;
 
-    //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
     private String userId;
     private String className;
     private ProgressDialog progressDialog;
@@ -85,8 +78,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+
         return new ViewHolder(view);
     }
 
@@ -111,8 +103,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         final String currentUserId;
 
         //handling getting the user who clicked like
-        if (isLoggedIn()) {
-            currentUserId = mAuth.getCurrentUser().getUid();
+        if (coMeth.isLoggedIn()) {
+            currentUserId = coMeth.getUid();
             Log.d(TAG, "user is logged in\n current user_id is :" + currentUserId);
         } else {
             currentUserId = null;
@@ -141,7 +133,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //get likes count
         //create query to count
-        db.collection("Posts/" + postId + "/Likes").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Likes")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
                 Log.d(TAG, "at onEvent, when likes change");
@@ -159,10 +153,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
-        if (isLoggedIn()) {
+        if (coMeth.isLoggedIn()) {
             //get likes
             //determine likes by current user
-            db.collection("Posts/" + postId + "/Likes")
+            coMeth.getDb()
+                    .collection("Posts/" + postId + "/Likes")
                     .document(currentUserId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
@@ -181,7 +176,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             });
 
             //get saves
-            db.collection("Posts/" + postId + "/Saves")
+            coMeth.getDb()
+                    .collection("Posts/" + postId + "/Saves")
                     .document(currentUserId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
@@ -209,50 +205,54 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 //disable button
                 holder.postLikeButton.setClickable(false);
 
-                if (isConnected()) {
+                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
 
-                    if (isLoggedIn()) {
+                    try {
+                        coMeth.getDb()
+                                .collection("Posts/" + postId + "/Likes")
+                                .document(currentUserId)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        //get data from teh likes collection
+                                        //check if current user has already liked post
+                                        if (!task.getResult().exists()) {
 
-                        try {
-                            db.collection("Posts/" + postId + "/Likes")
-                                    .document(currentUserId)
-                                    .get()
-                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            //get data from teh likes collection
-                                            //check if current user has already liked post
-                                            if (!task.getResult().exists()) {
+                                            Map<String, Object> likesMap = new HashMap<>();
+                                            likesMap.put("timestamp", FieldValue.serverTimestamp());
+                                            coMeth.getDb()
+                                                    .collection("Posts/" + postId + "/Likes")
+                                                    .document(currentUserId)
+                                                    .set(likesMap);
 
-                                                Map<String, Object> likesMap = new HashMap<>();
-                                                likesMap.put("timestamp", FieldValue.serverTimestamp());
-                                                db.collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
-
-                                            } else {
-                                                //delete the like
-                                                db.collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
-                                            }
+                                        } else {
+                                            //delete the like
+                                            coMeth.getDb()
+                                                    .collection("Posts/" + postId + "/Likes")
+                                                    .document(currentUserId)
+                                                    .delete();
                                         }
-                                    });
+                                    }
+                                });
 
-                        } catch (Exception connectionException) {
+                    } catch (Exception connectionException) {
 
-                            Log.d(TAG, "onClick: " + connectionException);
-
-                        }
-
-                    } else {
-                        //user is not logged in
-                        Log.d(TAG, "use is not logged in");
-
-                        String message = context.getString(R.string.login_to_like);
-                        showLoginAlertDialog(message);
+                        Log.d(TAG, "onClick: " + connectionException);
 
                     }
                 } else {
 
-                    //alert user is not connected
-                    showSnack(holder, context.getString(R.string.failed_to_connect_text));
+                    if (!coMeth.isLoggedIn()) {
+
+                        showLoginAlertDialog(context.getString(R.string.login_to_like));
+
+                    }
+                    if (!coMeth.isConnected()) {
+
+                        //alert user is not connected
+                        showSnack(holder, context.getString(R.string.failed_to_connect_text));
+                    }
 
                 }
 
@@ -271,55 +271,65 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 holder.postSaveButton.setClickable(false);
 
                 //check if user is connected to the internet
-                if (isConnected()) {
+                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
 
-                    //check if user is logged in
-                    if (isLoggedIn()) {
+                    coMeth.getDb()
+                            .collection("Posts/" + postId + "/Saves")
+                            .document(currentUserId)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                        db.collection("Posts/" + postId + "/Saves")
-                                .document(currentUserId)
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    //get data from the saves collections
+                                    //check if user has already saved the post
+                                    if (!task.getResult().exists()) {
 
-                                //get data from the saves collections
-                                //check if user has already saved the post
-                                if (!task.getResult().exists()) {
+                                        Map<String, Object> savesMap = new HashMap<>();
+                                        savesMap.put("timestamp", FieldValue.serverTimestamp());
+                                        //save new post
+                                        coMeth.getDb()
+                                                .collection("Posts/" + postId + "/Saves")
+                                                .document(currentUserId)
+                                                .set(savesMap);
+                                        userId = coMeth.getUid();
+                                        coMeth.getDb()
+                                                .collection("Users/" + userId + "/Subscriptions")
+                                                .document("saved_posts").collection("SavedPosts")
+                                                .document(postId)
+                                                .set(savesMap);
+                                        showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
 
-                                    Map<String, Object> savesMap = new HashMap<>();
-                                    savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                    //save new post
-                                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
-                                    userId = mAuth.getCurrentUser().getUid();
-                                    db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(postId).set(savesMap);
-                                    showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
+                                    } else {
 
-                                } else {
+                                        //delete saved post
+                                        coMeth.getDb()
+                                                .collection("Posts/" + postId + "/Saves")
+                                                .document(currentUserId)
+                                                .delete();
+                                        coMeth.getDb()
+                                                .collection("Users/" + userId + "/Subscriptions")
+                                                .document("saved_posts").collection("SavedPosts")
+                                                .document(postId)
+                                                .delete();
 
-                                    //delete saved post
-                                    db.collection("Posts/" + postId + "/Saves").document(currentUserId).delete();
-                                    db.collection("Users/" + userId + "/Subscriptions").document("saved_posts").collection("SavedPosts").document(postId).delete();
 
+                                    }
 
                                 }
-
-                            }
-                        });
-                    } else {
-
-                        //user is not logged in
-                        Log.d(TAG, "user is not logged in");
-                        //notify user
-                        String message = "Log in to save items";
-                        showLoginAlertDialog(message);
-
-                    }
+                            });
                 } else {
 
-                    //user is not connected to the internet
-                    //show alert dialog
-                    showSnack(holder, context.getString(R.string.internet_fail));
+                    if (!coMeth.isConnected()) {
+                        //user is not connected to the internet
+                        //show alert dialog
+                        showSnack(holder, context.getString(R.string.internet_fail));
+                    }
+                    if (!coMeth.isLoggedIn()) {
+
+                        showLoginAlertDialog(context.getString(R.string.login_to_save_text));
+
+                    }
 
                 }
 
@@ -381,7 +391,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
         //count comments
-        db.collection("Posts/" + postId + "/Comments")
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Comments")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -469,26 +480,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     }
 
-    private boolean isLoggedIn() {
-        //determine if user is logged in
-        return mAuth.getCurrentUser() != null;
-    }
 
-    private boolean isConnected() {
-
-        //check if there's a connection
-        Log.d(TAG, "at isConnected");
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = null;
-        if (cm != null) {
-
-            activeNetwork = cm.getActiveNetworkInfo();
-
-        }
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
-    }
 
     private void showLoginAlertDialog(String message) {
         //Prompt user to log in

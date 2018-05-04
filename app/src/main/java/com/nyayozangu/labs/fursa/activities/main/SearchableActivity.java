@@ -324,15 +324,16 @@ public class SearchableActivity extends AppCompatActivity {
                             //add new post to the local postsList
                             if (isFirstPageFirstLoad) {
 
-                                //if the first page is loaded the add new post normally
-                                postsList.add(post);
-                                usersList.add(user);
-
-                            } else {
-
                                 //add the post at position 0 of the postsList
                                 postsList.add(0, post);
                                 usersList.add(0, user);
+
+
+                            } else {
+
+                                //if the first page is loaded the add new post normally
+                                postsList.add(post);
+                                usersList.add(user);
 
                             }
                             //notify the recycler adapter of the set change

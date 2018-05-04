@@ -192,13 +192,13 @@ public class MyPostsActivity extends AppCompatActivity {
                                 //add new post to the local postsList
                                 if (isFirstPageFirstLoad) {
 
-                                    usersList.add(user);
-                                    postsList.add(post);
+                                    postsList.add(0, post);
+                                    usersList.add(0, user);
 
                                 } else {
 
-                                    postsList.add(0, post);
-                                    usersList.add(0, user);
+                                    usersList.add(user);
+                                    postsList.add(post);
 
                                 }
 

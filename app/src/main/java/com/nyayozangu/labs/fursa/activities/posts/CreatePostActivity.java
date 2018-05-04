@@ -491,7 +491,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         // TODO: 5/2/18 check setting event date on edit post fails
                         Log.d(TAG, "date selected is: " + eventDate.toString());
                         //set selected date to the eventDate textView
-                        eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, 20yy\nh:mm a", eventDate).toString());
+                        eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, 20yy", eventDate).toString());
 
 
                     }
@@ -1221,7 +1221,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     if (post.getEvent_date() != null) {
                         long eventDate = post.getEvent_date().getTime();
                         Log.d(TAG, String.valueOf(eventDate));
-                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(eventDate)).toString();
+                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy", new Date(eventDate)).toString();
                         Log.d(TAG, "onEvent: \nebentDateString: " + eventDateString);
                         eventDateTextView.setText(eventDateString);
                     }

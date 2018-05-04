@@ -318,5 +318,7 @@
     <string name="searching_text">Searching…</string>
     <string name="failed_to_complete_text">Failed to complete action</string>
     <string name="cat_services">Services</string>
+    <string name="logout_text">Logout</string>
+    <string name="confirm_lougout_text">Are you sure you want to logout?</string>
 
 </resources>

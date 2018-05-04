@@ -15,18 +15,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SettingsActivity extends AppCompatActivity {
+
     private static final String TAG = "Sean";
-
-    // TODO: 4/8/18 handlle contact us
-    // TODO: 4/8/18 handle feedback
-    // TODO: 4/8/18 handle privacy policy
-
     private CoMeth coMeth = new CoMeth();
     private CircleImageView userImage;
     private TextView usernameTextView;
@@ -75,14 +70,15 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         //handle logout
-        if (new CoMeth().isLoggedIn()) {
+        if (coMeth.isLoggedIn()) {
 
             logoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new CoMeth().signOut();
-                    Log.d(TAG, "user is logged out");
-                    goToMain();
+
+                    Log.d(TAG, "onClick: at onclick login");
+                    //confirm sign out
+                    confirmSignOut();
                 }
             });
         } else {
@@ -92,7 +88,8 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //go to log in page
-                    goToLogin();
+                    coMeth.goToLogin();
+                    finish();
                 }
             });
         }
@@ -102,17 +99,18 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                goToAccSet();
+                coMeth.goToAccSet();
+                finish();
 
             }
         });
 
 
         //check is user is logged in
-        if (new CoMeth().isLoggedIn()) {
+        if (coMeth.isLoggedIn()) {
             //get current user is
-            final String userId = new CoMeth().getUid();
-            new CoMeth().getDb()
+            final String userId = coMeth.getUid();
+            coMeth.getDb()
                     .collection("Users")
                     .document(userId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -239,7 +237,32 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    private void confirmSignOut() {
+        AlertDialog.Builder confirmLogoutBuilder = new AlertDialog.Builder(SettingsActivity.this);
+        confirmLogoutBuilder.setTitle(getString(R.string.logout_text))
+                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
+                .setMessage(getString(R.string.confirm_lougout_text))
+                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
+                        dialog.dismiss();
+
+                    }
+                })
+                .setPositiveButton(getString(R.string.logout_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        coMeth.signOut();
+                        Log.d(TAG, "user is logged out");
+                        coMeth.goToMain();
+                        finish();
+
+                    }
+                })
+                .show();
+    }
 
 
     private void goToMySubs() {
@@ -260,15 +283,16 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+
         //handle logout
-        if (new CoMeth().isLoggedIn()) {
+        if (coMeth.isLoggedIn()) {
 
             logoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new CoMeth().signOut();
-                    Log.d(TAG, "user is logged out");
-                    goToMain();
+
+                    confirmSignOut();
+
                 }
             });
         } else {
@@ -278,37 +302,12 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //go to log in page
-                    goToLogin();
+                    coMeth.goToLogin();
+                    finish();
                 }
             });
         }
 
-    }
-
-    private void goToLogin() {
-        startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
-        finish();
-    }
-
-    //go to account settings
-    private void goToAccSet() {
-        startActivity(new Intent(SettingsActivity.this, AccountActivity.class));
-    }
-
-    private void goToMain() {
-        //go to main page
-        //alert user that he is now logged out
-        Intent logoutIntent = new Intent(SettingsActivity.this, MainActivity.class);
-        logoutIntent.putExtra("error", "You are now logged out...");
-        startActivity(logoutIntent);
-        finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        startActivity(new Intent(SettingsActivity.this, MainActivity.class));
-        finish();
     }
 
 
@@ -316,13 +315,13 @@ public class SettingsActivity extends AppCompatActivity {
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(SettingsActivity.this);
         loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage("You are not logged in\n" + message)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        goToLogin();
+                        coMeth.goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
