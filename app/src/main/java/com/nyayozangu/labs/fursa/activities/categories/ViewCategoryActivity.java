@@ -318,9 +318,9 @@ ViewCategoryActivity extends AppCompatActivity {
             public void onRefresh() {
 
                 //get new posts
+                catFeed.getRecycledViewPool().clear();
                 postsList.clear();
                 usersList.clear();
-                catFeed.getRecycledViewPool().clear();
                 loadPosts(firstQuery);
 
 
@@ -748,7 +748,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         Intent loginIntent = new Intent(ViewCategoryActivity.this, LoginActivity.class);
                         loginIntent.putExtra("source", "categories");
                         loginIntent.putExtra("category", currentCat);
-                        coMeth.goToLogin();
+                        goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -759,6 +759,10 @@ ViewCategoryActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    private void goToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
     }
 
     private void showProgress(String message) {

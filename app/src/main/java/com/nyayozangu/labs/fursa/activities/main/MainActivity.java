@@ -37,6 +37,7 @@ import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
+import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
@@ -233,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                                 || user.getProviders().contains("twitter.com")
                                 || user.getProviders().contains("google.com")) {
                             //start the new post activity
-                            coMeth.goToCreatePost();
+                            goToCreatePost();
                         } else {
 
                             //user has not verified email
@@ -316,6 +317,10 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void goToCreatePost() {
+        startActivity(new Intent(this, CreatePostActivity.class));
     }
 
     private void goToSettings() {
@@ -450,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        coMeth.goToLogin();
+                        goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -463,6 +468,9 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void goToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
+    }
 
 
     private void goToAccount() {

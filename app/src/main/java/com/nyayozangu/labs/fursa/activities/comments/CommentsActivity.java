@@ -71,7 +71,7 @@ public class CommentsActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
 
     private String postId;
-    private String userId;
+    private String currentUserId;
 
     private android.support.v7.widget.Toolbar toolbar;
 
@@ -102,7 +102,7 @@ public class CommentsActivity extends AppCompatActivity {
 
         //handle tooolbar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Comments");
+        getSupportActionBar().setTitle(getString(R.string.comments_text));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,8 +131,8 @@ public class CommentsActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
 
-                commentsList.clear();
                 commentsRecyclerView.getRecycledViewPool().clear();
+                commentsList.clear();
                 retrieveComments();
 
             }
@@ -140,219 +140,22 @@ public class CommentsActivity extends AppCompatActivity {
 
         //check if device is connected
         if (coMeth.isConnected()) {
-
             //set post details
-            //access posts and get post user id
-            coMeth.getDb()
-                    .collection("Posts")
-                    .document(postId)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                            if (task.isSuccessful() && task.getResult().exists()) {
-
-                                //convert post to object
-                                Posts post = task.getResult().toObject(Posts.class);
-                                String postUserId = post.getUser_id();
-
-                                //set post details
-                                String postTitle = post.getTitle();
-                                postTitleField.setText(postTitle);
-
-                                //access users to get user details
-                                coMeth.getDb()
-                                        .collection("Users")
-                                        .document(postUserId)
-                                        .get()
-                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                                if (task.isSuccessful() && task.getResult().exists()) {
-
-                                                    //get user details
-                                                    //convert user to object
-                                                    Users user = task.getResult().toObject(Users.class);
-                                                    String username = user.getName();
-                                                    //set username
-                                                    postUsernameField.setText(username);
-                                                    //set user image
-                                                    String userImageDownloadUrl = user.getImage();
-                                                    String userThumbDownloadUrl = user.getThumb();
-                                                    if (userThumbDownloadUrl != null) {
-
-                                                        coMeth.setImage(R.drawable.ic_action_person_placeholder, userThumbDownloadUrl, postUserImage);
-
-                                                    } else {
-
-                                                        coMeth.setImage(R.drawable.ic_action_person_placeholder, userImageDownloadUrl, postUserImage);
-
-                                                    }
-
-                                                } else {
-
-                                                    if (!task.isSuccessful()) {
-
-                                                        // TODO: 5/4/18 handle task failed
-
-                                                    }
-                                                    if (!task.getResult().exists()) {
-
-                                                        // TODO: 5/4/18 handle user does not exist
-                                                    }
-
-                                                }
-
-                                            }
-                                        });
-
-                            } else {
-
-                                if (!task.isSuccessful()) {
-
-                                    //getting posts failed
-                                    // TODO: 5/4/18 handle task failed
-
-                                }
-                                if (!task.getResult().exists()) {
-
-                                    //post doesn not exist
-                                    // TODO: 5/4/18 handle post does not exist
-
-                                }
-
-                            }
-
-                        }
-                    });
-
+            setPostDetails();
             //retrieve comments
             retrieveComments();
-
-
             //inform user to login to comment
             if (coMeth.isLoggedIn()) {
 
-                //user is logged in
-                userId = coMeth.getUid();
-                //user is logged in
-                coMeth.getDb()
-                        .collection("Users")
-                        .document(userId)
-                        .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                            @Override
-                            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-
-                                //check if user exists
-                                if (documentSnapshot.exists()) {
-
-                                    //user exists
-                                    try {
-
-                                        //set image
-                                        String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
-                                        coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                                userProfileImageDownloadUrl,
-                                                currentUserImage);
-
-
-                                    } catch (NullPointerException noImageFoundException) {
-
-                                        currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
-                                        Log.d(TAG, "onEvent: error: no thumb found");
-
-                                    }
-
-                                }
-
-                            }
-                        });
+                //set user details on bottom field
+                setUserDetails();
 
                 sendButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        //check is user has verified email
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        boolean emailVerified = user.isEmailVerified();
-                        if (emailVerified
-                                || user.getProviders().contains("facebook.com")
-                                || user.getProviders().contains("twitter.com")
-                                || user.getProviders().contains("google.com")) {
-
-                            //get user comment
-                            if (!chatField.getText().toString().isEmpty()) {
-
-                                //hide keyboard
-                                hideKeyBoard();
-                                //show progress
-                                showProgress("Posting comment...");
-                                final String comment = chatField.getText().toString();
-                                //generate randomString name for image based on firebase time stamp
-                                final String randomCommentId = UUID.randomUUID().toString();
-                                //get the user id of the user posing
-                                //post a comment
-                                coMeth.getDb()
-                                        .collection("Posts/" + postId + "/Comments")
-                                        .document(randomCommentId)
-                                        .get()
-                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                                //add new comment
-                                                final Map<String, Object> commentsMap = new HashMap<>();
-                                                commentsMap.put("timestamp", FieldValue.serverTimestamp());
-                                                commentsMap.put("comment", comment);
-                                                commentsMap.put("user_id", userId);
-
-                                                //upload comment to cloud
-                                                coMeth.getDb()
-                                                        .collection("Posts/" + postId + "/Comments")
-                                                        .document(randomCommentId)
-                                                        .set(commentsMap)
-                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-
-                                                                //check if task is successful
-                                                                if (task.isSuccessful()) {
-
-                                                                    //subscribe user to post
-                                                                    coMeth.getDb()
-                                                                            .collection("Users/" + userId + "/Subscriptions")
-                                                                            .document("comments")
-                                                                            .collection("Comments")
-                                                                            .document(postId)
-                                                                            .set(commentsMap);
-                                                                    //subscribe user to topic
-                                                                    FirebaseMessaging.getInstance().subscribeToTopic(postId); //subscribe to app updates
-                                                                    new Notify().execute("comment_updates", postId); //notify subscribers
-
-                                                                } else {
-
-                                                                    showSnack("Failed to post comment: " + task.getResult().toString());
-
-                                                                }
-
-                                                            }
-                                                        });
-
-                                                progressDialog.dismiss();
-
-                                            }
-                                        });
-                                //clear text field
-                                chatField.setText("");
-                            }
-                        } else {
-
-                            //user has not verified email
-                            showVerEmailDialog(); //alert user is not verified
-
-                        }
+                        //post comment
+                        postComment();
 
                     }
                 });
@@ -378,6 +181,218 @@ public class CommentsActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void postComment() {
+
+        //check is user has verified email
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        boolean emailVerified = user.isEmailVerified();
+        if (emailVerified
+                || user.getProviders().contains("facebook.com")
+                || user.getProviders().contains("twitter.com")
+                || user.getProviders().contains("google.com")) {
+
+            //get user comment
+            if (!chatField.getText().toString().isEmpty()) {
+
+                //hide keyboard
+                hideKeyBoard();
+                //show progress
+                showProgress(getString(R.string.posting_comment_text));
+                final String comment = chatField.getText().toString();
+                //generate randomString name for image based on firebase time stamp
+                final String randomCommentId = UUID.randomUUID().toString();
+                //get the user id of the user posing
+                //post a comment
+                coMeth.getDb()
+                        .collection("Posts/" + postId + "/Comments")
+                        .document(randomCommentId)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                //add new comment
+                                final Map<String, Object> commentsMap = new HashMap<>();
+                                commentsMap.put("timestamp", FieldValue.serverTimestamp());
+                                commentsMap.put("comment", comment);
+                                commentsMap.put("user_id", currentUserId);
+
+                                //upload comment to cloud
+                                coMeth.getDb()
+                                        .collection("Posts/" + postId + "/Comments")
+                                        .document(randomCommentId)
+                                        .set(commentsMap)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+
+                                                //check if task is successful
+                                                if (task.isSuccessful()) {
+
+                                                    //subscribe user to post
+                                                    coMeth.getDb()
+                                                            .collection("Users/" + currentUserId + "/Subscriptions")
+                                                            .document("comments")
+                                                            .collection("Comments")
+                                                            .document(postId)
+                                                            .set(commentsMap);
+                                                    //subscribe user to topic
+                                                    Log.d(TAG, "onComplete: subscribing user to post");
+                                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                                                    //notify subscribers
+                                                    Log.d(TAG, "onComplete: notifying user");
+                                                    new Notify().execute("comment_updates", postId);
+
+                                                } else {
+
+                                                    showSnack(getString(R.string.failed_to_comment_text) + ": " + task.getResult().toString());
+
+                                                }
+
+                                            }
+                                        });
+
+                                coMeth.stopLoading(progressDialog, swipeRefreshLayout);
+
+                            }
+                        });
+                //clear text field
+                chatField.setText("");
+            }
+        } else {
+
+            //user has not verified email
+            showVerEmailDialog(); //alert user is not verified
+
+        }
+    }
+
+    private void setUserDetails() {
+        //user is logged in
+        currentUserId = coMeth.getUid();
+        //user is logged in
+        coMeth.getDb()
+                .collection("Users")
+                .document(currentUserId)
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                        //check if user exists
+                        if (documentSnapshot.exists()) {
+
+                            //user exists
+                            try {
+
+                                //set image
+                                String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
+                                coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                        userProfileImageDownloadUrl,
+                                        currentUserImage);
+
+
+                            } catch (NullPointerException noImageFoundException) {
+
+                                currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                                Log.d(TAG, "onEvent: error: no thumb found");
+
+                            }
+
+                        }
+
+                    }
+                });
+    }
+
+    private void setPostDetails() {
+        //set post details
+        //access posts and get post user id
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                        if (task.isSuccessful() && task.getResult().exists()) {
+
+                            //convert post to object
+                            Posts post = task.getResult().toObject(Posts.class);
+                            String postUserId = post.getUser_id();
+
+                            //set post details
+                            String postTitle = post.getTitle();
+                            postTitleField.setText(postTitle);
+
+                            //access users to get user details
+                            coMeth.getDb()
+                                    .collection("Users")
+                                    .document(postUserId)
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                            if (task.isSuccessful() && task.getResult().exists()) {
+
+                                                //get user details
+                                                //convert user to object
+                                                Users user = task.getResult().toObject(Users.class);
+                                                String username = user.getName();
+                                                //set username
+                                                postUsernameField.setText(username);
+                                                //set user image
+                                                String userImageDownloadUrl = user.getImage();
+                                                String userThumbDownloadUrl = user.getThumb();
+                                                if (userThumbDownloadUrl != null) {
+
+                                                    coMeth.setImage(R.drawable.ic_action_person_placeholder, userThumbDownloadUrl, postUserImage);
+
+                                                } else {
+
+                                                    coMeth.setImage(R.drawable.ic_action_person_placeholder, userImageDownloadUrl, postUserImage);
+
+                                                }
+
+                                            } else {
+
+                                                if (!task.isSuccessful()) {
+
+                                                    // TODO: 5/4/18 handle task failed
+
+                                                }
+                                                if (!task.getResult().exists()) {
+
+                                                    // TODO: 5/4/18 handle user does not exist
+                                                }
+
+                                            }
+
+                                        }
+                                    });
+
+                        } else {
+
+                            if (!task.isSuccessful()) {
+
+                                //getting posts failed
+                                // TODO: 5/4/18 handle task failed
+
+                            }
+                            if (!task.getResult().exists()) {
+
+                                //post does nnot exist
+                                // TODO: 5/4/18 handle post does not exist
+
+                            }
+
+                        }
+
+                    }
+                });
     }
 
     private void retrieveComments() {
@@ -438,12 +453,12 @@ public class CommentsActivity extends AppCompatActivity {
 
         if (coMeth.isConnected()) {
             if (coMeth.isLoggedIn()) {
-                userId = coMeth.getUid();
+                currentUserId = coMeth.getUid();
 
                 final MenuItem subscribeButton = menu.findItem(R.id.comSubMenuItem);
 
                 coMeth.getDb()
-                        .collection("Users/" + userId + "/Subscriptions")
+                        .collection("Users/" + currentUserId + "/Subscriptions")
                         .document("comments").collection("Comments")
                         .document(postId)
                         .addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -466,6 +481,46 @@ public class CommentsActivity extends AppCompatActivity {
 
                     }
                 });
+
+                coMeth.getDb()
+                        .collection("Posts")
+                        .document(postId)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                if (task.isSuccessful() && task.getResult().exists()) {
+
+                                    //check if postUserId equals current currentUserId
+                                    String currentUserId = coMeth.getUid();
+                                    Posts post = task.getResult().toObject(Posts.class);
+                                    String postUserId = post.getUser_id();
+                                    if (currentUserId.equals(postUserId)) {
+
+                                        //post is current user's post
+                                        //set subscribed icon
+                                        subscribeButton.setIcon(R.drawable.ic_action_subscribed);
+
+                                    }
+
+                                } else {
+
+                                    if (!task.isSuccessful()) {
+
+                                        Log.d(TAG, "onComplete: getting post for comments task failed");
+
+                                    }
+                                    if (!task.getResult().exists()) {
+
+                                        Log.d(TAG, "onComplete: post does not exists");
+
+                                    }
+
+                                }
+
+                            }
+                        });
 
             }
 
@@ -494,7 +549,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                     //check if user is already subscribed
                     coMeth.getDb()
-                            .collection("Users/" + userId + "/Subscriptions")
+                            .collection("Users/" + currentUserId + "/Subscriptions")
                             .document("comments")
                             .collection("Comments")
                             .document(postId)
@@ -511,7 +566,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                                     //user has already subscribed to current post
                                     //unsubscribe user
-                                    coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
+                                    coMeth.getDb().collection("Users/" + currentUserId + "/Subscriptions")
                                             .document("comments")
                                             .collection("Comments")
                                             .document(postId)
@@ -527,7 +582,7 @@ public class CommentsActivity extends AppCompatActivity {
                                     commentsSubMap.put("timestamp", FieldValue.serverTimestamp());
                                     //user is not yet subscribed
                                     coMeth.getDb()
-                                            .collection("Users/" + userId + "/Subscriptions")
+                                            .collection("Users/" + currentUserId + "/Subscriptions")
                                             .document("comments")
                                             .collection("Comments")
                                             .document(postId)

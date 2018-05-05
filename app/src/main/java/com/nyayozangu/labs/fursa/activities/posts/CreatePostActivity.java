@@ -40,11 +40,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
+import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -750,7 +752,10 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         //notify users subscribed to cats
                                                         notifyNewPostCatsUpdates(catsStringsArray);
                                                         Log.d(TAG, "onComplete: about to upload " +
-                                                                "\ncategproes are: " + catsStringsArray);
+                                                                "\ncategories are: " + catsStringsArray);
+                                                        //subscribe current user to post comments
+                                                        String currentPostId = task.getResult().getId();
+                                                        FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
 
 
                                                     } else {
@@ -784,6 +789,8 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         //notify users subscribed to cats
                                                         notifyNewPostCatsUpdates(catsStringsArray);
                                                         Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
+                                                        //subscribe current user to post comments
+                                                        FirebaseMessaging.getInstance().subscribeToTopic(postId);
 
                                                     } else {
 
@@ -843,6 +850,10 @@ public class CreatePostActivity extends AppCompatActivity {
                                     notifyNewPostCatsUpdates(catsStringsArray);
                                     Log.d(TAG, "onComplete: posted post without image");
 
+                                    String currentPostId = task.getResult().getId();
+                                    FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
+
+
                                 } else {
 
                                     //posting failed
@@ -871,6 +882,8 @@ public class CreatePostActivity extends AppCompatActivity {
                                     //notify users subscribed to cats
                                     notifyNewPostCatsUpdates(catsStringsArray);
                                     Log.d(TAG, "onComplete: posted post without image");
+                                    //subscribe current user to post comments
+                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
 
                                 } else {
 
@@ -1292,7 +1305,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
         //go to main feed
         startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
-        finish();
 
     }
 
@@ -1321,7 +1333,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        coMeth.goToLogin();
+                        goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -1332,5 +1344,9 @@ public class CreatePostActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    private void goToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
     }
 }

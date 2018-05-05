@@ -2,7 +2,6 @@ package com.nyayozangu.labs.fursa.commonmethods;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,10 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
-import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
-import com.nyayozangu.labs.fursa.activities.settings.MySubscriptionsActivity;
 
 import java.util.Date;
 import java.util.List;
@@ -175,7 +171,7 @@ public class CoMeth {
                 .show();
     }
 */
-    public void goToLogin() {
+    /*public void goToLogin() {
 
         getApplicationContext().startActivity(new Intent(getApplicationContext(), LoginActivity.class));
 
@@ -189,7 +185,7 @@ public class CoMeth {
 
         getApplicationContext().startActivity(new Intent(getApplicationContext(), MySubscriptionsActivity.class));
 
-    }
+    }*/
 
     public String getCatKey(String catValue) {
 

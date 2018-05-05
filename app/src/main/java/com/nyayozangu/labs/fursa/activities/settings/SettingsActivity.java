@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
@@ -89,7 +90,7 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //go to log in page
-                    coMeth.goToLogin();
+                    goToLogin();
                     finish();
                 }
             });
@@ -134,11 +135,23 @@ public class SettingsActivity extends AppCompatActivity {
 
                                 //set image
                                 try {
-                                    String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
+                                    final String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
 
                                     coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                             userProfileImageDownloadUrl,
                                             userImage);
+
+                                    //open profile image
+                                    userImage.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+
+                                            Intent userImageIntent = new Intent(SettingsActivity.this, ViewImageActivity.class);
+                                            userImageIntent.putExtra("imageUrl", userProfileImageDownloadUrl);
+                                            startActivity(userImageIntent);
+
+                                        }
+                                    });
 
                                 } catch (NullPointerException userImageException) {
 
@@ -238,6 +251,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    private void goToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
+    }
+
     private void goToPrivacyPolicy() {
         startActivity(new Intent(this, PrivacyPolicyActivity.class));
     }
@@ -320,7 +337,7 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //go to log in page
-                    coMeth.goToLogin();
+                    goToLogin();
                     finish();
                 }
             });
@@ -339,7 +356,7 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        coMeth.goToLogin();
+                        goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

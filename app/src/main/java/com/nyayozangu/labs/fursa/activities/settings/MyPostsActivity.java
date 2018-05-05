@@ -2,6 +2,7 @@ package com.nyayozangu.labs.fursa.activities.settings;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -23,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
@@ -95,7 +97,7 @@ public class MyPostsActivity extends AppCompatActivity {
                 //only allow the user to post if user is signed in
                 if (coMeth.isLoggedIn()) {
                     //start the new post activity
-                    coMeth.goToCreatePost();
+                    goToCreatePost();
                 } else {
                     String message = getString(R.string.login_to_post_text);
 
@@ -136,11 +138,18 @@ public class MyPostsActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
 
+                myPostsFeed.getRecycledViewPool().clear();
+                postsList.clear();
+                usersList.clear();
                 loadPosts(firstQuery);
 
             }
         });
 
+    }
+
+    private void goToCreatePost() {
+        startActivity(new Intent(this, CreatePostActivity.class));
     }
 
     private void loadPosts(Query firstQuery) {
@@ -249,7 +258,7 @@ public class MyPostsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        coMeth.goToLogin();
+                        goToLogin();
                     }
                 })
                 .setNegativeButton(R.string.cancel_text, new DialogInterface.OnClickListener() {
@@ -260,6 +269,10 @@ public class MyPostsActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    private void goToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
     }
 
     //for loading more posts

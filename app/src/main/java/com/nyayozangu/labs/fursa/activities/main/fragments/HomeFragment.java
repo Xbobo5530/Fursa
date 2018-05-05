@@ -108,9 +108,9 @@ public class HomeFragment extends Fragment {
             public void onRefresh() {
 
                 //get new posts
+                homeFeedView.getRecycledViewPool().clear();
                 postsList.clear();
                 usersList.clear();
-                homeFeedView.getRecycledViewPool().clear();
                 loadPosts(firstQuery);
 
             }

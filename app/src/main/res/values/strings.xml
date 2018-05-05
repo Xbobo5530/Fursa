@@ -321,5 +321,8 @@
     <string name="logout_text">Logout</string>
     <string name="confirm_lougout_text">Are you sure you want to logout?</string>
     <string name="login_to_comment">Log in to comment</string>
+    <string name="comments_text">Comments</string>
+    <string name="posting_comment_text">Posting comment...</string>
+    <string name="failed_to_comment_text">Failed to post comment</string>
 
 </resources>

@@ -132,11 +132,10 @@ public class SavedFragment extends Fragment {
             public void onRefresh() {
 
                 //get new posts
+                savedPostsView.getRecycledViewPool().clear();
                 savedPostsList.clear();
                 usersList.clear();
-                savedPostsView.getRecycledViewPool().clear();
                 loadPosts(firstQuery);
-
 
             }
         });
@@ -263,88 +262,6 @@ public class SavedFragment extends Fragment {
             }
         });
     }
-
-    /*private void loadPosts() {
-        coMeth.getDb().collection("Users/" + currentUserId + "/Subscriptions")
-                .document("saved_posts")
-                .collection("SavedPosts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-
-                        if (!queryDocumentSnapshots.isEmpty()) {
-
-                            for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-
-                                final String postId = doc.getDocument().getId();
-                                coMeth.getDb().collection("Posts")
-                                        .document(postId)
-                                        .get()
-                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                                //check if task is successful
-                                                if (task.isSuccessful()) {
-
-                                                    if (task.getResult().exists()) {
-
-                                                        final Posts post = task.getResult().toObject(Posts.class).withId(postId);
-                                                        String postUserId = post.getUser_id();
-                                                        coMeth.getDb().collection("Users")
-                                                                .document(postUserId)
-                                                                .get()
-                                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                                                        if (task.isSuccessful()) {
-
-                                                                            Users user = task.getResult().toObject(Users.class);
-                                                                            savedPostsList.add(post);
-                                                                            usersList.add(user);
-                                                                            savedPostsRecyclerAdapter.notifyDataSetChanged();
-
-                                                                        } else {
-
-                                                                            Log.d(TAG, "onComplete: task filed\n" + task.getException());
-
-                                                                        }
-
-                                                                    }
-                                                                });
-
-                                                    } else {
-
-                                                        Log.d(TAG, "onComplete: post does not exist");
-
-                                                    }
-
-                                                } else {
-
-                                                    Log.d(TAG, "onComplete: task for getting posts failed\n" + task.getException());
-                                                }
-
-                                            }
-                                        });
-
-                            }
-
-                        } else {
-
-                            Log.d(TAG, "onEvent: user has no liked posts");
-
-                        }
-
-                        //stop loading
-                        coMeth.stopLoading(progressDialog, swipeRefresh);
-
-
-                    }
-                });
-    }*/
-
 
     private void goToLogin() {
         //go to login page

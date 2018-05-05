@@ -247,7 +247,7 @@ public class FeedbackActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //send user to login activity
-                        coMeth.goToLogin();
+                        goToLogin();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -258,6 +258,10 @@ public class FeedbackActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    private void goToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
     }
 
     private void showSnack(String message) {
