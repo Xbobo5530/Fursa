@@ -130,7 +130,8 @@ public class SearchableActivity extends AppCompatActivity {
     private void doMySearch(final String query) {
 
         Log.d(TAG, "doMySearch: ");
-        //listen for scrolling on the searchFeed
+
+        /*//listen for scrolling on the searchFeed
         searchFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -142,7 +143,7 @@ public class SearchableActivity extends AppCompatActivity {
                     loadMorePosts(query);
                 }
             }
-        });
+        });*/
 
 
         //loading
@@ -150,8 +151,7 @@ public class SearchableActivity extends AppCompatActivity {
 
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(10);
+                .orderBy("timestamp", Query.Direction.DESCENDING);
         //get all posts from the database
         loadPosts(firstQuery, query);
 
@@ -187,6 +187,8 @@ public class SearchableActivity extends AppCompatActivity {
 
                     }
                 }
+
+
                 // TODO: 5/2/18 hanlde no posts found notif
                 /*if (postsList.isEmpty()) {
 
@@ -200,6 +202,17 @@ public class SearchableActivity extends AppCompatActivity {
 
             }
         });
+
+        //stop loading
+//        coMeth.stopLoading(progressDialog, null);
+
+        /*//check results
+        if (postsList.isEmpty()){
+            Log.d(TAG, "onComplete: post list is empty" + postsList );
+            showSnack(getString(R.string.post_not_found_text));
+        }else{
+            Log.d(TAG, "onComplete: post list is not empty " + postsList);
+        }*/
     }
 
 
@@ -276,7 +289,8 @@ public class SearchableActivity extends AppCompatActivity {
 
         }
 
-        coMeth.stopLoading(progressDialog, null);
+        /*//stop loading
+        coMeth.stopLoading(progressDialog, null);*/
 
         if (title.contains(searchQuery)) {
             getFilteredPosts(post);
@@ -302,6 +316,7 @@ public class SearchableActivity extends AppCompatActivity {
                 "\ncatString: " + catString +
                 "\ncontactString: " + contactString +
                 "\neventDateString: " + eventDateString);
+
     }
 
     private void getFilteredPosts(final Posts post) {
@@ -322,29 +337,15 @@ public class SearchableActivity extends AppCompatActivity {
 
                             Users user = task.getResult().toObject(Users.class);
                             //add new post to the local postsList
-                            if (isFirstPageFirstLoad) {
-
-                                //add the post at position 0 of the postsList
-                                postsList.add(0, post);
-                                usersList.add(0, user);
-
-
-                            } else {
-
-                                //if the first page is loaded the add new post normally
-                                postsList.add(post);
-                                usersList.add(user);
-
-                            }
+                            postsList.add(post);
+                            usersList.add(user);
                             //notify the recycler adapter of the set change
                             searchRecyclerAdapter.notifyDataSetChanged();
-                            //stop loafing
-                            coMeth.stopLoading(progressDialog, null);
-                            //check if search returned results
-                            if (postsList.isEmpty()) {
-                                showSnack(getString(R.string.post_not_found_text));
+                            Log.d(TAG, "onComplete: filtered posts are " + postsList);
+                            //stop loading when post list has items
+                            if (postsList.size() > 0) {
+                                coMeth.stopLoading(progressDialog, null);
                             }
-                            Log.d(TAG, "onComplete: fildtered posts are " + postsList);
 
                         } else {
 
@@ -361,15 +362,12 @@ public class SearchableActivity extends AppCompatActivity {
 
                             }
 
-                            coMeth.stopLoading(progressDialog, null);
-
-
                         }
 
-                        coMeth.stopLoading(progressDialog, null);
 
                     }
                 });
+
     }
 
     //for loading more posts

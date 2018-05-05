@@ -176,14 +176,13 @@ public class HomeFragment extends Fragment {
                                         }
                                         //notify the recycler adapter of the set change
                                         postsRecyclerAdapter.notifyDataSetChanged();
-                                        coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                     } else {
 
                                         //no posts
-                                        coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                     }
+                                    coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                 }
                             });
@@ -194,8 +193,6 @@ public class HomeFragment extends Fragment {
 
                     //the first page has already loaded
                     isFirstPageFirstLoad = false;
-                    //stop loading
-                    coMeth.stopLoading(progressDialog, swipeRefresh);
                 }
 
             }
@@ -209,7 +206,7 @@ public class HomeFragment extends Fragment {
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
-                .limit(10);
+                .limit(20);
 
         nextQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
             @Override

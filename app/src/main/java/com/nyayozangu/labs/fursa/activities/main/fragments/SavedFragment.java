@@ -54,7 +54,6 @@ public class SavedFragment extends Fragment {
     private PostsRecyclerAdapter savedPostsRecyclerAdapter;
     private DocumentSnapshot lastVisiblePost;
     private Boolean isFirstPageFirstLoad = true;
-
     private String currentUserId;
     private ProgressDialog progressDialog;
 
@@ -229,9 +228,6 @@ public class SavedFragment extends Fragment {
 
                                                     //notify the recycler adapter of the set change
                                                     savedPostsRecyclerAdapter.notifyDataSetChanged();
-                                                    //stop loading
-                                                    coMeth.stopLoading(progressDialog, swipeRefresh);
-
 
                                                 }
 
@@ -241,7 +237,6 @@ public class SavedFragment extends Fragment {
                                     } else {
 
                                         //post does not exist
-                                        coMeth.stopLoading(progressDialog, swipeRefresh);
                                         Log.d(TAG, "onComplete: post does not exist");
 
                                     }
@@ -250,9 +245,10 @@ public class SavedFragment extends Fragment {
 
                                     //task failed
                                     Log.d(TAG, "onComplete: getting post from Posts task failed\n" + task.getException());
-                                    coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                 }
+
+                                coMeth.stopLoading(progressDialog, swipeRefresh);
 
                             }
                         });

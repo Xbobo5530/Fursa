@@ -358,6 +358,7 @@ public class CoMeth {
 
     public void stopLoading(ProgressDialog progressDialog, SwipeRefreshLayout swipeRefreshLayout) {
 
+        Log.d(TAG, "stopLoading: stopping");
         if (progressDialog != null) {
 
             if (progressDialog.isShowing()) {

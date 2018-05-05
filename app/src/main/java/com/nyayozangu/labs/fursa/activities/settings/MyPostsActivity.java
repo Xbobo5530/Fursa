@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,8 +39,7 @@ public class MyPostsActivity extends AppCompatActivity {
     private CoMeth coMeth = new CoMeth();
 
     private FloatingActionButton newPostFab;
-
-
+    private SwipeRefreshLayout swipeRefresh;
     private RecyclerView myPostsFeed;
 
     //retrieve posts
@@ -73,6 +73,7 @@ public class MyPostsActivity extends AppCompatActivity {
 
         //initiate items
         myPostsFeed = findViewById(R.id.myPostsRecyclerView);
+        swipeRefresh = findViewById(R.id.myPostsSwipeRefresh);
 
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
@@ -124,11 +125,25 @@ public class MyPostsActivity extends AppCompatActivity {
             }
         });
 
-
-        Query firstQuery = coMeth.getDb()
+        final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(10);
+        loadPosts(firstQuery);
+
+        //handle swipe refresh
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                loadPosts(firstQuery);
+
+            }
+        });
+
+    }
+
+    private void loadPosts(Query firstQuery) {
         firstQuery.addSnapshotListener(MyPostsActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -164,7 +179,6 @@ public class MyPostsActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
     private void filterPosts(final Posts post) {
@@ -188,7 +202,6 @@ public class MyPostsActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
 
                                 Users user = task.getResult().toObject(Users.class);
-
                                 //add new post to the local postsList
                                 if (isFirstPageFirstLoad) {
 
@@ -203,13 +216,14 @@ public class MyPostsActivity extends AppCompatActivity {
                                 }
 
                                 postsRecyclerAdapter.notifyDataSetChanged();
-                                progressDialog.dismiss();
                             } else {
 
                                 //task failed
                                 Log.d(TAG, "onComplete: getting users task failed");
 
                             }
+
+                            coMeth.stopLoading(progressDialog, swipeRefresh);
 
                         }
                     });
