@@ -17,7 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <provider
             android:name=".activities.main.providers.MySuggestionProvider"
             android:authorities="com.nyayozangu.labs.fursa.activities.main.providers.MySuggestionProvider" />
@@ -179,7 +178,8 @@
             android:label="@string/title_activity_view_image"
             android:theme="@style/FullscreenTheme" />
         <activity android:name=".activities.settings.FeedbackActivity" />
-        <activity android:name=".activities.settings.PrivacyPolicyActivity"></activity>
+        <activity android:name=".activities.settings.PrivacyPolicyActivity" />
+        <activity android:name=".activities.settings.AdminActivity"></activity>
     </application>
 
 </manifest>

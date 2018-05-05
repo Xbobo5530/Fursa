@@ -230,7 +230,8 @@ public class HomeFragment extends Fragment {
                             String postUserId = doc.getDocument().getString("user_id");
 
                             //get user_id for post
-                            new CoMeth().getDb().collection("Users")
+                            coMeth.getDb()
+                                    .collection("Users")
                                     .document(postUserId)
                                     .get()
                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

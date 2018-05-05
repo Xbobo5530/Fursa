@@ -723,7 +723,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     if (post.getEvent_date() != null) {
                         long eventDate = post.getEvent_date().getTime();
                         Log.d(TAG, String.valueOf(eventDate));
-                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(eventDate)).toString();
+                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy", new Date(eventDate)).toString();
                         Log.d(TAG, "onEvent: \nebentDateString: " + eventDateString);
                         eventDateTextView.setText(eventDateString);
                     }else{

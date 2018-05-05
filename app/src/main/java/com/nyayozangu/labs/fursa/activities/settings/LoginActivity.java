@@ -567,19 +567,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         progressDialog.show();
     }
 
-
-    /*private void handleFirebaseAuthResult(AuthResult authResult) {
-        if (authResult != null) {
-            // Welcome the user
-            FirebaseUser user = authResult.getUser();
-            Snackbar.make(findViewById(R.id.login_activity_layout),
-                    "Welcome " + user.getEmail(), Snackbar.LENGTH_SHORT).show();
-
-            // Go back to the main activity
-            startActivity(new Intent(this, MainActivity.class));
-        }
-    }
-    */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 

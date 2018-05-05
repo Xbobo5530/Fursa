@@ -229,6 +229,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
+    // TODO: 5/6/18 handle images on notifications
     private void buildNotif(String title, String messageBody, String userImageDownloadUrl) {
         defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)

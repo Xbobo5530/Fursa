@@ -324,5 +324,6 @@
     <string name="comments_text">Comments</string>
     <string name="posting_comment_text">Posting comment...</string>
     <string name="failed_to_comment_text">Failed to post comment</string>
+    <string name="wrong_password_text">Wrong password</string>
 
 </resources>
