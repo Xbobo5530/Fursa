@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -87,7 +86,7 @@ public class SavedFragment extends Fragment {
         showProgress(getString(R.string.loading_text));
 
         //listen for scrolling on the homeFeedView
-        /*savedPostsView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        savedPostsView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -100,7 +99,7 @@ public class SavedFragment extends Fragment {
                 }
 
             }
-        });*/
+        });
 
 
         if (coMeth.isConnected() && coMeth.isLoggedIn()) {
@@ -116,6 +115,18 @@ public class SavedFragment extends Fragment {
             }
         }
 
+
+        Log.d(TAG, "onCreateView: \ncurrentUserId is: " + currentUserId);
+
+        final Query firstQuery = coMeth.getDb()
+                .collection("Users/" + currentUserId + "/Subscriptions")
+                .document("saved_posts")
+                .collection("SavedPosts")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(3);
+        //get all posts from the database
+        loadPosts(firstQuery);
+
         //handle refresh
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -125,23 +136,17 @@ public class SavedFragment extends Fragment {
                 savedPostsList.clear();
                 usersList.clear();
                 savedPostsView.getRecycledViewPool().clear();
-                loadPosts();
+                loadPosts(firstQuery);
 
 
             }
         });
 
-        Log.d(TAG, "onCreateView: \ncurrentUserId is: " + currentUserId);
+        return view;
+    }
 
-        loadPosts();
 
-
-        /*Query firstQuery = db
-                .collection("Users/" + currentUserId + "/Subscriptions").document("saved_posts")
-                .collection("SavedPosts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(10);
-        //get all posts from the database
+    private void loadPosts(Query firstQuery) {
         firstQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -173,7 +178,8 @@ public class SavedFragment extends Fragment {
                         //get the post id for likes feature
                         final String postId = doc.getDocument().getId();
                         //uses postId to retrieve post details from Posts collections
-                        db.collection("Posts")
+                        coMeth.getDb()
+                                .collection("Posts")
                                 .document(postId)
                                 .get()
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -191,7 +197,8 @@ public class SavedFragment extends Fragment {
                                         //post exists, convert post to object
                                         final Posts post = task.getResult().toObject(Posts.class).withId(postId);
 
-                                        db.collection("Users")
+                                        coMeth.getDb()
+                                                .collection("Users")
                                                 .document(currentUserId)
                                                 .get()
                                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -206,20 +213,24 @@ public class SavedFragment extends Fragment {
                                                     //add post to saved posts list
                                                     if (isFirstPageFirstLoad) {
 
-                                                        //if the first page is loaded the add new post normally
-                                                        savedPostsList.add(post);
-                                                        usersList.add(user);
-
-                                                    } else {
 
                                                         //add the post at position 0 of the postsList
                                                         savedPostsList.add(0, post);
                                                         usersList.add(0, user);
 
+
+                                                    } else {
+
+                                                        //if the first page is loaded the add new post normally
+                                                        savedPostsList.add(post);
+                                                        usersList.add(user);
+
                                                     }
 
                                                     //notify the recycler adapter of the set change
                                                     savedPostsRecyclerAdapter.notifyDataSetChanged();
+                                                    //stop loading
+                                                    coMeth.stopLoading(progressDialog, swipeRefresh);
 
 
                                                 }
@@ -230,6 +241,7 @@ public class SavedFragment extends Fragment {
                                     } else {
 
                                         //post does not exist
+                                        coMeth.stopLoading(progressDialog, swipeRefresh);
                                         Log.d(TAG, "onComplete: post does not exist");
 
                                     }
@@ -238,6 +250,7 @@ public class SavedFragment extends Fragment {
 
                                     //task failed
                                     Log.d(TAG, "onComplete: getting post from Posts task failed\n" + task.getException());
+                                    coMeth.stopLoading(progressDialog, swipeRefresh);
 
                                 }
 
@@ -252,12 +265,10 @@ public class SavedFragment extends Fragment {
                 isFirstPageFirstLoad = false;
 
             }
-        });*/
-
-        return view;
+        });
     }
 
-    private void loadPosts() {
+    /*private void loadPosts() {
         coMeth.getDb().collection("Users/" + currentUserId + "/Subscriptions")
                 .document("saved_posts")
                 .collection("SavedPosts")
@@ -336,7 +347,7 @@ public class SavedFragment extends Fragment {
 
                     }
                 });
-    }
+    }*/
 
 
     private void goToLogin() {
