@@ -85,6 +85,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
     private EditText postTitleEditText;
     private TextView postDescTextView;
+    //    private ExpandableTextView postDescTextView;
     private TextView contactTextView;
     private TextView eventDateTextView;
     private TextView priceTextView;
@@ -189,7 +190,7 @@ public class CreatePostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //crate a dialog tha twill have a
-                // TODO: 5/4/18 use a cutom view to properly align the desc text
+                // TODO: 5/4/18 use a custom view to properly align the desc text
                 AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
                 builder.setTitle("Post Description")
                         .setIcon(R.drawable.ic_action_descritption);

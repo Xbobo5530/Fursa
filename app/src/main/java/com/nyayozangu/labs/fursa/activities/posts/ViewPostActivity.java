@@ -29,6 +29,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
@@ -55,7 +56,8 @@ public class ViewPostActivity extends AppCompatActivity {
     String postThumbUrl;
     private ImageView viewPostImage;
     private FloatingActionButton viewPostActionsFAB;
-    private TextView descTextView;
+    //    private TextView descTextView;
+    private ExpandableTextView descTextView;
     private TextView timeTextView;
     private TextView priceTextView;
     private TextView locationTextView;
@@ -904,7 +906,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
         //desc layout click
-        viewPostDescLayout.setOnClickListener(new View.OnClickListener() {
+        /*viewPostDescLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -929,7 +931,7 @@ public class ViewPostActivity extends AppCompatActivity {
                         .show();
 
             }
-        });
+        });*/
 
         //category layout click
         viewPostCatLayout.setOnClickListener(new View.OnClickListener() {

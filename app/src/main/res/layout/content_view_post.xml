@@ -150,7 +150,45 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_action_descritption" />
 
-            <TextView
+            <com.ms.square.android.expandabletextview.ExpandableTextView xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:expandableTextView="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/viewPostDescTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                expandableTextView:animDuration="200"
+                expandableTextView:layout_constraintBottom_toBottomOf="parent"
+                expandableTextView:layout_constraintEnd_toEndOf="parent"
+                expandableTextView:layout_constraintStart_toEndOf="@+id/viewPostDescImageView"
+                expandableTextView:layout_constraintTop_toTopOf="parent"
+                expandableTextView:layout_constraintVertical_bias="0.0"
+                expandableTextView:maxCollapsedLines="4">
+
+                <TextView
+                    android:id="@id/expandable_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:autoLink="all"
+                    android:autoText="false"
+                    android:textColor="#666666"
+                    android:textSize="16sp" />
+
+                <ImageButton
+                    android:id="@id/expand_collapse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|bottom"
+                    android:background="@android:color/transparent"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_action_expand_more" />
+            </com.ms.square.android.expandabletextview.ExpandableTextView>
+
+            <!--<TextView
                 android:id="@+id/viewPostDescTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -176,7 +214,7 @@
                 android:text="@string/view_full_desc_text"
                 android:textColor="@color/colorAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/viewPostDescImageView" />
+                app:layout_constraintStart_toEndOf="@+id/viewPostDescImageView" />-->
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout
