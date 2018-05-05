@@ -18,6 +18,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
+import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
 import com.nyayozangu.labs.fursa.activities.settings.FeedbackActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
@@ -26,6 +27,7 @@ import com.nyayozangu.labs.fursa.activities.settings.PrivacyPolicyActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 
 import java.util.Date;
+import java.util.List;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -397,4 +399,17 @@ public class CoMeth {
         }
 
     }*/
+
+    public void onResultStopLoading(List<Posts> postList,
+                                    ProgressDialog progressDialog,
+                                    SwipeRefreshLayout swipeRefreshLayout) {
+
+        Log.d(TAG, "onResultStopLoading: ");
+        if (postList.size() > 0) {
+
+            this.stopLoading(progressDialog, swipeRefreshLayout);
+
+        }
+
+    }
 }

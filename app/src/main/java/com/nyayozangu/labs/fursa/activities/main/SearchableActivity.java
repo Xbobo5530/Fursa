@@ -202,17 +202,6 @@ public class SearchableActivity extends AppCompatActivity {
 
             }
         });
-
-        //stop loading
-//        coMeth.stopLoading(progressDialog, null);
-
-        /*//check results
-        if (postsList.isEmpty()){
-            Log.d(TAG, "onComplete: post list is empty" + postsList );
-            showSnack(getString(R.string.post_not_found_text));
-        }else{
-            Log.d(TAG, "onComplete: post list is not empty " + postsList);
-        }*/
     }
 
 
@@ -289,9 +278,6 @@ public class SearchableActivity extends AppCompatActivity {
 
         }
 
-        /*//stop loading
-        coMeth.stopLoading(progressDialog, null);*/
-
         if (title.contains(searchQuery)) {
             getFilteredPosts(post);
         }
@@ -310,13 +296,6 @@ public class SearchableActivity extends AppCompatActivity {
         if (eventDateString.contains(searchQuery)) {
             getFilteredPosts(post);
         }
-
-        Log.d(TAG, "filterPosts: " +
-                "\nlocString: " + locString +
-                "\ncatString: " + catString +
-                "\ncontactString: " + contactString +
-                "\neventDateString: " + eventDateString);
-
     }
 
     private void getFilteredPosts(final Posts post) {
@@ -343,9 +322,8 @@ public class SearchableActivity extends AppCompatActivity {
                             searchRecyclerAdapter.notifyDataSetChanged();
                             Log.d(TAG, "onComplete: filtered posts are " + postsList);
                             //stop loading when post list has items
-                            if (postsList.size() > 0) {
-                                coMeth.stopLoading(progressDialog, null);
-                            }
+                            coMeth.onResultStopLoading(postsList, progressDialog, null);
+
 
                         } else {
 
@@ -367,48 +345,6 @@ public class SearchableActivity extends AppCompatActivity {
 
                     }
                 });
-
-    }
-
-    //for loading more posts
-    public void loadMorePosts(final String searchQuery) {
-
-        Query nextQuery = coMeth.getDb()
-                .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .startAfter(lastVisiblePost)
-                .limit(10);
-
-        nextQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
-                //check if there area more posts
-                if (!queryDocumentSnapshots.isEmpty()) {
-
-                    //get the last visible post
-                    lastVisiblePost = queryDocumentSnapshots
-                            .getDocuments()
-                            .get(queryDocumentSnapshots.size() - 1);
-                    //create a for loop to check for document changes
-                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-
-                        //check if an item is added
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
-
-                            String postId = doc.getDocument().getId();
-                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-                            //filter posts
-                            filterPosts(post, searchQuery);
-
-                        }
-                    }
-                    Log.d(TAG, "onEvent: \nadded posts to postlist, postlist is: " + postsList);
-
-                }
-
-            }
-        });
 
     }
 

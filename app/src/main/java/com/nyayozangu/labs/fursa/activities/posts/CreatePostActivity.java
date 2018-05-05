@@ -617,7 +617,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                                     //post no longer exists
                                                     Log.d(TAG, "onComplete: post does not exist");
-                                                    coMeth.stopLoading(progressDialog, null);
                                                     //go to main
                                                     Intent postNotFoundIntent = new Intent(CreatePostActivity.this, MainActivity.class);
                                                     postNotFoundIntent.putExtra("action", "notify");
@@ -639,8 +638,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                     });
                         }
 
-                        //hide loading
-                        coMeth.stopLoading(progressDialog, null);
                         //re-enable submit button
                         submitButton.setClickable(true);
 
@@ -758,14 +755,11 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                                     } else {
 
-                                                        //upload failed
-                                                        coMeth.stopLoading(progressDialog, null);
                                                         String errorMessage = task.getException().getMessage();
                                                         Log.d(TAG, "Db Update failed: " + errorMessage);
                                                         showSnack(getString(R.string.failed_to_upload_image_text));
 
                                                     }
-                                                    coMeth.stopLoading(progressDialog, null);
 
                                                 }
                                             });
@@ -798,7 +792,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         showSnack(getString(R.string.failed_to_upload_image_text));
 
                                                     }
-                                                    coMeth.stopLoading(progressDialog, null);
 
                                                 }
                                             });
@@ -813,7 +806,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                 //upload failed
                                 Log.d(TAG, "Db Update failed: " + task.getException());
                                 showSnack(getString(R.string.failed_to_upload_image_text));
-                                coMeth.stopLoading(progressDialog, null);
                             }
                         });
 
@@ -824,8 +816,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
                         showSnack(getString(R.string.failed_to_upload_image_text));
                     }
-
-                    coMeth.stopLoading(progressDialog, null);
 
                 }
             });
@@ -1124,7 +1114,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
     private void populateEditPostData(String postId) {
 
-        showProgress("Loading...");
+        showProgress(getString(R.string.loading_text));
         //access db to set items
         coMeth.getDb()
                 .collection("Posts")
@@ -1235,6 +1225,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     }
 
+                    coMeth.stopLoading(progressDialog, null);
+
                 } else {
 
                     //post does not exist
@@ -1247,8 +1239,6 @@ public class CreatePostActivity extends AppCompatActivity {
                     finish();
 
                 }
-
-                coMeth.stopLoading(progressDialog, null);
 
             }
         });

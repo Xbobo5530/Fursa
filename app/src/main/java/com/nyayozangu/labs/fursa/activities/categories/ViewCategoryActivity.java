@@ -643,10 +643,13 @@ ViewCategoryActivity extends AppCompatActivity {
                                 }
                                 //notify the recycler adapter of the set change
                                 categoryRecyclerAdapter.notifyDataSetChanged();
+                                //stop loading after first post is visible
+                                coMeth.onResultStopLoading(postsList, progressDialog, swipeRefresh);
 
                             } else {
 
                                 //cat has no posts
+                                coMeth.stopLoading(progressDialog, swipeRefresh);
                                 showSnack("There are no posts in this category");
                                 Log.d(TAG, "onComplete: cat has no posts");
 
@@ -658,9 +661,6 @@ ViewCategoryActivity extends AppCompatActivity {
                             Log.d(TAG, "onComplete: task has failed: " + task.getException());
 
                         }
-
-                        //stop loading
-                        coMeth.stopLoading(progressDialog, swipeRefresh);
 
                     }
                 });
