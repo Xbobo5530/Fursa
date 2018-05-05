@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -99,7 +100,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                coMeth.goToAccSet();
+                goToAccSet();
                 finish();
 
             }
@@ -114,44 +115,44 @@ public class SettingsActivity extends AppCompatActivity {
                     .collection("Users")
                     .document(userId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        @Override
+                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                    //check if user exists
-                    if (documentSnapshot.exists()) {
-                        //set name
-                        String username = documentSnapshot.get("name").toString();
-                        usernameTextView.setText(username);
-                        //set bio
-                        try {
-                            String bio = documentSnapshot.get("bio").toString();
-                            userBioTextView.setText(bio);
-                        } catch (NullPointerException error) {
-                            Log.d(TAG, "error: no bio");
-                            userBioTextView.setVisibility(View.GONE);
+                            //check if user exists
+                            if (documentSnapshot.exists()) {
+                                //set name
+                                String username = documentSnapshot.get("name").toString();
+                                usernameTextView.setText(username);
+                                //set bio
+                                try {
+                                    String bio = documentSnapshot.get("bio").toString();
+                                    userBioTextView.setText(bio);
+                                } catch (NullPointerException error) {
+                                    Log.d(TAG, "error: no bio");
+                                    userBioTextView.setVisibility(View.GONE);
+                                }
+
+                                //set image
+                                try {
+                                    String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
+
+                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                            userProfileImageDownloadUrl,
+                                            userImage);
+
+                                } catch (NullPointerException userImageException) {
+
+                                    //user image is null
+                                    Log.e(TAG, "onEvent: ", userImageException);
+
+                                }
+
+                            } else {
+                                Log.d(TAG, "user does now exist");
+                                userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                            }
                         }
-
-                        //set image
-                        try {
-                            String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
-
-                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                    userProfileImageDownloadUrl,
-                                    userImage);
-
-                        } catch (NullPointerException userImageException) {
-
-                            //user image is null
-                            Log.e(TAG, "onEvent: ", userImageException);
-
-                        }
-
-                    } else {
-                        Log.d(TAG, "user does now exist");
-                        userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
-                    }
-                }
-            });
+                    });
         } else {
 
             //user is not logged in
@@ -208,7 +209,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                coMeth.goToFeedback();
+                goToFeedback();
 
             }
         });
@@ -230,11 +231,23 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                coMeth.goToPrivacyPolicy();
+                goToPrivacyPolicy();
 
             }
         });
 
+    }
+
+    private void goToPrivacyPolicy() {
+        startActivity(new Intent(this, PrivacyPolicyActivity.class));
+    }
+
+    private void goToFeedback() {
+        startActivity(new Intent(this, FeedbackActivity.class));
+    }
+
+    private void goToAccSet() {
+        startActivity(new Intent(this, AccountActivity.class));
     }
 
     private void confirmSignOut() {
@@ -256,12 +269,17 @@ public class SettingsActivity extends AppCompatActivity {
 
                         coMeth.signOut();
                         Log.d(TAG, "user is logged out");
-                        coMeth.goToMain();
-                        finish();
+                        goToMain();
+
 
                     }
                 })
                 .show();
+    }
+
+    private void goToMain() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
     }
 
 

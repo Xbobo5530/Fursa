@@ -30,6 +30,7 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.activities.settings.MySubscriptionsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
@@ -675,7 +676,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
-                .limit(10);
+                .limit(20);
 
         //get all posts from the database
         nextQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
@@ -722,11 +723,16 @@ ViewCategoryActivity extends AppCompatActivity {
                     public void onClick(View v) {
 
                         //go to my subscriptions
-                        coMeth.goToMySubscriptions();
+                        goToMySubscriptions();
 
                     }
                 })
                 .show();
+    }
+
+    private void goToMySubscriptions() {
+        startActivity(new Intent(ViewCategoryActivity.this, MySubscriptionsActivity.class));
+
     }
 
     private void showLoginAlertDialog(String message) {

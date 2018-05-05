@@ -39,6 +39,7 @@ import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
 import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
+import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.List;
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                coMeth.goToSettings();
+                goToSettings();
             }
         });
 
@@ -317,6 +318,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void goToSettings() {
+        startActivity(new Intent(this, SettingsActivity.class));
+    }
+
     private void showVerEmailDialog() {
         android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
         emailVerBuilder.setTitle(R.string.email_ver_text)
@@ -327,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(final DialogInterface dialog, int which) {
 
                         //send ver email
-                        FirebaseUser user = new CoMeth().getAuth().getCurrentUser();
+                        FirebaseUser user = coMeth.getAuth().getCurrentUser();
                         //show progress
                         String sendEmailMessage = getString(R.string.send_email_text);
                         showProgress(sendEmailMessage);
@@ -369,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
 
                                             //log use out
                                             //take user to login screen
-                                            new CoMeth().signOut();
+                                            coMeth.signOut();
                                             startActivity(new Intent(MainActivity.this, LoginActivity.class));
                                             finish();
 

@@ -2,6 +2,7 @@ package com.nyayozangu.labs.fursa.activities.settings;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -192,7 +193,7 @@ public class FeedbackActivity extends AppCompatActivity {
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) {
 
-                                                            coMeth.goToSettings();
+                                                            goToSettings();
 
                                                         }
                                                     })
@@ -230,6 +231,10 @@ public class FeedbackActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void goToSettings() {
+        startActivity(new Intent(FeedbackActivity.this, SettingsActivity.class));
     }
 
     private void showLoginAlertDialog(String message) {

@@ -320,5 +320,6 @@
     <string name="cat_services">Services</string>
     <string name="logout_text">Logout</string>
     <string name="confirm_lougout_text">Are you sure you want to logout?</string>
+    <string name="login_to_comment">Log in to comment</string>
 
 </resources>

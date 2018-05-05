@@ -19,12 +19,8 @@ import com.google.firebase.storage.StorageReference;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
-import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
-import com.nyayozangu.labs.fursa.activities.settings.FeedbackActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.MySubscriptionsActivity;
-import com.nyayozangu.labs.fursa.activities.settings.PrivacyPolicyActivity;
-import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 
 import java.util.Date;
 import java.util.List;
@@ -341,7 +337,7 @@ public class CoMeth {
     }
 
 
-    public void goToSettings() {
+    /*public void goToSettings() {
 
         getApplicationContext().startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
 
@@ -356,7 +352,7 @@ public class CoMeth {
     public void goToPrivacyPolicy() {
 
         getApplicationContext().startActivity(new Intent(getApplicationContext(), PrivacyPolicyActivity.class));
-    }
+    }*/
 
     public void stopLoading(ProgressDialog progressDialog, SwipeRefreshLayout swipeRefreshLayout) {
 
@@ -379,7 +375,7 @@ public class CoMeth {
 
     }
 
-    public void goToMain() {
+    /*public void goToMain() {
         getApplicationContext().startActivity(
                 new Intent(getApplicationContext(), SettingsActivity.class));
     }
@@ -387,7 +383,7 @@ public class CoMeth {
     public void goToAccSet() {
         getApplicationContext().startActivity(
                 new Intent(getApplicationContext(), AccountActivity.class));
-    }
+    }*/
 
     /*public void hideKeyBoard() {
 

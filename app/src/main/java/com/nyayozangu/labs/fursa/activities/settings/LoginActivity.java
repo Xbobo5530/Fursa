@@ -244,35 +244,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                                 //check registration status
                                                 if (task.isSuccessful()) {
 
-                                                    //registration successful
-                                                    AlertDialog.Builder emailVerBuilder = new AlertDialog.Builder(LoginActivity.this);
-                                                    emailVerBuilder.setTitle(R.string.email_ver_text)
-                                                            .setIcon(R.drawable.ic_action_info_grey)
-                                                            .setMessage("A verification email has been sent to your email address")
-                                                            .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                                                                @Override
-                                                                public void onClick(DialogInterface dialog, int which) {
-
-                                                                    //send ver email
-                                                                    FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                                                                    user.sendEmailVerification()
-                                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                @Override
-                                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                                    if (task.isSuccessful()) {
-                                                                                        Log.d(TAG, getString(R.string.email_sent_text));
-                                                                                    }
-                                                                                }
-                                                                            });
-
-                                                                    //go to account setup
-                                                                    startActivity(new Intent(LoginActivity.this, AccountActivity.class));
-                                                                    finish();
-
-
-                                                                }
-                                                            })
-                                                            .show();
+                                                    //go to account setup
+                                                    startActivity(new Intent(LoginActivity.this, AccountActivity.class));
+                                                    finish();
 
                                                 } else {
 
@@ -284,7 +258,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                             }
                                         });
 
-                                        progressDialog.dismiss();
+                                        coMeth.stopLoading(progressDialog, null);
 
                                     } else {
 

@@ -269,7 +269,7 @@ public class MyPostsActivity extends AppCompatActivity {
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
-                .limit(10);
+                .limit(20);
 
 
         //get all posts from the database

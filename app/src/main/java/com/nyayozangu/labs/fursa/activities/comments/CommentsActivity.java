@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,7 +59,7 @@ public class CommentsActivity extends AppCompatActivity {
     private EditText chatField;
     private CircleImageView currentUserImage, postUserImage;
     private TextView postUsernameField, postTitleField;
-
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView commentsRecyclerView;
     private CommentsRecyclerAdapter commentsRecyclerAdapter;
     private List<Comments> commentsList;
@@ -90,6 +91,7 @@ public class CommentsActivity extends AppCompatActivity {
         chatField = findViewById(R.id.commentsChatEditText);
         currentUserImage = findViewById(R.id.commentsCurrentUserImageView);
         commentsRecyclerView = findViewById(R.id.commentsRecyclerView);
+        swipeRefreshLayout = findViewById(R.id.commentsSwipeRefresh);
 
         //initiate an arrayList to hold all the posts
         commentsList = new ArrayList<>();
@@ -121,6 +123,17 @@ public class CommentsActivity extends AppCompatActivity {
 
                 //go to current user profile
                 startActivity(new Intent(CommentsActivity.this, SettingsActivity.class));
+
+            }
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                commentsList.clear();
+                commentsRecyclerView.getRecycledViewPool().clear();
+                retrieveComments();
 
             }
         });
@@ -216,40 +229,7 @@ public class CommentsActivity extends AppCompatActivity {
                     });
 
             //retrieve comments
-            coMeth.getDb()
-                    .collection("Posts/" + postId + "/Comments")
-                    .orderBy("timestamp", Query.Direction.ASCENDING)
-                    .addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
-                    //check if query is empty
-                    if (!queryDocumentSnapshots.isEmpty()) {
-
-                        //create a for loop to check for document changes
-                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                            //check if an item is added
-                            if (doc.getType() == DocumentChange.Type.ADDED) {
-
-                                //a new comment is added
-                                String commentId = doc.getDocument().getId();
-                                Comments comment = doc.getDocument().toObject(Comments.class);
-                                commentsList.add(comment);
-                                commentsRecyclerAdapter.notifyDataSetChanged();
-                                commentsRecyclerView.scrollToPosition(commentsList.size() - 1);
-
-                            }
-                        }
-                    } else {
-
-                        //there are no comments
-                        Log.d(TAG, "onEvent: post has no comments");
-
-
-                    }
-
-                }
-            });
+            retrieveComments();
 
 
             //inform user to login to comment
@@ -262,33 +242,33 @@ public class CommentsActivity extends AppCompatActivity {
                         .collection("Users")
                         .document(userId)
                         .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                            @Override
+                            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                        //check if user exists
-                        if (documentSnapshot.exists()) {
+                                //check if user exists
+                                if (documentSnapshot.exists()) {
 
-                            //user exists
-                            try {
+                                    //user exists
+                                    try {
 
-                                //set image
-                                String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
-                                coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                        userProfileImageDownloadUrl,
-                                        currentUserImage);
+                                        //set image
+                                        String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
+                                        coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                                userProfileImageDownloadUrl,
+                                                currentUserImage);
 
 
-                            } catch (NullPointerException noImageFoundException) {
+                                    } catch (NullPointerException noImageFoundException) {
 
-                                currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
-                                Log.d(TAG, "onEvent: error: no thumb found");
+                                        currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                                        Log.d(TAG, "onEvent: error: no thumb found");
+
+                                    }
+
+                                }
 
                             }
-
-                        }
-
-                    }
-                });
+                        });
 
                 sendButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -386,8 +366,7 @@ public class CommentsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Log.d(TAG, "login button has clicked");
-                        String message = "Log in to comment";
-                        showLoginAlertDialog(message);
+                        showLoginAlertDialog(getString(R.string.login_to_comment));
                     }
 
                 });
@@ -399,7 +378,45 @@ public class CommentsActivity extends AppCompatActivity {
 
         }
 
+    }
 
+    private void retrieveComments() {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Comments")
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener(CommentsActivity.this, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+
+                        //check if query is empty
+                        if (!queryDocumentSnapshots.isEmpty()) {
+
+                            //create a for loop to check for document changes
+                            for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                //check if an item is added
+                                if (doc.getType() == DocumentChange.Type.ADDED) {
+
+                                    //a new comment is added
+                                    String commentId = doc.getDocument().getId();
+                                    Comments comment = doc.getDocument().toObject(Comments.class);
+                                    commentsList.add(comment);
+                                    commentsRecyclerAdapter.notifyDataSetChanged();
+                                    commentsRecyclerView.scrollToPosition(commentsList.size() - 1);
+
+                                }
+                            }
+                        } else {
+
+                            //there are no comments
+                            Log.d(TAG, "onEvent: post has no comments");
+
+
+                        }
+
+                        coMeth.stopLoading(progressDialog, swipeRefreshLayout);
+
+                    }
+                });
     }
 
     private void hideKeyBoard() {

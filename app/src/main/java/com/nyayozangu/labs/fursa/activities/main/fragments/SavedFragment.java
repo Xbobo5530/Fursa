@@ -357,10 +357,11 @@ public class SavedFragment extends Fragment {
 
         Log.d(TAG, "loadMorePosts: ");
         Query nextQuery = coMeth.getDb()
-                .collection("Users/" + currentUserId + "/Subscriptions").document("saved_posts")
+                .collection("Users/" + currentUserId + "/Subscriptions")
+                .document("saved_posts")
                 .collection("SavedPosts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(10);
+                .limit(20);
 
         nextQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
             @Override

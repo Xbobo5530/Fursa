@@ -20,45 +20,19 @@ import java.net.URL;
 
 public class Notify extends AsyncTask<String, String, Void> {
 
-
     private static final String TAG = "Sean";
     private static final String API_KEY = "key=AAAAx83bavk:APA91bHl_bttQCZ9UtkPMnBdz6VIjXj-4BD6S3ZDcUL20153ns6a2Aep0BdU_f0tP5pkeIyEivOyuebqmplIVt1-bhRNtgxQD_SqcmdhBM5DaJg6v0e59gyTvNSkt0RcN9WmgzSTJCtq";
     private String token;
-
-
-    /*private class DownloadFilesTask extends AsyncTask<URL, Integer, Long> {
-     protected Long doInBackground(URL... urls) {
-         int count = urls.length;
-         long totalSize = 0;
-         for (int i = 0; i < count; i++) {
-             totalSize += Downloader.downloadFile(urls[i]);
-             publishProgress((int) ((i / (float) count) * 100));
-             // Escape early if cancel() is called
-             if (isCancelled()) break;
-         }
-         return totalSize;
-     }
-
-     protected void onProgressUpdate(Integer... progress) {
-         setProgressPercent(progress[0]);
-     }
-
-     protected void onPostExecute(Long result) {
-         showDialog("Downloaded " + result + " bytes");
-     }
- }*/
 
     @Override
     protected Void doInBackground(String... strings) {
 
         Log.d(TAG, "doInBackground: notifications");
 
-
         //initialize contents
         String topic = "/topics/";
 
         token = FirebaseInstanceId.getInstance().getToken();
-
 
         try {
 
@@ -75,10 +49,8 @@ public class Notify extends AsyncTask<String, String, Void> {
 
             JSONObject json = new JSONObject();
 
-
             // TODO: 4/25/18 specify topics to send notifications to
             //comment updates
-
             switch (strings[0]) {
 
                 case "comment_updates":
