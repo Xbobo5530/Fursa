@@ -907,6 +907,7 @@ public class CreatePostActivity extends AppCompatActivity {
         for (int i = 0; i < catsStringsArray.size(); i++) {
 
             String notifType = "categories_updates";
+            Log.d(TAG, "notifyNewPostCatsUpdates: cat is " + catsStringsArray.get(i));
             new Notify().execute(notifType, catsStringsArray.get(i));
 
         }

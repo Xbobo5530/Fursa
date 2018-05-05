@@ -109,6 +109,7 @@ public class Notify extends AsyncTask<String, String, Void> {
                 info.put("message", "Check out new comments on the posts you follow"); // Notification body
                 info.put("notif_type", "comment_updates");
                 info.put("extra", extraInfo);
+
                 Log.d(TAG, "passNotifDetails: \nextraInfo is:" + extraInfo);
                 break;
             case "SAVED":
