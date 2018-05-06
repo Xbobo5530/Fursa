@@ -220,8 +220,10 @@ public class ViewPostActivity extends AppCompatActivity {
                             reportMap.put("flags", reportedItems);
                             coMeth.getDb()
                                     .collection("Flags")
+                                    .document("posts")
+                                    .collection("Posts")
                                     .document(postId)
-                                    .collection("Flags")
+                                    .collection("Users")
                                     .document(coMeth.getUid())
                                     .set(reportMap)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -242,6 +244,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                             }
 
                                         }
+
                                     });
 
                             coMeth.stopLoading(progressDialog, null);
