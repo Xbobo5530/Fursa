@@ -48,6 +48,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ViewPostActivity extends AppCompatActivity {
 
+    // TODO: 5/7/18 reorganize code on click listeners
+
     private static final String TAG = "Sean";
     MenuItem editPost;
     MenuItem deletePost;
@@ -98,6 +100,8 @@ public class ViewPostActivity extends AppCompatActivity {
     //common methods
     private CoMeth coMeth = new CoMeth();
     private ArrayList<String> reportedItems;
+    private ArrayList flagsArray;
+    private String reportDetailsString;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -146,13 +150,9 @@ public class ViewPostActivity extends AppCompatActivity {
             case R.id.reportMenuItem:
 
                 if (coMeth.isLoggedIn()) {
-
                     showReportDialog();
-
                 } else {
-
                     showLoginAlertDialog(getString(R.string.login_to_report));
-
                 }
                 break;
 
@@ -211,43 +211,52 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         if (coMeth.isConnected()) {
 
-                            showProgress("Submitting...");
+                            showProgress(getString(R.string.submitting));
+
+                            //create report details string
+                            for (String item : reportedItems) {
+                                reportDetailsString = reportDetailsString.concat(item + "\n");
+                            }
                             //add post details to db
-                            Map<String, Object> reportMap = new HashMap<>();
-                            reportMap.put("reporterUserId", coMeth.getUid());
+                            final Map<String, Object> reportMap = new HashMap<>();
                             reportMap.put("postId", postId);
                             reportMap.put("timestamp", FieldValue.serverTimestamp());
-                            reportMap.put("flags", reportedItems);
+
+                            //get existing flags
                             coMeth.getDb()
-                                    .collection("Flags")
-                                    .document("posts")
-                                    .collection("Posts")
+                                    .collection("Flags/posts/Posts")
                                     .document(postId)
-                                    .collection("Users")
-                                    .document(coMeth.getUid())
-                                    .set(reportMap)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                                            if (task.isSuccessful()) {
+                                            if (task.isSuccessful() && task.getResult().exists()) {
 
-                                                coMeth.stopLoading(progressDialog, null);
-                                                //alert user
-                                                showConfirmReport();
+                                                //get existing flags
+                                                flagsArray = (ArrayList) task.getResult().get("flags");
+                                                //update the flags
+                                                flagsArray.add(coMeth.getUid() + "\n" + reportDetailsString);
+                                                reportMap.put("flags", flagsArray);
+                                                submitReport(reportMap);
 
                                             } else {
 
-                                                showSnack(getString(R.string.report_submit_failed_text));
-                                                Log.d(TAG, "onComplete: " + task.getException());
+                                                if (!task.isSuccessful()) {
+                                                    // TODO: 5/7/18 handle task failed
+                                                }
+                                                if (!task.getResult().exists()) {
+                                                    //post has not been reported
+                                                    // TODO: 5/7/18 handle task not reported
+                                                    flagsArray.add(coMeth.getUid() + "\n" + reportDetailsString);
+                                                    reportMap.put("flags", flagsArray);
+                                                    submitReport(reportMap);
+                                                }
 
                                             }
 
                                         }
-
                                     });
-
-                            coMeth.stopLoading(progressDialog, null);
 
                         } else {
 
@@ -261,6 +270,36 @@ public class ViewPostActivity extends AppCompatActivity {
                 })
                 .setCancelable(false)
                 .show();
+
+    }
+
+    private void submitReport(Map<String, Object> reportMap) {
+
+        coMeth.getDb()
+                .collection("Flags/posts/Posts")
+                .document(postId)
+                .set(reportMap)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                        if (task.isSuccessful()) {
+
+                            coMeth.stopLoading(progressDialog);
+                            //alert user
+                            showConfirmReport();
+
+                        } else {
+
+                            coMeth.stopLoading(progressDialog);
+                            showSnack(getString(R.string.report_submit_failed_text));
+                            Log.d(TAG, "onComplete: " + task.getException());
+
+                        }
+
+                    }
+
+                });
 
     }
 
@@ -374,7 +413,9 @@ public class ViewPostActivity extends AppCompatActivity {
         catTextView = findViewById(R.id.viewPostCatTextView);
         catArray = new ArrayList<>();
         catKeys = new ArrayList<>();
+        flagsArray = new ArrayList();
         reportedItems = new ArrayList<String>();
+        reportDetailsString = "";
 
 
         if (getIntent() != null) {

@@ -37,6 +37,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.adapters.CommentsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
@@ -95,7 +96,7 @@ public class CommentsActivity extends AppCompatActivity {
 
         //initiate an arrayList to hold all the posts
         commentsList = new ArrayList<>();
-        commentsRecyclerAdapter = new CommentsRecyclerAdapter(commentsList);
+        commentsRecyclerAdapter = new CommentsRecyclerAdapter(commentsList, getPostIdFromIntent(getIntent()));
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         commentsRecyclerView.setHasFixedSize(true);
         commentsRecyclerView.setAdapter(commentsRecyclerAdapter);
@@ -112,9 +113,7 @@ public class CommentsActivity extends AppCompatActivity {
         });
 
         //get the sent intent
-        Intent getPostIdIntent = getIntent();
-        postId = getPostIdIntent.getStringExtra("postId");
-        Log.d(TAG, "postId is: " + postId);
+        handleIntent();
 
         //go to user profile
         currentUserImage.setOnClickListener(new View.OnClickListener() {
@@ -181,6 +180,30 @@ public class CommentsActivity extends AppCompatActivity {
 
         }
 
+    }
+
+
+    private void handleIntent() {
+        if (getIntent() != null) {
+            Intent getPostIdIntent = getIntent();
+            postId = getPostIdFromIntent(getPostIdIntent);
+            Log.d(TAG, "postId is: " + postId);
+        } else {
+            //intent is empty
+            goToMain();
+        }
+    }
+
+    private String getPostIdFromIntent(Intent intent) {
+        return intent.getStringExtra("postId");
+    }
+
+    private void goToMain() {
+        Intent goToMainIntent = new Intent(this, MainActivity.class);
+        goToMainIntent.putExtra("action", "notify");
+        goToMainIntent.putExtra("message", getString(R.string.something_went_wrong_text));
+        startActivity(goToMainIntent);
+        finish();
     }
 
     private void postComment() {
@@ -628,7 +651,7 @@ public class CommentsActivity extends AppCompatActivity {
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(CommentsActivity.this);
         loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_alert))
+                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage("You are not logged in\n" + message)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override

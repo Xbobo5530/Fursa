@@ -48,6 +48,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
     private static final String TAG = "Sean";
     //member variables for storing posts
     public List<Comments> commentsList;
+    public String postId;
     public Context context;
     //common methods
     private CoMeth coMeth = new CoMeth();
@@ -63,10 +64,11 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
 
     //empty constructor for receiving the posts
-    public CommentsRecyclerAdapter(List<Comments> commentsList) {
+    public CommentsRecyclerAdapter(List<Comments> commentsList, String postId) {
 
         //store received posts
         this.commentsList = commentsList;
+        this.postId = postId;
 
     }
 
@@ -204,10 +206,9 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
         final Map<String, Object> reportMap = new HashMap<>();
         reportMap.put("commentId", comment.CommentId);
         //get users who have already reported comment
-
-        reportMap.put("reporterUserId", coMeth.getUid());
         reportMap.put("comment", comment.getComment());
         reportMap.put("commentUserId", comment.getUser_id());
+        reportMap.put("postId", postId);
         reportMap.put("commentTimestamp", comment.getTimestamp());
         reportMap.put("timestamp", FieldValue.serverTimestamp());
 
