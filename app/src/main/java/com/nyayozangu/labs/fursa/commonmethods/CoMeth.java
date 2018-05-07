@@ -371,6 +371,30 @@ public class CoMeth {
 
         }
 
+    }
+
+    public void stopLoading(ProgressDialog progressDialog) {
+
+        Log.d(TAG, "stopLoading: stopping");
+        if (progressDialog != null) {
+
+            if (progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+
+        }
+
+    }
+
+    public void stopLoading(SwipeRefreshLayout swipeRefreshLayout) {
+
+        if (swipeRefreshLayout != null) {
+
+            if (swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+        }
 
     }
 

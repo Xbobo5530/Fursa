@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.activities.comments.adapters;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,7 +20,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -55,6 +55,12 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
+    //reorts users
+    private ArrayList flags;
+    private String reportDetails;
+    private String reportedItemsString;
+    private ProgressDialog progressDialog;
+
 
     //empty constructor for receiving the posts
     public CommentsRecyclerAdapter(List<Comments> commentsList) {
@@ -75,10 +81,9 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
         //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
-
-        //initialize firebase storage
-        // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
+        flags = new ArrayList<String>();
+        reportedItemsString = "";
 
         return new CommentsRecyclerAdapter.ViewHolder(view);
 
@@ -176,10 +181,10 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
                     } catch (NullPointerException userInfoErrorException) {
 
-                        Log.e(TAG, "onEvent: \nuserInfoErrorException: " + userInfoErrorException.getMessage(), userInfoErrorException);
+                        Log.e(TAG, "onEvent: \nuserInfoErrorException: " +
+                                userInfoErrorException.getMessage(), userInfoErrorException);
 
                     }
-
 
                 } else {
 
@@ -198,13 +203,15 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
         //create report map
         final Map<String, Object> reportMap = new HashMap<>();
         reportMap.put("commentId", comment.CommentId);
+        //get users who have already reported comment
+
         reportMap.put("reporterUserId", coMeth.getUid());
         reportMap.put("comment", comment.getComment());
         reportMap.put("commentUserId", comment.getUser_id());
         reportMap.put("commentTimestamp", comment.getTimestamp());
         reportMap.put("timestamp", FieldValue.serverTimestamp());
 
-        final ArrayList reportedItems = new ArrayList();
+        final ArrayList<String> reportedItems = new ArrayList<>();
 
         //show report flags list
         AlertDialog.Builder reportFlagsBuilder = new AlertDialog.Builder(context);
@@ -231,10 +238,55 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                 })
                 .setPositiveButton(context.getString(R.string.done_text), new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(final DialogInterface dialog, int which) {
 
-                        reportMap.put("flags", reportedItems);
-                        submitReport(holder, comment, reportMap);
+                        //show loading
+                        showProgress(context.getString(R.string.submitting));
+                        //update reported items string
+                        for (String item : reportedItems) {
+                            reportedItemsString = reportedItemsString.concat(item + "\n");
+                        }
+                        //get reporters list
+                        coMeth.getDb()
+                                .collection("Flags/comments/Comments")
+                                .document(comment.CommentId)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                        if (task.isSuccessful() && task.getResult().exists()) {
+
+                                            flags = (ArrayList) task.getResult().get("flags");
+                                            //update reporters list
+                                            reportDetails = coMeth.getUid() + "\n" + reportedItemsString.trim();
+                                            flags.add(reportDetails);
+                                            reportMap.put("flags", flags);
+                                            submitReport(holder, comment, reportMap);
+
+                                        } else {
+
+                                            if (!task.isSuccessful()) {
+                                                dialog.cancel();
+                                                showSnack(holder, context.getString(R.string.something_went_wrong_text));
+                                                Log.d(TAG, "onComplete: task failed");
+
+                                            }
+                                            if (!task.getResult().exists()) {
+
+                                                //update reporters list
+                                                reportDetails = coMeth.getUid() + "\n" + reportedItemsString.trim();
+                                                flags.add(reportDetails);
+                                                reportMap.put("flags", flags);
+                                                submitReport(holder, comment, reportMap);
+                                            }
+
+                                        }
+
+                                    }
+                                });
+
+
 
                     }
                 })
@@ -249,40 +301,51 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                 .show();
     }
 
-    private void submitReport(@NonNull final CommentsRecyclerAdapter.ViewHolder holder, Comments comment, Map<String, Object> reportMap) {
+    private void submitReport(
+            @NonNull final CommentsRecyclerAdapter.ViewHolder holder,
+            Comments comment,
+            Map<String, Object> reportMap) {
 
         Log.d(TAG, "submitReport: comment id is " + comment.CommentId);
-        // TODO: 5/6/18 showprogress
-        //showProgress("Reporting...");
         coMeth.getDb()
                 .collection("Flags")
                 .document("comments")
                 .collection("Comments")
                 .document(comment.CommentId)
-                .collection(coMeth.getUid())
-                .add(reportMap)
-                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                .set(reportMap)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
+                    public void onComplete(@NonNull Task<Void> task) {
 
                         if (task.isSuccessful()) {
 
                             //stop loading
-                            // TODO: 5/6/18 stop loading
+                            coMeth.stopLoading(progressDialog);
                             //alert user
                             showReportConfirmationDialog();
 
                         } else {
 
-                            // TODO: 5/6/18 show snack
+                            coMeth.stopLoading(progressDialog);
                             showSnack(holder, "Failed to report comment");
                             Log.d(TAG, "onComplete: failed to report comment " + task.getException());
 
-
                         }
+
 
                     }
                 });
+    }
+
+    //show progress
+    private void showProgress(String message) {
+
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+
     }
 
     private void showReportConfirmationDialog() {

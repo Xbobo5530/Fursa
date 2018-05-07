@@ -328,5 +328,6 @@
     <string name="report_comment_text">Report comment</string>
     <string name="channel_name">updates</string>
     <string name="channel_description">updates from fursa</string>
+    <string name="something_went_wrong_text">Sorry, something went wrong</string>
 
 </resources>
