@@ -515,7 +515,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         //initiate view
-        View mView;
+        public View mView;
 
         //initiate elements in the view holder
         private TextView titleTextView;

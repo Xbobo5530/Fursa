@@ -175,7 +175,7 @@ public class CreatePostActivity extends AppCompatActivity {
             //user is not logged in
             Intent homeIntent = new Intent(CreatePostActivity.this, MainActivity.class);
             homeIntent.putExtra("action", "notify");
-            homeIntent.putExtra("message", "You are not logged in");
+            homeIntent.putExtra("message", getString(R.string.not_logged_in_text));
             startActivity(homeIntent);
             finish();
 
@@ -393,9 +393,9 @@ public class CreatePostActivity extends AppCompatActivity {
                         .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+
                                 //when Done is clicked
                                 //show the selected cats on the cats text view
-
                                 String catsString = "";
 
                                 for (int i = 0; i < mSelectedCats.size(); i++) {
@@ -416,10 +416,8 @@ public class CreatePostActivity extends AppCompatActivity {
                         .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 //dismiss the dialog
                                 dialog.dismiss();
-
                             }
                         });
 
@@ -428,7 +426,6 @@ public class CreatePostActivity extends AppCompatActivity {
                 catsStringsArray.clear();
                 catsTextView.setText("");
                 catsTextView.setHint("Select categories for your post");
-
                 //show the dialog
                 catPickerBuilder.show();
 
@@ -438,7 +435,7 @@ public class CreatePostActivity extends AppCompatActivity {
         });
 
 
-        //for location
+        //location field
         locationField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -455,7 +452,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     locationErrorBuilder.setTitle("Error")
                             .setIcon(getDrawable(R.drawable.ic_action_red_alert))
                             .setMessage("Failed to load locations at this moment\n Please try again later")
-                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
@@ -707,7 +704,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             compressedImageFile = new Compressor(CreatePostActivity.this)
                                     .setMaxWidth(100)
                                     .setMaxHeight(100)
-                                    .setQuality(5)
+                                    .setQuality(3)
                                     .compressToBitmap(newImageFile);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -1280,7 +1277,7 @@ public class CreatePostActivity extends AppCompatActivity {
             }
         }
 
-        //for google places
+        //for google places (location)
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(CreatePostActivity.this, data);

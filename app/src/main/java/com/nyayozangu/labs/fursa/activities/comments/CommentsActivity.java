@@ -413,7 +413,7 @@ public class CommentsActivity extends AppCompatActivity {
 
                                     //a new comment is added
                                     String commentId = doc.getDocument().getId();
-                                    Comments comment = doc.getDocument().toObject(Comments.class);
+                                    Comments comment = doc.getDocument().toObject(Comments.class).withId(commentId);
                                     commentsList.add(comment);
                                     commentsRecyclerAdapter.notifyDataSetChanged();
                                     commentsRecyclerView.scrollToPosition(commentsList.size() - 1);

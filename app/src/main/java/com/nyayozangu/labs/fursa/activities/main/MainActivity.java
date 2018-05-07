@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean doubleBackToExitPressedOnce = false;
 
     private CircleImageView userProfileImage;
-    private TextView searchBar;
+    private TextView searchBar, fursaTitle;
 
     private SearchView mainSearchView;
     private ImageView searchButton;
@@ -108,12 +108,25 @@ public class MainActivity extends AppCompatActivity {
         createPostButton = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
 
+        fursaTitle = findViewById(R.id.fursaTitleTextView);
 
         //search
+        //search icon is clicked
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                Log.d(TAG, "onClick: search icon is clicked");
+                openSearch();
+
+            }
+        });
+        //fursa title is clicked
+        fursaTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d(TAG, "onClick: fursa title is clicked");
                 openSearch();
 
             }
@@ -173,7 +186,11 @@ public class MainActivity extends AppCompatActivity {
 
             //user is logged in
             String userId = new CoMeth().getUid();
-            new CoMeth().getDb().collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            coMeth.getDb()
+                    .collection("Users")
+                    .document(userId)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     //check if successful
@@ -279,21 +296,21 @@ public class MainActivity extends AppCompatActivity {
         //get the sent intent
         if (getIntent() != null) {
 
-            Intent getPostIdIntent = getIntent();
-            if (getPostIdIntent.getStringExtra("action") != null) {
-                switch (getPostIdIntent.getStringExtra("action")) {
+            Intent getActionIntent = getIntent();
+            if (getActionIntent.getStringExtra("action") != null) {
+                switch (getActionIntent.getStringExtra("action")) {
 
                     case "notify":
 
                         // TODO: 5/1/18 check on deleting post notify message comes as error post not found
-                        String notifyMessage = getPostIdIntent.getStringExtra("message");
+                        String notifyMessage = getActionIntent.getStringExtra("message");
                         showSnack(notifyMessage);
                         Log.d(TAG, "notifyMessage is: " + notifyMessage);
                         break;
 
                     case "goto":
 
-                        switch (getPostIdIntent.getStringExtra("destination")) {
+                        switch (getActionIntent.getStringExtra("destination")) {
 
                             case "saved":
 
@@ -480,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.main_activity_layout),
-                message, Snackbar.LENGTH_SHORT).show();
+                message, Snackbar.LENGTH_LONG).show();
     }
 
     @Override

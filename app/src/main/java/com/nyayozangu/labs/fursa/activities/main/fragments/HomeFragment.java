@@ -98,7 +98,7 @@ public class HomeFragment extends Fragment {
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(3);
+                .limit(10);
         //get all posts from the database
         loadPosts(firstQuery);
 

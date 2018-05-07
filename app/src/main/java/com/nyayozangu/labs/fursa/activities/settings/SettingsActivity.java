@@ -4,14 +4,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -256,7 +262,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         //handle admin access
         // TODO: 5/6/18 handle admin access
-        /*if (coMeth.isConnected() && coMeth.isLoggedIn()){
+        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
 
             //get user email address
             FirebaseUser user = coMeth.getAuth().getCurrentUser();
@@ -264,75 +270,82 @@ public class SettingsActivity extends AppCompatActivity {
             String userEmail = user.getEmail();
             if (userEmail != null) {
                 //get admins
-                coMeth.getDb()
-                        .collection("Admins")
-                        .document(userEmail)
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
-
-                                if (task.isSuccessful() && task.getResult().exists()){
-
-                                    //user is admin
-                                    //show admin button
-                                    adminButton.setVisibility(View.VISIBLE);
-                                    adminButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-
-                                            //open dialog to enter password
-                                            AlertDialog.Builder adminBuilder = new AlertDialog.Builder(SettingsActivity.this);
-                                            adminBuilder.setTitle("Admin Login")
-                                                    .setIcon(getDrawable(R.drawable.ic_action_person_placeholder));
-
-                                            //construct the view
-                                            final EditText input = new EditText(SettingsActivity.this);
-                                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                                    LinearLayout.LayoutParams.MATCH_PARENT);
-                                            input.setLayoutParams(lp);
-
-                                            adminBuilder.setView(input)
-                                                    .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    String adminPass = input.getText().toString().trim();
-                                                    //check pass
-                                                    if (adminPass.equals(task.getResult().get("password"))){
-
-                                                        //open admin panel
-                                                        startActivity(new Intent(SettingsActivity.this, AdminActivity.class));
-
-                                                    }else{
-
-                                                        dialog.dismiss();
-                                                        showSnack(getString(R.string.wrong_password_text));
-
-                                                    }
-                                                }
-                                            })
-                                                    .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            dialog.dismiss();
-                                                        }
-                                                    })
-                                                    .show();
-
-                                        }
-                                    });
-
-                                }
-
-                            }
-                        });
+                checkAdminAcc(userEmail);
             }
 
 
         }
-        */
 
+    }
+
+    private void checkAdminAcc(String userEmail) {
+        coMeth.getDb()
+                .collection("Admins")
+                .document(userEmail)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
+
+                        if (task.isSuccessful() && task.getResult().exists()) {
+
+                            //user is admin
+                            //show admin button
+                            adminButton.setVisibility(View.VISIBLE);
+                            adminButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getAdminPassword(task);
+
+
+                                }
+                            });
+
+                        }
+
+                    }
+                });
+    }
+
+    private void getAdminPassword(@NonNull final Task<DocumentSnapshot> task) {
+        //open dialog to enter password
+        AlertDialog.Builder adminBuilder = new AlertDialog.Builder(SettingsActivity.this);
+        adminBuilder.setTitle("Admin Login")
+                .setIcon(getDrawable(R.drawable.ic_action_person_placeholder));
+
+        //construct the view
+        final EditText input = new EditText(SettingsActivity.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+
+        adminBuilder.setView(input)
+                .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String adminPass = input.getText().toString().trim();
+                        //check pass
+                        if (adminPass.equals(task.getResult().get("password"))) {
+
+                            //open admin panel
+                            startActivity(new Intent(SettingsActivity.this, AdminActivity.class));
+
+                        } else {
+
+                            dialog.dismiss();
+                            showSnack(getString(R.string.wrong_password_text));
+
+                        }
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 
     private void goToLogin() {

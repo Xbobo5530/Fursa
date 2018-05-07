@@ -46,16 +46,13 @@ public class CategoriesFragment extends Fragment {
         final String[] catTitle = new String[]{
 
 //                getResources().getString(R.string.cat_featured),
-                getResources().getString(R.string.cat_popular),
-                getResources().getString(R.string.cat_upcoming),
-                getResources().getString(R.string.cat_events),
-                getString(R.string.cat_places),
-                getResources().getString(R.string.cat_services),
-                getResources().getString(R.string.cat_business),
-                getResources().getString(R.string.cat_buysell),
-                getResources().getString(R.string.cat_education),
-                getResources().getString(R.string.cat_jobs),
-                getResources().getString(R.string.cat_queries)
+                getResources().getString(R.string.cat_popular), getResources().getString(R.string.cat_jobs),
+                getResources().getString(R.string.cat_buysell), getResources().getString(R.string.cat_business),
+                getResources().getString(R.string.cat_upcoming), getResources().getString(R.string.cat_events),
+                getResources().getString(R.string.cat_places), getResources().getString(R.string.cat_services),
+                getResources().getString(R.string.cat_education), "Q&A"
+                //                getResources().getString(R.string.cat_queries)
+
 
         };
 
@@ -63,16 +60,11 @@ public class CategoriesFragment extends Fragment {
         int catImages[] = {
 
 //                R.drawable.featured,
-                R.drawable.popular,
-                R.drawable.upcoming,
-                R.drawable.events,
-                R.drawable.places,
-                R.drawable.services,
-                R.drawable.business,
-                R.drawable.buysell,
-                R.drawable.school,
-                R.drawable.jobs,
-                R.drawable.help
+                R.drawable.popular, R.drawable.jobs,
+                R.drawable.buysell, R.drawable.business,
+                R.drawable.upcoming, R.drawable.events,
+                R.drawable.places, R.drawable.services,
+                R.drawable.school, R.drawable.help
 
         };
 

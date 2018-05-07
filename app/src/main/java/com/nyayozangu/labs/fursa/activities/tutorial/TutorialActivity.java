@@ -1,11 +1,13 @@
 package com.nyayozangu.labs.fursa.activities.tutorial;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -17,6 +19,7 @@ import com.nyayozangu.labs.fursa.activities.tutorial.adapters.SlideAdapter;
 
 public class TutorialActivity extends AppCompatActivity {
 
+    private static final String TAG = "Sean";
     private ViewPager mSlideViewPager;
     private LinearLayout mDotsLayout;
     private SlideAdapter sliderAdapter;
@@ -26,6 +29,7 @@ public class TutorialActivity extends AppCompatActivity {
     //the dots
     private TextView[] mDots;
     private int mCurrentPage;
+    private ProgressDialog progressDialog;
     ViewPager.OnPageChangeListener viewListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -58,9 +62,13 @@ public class TutorialActivity extends AppCompatActivity {
                 mNextButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
+                        //show loading
+                        showProgress(getString(R.string.loading_text));
                         //start the main activity when finish is clicked
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                         finish();
+
                     }
                 });
                 mBackButton.setText(getString(R.string.back_tut_text));
@@ -86,7 +94,6 @@ public class TutorialActivity extends AppCompatActivity {
 
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +149,14 @@ public class TutorialActivity extends AppCompatActivity {
         if (mDots.length > 0) {
             mDots[position].setTextColor(getResources().getColor(R.color.colorWhite));
         }
+    }
+
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
     }
 
 }

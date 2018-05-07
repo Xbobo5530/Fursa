@@ -122,7 +122,7 @@ public class SavedFragment extends Fragment {
                 .document("saved_posts")
                 .collection("SavedPosts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(3);
+                .limit(10);
         //get all posts from the database
         loadPosts(firstQuery);
 

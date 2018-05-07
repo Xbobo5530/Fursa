@@ -46,6 +46,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     private static final String TAG = "Sean";
+    private static final String CHANNEL_ID = "UPDATES";
     private CoMeth coMeth = new CoMeth();
     private PendingIntent pendingIntent;
     private Uri defaultSoundUri;
@@ -226,11 +227,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         }
 
-
     }
 
     // TODO: 5/6/18 handle images on notifications
     private void buildNotif(String title, String messageBody, String userImageDownloadUrl) {
+        Log.d(TAG, "buildNotif: ");
         defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_notification)
@@ -246,20 +247,37 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(messageBody));
 
-        notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(NotificationChannel.DEFAULT_CHANNEL_ID,
-                    getString(R.string.default_notification_channel_name),
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
 
-        if (notificationManager != null) {
-            notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+            Log.d(TAG, "buildNotif: at Build.VERSION.SDK_INT >= Build.VERSION_CODES.O");
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+
+            if (notificationManager != null) {
+
+                Log.d(TAG, "buildNotif: notifying");
+                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+            }
+
+        } else {
+
+            notificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (notificationManager != null) {
+
+                Log.d(TAG, "buildNotif: notifying");
+                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+            }
+
         }
     }
 

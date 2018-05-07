@@ -508,6 +508,8 @@ public class ViewPostActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 //get data from teh likes collection
 
+
+                                // TODO: 5/6/18 check if the internet actually works
                                 //check if current user has already liked post
                                 if (!task.getResult().exists()) {
 
