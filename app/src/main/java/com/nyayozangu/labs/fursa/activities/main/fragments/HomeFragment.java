@@ -143,10 +143,8 @@ public class HomeFragment extends Fragment {
                         //check if an item is added
                         if (doc.getType() == DocumentChange.Type.ADDED) {
 
-                            //a new item/ post is added
                             String postId = doc.getDocument().getId();
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-                            //get user id
                             final String postUserId = post.getUser_id();
                             Log.d(TAG, "onEvent: user_id is " + postUserId);
                             //get user_id for post

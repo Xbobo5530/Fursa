@@ -263,7 +263,7 @@
     <string name="cat_places">Places</string>
     <string name="report_text">Report</string>
     <string name="edit_text">Edit</string>
-    <string name="delete_menu_item_text">Delete</string>
+    <string name="delete_text">Delete</string>
     <string name="login_with_email_text">Login with Email</string>
     <string name="post_not_found_text">Could not find post</string>
     <string name="posting_text">Posting…</string>
@@ -329,5 +329,7 @@
     <string name="channel_name">updates</string>
     <string name="channel_description">updates from fursa</string>
     <string name="something_went_wrong_text">Sorry, something went wrong</string>
+    <string name="view_comment_text">View comment</string>
+    <string name="admin_option_text">Admin options</string>
 
 </resources>

@@ -57,8 +57,7 @@ public class CoMeth {
             "queries"
 
     };
-    public final String[]
-            reportList = new String[]{
+    public final String[] reportList = new String[]{
 
             getApplicationContext().getString(R.string.spam_text),
             getApplicationContext().getString(R.string.inapropriate_text)

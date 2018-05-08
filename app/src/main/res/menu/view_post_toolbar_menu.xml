@@ -10,6 +10,6 @@
         android:visible="false" />
     <item
         android:id="@+id/deleteMenuItem"
-        android:title="@string/delete_menu_item_text"
+        android:title="@string/delete_text"
         android:visible="false" />
 </menu>
