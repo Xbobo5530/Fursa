@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
         app:layout_anchor="@id/view_cat_app_bar"
-        app:layout_anchorGravity="bottom|start"
+        app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_action_subscribe" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -38,6 +39,7 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.adapters.CommentsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
@@ -53,12 +55,13 @@ import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CommentsActivity extends AppCompatActivity {
+public class CommentsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "Sean";
     private ImageView sendButton;
     private EditText chatField;
     private CircleImageView currentUserImage, postUserImage;
+    private ConstraintLayout postDetailsLayout;
     private TextView postUsernameField, postTitleField;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView commentsRecyclerView;
@@ -93,6 +96,7 @@ public class CommentsActivity extends AppCompatActivity {
         currentUserImage = findViewById(R.id.commentsCurrentUserImageView);
         commentsRecyclerView = findViewById(R.id.commentsRecyclerView);
         swipeRefreshLayout = findViewById(R.id.commentsSwipeRefresh);
+        postDetailsLayout = findViewById(R.id.commentpostDetailsConstraintLayout);
 
         //initiate an arrayList to hold all the posts
         commentsList = new ArrayList<>();
@@ -114,6 +118,9 @@ public class CommentsActivity extends AppCompatActivity {
 
         //get the sent intent
         handleIntent();
+
+        //handle clicks
+        postDetailsLayout.setOnClickListener(this);
 
         //go to user profile
         currentUserImage.setOnClickListener(new View.OnClickListener() {
@@ -760,4 +767,22 @@ public class CommentsActivity extends AppCompatActivity {
                 });
     }
 
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+
+            case R.id.commentpostDetailsConstraintLayout:
+                Intent openPostIntent = new Intent(this, ViewPostActivity.class);
+                openPostIntent.putExtra("postId", postId);
+                startActivity(openPostIntent);
+                finish();
+                break;
+
+            default:
+                Log.d(TAG, "onClick: at default");
+
+        }
+
+    }
 }

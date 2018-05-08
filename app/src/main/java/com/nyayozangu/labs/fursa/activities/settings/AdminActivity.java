@@ -118,11 +118,14 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
                         if (!queryDocumentSnapshots.isEmpty()) {
 
+                            Log.d(TAG, "onEvent: query is not empty");
                             for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
 
+                                Log.d(TAG, "onEvent: in for loop");
                                 //check if an item is added
                                 if (doc.getType() == DocumentChange.Type.ADDED) {
 
+                                    Log.d(TAG, "onEvent: doc type is added");
                                     String commentId = doc.getDocument().getId();
                                     String comment = doc.getDocument().get("comment").toString();
                                     reportedComments.add(comment);
@@ -135,10 +138,15 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                                             .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                                                    Log.d(TAG, "onComplete: getting users");
                                                     if (task.isSuccessful() && task.getResult().exists()) {
 
+                                                        Log.d(TAG, "onComplete: getting users task is successful and user exists");
                                                         Posts post = task.getResult().toObject(Posts.class);
+                                                        Log.d(TAG, "onComplete: post is " + post);
                                                         String postUserId = post.getUser_id();
+                                                        Log.d(TAG, "onComplete: postUserId is" + postUserId);
 
                                                         //get user details
                                                         coMeth.getDb()
@@ -153,6 +161,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
                                                                             //convert user to object
                                                                             Users user = task.getResult().toObject(Users.class);
+                                                                            Log.d(TAG, "onComplete: \nuser is: " + user.toString());
                                                                             //get username
                                                                             String username = user.getName();
                                                                             String userImage = user.getImage();
