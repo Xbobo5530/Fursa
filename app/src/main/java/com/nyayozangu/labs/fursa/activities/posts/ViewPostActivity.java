@@ -23,6 +23,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -97,6 +99,7 @@ public class ViewPostActivity extends AppCompatActivity {
     //post content
     private String desc;
     private String postId;
+    private String postTitle;
     //common methods
     private CoMeth coMeth = new CoMeth();
     private ArrayList<String> reportedItems;
@@ -417,7 +420,7 @@ public class ViewPostActivity extends AppCompatActivity {
         reportedItems = new ArrayList<String>();
         reportDetailsString = "";
 
-
+        //handle intent
         if (getIntent() != null) {
             if (getIntent().hasExtra("postId")) {
                 //get the sent intent
@@ -430,6 +433,9 @@ public class ViewPostActivity extends AppCompatActivity {
         } else {
             goToMain();
         }
+
+        //get post title on create
+        postTitle = getPostTitle(postId);
 
 
         //handle action clicks
@@ -454,12 +460,16 @@ public class ViewPostActivity extends AppCompatActivity {
                 Log.d(TAG, "Sharing post");
                 //create post url
                 String postUrl = getResources().getString(R.string.fursa_url_head) + postId;
-                Log.d(TAG, "postUrl is: " + postUrl);
+                String postTitle = getPostTitle(postId);
+                String fullShareMsg = getString(R.string.app_name) + ":\n" +
+                        postTitle + "\n" +
+                        postUrl;
+                Log.d(TAG, "fullShareMsg is: " + fullShareMsg);
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
-                shareIntent.putExtra(Intent.EXTRA_TEXT, postUrl);
-                startActivity(Intent.createChooser(shareIntent, "Share this post with"));
+                shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+                startActivity(Intent.createChooser(shareIntent, "Share with"));
 
             }
         });
@@ -950,35 +960,6 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
-
-        //desc layout click
-        /*viewPostDescLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //get post description
-
-
-                //open alert Dialog with full desc
-                // TODO: 5/4/18 use a custom view so that the content in the desc can still be autolinked
-                AlertDialog.Builder descBuilder = new AlertDialog.Builder(ViewPostActivity.this);
-                descBuilder.setTitle(getString(R.string.desc_text))
-                        .setIcon(R.drawable.ic_action_descritption)
-                        .setMessage(desc)
-                        .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                dialog.dismiss();
-
-                            }
-                        })
-                        .setCancelable(false)
-                        .show();
-
-            }
-        });*/
-
         //category layout click
         viewPostCatLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1008,7 +989,8 @@ public class ViewPostActivity extends AppCompatActivity {
         });
 
 
-        locationTextView.setOnClickListener(new View.OnClickListener() {
+        //location layout click
+        viewPostLocationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //launch google maps and serch for location
@@ -1023,6 +1005,44 @@ public class ViewPostActivity extends AppCompatActivity {
 
     }
 
+    //retrieve the post title
+    private String getPostTitle(String postId) {
+
+        //get data from db
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                        //check if exists
+                        if (documentSnapshot.exists()) {
+
+                            //post exists
+                            Posts post = documentSnapshot.toObject(Posts.class);
+                            postTitle = post.getTitle();
+                            Log.d(TAG, "onSuccess: post title is " + postTitle);
+
+                        } else {
+
+                            //post does not exist
+
+                        }
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get post");
+                    }
+                });
+        Log.d(TAG, "getPostTitle: post title is " + postTitle);
+        return postTitle;
+
+    }
 
 
     private void setImage(String downloadUrl) {

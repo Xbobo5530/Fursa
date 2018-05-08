@@ -116,7 +116,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         //show loading
         showProgress(getString(R.string.loading_text));
         //clear items
-        reportedPostsTitle.clear();
+//        reportedPostsTitle.clear();
         //get items from db
         coMeth.getDb()
                 .collection("Flags/posts/Posts")
@@ -135,42 +135,16 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                                 //add post id to reported postIds
                                 reportedPostIdArray.add(postId);
                                 //get post details
-                                coMeth.getDb()
-                                        .collection("Posts")
-                                        .document(postId)
-                                        .get()
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-                                                if (documentSnapshot.exists()) {
-
-                                                    Posts post = documentSnapshot.toObject(Posts.class);
-                                                    String title = post.getTitle();
-                                                    reportedPostsTitle.add(title);
-                                                    Log.d(TAG, "onSuccess: " +
-                                                            "\ntitle is: " + title +
-                                                            "\nreportedPostsTitle: " + reportedPostsTitle);
-
-                                                }
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-
-                                                Log.d(TAG, "onFailure: get users task failed " + e.getMessage());
-
-                                            }
-                                        });
-
+                                getPostDetails(postId);
                             }
 
                             //stop loading
                             coMeth.stopLoading(progressDialog);
                             /*catsListItems = catSubsArray.toArray((new String[catSubsArray.size()]));*/
-                            reportedPostsTitleListItems = reportedPostsTitle.toArray(new String[reportedPostsTitle.size()]);
-                            Log.d(TAG, "onEvent: reportedPostsTitleListItems" + reportedPostsTitleListItems);
+                            reportedPostsTitleListItems = reportedPostsTitle
+                                    .toArray(new String[reportedPostsTitle.size()]);
+                            Log.d(TAG, "onEvent: reportedPostsTitleListItems" +
+                                    reportedPostsTitleListItems);
                             handleAdapter(reportedPostsTitleListItems, "posts");
 
                         } else {
@@ -184,6 +158,37 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
 
+    }
+
+    private void getPostDetails(String postId) {
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                        if (documentSnapshot.exists()) {
+
+                            Posts post = documentSnapshot.toObject(Posts.class);
+                            String title = post.getTitle();
+                            reportedPostsTitle.add(title);
+                            Log.d(TAG, "onSuccess: " +
+                                    "\ntitle is: " + title +
+                                    "\nreportedPostsTitle: " + reportedPostsTitle);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Log.d(TAG, "onFailure: get users task failed " +
+                                e.getMessage());
+
+                    }
+                });
     }
 
     private void showReportedCommentsFeed() {
@@ -223,7 +228,8 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                             //stop loading
                             coMeth.stopLoading(progressDialog);
                             /*catsListItems = catSubsArray.toArray((new String[catSubsArray.size()]));*/
-                            reportedCommentsListItems = reportedComments.toArray(new String[reportedComments.size()]);
+                            reportedCommentsListItems = reportedComments
+                                    .toArray(new String[reportedComments.size()]);
                             //create a simple adapter
                             handleAdapter(reportedCommentsListItems, "comments");
 
@@ -248,7 +254,8 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         for (int i = 0; i < reportedListItems.length; i++) {
             HashMap<String, String> hm = new HashMap<>();
             hm.put("listView_report", reportedListItems[i]);
-            hm.put("listView_icon", String.valueOf(getDrawable(R.drawable.ic_action_red_flag)));
+            hm.put("listView_icon",
+                    String.valueOf(getDrawable(R.drawable.ic_action_red_flag)));
             aList.add(hm);
         }
         Log.d(TAG, "handleAdapter: aList is " + aList);
@@ -279,7 +286,8 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                 switch (source) {
 
                     case "posts":
-                        Intent openPostIntent = new Intent(AdminActivity.this, ViewPostActivity.class);
+                        Intent openPostIntent = new Intent(AdminActivity.this,
+                                ViewPostActivity.class);
                         String postsPostId = reportedPostIdArray.get(position);
                         openPostIntent.putExtra("postId", postsPostId);
                         openPostIntent.putExtra("permission", "admin");
@@ -288,7 +296,8 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                         break;
 
                     case "comments":
-                        Intent openCommentsIntent = new Intent(AdminActivity.this, CommentsActivity.class);
+                        Intent openCommentsIntent = new Intent(AdminActivity.this,
+                                CommentsActivity.class);
                         String commentsPostId = reportedCommentsPostIdArray.get(position);
                         openCommentsIntent.putExtra("postId", commentsPostId);
                         openCommentsIntent.putExtra("permission", "admin");

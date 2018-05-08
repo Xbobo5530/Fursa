@@ -18,6 +18,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -62,6 +64,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private ProgressDialog progressDialog;
     private CoMeth coMeth = new CoMeth();
 
+    private String postTitle;
+
     //empty constructor for receiving the posts
     public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList, String className) {
 
@@ -89,9 +93,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         holder.setIsRecyclable(false);
 
         //get title from holder
-        String titleData = postsList.get(position).getTitle();
+        postTitle = postsList.get(position).getTitle();
         //set the post title
-        holder.setTitle(titleData);
+        holder.setTitle(postTitle);
         //set the data after the viewHolder has been bound
         String descData = postsList.get(position).getDesc();
         //set the description to the view holder
@@ -341,17 +345,23 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //share post
         //set onclick listener to the share button
+        final String postTitle = getTittle(postId);
         holder.postSharePostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Sharing post");
                 //create post url
                 String postUrl = context.getResources().getString(R.string.fursa_url_head) + postId;
+                // TODO: 5/9/18 check anomaly in sharing posts title mixup
+
+                String fullShareMsg = context.getString(R.string.app_name) + ":\n" +
+                        postTitle + "\n" +
+                        postUrl;
                 Log.d(TAG, "postUrl is: " + postUrl);
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.app_name));
-                shareIntent.putExtra(Intent.EXTRA_TEXT, postUrl);
+                shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
                 context.startActivity(Intent.createChooser(shareIntent, "Share this post with"));
 
             }
@@ -423,6 +433,42 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
+    }
+
+    private String getTittle(String postId) {
+        //get data from db
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                        //check if exists
+                        if (documentSnapshot.exists()) {
+
+                            //post exists
+                            Posts post = documentSnapshot.toObject(Posts.class);
+                            postTitle = post.getTitle();
+                            Log.d(TAG, "onSuccess: post title is " + postTitle);
+
+                        } else {
+
+                            //post does not exist
+
+                        }
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get post");
+                    }
+                });
+        Log.d(TAG, "getPostTitle: post title is " + postTitle);
+        return postTitle;
     }
 
     private void openPost(String postId) {
