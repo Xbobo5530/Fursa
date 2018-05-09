@@ -211,15 +211,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                 if (coMeth.isConnected() && coMeth.isLoggedIn()) {
 
-                    try {
-                        coMeth.getDb()
-                                .collection("Posts/" + postId + "/Likes")
-                                .document(currentUserId)
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        //get data from teh likes collection
+                    coMeth.getDb()
+                            .collection("Posts/" + postId + "/Likes")
+                            .document(currentUserId)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    //get data from teh likes collection
+                                    if (task.isSuccessful()) {
                                         //check if current user has already liked post
                                         if (!task.getResult().exists()) {
 
@@ -237,14 +237,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                                     .document(currentUserId)
                                                     .delete();
                                         }
+                                    } else {
+
+                                        Log.d(TAG, "onComplete: like post task failed\n" + task.getException());
+
                                     }
-                                });
-
-                    } catch (Exception connectionException) {
-
-                        Log.d(TAG, "onClick: " + connectionException);
-
-                    }
+                                }
+                            });
                 } else {
 
                     if (!coMeth.isLoggedIn()) {
@@ -285,38 +284,46 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                                    //get data from the saves collections
-                                    //check if user has already saved the post
-                                    if (!task.getResult().exists()) {
+                                    if (task.isSuccessful()) {
 
-                                        Map<String, Object> savesMap = new HashMap<>();
-                                        savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                        //save new post
-                                        coMeth.getDb()
-                                                .collection("Posts/" + postId + "/Saves")
-                                                .document(currentUserId)
-                                                .set(savesMap);
-                                        userId = coMeth.getUid();
-                                        coMeth.getDb()
-                                                .collection("Users/" + userId + "/Subscriptions")
-                                                .document("saved_posts").collection("SavedPosts")
-                                                .document(postId)
-                                                .set(savesMap);
-                                        showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
+                                        //get data from the saves collections
+                                        //check if user has already saved the post
+                                        if (!task.getResult().exists()) {
 
+                                            Map<String, Object> savesMap = new HashMap<>();
+                                            savesMap.put("timestamp", FieldValue.serverTimestamp());
+                                            //save new post
+                                            coMeth.getDb()
+                                                    .collection("Posts/" + postId + "/Saves")
+                                                    .document(currentUserId)
+                                                    .set(savesMap);
+                                            userId = coMeth.getUid();
+                                            coMeth.getDb()
+                                                    .collection("Users/" + userId + "/Subscriptions")
+                                                    .document("saved_posts").collection("SavedPosts")
+                                                    .document(postId)
+                                                    .set(savesMap);
+                                            showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
+
+                                        } else {
+
+                                            //delete saved post
+                                            coMeth.getDb()
+                                                    .collection("Posts/" + postId + "/Saves")
+                                                    .document(currentUserId)
+                                                    .delete();
+                                            coMeth.getDb()
+                                                    .collection("Users/" + userId + "/Subscriptions")
+                                                    .document("saved_posts").collection("SavedPosts")
+                                                    .document(postId)
+                                                    .delete();
+
+
+                                        }
                                     } else {
 
-                                        //delete saved post
-                                        coMeth.getDb()
-                                                .collection("Posts/" + postId + "/Saves")
-                                                .document(currentUserId)
-                                                .delete();
-                                        coMeth.getDb()
-                                                .collection("Users/" + userId + "/Subscriptions")
-                                                .document("saved_posts").collection("SavedPosts")
-                                                .document(postId)
-                                                .delete();
-
+                                        //save post task has failed
+                                        Log.d(TAG, "onComplete: save post task failed\n" + task.getException());
 
                                     }
 
@@ -330,9 +337,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         showSnack(holder, context.getString(R.string.internet_fail));
                     }
                     if (!coMeth.isLoggedIn()) {
-
                         showLoginAlertDialog(context.getString(R.string.login_to_save_text));
-
                     }
 
                 }
