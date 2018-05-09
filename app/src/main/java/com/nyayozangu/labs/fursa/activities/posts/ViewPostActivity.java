@@ -39,6 +39,7 @@ import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
+import com.nyayozangu.labs.fursa.activities.settings.AdminActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
@@ -124,10 +125,7 @@ public class ViewPostActivity extends AppCompatActivity {
                 if (currentUserId.equals(postUserId)) {
                     editPost.setVisible(true);
                     deletePost.setVisible(true);
-                } else if (getIntent() != null &&
-                        getIntent().getStringExtra("permission") != null &&
-                        getIntent().getStringExtra("permission").equals("admin") &&
-                        isAdmin) {
+                } else if (hasAdminAccess()) {
                     editPost.setVisible(true);
                     deletePost.setVisible(true);
                 } else {
@@ -170,7 +168,6 @@ public class ViewPostActivity extends AppCompatActivity {
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             //check if user exists
                             //user is admin
-//user is not admin
                             isAdmin = documentSnapshot.exists();
                         }
                     })
@@ -389,8 +386,15 @@ public class ViewPostActivity extends AppCompatActivity {
                         Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
                         delResultIntent.putExtra("action", "notify");
                         delResultIntent.putExtra("message", getString(R.string.del_success_text));
-                        startActivity(delResultIntent);
-                        finish();
+                        if (hasAdminAccess()) {
+                            //go back to admin page
+                            startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
+                            finish();
+
+                        } else {
+                            startActivity(delResultIntent);
+                            finish();
+                        }
 
                     }
                 })
@@ -405,6 +409,13 @@ public class ViewPostActivity extends AppCompatActivity {
                 .show();
 
 
+    }
+
+    private boolean hasAdminAccess() {
+        return getIntent() != null &&
+                getIntent().getStringExtra("permission") != null &&
+                getIntent().getStringExtra("permission").equals("admin") &&
+                isAdmin();
     }
 
     private void goToEdit() {
@@ -481,7 +492,12 @@ public class ViewPostActivity extends AppCompatActivity {
                 postId = handleDeepLinks(getIntent());
             }
         } else {
-            goToMain();
+            if (hasAdminAccess()) {
+                startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
+                finish();
+            } else {
+                goToMain();
+            }
         }
 
         //get post title on create
