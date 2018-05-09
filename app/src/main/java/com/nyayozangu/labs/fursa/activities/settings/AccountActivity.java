@@ -141,6 +141,8 @@ public class AccountActivity extends AppCompatActivity {
                                 userNameField.setText(userEmail);
                             }
                         }
+                        //set default user Image
+                        setupImage.setImageDrawable(getDrawable(R.drawable.appiconshadow));
 
                     }
 

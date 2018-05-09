@@ -191,34 +191,38 @@ public class MainActivity extends AppCompatActivity {
                     .document(userId)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    //check if successful
-                    if (task.isSuccessful()) {
-                        //task is successful
-                        try {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            //check if successful
+                            if (task.isSuccessful()) {
+                                //task is successful
+                                try {
 
-                            String userImageDownloadUri = task.getResult().get("image").toString();
-                            //set image
-                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                    userImageDownloadUri,
-                                    userProfileImage);
+                                    String userImageDownloadUri = task.getResult().get("image").toString();
+                                    //set image
+                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                            userImageDownloadUri,
+                                            userProfileImage);
 
-                        } catch (NullPointerException imageNotFoundException) {
+                                } catch (NullPointerException imageNotFoundException) {
 
-                            //user image not found
-                            userProfileImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
-                            Log.d(TAG, "onComplete: user has no profile image");
+                                    //user image not found
+                                    userProfileImage.setImageDrawable(getDrawable(R.drawable.appiconshadow));
+                                    Log.d(TAG, "onComplete: user has no profile image");
 
+                                }
+                            } else {
+
+                                //task unsuccessful handle errors
+                                String errorMessage = task.getException().getMessage();
+                                Log.d(TAG, "Error: " + errorMessage);
+                            }
                         }
-                    } else {
+                    });
+        } else {
 
-                        //task unsuccessful handle errors
-                        String errorMessage = task.getException().getMessage();
-                        Log.d(TAG, "Error: " + errorMessage);
-                    }
-                }
-            });
+            userProfileImage.setImageDrawable(getDrawable(R.drawable.appiconshadow));
+
         }
 
 

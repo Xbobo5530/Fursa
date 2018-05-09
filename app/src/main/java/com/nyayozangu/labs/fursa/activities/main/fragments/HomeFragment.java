@@ -206,7 +206,7 @@ public class HomeFragment extends Fragment {
                 .startAfter(lastVisiblePost)
                 .limit(20);
 
-        nextQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+        nextQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 

@@ -131,21 +131,6 @@ public class SearchableActivity extends AppCompatActivity {
 
         Log.d(TAG, "doMySearch: ");
 
-        /*//listen for scrolling on the searchFeed
-        searchFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                Boolean reachedBottom = !searchFeed.canScrollVertically(1);
-                if (reachedBottom) {
-
-                    loadMorePosts(query);
-                }
-            }
-        });*/
-
-
         //loading
         showProgress(getString(R.string.searching_text));
 
@@ -315,14 +300,17 @@ public class SearchableActivity extends AppCompatActivity {
                         if (task.isSuccessful() && task.getResult().exists()) {
 
                             Users user = task.getResult().toObject(Users.class);
-                            //add new post to the local postsList
-                            postsList.add(post);
-                            usersList.add(user);
-                            //notify the recycler adapter of the set change
-                            searchRecyclerAdapter.notifyDataSetChanged();
-                            Log.d(TAG, "onComplete: filtered posts are " + postsList);
-                            //stop loading when post list has items
-                            coMeth.onResultStopLoading(postsList, progressDialog, null);
+                            //check if post is already added to the post list
+                            if (!postsList.contains(post)) {
+                                //add new post to the local postsList
+                                postsList.add(post);
+                                usersList.add(user);
+                                //notify the recycler adapter of the set change
+                                searchRecyclerAdapter.notifyDataSetChanged();
+                                Log.d(TAG, "onComplete: filtered posts are " + postsList);
+                                //stop loading when post list has items
+                                coMeth.onResultStopLoading(postsList, progressDialog, null);
+                            }
 
 
                         } else {
