@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private ImageButton closeLoginButton;
     private ProgressDialog progressDialog;
 
-    private TextView connectionAlertTextView;
+    private TextView loginAlertTextView;
 
     //social login buttons
     private SignInButton googleSignInButton;
@@ -98,7 +98,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             facebookLoginButton.setVisibility(View.GONE);
             twitterLoginButton.setVisibility(View.GONE);
             //show connection alert
-            connectionAlertTextView.setVisibility(View.VISIBLE);
+            loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
 
         } else {
 
@@ -108,8 +108,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             googleSignInButton.setVisibility(View.VISIBLE);
             facebookLoginButton.setVisibility(View.VISIBLE);
             twitterLoginButton.setVisibility(View.VISIBLE);
-            //show connection alert
-            connectionAlertTextView.setVisibility(View.GONE);
 
         }
 
@@ -133,7 +131,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         loginButton = findViewById(R.id.loginButton);
         loginRegistrationButton = findViewById(R.id.loginRegisterButton);
         closeLoginButton = findViewById(R.id.login_close_button);
-        connectionAlertTextView = findViewById(R.id.loginConnectionAlertTextView);
+        loginAlertTextView = findViewById(R.id.loginAlertTextView);
 
         //social login
         googleSignInButton = findViewById(R.id.google_sign_in_button);
@@ -158,7 +156,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             facebookLoginButton.setVisibility(View.GONE);
             twitterLoginButton.setVisibility(View.GONE);
             //show connection alert
-            connectionAlertTextView.setVisibility(View.VISIBLE);
+            loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
 
         } else {
 
@@ -168,8 +166,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             googleSignInButton.setVisibility(View.VISIBLE);
             facebookLoginButton.setVisibility(View.VISIBLE);
             twitterLoginButton.setVisibility(View.VISIBLE);
-            //hide connection alert
-            connectionAlertTextView.setVisibility(View.GONE);
+
+        }
+
+        //handle intents
+        if (getIntent() != null &&
+                getIntent().getStringExtra("message") != null) {
+
+            String alertMessage = getIntent().getStringExtra("message");
+            loginAlertTextView.setText(alertMessage);
+            loginAlertTextView.setVisibility(View.VISIBLE);
 
         }
 
@@ -241,7 +247,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                                             }
                                             //hide progress
-                                            progressDialog.dismiss();
+                                            coMeth.stopLoading(progressDialog);
                                         }
                                     });
 

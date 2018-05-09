@@ -332,5 +332,6 @@
     <string name="view_comment_text">View comment</string>
     <string name="admin_option_text">Admin options</string>
     <string name="cat_qna_text"><![CDATA[Q&A]]></string>
+    <string name="login_to_sub_comments">Log in to subscribe to comments notifications</string>
 
 </resources>

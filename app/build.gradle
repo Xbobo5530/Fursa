@@ -56,9 +56,7 @@ dependencies {
     compile 'com.commit451:PhotoView:1.2.4'
     //expandable text view
     compile 'com.ms-square:expandableTextView:0.1.4'
-    //for memory leak
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+
 }
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.android.application'

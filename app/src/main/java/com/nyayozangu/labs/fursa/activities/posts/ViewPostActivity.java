@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -106,6 +107,8 @@ public class ViewPostActivity extends AppCompatActivity {
     private ArrayList flagsArray;
     private String reportDetailsString;
 
+    private boolean isAdmin = false;
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
@@ -116,14 +119,21 @@ public class ViewPostActivity extends AppCompatActivity {
             if (coMeth.isLoggedIn()) {
                 currentUserId = new CoMeth().getUid();
 
+                //check if current user is the post user
+                //check if user is admin
                 if (currentUserId.equals(postUserId)) {
+                    editPost.setVisible(true);
+                    deletePost.setVisible(true);
+                } else if (getIntent() != null &&
+                        getIntent().getStringExtra("permission") != null &&
+                        getIntent().getStringExtra("permission").equals("admin") &&
+                        isAdmin) {
                     editPost.setVisible(true);
                     deletePost.setVisible(true);
                 } else {
                     editPost.setVisible(false);
                     deletePost.setVisible(false);
                 }
-
             }
 
         } else {
@@ -134,6 +144,46 @@ public class ViewPostActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    /**
+     * Check if current user is an admin
+     *
+     * @return boolean
+     * true if current use if admin
+     * false if current user is not admin
+     */
+    private boolean isAdmin() {
+
+        //get current user
+        FirebaseUser user = coMeth.getAuth().getCurrentUser();
+        if (user.getEmail() != null) {
+
+            String userEmail = user.getEmail();
+            //check if user email is in admin
+            coMeth.getDb()
+                    .collection("Admins")
+                    .document(userEmail)
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            //check if user exists
+                            //user is admin
+//user is not admin
+                            isAdmin = documentSnapshot.exists();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to get admins");
+                        }
+                    });
+
+        }
+        return isAdmin;
+
     }
 
     @Override
@@ -155,7 +205,7 @@ public class ViewPostActivity extends AppCompatActivity {
                 if (coMeth.isLoggedIn()) {
                     showReportDialog();
                 } else {
-                    showLoginAlertDialog(getString(R.string.login_to_report));
+                    goToLogin(getString(R.string.login_to_report));
                 }
                 break;
 
@@ -521,7 +571,7 @@ public class ViewPostActivity extends AppCompatActivity {
                         //notify user
 
                         String message = getString(R.string.login_to_save_text);
-                        showLoginAlertDialog(message);
+                        goToLogin(message);
                     }
                 } else {
 
@@ -582,7 +632,7 @@ public class ViewPostActivity extends AppCompatActivity {
                         Log.d(TAG, "use is not logged in");
                         //notify user
                         String message = getString(R.string.login_to_like);
-                        showLoginAlertDialog(message);
+                        goToLogin(message);
 
                     }
                 } else {
@@ -1126,34 +1176,10 @@ public class ViewPostActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        android.support.v7.app.AlertDialog.Builder loginAlertBuilder = new android.support.v7.app.AlertDialog.Builder(this);
-        loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
-    }
-
-    private void goToLogin() {
+    private void goToLogin(String message) {
 
         Intent loginIntent = new Intent(ViewPostActivity.this, LoginActivity.class);
-        loginIntent.putExtra("source", "ViewPost");
-        loginIntent.putExtra("postId", postId);
+        loginIntent.putExtra("message", message);
         startActivity(loginIntent);
 
     }

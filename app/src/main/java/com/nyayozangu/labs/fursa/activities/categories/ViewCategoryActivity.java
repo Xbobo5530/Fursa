@@ -1,14 +1,12 @@
 package com.nyayozangu.labs.fursa.activities.categories;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -271,7 +269,7 @@ ViewCategoryActivity extends AppCompatActivity {
                     } else {
 
                         //prompt login
-                        showLoginAlertDialog(getString(R.string.log_to_subscribe_text));
+                        goToLogin(getString(R.string.log_to_subscribe_text));
 
                     }
 
@@ -287,7 +285,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
         //loading
         showProgress(getString(R.string.loading_text));
-
         //handle showing posts
         //listen for scrolling on the homeFeedView
         catFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -735,34 +732,11 @@ ViewCategoryActivity extends AppCompatActivity {
 
     }
 
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(ViewCategoryActivity.this);
-        loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        Intent loginIntent = new Intent(ViewCategoryActivity.this, LoginActivity.class);
-                        loginIntent.putExtra("source", "categories");
-                        loginIntent.putExtra("category", currentCat);
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
-    }
-
-    private void goToLogin() {
-        startActivity(new Intent(this, LoginActivity.class));
+    private void goToLogin(String message) {
+        Intent goToLoginIntent = new Intent(this, LoginActivity.class);
+        goToLoginIntent.putExtra("message", message);
+        startActivity(goToLoginIntent);
+        finish();
     }
 
     private void showProgress(String message) {

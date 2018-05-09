@@ -101,8 +101,7 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //go to log in page
-                    goToLogin();
-                    finish();
+                    goToLogin(getString(R.string.login_text));
                 }
             });
         }
@@ -200,7 +199,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                     //user is not logged in
                     String message = getString(R.string.login_to_view_post_text);
-                    showLoginAlertDialog(message);
+                    goToLogin(message);
 
                 }
             }
@@ -221,7 +220,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                     //not logged in
                     String message = getString(R.string.login_to_view_subs_text);
-                    showLoginAlertDialog(message);
+                    goToLogin(message);
 
                 }
 
@@ -348,8 +347,11 @@ public class SettingsActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void goToLogin() {
-        startActivity(new Intent(this, LoginActivity.class));
+    private void goToLogin(String message) {
+        Intent goToLoginIntent = new Intent(this, LoginActivity.class);
+        goToLoginIntent.putExtra("message", message);
+        startActivity(goToLoginIntent);
+        finish();
     }
 
     private void goToPrivacyPolicy() {
@@ -434,36 +436,11 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //go to log in page
-                    goToLogin();
-                    finish();
+                    goToLogin(getString(R.string.login_text));
                 }
             });
         }
 
-    }
-
-
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(SettingsActivity.this);
-        loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
     }
 
     private void showSnack(String message) {

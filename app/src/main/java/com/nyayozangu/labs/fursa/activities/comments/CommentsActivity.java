@@ -175,7 +175,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onClick(View v) {
                         Log.d(TAG, "login button has clicked");
-                        showLoginAlertDialog(getString(R.string.login_to_comment));
+                        goToLogin(getString(R.string.login_to_comment));
                     }
 
                 });
@@ -637,7 +637,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
                 } else {
 
-                    showLoginAlertDialog("Log in to subscribe to comments notifications");
+                    goToLogin(getString(R.string.login_to_sub_comments));
 
                 }
                 break;
@@ -654,37 +654,9 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(CommentsActivity.this);
-        loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        Intent loginIntent = new Intent(CommentsActivity.this, LoginActivity.class);
-                        loginIntent.putExtra("source", "comments");
-                        loginIntent.putExtra("postId", postId);
-                        startActivity(loginIntent);
-                        finish();
-
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
-    }
-
-    private void goToLogin() {
+    private void goToLogin(String message) {
         Intent loginIntent = new Intent(CommentsActivity.this, LoginActivity.class);
-        loginIntent.putExtra("postId", postId);
+        loginIntent.putExtra("message", message);
         startActivity(loginIntent);
         finish();
     }

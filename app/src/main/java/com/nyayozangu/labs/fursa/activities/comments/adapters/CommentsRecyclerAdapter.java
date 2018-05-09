@@ -452,7 +452,6 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
             //add the placeholder image
             RequestOptions placeHolderOptions = new RequestOptions();
             placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
-
             Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(imageUrl).into(userImageView);
 
         }

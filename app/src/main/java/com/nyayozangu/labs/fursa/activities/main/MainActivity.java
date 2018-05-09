@@ -265,9 +265,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     } else {
 
-                        String message = "Log in to post items";
-                        //user is not logged in show dialog
-                        showLoginAlertDialog(message);
+                        String message = getString(R.string.login_to_post_text);
+                        goToLogin(message);
+
+
                     }
                 } else {
 
@@ -338,6 +339,12 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void goToLogin(String message) {
+        Intent goToLogin = new Intent(MainActivity.this, LoginActivity.class);
+        goToLogin.putExtra("message", message);
+        startActivity(goToLogin);
     }
 
     private void goToCreatePost() {
@@ -464,29 +471,6 @@ public class MainActivity extends AppCompatActivity {
             mainSearchView.setQuery(String.valueOf(""), false);
             searchLayout.setVisibility(View.GONE);
         }
-    }
-
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(MainActivity.this);
-        loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
     }
 
     private void goToLogin() {

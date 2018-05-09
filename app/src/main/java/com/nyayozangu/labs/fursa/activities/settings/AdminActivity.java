@@ -116,6 +116,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         //show loading
         showProgress(getString(R.string.loading_text));
         //clear items
+        // TODO: 5/9/18 fix clearing reported posts
 //        reportedPostsTitle.clear();
         //get items from db
         coMeth.getDb()
