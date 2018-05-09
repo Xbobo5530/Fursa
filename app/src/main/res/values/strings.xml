@@ -331,5 +331,6 @@
     <string name="something_went_wrong_text">Sorry, something went wrong</string>
     <string name="view_comment_text">View comment</string>
     <string name="admin_option_text">Admin options</string>
+    <string name="cat_qna_text"><![CDATA[Q&A]]></string>
 
 </resources>

@@ -23,6 +23,10 @@ import java.util.List;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
+interface CheckConnectionInterface {
+    void checkConnection(boolean result);
+}
+
 /**
  * Created by Sean on 4/29/18.
  * commonly used methods throughout the app
@@ -30,7 +34,17 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class CoMeth {
 
+
     private static final String TAG = "Sean";
+    public final String[] catTitle = new String[]{
+
+            getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getResources().getString(R.string.cat_jobs),
+            getApplicationContext().getResources().getString(R.string.cat_buysell), getApplicationContext().getResources().getString(R.string.cat_business),
+            getApplicationContext().getResources().getString(R.string.cat_upcoming), getApplicationContext().getResources().getString(R.string.cat_events),
+            getApplicationContext().getResources().getString(R.string.cat_places), getApplicationContext().getResources().getString(R.string.cat_services),
+            getApplicationContext().getResources().getString(R.string.cat_education), getApplicationContext().getResources().getString(R.string.cat_queries)
+
+    };
     public final String[] categories = new String[]{
 
             getApplicationContext().getString(R.string.cat_business),
@@ -43,7 +57,6 @@ public class CoMeth {
             getApplicationContext().getString(R.string.cat_queries)
 
     };
-
     //public methods
     public final String[] catKeys = new String[]{
 
@@ -63,13 +76,13 @@ public class CoMeth {
             getApplicationContext().getString(R.string.inapropriate_text)
 
     };
-
     public final String[] reportListKey = new String[]{
 
             "spam",
             "inappropriate"
 
     };
+    private boolean hasInternet;
 
     public CoMeth() {
     } //empty constructor
@@ -84,11 +97,16 @@ public class CoMeth {
         return mAuth.getCurrentUser() != null;
     }
 
-    //is connected
+    /**
+     * Checks for the connection status
+     * if the device has a connection
+     * and the connection is active
+     *
+     * @return boolean true if device is connected and has internet
+     * false if device can not connet to the internet
+     */
     public boolean isConnected() {
 
-
-        // TODO: 5/6/18
         //check if there's a connection
         Log.d(TAG, "at isConnected");
         Context context = getApplicationContext();
@@ -96,32 +114,47 @@ public class CoMeth {
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = null;
         if (cm != null) {
-
             activeNetwork = cm.getActiveNetworkInfo();
-
         }
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+
+        // TODO: 5/9/18 check if connection has internet
+
+        /*CheckInternetTask task = new CheckInternetTask(new CheckConnectionInterface() {
+            @Override
+            public void checkConnection(boolean result) {
+                //check connection status
+                Log.d(TAG, "checkConnection: \nresult is: " + result);
+                hasInternet = result;
+                Log.d(TAG, "checkConnection: has internet: " + hasInternet);
+            }
+        });
+        task.execute();
+
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        Log.d(TAG, "isConnected: " +
+                "\nisConnected: " + isConnected +
+                "\nhasInternet: " + hasInternet);*/
+
+
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        return isConnected /*&& hasInternet*/;
 
     }
 
+    /**
+     * A method to get the Firestore database
+     *
+     * @return a FirebaseFirestore instance
+     */
     public FirebaseFirestore getDb() {
-
         // Access a Cloud Firestore instance from your Activity
         return FirebaseFirestore.getInstance();
-
     }
 
     public FirebaseAuth getAuth() {
         return FirebaseAuth.getInstance();
     }
-
-    /*public void showProgress(String message) {
-        Log.d(TAG, "at showProgress\n message is: " + message);
-        //construct the dialog box
-        ProgressDialog progressDialog = new ProgressDialog(getApplicationContext());
-        progressDialog.setMessage(message);
-        progressDialog.show();
-    }*/
 
     public String getUid() {
         return this.getAuth().getUid();
@@ -148,46 +181,6 @@ public class CoMeth {
                 .load(imageUrl)
                 .into(targetImageView);
     }
-
-
-    /*public void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        android.support.v7.app.AlertDialog.Builder loginAlertBuilder = new android.support.v7.app.AlertDialog.Builder(getApplicationContext());
-        loginAlertBuilder.setTitle("Login")
-                .setIcon(getApplicationContext().getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
-    }
-*/
-    /*public void goToLogin() {
-
-        getApplicationContext().startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
-    }
-
-    public void goToCreatePost() {
-        getApplicationContext().startActivity(new Intent(getApplicationContext(), CreatePostActivity.class));
-    }
-
-    public void goToMySubscriptions() {
-
-        getApplicationContext().startActivity(new Intent(getApplicationContext(), MySubscriptionsActivity.class));
-
-    }*/
 
     public String getCatKey(String catValue) {
 
@@ -334,24 +327,6 @@ public class CoMeth {
         }
     }
 
-
-    /*public void goToSettings() {
-
-        getApplicationContext().startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-
-    }
-
-    public void goToFeedback() {
-
-        getApplicationContext().startActivity(new Intent(getApplicationContext(), FeedbackActivity.class));
-
-    }
-
-    public void goToPrivacyPolicy() {
-
-        getApplicationContext().startActivity(new Intent(getApplicationContext(), PrivacyPolicyActivity.class));
-    }*/
-
     public void stopLoading(ProgressDialog progressDialog, SwipeRefreshLayout swipeRefreshLayout) {
 
         Log.d(TAG, "stopLoading: stopping");
@@ -397,27 +372,6 @@ public class CoMeth {
 
     }
 
-    /*public void goToMain() {
-        getApplicationContext().startActivity(
-                new Intent(getApplicationContext(), SettingsActivity.class));
-    }
-
-    public void goToAccSet() {
-        getApplicationContext().startActivity(
-                new Intent(getApplicationContext(), AccountActivity.class));
-    }*/
-
-    /*public void hideKeyBoard() {
-
-        try {
-            InputMethodManager imm = (InputMethodManager)getApplicationContext().getSystemService(INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        } catch (Exception e) {
-            Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
-        }
-
-    }*/
-
     public void onResultStopLoading(List<Posts> postList,
                                     ProgressDialog progressDialog,
                                     SwipeRefreshLayout swipeRefreshLayout) {
@@ -431,3 +385,42 @@ public class CoMeth {
 
     }
 }
+
+/*class CheckInternetTask extends AsyncTask<Void, Void, Boolean> {
+
+    private static final String TAG = "Sean";
+    private CheckConnectionInterface mListener;
+    private HttpURLConnection urlc = null;
+
+    public CheckInternetTask(CheckConnectionInterface mListener) {
+        this.mListener = mListener;
+    }
+
+    @Override
+    protected Boolean doInBackground(Void... voids) {
+
+        Log.d(TAG, "doInBackground: ");
+        try {
+            urlc = (HttpURLConnection) (new URL("http://google.com").openConnection());
+            urlc.setRequestProperty("User-Agent", "Test");
+            urlc.setRequestProperty("Connection", "close");
+            urlc.setConnectTimeout(1500);
+            urlc.connect();
+            Log.d(TAG, "doInBackground: \nurlc.getResponseCode() == 200 " + (urlc.getResponseCode() == 200));
+            Log.d(TAG, "doInBackground: used the return inside");
+            return urlc.getResponseCode() == 200;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "doInBackground: used the return outside");
+        return false;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean result) {
+        Log.d(TAG, "onPostExecute: ");
+        if (mListener != null)
+            mListener.checkConnection(result);
+    }
+}*/
+

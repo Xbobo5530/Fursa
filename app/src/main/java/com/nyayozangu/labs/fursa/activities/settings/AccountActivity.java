@@ -142,7 +142,7 @@ public class AccountActivity extends AppCompatActivity {
                             }
                         }
                         //set default user Image
-                        setupImage.setImageDrawable(getDrawable(R.drawable.appiconshadow));
+                        setupImage.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
 
                     }
 
@@ -153,7 +153,7 @@ public class AccountActivity extends AppCompatActivity {
                             "Data retrieve error : " + errorMessage, Snackbar.LENGTH_SHORT).show();
                 }
                 //hide progress
-                coMeth.stopLoading(progressDialog, null);
+                coMeth.stopLoading(progressDialog);
                 saveButton.setEnabled(true);
             }
         });

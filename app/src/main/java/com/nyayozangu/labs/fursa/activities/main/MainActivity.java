@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
                     noNetBuilder.setTitle("Connection Error")
                             .setIcon(R.drawable.ic_action_red_alert)
                             .setMessage("Failed to connect to the internet\nCheck your connection and try again")
-                            .setPositiveButton("On", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 

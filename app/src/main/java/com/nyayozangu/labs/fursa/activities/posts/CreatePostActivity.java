@@ -698,7 +698,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         //upload complete
                         Log.d(TAG, "upload successful");
                         File newImageFile = new File(postImageUri.getPath());
-                        Log.d(TAG, "onComplete: newImageFile is" + newImageFile);
 
                         try {
                             compressedImageFile = new Compressor(CreatePostActivity.this)
@@ -753,6 +752,8 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         //subscribe current user to post comments
                                                         String currentPostId = task.getResult().getId();
                                                         FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
+                                                        //update users posts list
+                                                        updateMyPosts(currentPostId);
 
 
                                                     } else {
@@ -765,6 +766,9 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                                 }
                                             });
+
+
+                                    //
 
                                 } else {
 
@@ -788,6 +792,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
                                                         //subscribe current user to post comments
                                                         FirebaseMessaging.getInstance().subscribeToTopic(postId);
+
 
                                                     } else {
 
@@ -826,7 +831,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
         } else {
 
-
             //post has no image
             //get map
             Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
@@ -849,6 +853,9 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                     String currentPostId = task.getResult().getId();
                                     FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
+
+                                    //update my posts
+                                    updateMyPosts(currentPostId);
 
 
                                 } else {
@@ -898,6 +905,31 @@ public class CreatePostActivity extends AppCompatActivity {
         }
     }
 
+    private void updateMyPosts(String currentPostId) {
+        //create map with timestamp
+        Map<String, Object> myPostMap = new HashMap<>();
+        myPostMap.put("timestamp", FieldValue.serverTimestamp());
+        //update current user's subscriptions
+        coMeth.getDb()
+                .collection("Users/" + currentUserId + "/Subscriptions/")
+                .document("my_posts")
+                .collection("MyPosts")
+                .document(currentPostId)
+                .set(myPostMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: myPosts has been updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update my posts\n" + e);
+                    }
+                });
+    }
+
     private void notifyNewPostCatsUpdates(ArrayList<String> catsStringsArray) {
 
         //send notifications to all users subscribed to cats in catStringArray
@@ -913,20 +945,14 @@ public class CreatePostActivity extends AppCompatActivity {
 
     @NonNull
     private Map<String, Object> handleMap(String downloadThumbUri, String downloadUri) {
+
         //store the user info associated with post
-
         Map<String, Object> postMap = new HashMap<>();
-
         if (downloadUri != null) {
-
             postMap.put("image_url", downloadUri);
-
         }
-
         if (downloadThumbUri != null) {
-
             postMap.put("thumb_url", downloadThumbUri);
-
         }
         postMap.put("title", title);
         postMap.put("desc", desc);
@@ -936,9 +962,7 @@ public class CreatePostActivity extends AppCompatActivity {
         postMap.put("timestamp", FieldValue.serverTimestamp());
         //handle contact details
         if (contactDetails != null) {
-
             processContactDetails();
-
         }
         //handle location
         if (postPlace != null) {
@@ -950,35 +974,23 @@ public class CreatePostActivity extends AppCompatActivity {
         }
         //location
         if (locationArray != null && locationArray.size() > 0) {
-
-            //loc array has content
             postMap.put("location", locationArray);
-
         }
         //event date
         if (eventDate != null) {
-
             postMap.put("event_date", eventDate);
-
         }
         //contact details
         if (contactDetails != null && contactDetails.size() > 0) {
-
             postMap.put("contact_details", contactDetails);
-
         }
         //price
         if (price != null) {
-
             postMap.put("price", price);
-
         }
         //categories
         if (!catsStringsArray.isEmpty()) {
-
-            Log.d(TAG, "handleMap: catsStringArray has content\n" + catsStringsArray);
             postMap.put("categories", catsStringsArray);
-
         }
 
         return postMap;

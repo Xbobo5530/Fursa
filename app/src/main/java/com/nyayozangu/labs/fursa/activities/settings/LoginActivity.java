@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -70,13 +71,49 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private ImageButton closeLoginButton;
     private ProgressDialog progressDialog;
 
+    private TextView connectionAlertTextView;
+
     //social login buttons
     private SignInButton googleSignInButton;
     private TwitterLoginButton twitterLoginButton;
-    private GoogleApiClient mGoogleApiClient;
+    private LoginButton facebookLoginButton;
+
     private View registerView;
     private View loginView;
 
+    private GoogleApiClient mGoogleApiClient;
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //check connection to show the login buttons
+        if (!coMeth.isConnected()) {
+
+            //hide login buttons
+            loginButton.setVisibility(View.GONE);
+            loginRegistrationButton.setVisibility(View.GONE);
+            googleSignInButton.setVisibility(View.GONE);
+            facebookLoginButton.setVisibility(View.GONE);
+            twitterLoginButton.setVisibility(View.GONE);
+            //show connection alert
+            connectionAlertTextView.setVisibility(View.VISIBLE);
+
+        } else {
+
+            //hide login buttons
+            loginButton.setVisibility(View.VISIBLE);
+            loginRegistrationButton.setVisibility(View.VISIBLE);
+            googleSignInButton.setVisibility(View.VISIBLE);
+            facebookLoginButton.setVisibility(View.VISIBLE);
+            twitterLoginButton.setVisibility(View.VISIBLE);
+            //show connection alert
+            connectionAlertTextView.setVisibility(View.GONE);
+
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,23 +133,51 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         loginButton = findViewById(R.id.loginButton);
         loginRegistrationButton = findViewById(R.id.loginRegisterButton);
         closeLoginButton = findViewById(R.id.login_close_button);
+        connectionAlertTextView = findViewById(R.id.loginConnectionAlertTextView);
 
         //social login
         googleSignInButton = findViewById(R.id.google_sign_in_button);
         twitterLoginButton = findViewById(R.id.twitter_login_button);
+        facebookLoginButton = findViewById(R.id.facebook_login_button);
 
         //get the sent intent
         Intent getPostIdIntent = getIntent();
         final String postId = getPostIdIntent.getStringExtra("postId");
         Log.d(TAG, "postId is: " + postId);
-        // TODO: 4/9/18 setup intent extra receivers for source page and post ids, to return the user to a specific post/ page after login
+        // TODO: 4/9/18 setup intent extra receivers for source page and post ids,
+        // to return the user to a specific post/ page after login
 
+
+        //check connection to show the login buttons
+        if (!coMeth.isConnected()) {
+
+            //hide login buttons
+            loginButton.setVisibility(View.GONE);
+            loginRegistrationButton.setVisibility(View.GONE);
+            googleSignInButton.setVisibility(View.GONE);
+            facebookLoginButton.setVisibility(View.GONE);
+            twitterLoginButton.setVisibility(View.GONE);
+            //show connection alert
+            connectionAlertTextView.setVisibility(View.VISIBLE);
+
+        } else {
+
+            //show login buttons
+            loginButton.setVisibility(View.VISIBLE);
+            loginRegistrationButton.setVisibility(View.VISIBLE);
+            googleSignInButton.setVisibility(View.VISIBLE);
+            facebookLoginButton.setVisibility(View.VISIBLE);
+            twitterLoginButton.setVisibility(View.VISIBLE);
+            //hide connection alert
+            connectionAlertTextView.setVisibility(View.GONE);
+
+        }
 
         closeLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //user closes the login page ad goes back to home page
-                goToMain();
+                finish();
 
             }
         });
@@ -308,13 +373,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .enableAutoManage(this /* FragmentActivity */,
+                        this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
 
         //on user clicks sign in with google
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
@@ -353,8 +418,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
 
         //Twitter login
-
-
         twitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {

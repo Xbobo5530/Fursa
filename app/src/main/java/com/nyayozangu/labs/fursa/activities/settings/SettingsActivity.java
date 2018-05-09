@@ -283,7 +283,7 @@ public class SettingsActivity extends AppCompatActivity {
                 .collection("Admins")
                 .document(userEmail)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                .addOnCompleteListener(SettingsActivity.this, new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
 

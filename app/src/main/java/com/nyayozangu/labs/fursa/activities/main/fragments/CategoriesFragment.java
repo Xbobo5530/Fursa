@@ -50,9 +50,7 @@ public class CategoriesFragment extends Fragment {
                 getResources().getString(R.string.cat_buysell), getResources().getString(R.string.cat_business),
                 getResources().getString(R.string.cat_upcoming), getResources().getString(R.string.cat_events),
                 getResources().getString(R.string.cat_places), getResources().getString(R.string.cat_services),
-                getResources().getString(R.string.cat_education), "Q&A"
-                //                getResources().getString(R.string.cat_queries)
-
+                getResources().getString(R.string.cat_education), getString(R.string.cat_qna_text)
 
         };
 
@@ -103,7 +101,7 @@ public class CategoriesFragment extends Fragment {
                 "Queries"*/
 
                 Log.d(TAG, "onItemClick: ");
-                openCat(coMeth.getCatKey(catTitle[position]));
+                openCat(coMeth.getCatKey(coMeth.catTitle[position]));
 
             }
         });
