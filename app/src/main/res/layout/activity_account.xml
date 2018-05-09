@@ -62,7 +62,7 @@
                 android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView4"
+                app:layout_constraintTop_toBottomOf="@+id/accSettingsTitileTextView"
                 app:srcCompat="@drawable/appiconshadow" />
 
             <Button
@@ -111,9 +111,9 @@
                 app:layout_constraintTop_toBottomOf="@+id/accNameEditText" />
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/accSettingsTitileTextView"
                 android:layout_width="0dp"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
