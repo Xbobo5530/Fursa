@@ -142,8 +142,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Intent getPostIdIntent = getIntent();
         final String postId = getPostIdIntent.getStringExtra("postId");
         Log.d(TAG, "postId is: " + postId);
-        // TODO: 4/9/18 setup intent extra receivers for source page and post ids,
-        // to return the user to a specific post/ page after login
 
 
         //check connection to show the login buttons
@@ -333,6 +331,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                                     } else {
 
+                                        // TODO: 5/11/18 user string resources
                                         //password and confirm pass are a mismatch
                                         showSnack(R.id.login_activity_layout, "Confirmed password does not match");
 

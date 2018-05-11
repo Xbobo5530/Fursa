@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "858152200953-5qr7tnkdoajii5cbi7g87jmh0eekiurv.apps.googleusercontent.com",
+          "client_id": "858152200953-ehpg867ddosbciep6jt1l44nc12iv27m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.nyayozangu.labs.fursa",
             "certificate_hash": "2f4d9e7d126975ab780ad16f3f73fd5e8d946af8"
+          }
+        },
+        {
+          "client_id": "858152200953-70t143eua04cp07frq6g26af73ojovs1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nyayozangu.labs.fursa",
+            "certificate_hash": "1a2614eedacd1b888cba596acbc72f324e7aaec1"
           }
         },
         {

@@ -384,6 +384,7 @@ public class CoMeth {
         }
 
     }
+
 }
 
 /*class CheckInternetTask extends AsyncTask<Void, Void, Boolean> {

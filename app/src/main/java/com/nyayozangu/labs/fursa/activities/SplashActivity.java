@@ -59,7 +59,8 @@ public class SplashActivity extends AppCompatActivity {
 
             // This is an upgrade
             //start the main activity
-            startActivity(new Intent(getApplicationContext(), TutorialActivity.class));
+            // TODO: 5/11/18 create an updates page to let the user know of all the updated features
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             Log.i("Sean", "At Splash, this is upgrade");
         }
 

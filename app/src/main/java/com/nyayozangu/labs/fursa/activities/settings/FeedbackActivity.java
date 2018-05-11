@@ -37,17 +37,6 @@ public class FeedbackActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
 
     @Override
-    protected void onStart() {
-
-        if (!coMeth.isLoggedIn()) {
-
-            showLoginAlertDialog("Log in to submit a feedback");
-
-        }
-        super.onStart();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feedback);
@@ -73,7 +62,7 @@ public class FeedbackActivity extends AppCompatActivity {
 
         if (!coMeth.isLoggedIn()) {
 
-            showLoginAlertDialog("Log in to submit a feedback");
+            goToLogin(getString(R.string.login_to_feedback));
 
         }
 
@@ -217,7 +206,7 @@ public class FeedbackActivity extends AppCompatActivity {
                     } else {
 
                         //desc cant be empty
-                        showSnack("Enter a feedback description");
+                        showSnack(getString(R.string.feedback_desc_hint));
 
                     }
 
@@ -235,29 +224,14 @@ public class FeedbackActivity extends AppCompatActivity {
 
     private void goToSettings() {
         startActivity(new Intent(FeedbackActivity.this, SettingsActivity.class));
+        finish();
     }
 
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(FeedbackActivity.this);
-        loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
+    private void goToLogin(String message) {
+        Intent goToLoginIntent = new Intent(FeedbackActivity.this, LoginActivity.class);
+        goToLoginIntent.putExtra("message", message);
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 
     private void goToLogin() {

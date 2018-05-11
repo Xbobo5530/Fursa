@@ -2,11 +2,9 @@ package com.nyayozangu.labs.fursa.activities.posts.adapters;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -248,7 +246,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                     if (!coMeth.isLoggedIn()) {
 
-                        showLoginAlertDialog(context.getString(R.string.login_to_like));
+                        goToLogin(context.getString(R.string.login_to_like));
 
                     }
                     if (!coMeth.isConnected()) {
@@ -337,7 +335,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         showSnack(holder, context.getString(R.string.internet_fail));
                     }
                     if (!coMeth.isLoggedIn()) {
-                        showLoginAlertDialog(context.getString(R.string.login_to_save_text));
+                        goToLogin(context.getString(R.string.login_to_save_text));
                     }
 
                 }
@@ -508,7 +506,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                     message, Snackbar.LENGTH_LONG)
-                    .setAction("See list", new View.OnClickListener() {
+                    .setAction(context.getString(R.string.see_list_text), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
 
@@ -524,36 +522,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void goToLogin() {
-        //take user to the login page
-        Log.d(TAG, "at goToLogin");
-        context.startActivity(new Intent(context, LoginActivity.class));
-
-    }
-
-
-
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(context);
-        loginAlertBuilder.setTitle(context.getString(R.string.login_text))
-                .setIcon(context.getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage(context.getString(R.string.not_logged_in_text) + message)
-                .setPositiveButton(context.getString(R.string.login_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton(context.getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
+    /**
+     * takes user to the login screen
+     *
+     * @param message the message to display to the user on the login screen
+     */
+    private void goToLogin(String message) {
+        Intent goToLoginIntent = new Intent(context, LoginActivity.class);
+        goToLoginIntent.putExtra("message", message);
+        context.startActivity(goToLoginIntent);
     }
 
     @Override

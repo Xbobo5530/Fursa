@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Fursa</string>
+    <string name="app_name" translatable="false">Fursa</string>
     <string name="action_settings">Settings</string>
     <string name="login_email_edit_text">Email</string>
     <string name="password_text">Password</string>
@@ -10,106 +10,17 @@
     <string name="submit_new_post_button">Submit</string>
     <string name="new_post_description_hint">Add description</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
 
-    <string name="facebook_app_id">195155624430705</string>
-    <string name="fb_login_protocol_scheme">fb195155624430705</string>
-    <string name="title_activity_scrolling">New Post</string>
-    <string name="large_text">
-        "Material is the metaphor.\n\n"
-
-        "A material metaphor is the unifying theory of a rationalized space and a system of motion."
-        "The material is grounded in tactile reality, inspired by the study of paper and ink, yet "
-        "technologically advanced and open to imagination and magic.\n"
-        "Surfaces and edges of the material provide visual cues that are grounded in reality. The "
-        "use of familiar tactile attributes helps users quickly understand affordances. Yet the "
-        "flexibility of the material creates new affordances that supercede those in the physical "
-        "world, without breaking the rules of physics.\n"
-        "The fundamentals of light, surface, and movement are key to conveying how objects move, "
-        "interact, and exist in space and in relation to each other. Realistic lighting shows "
-        "seams, divides space, and indicates moving parts.\n\n"
-
-        "Bold, graphic, intentional.\n\n"
-
-        "The foundational elements of print based design typography, grids, space, scale, color, "
-        "and use of imagery guide visual treatments. These elements do far more than please the "
-        "eye. They create hierarchy, meaning, and focus. Deliberate color choices, edge to edge "
-        "imagery, large scale typography, and intentional white space create a bold and graphic "
-        "interface that immerse the user in the experience.\n"
-        "An emphasis on user actions makes core functionality immediately apparent and provides "
-        "waypoints for the user.\n\n"
-
-        "Motion provides meaning.\n\n"
-
-        "Motion respects and reinforces the user as the prime mover. Primary user actions are "
-        "inflection points that initiate motion, transforming the whole design.\n"
-        "All action takes place in a single environment. Objects are presented to the user without "
-        "breaking the continuity of experience even as they transform and reorganize.\n"
-        "Motion is meaningful and appropriate, serving to focus attention and maintain continuity. "
-        "Feedback is subtle yet clear. Transitions are efﬁcient yet coherent.\n\n"
-
-        "3D world.\n\n"
-
-        "The material environment is a 3D space, which means all objects have x, y, and z "
-        "dimensions. The z-axis is perpendicularly aligned to the plane of the display, with the "
-        "positive z-axis extending towards the viewer. Every sheet of material occupies a single "
-        "position along the z-axis and has a standard 1dp thickness.\n"
-        "On the web, the z-axis is used for layering and not for perspective. The 3D world is "
-        "emulated by manipulating the y-axis.\n\n"
-
-        "Light and shadow.\n\n"
-
-        "Within the material environment, virtual lights illuminate the scene. Key lights create "
-        "directional shadows, while ambient light creates soft shadows from all angles.\n"
-        "Shadows in the material environment are cast by these two light sources. In Android "
-        "development, shadows occur when light sources are blocked by sheets of material at "
-        "various positions along the z-axis. On the web, shadows are depicted by manipulating the "
-        "y-axis only. The following example shows the card with a height of 6dp.\n\n"
-
-        "Resting elevation.\n\n"
-
-        "All material objects, regardless of size, have a resting elevation, or default elevation "
-        "that does not change. If an object changes elevation, it should return to its resting "
-        "elevation as soon as possible.\n\n"
-
-        "Component elevations.\n\n"
-
-        "The resting elevation for a component type is consistent across apps (e.g., FAB elevation "
-        "does not vary from 6dp in one app to 16dp in another app).\n"
-        "Components may have different resting elevations across platforms, depending on the depth "
-        "of the environment (e.g., TV has a greater depth than mobile or desktop).\n\n"
-
-        "Responsive elevation and dynamic elevation offsets.\n\n"
-
-        "Some component types have responsive elevation, meaning they change elevation in response "
-        "to user input (e.g., normal, focused, and pressed) or system events. These elevation "
-        "changes are consistently implemented using dynamic elevation offsets.\n"
-        "Dynamic elevation offsets are the goal elevation that a component moves towards, relative "
-        "to the component’s resting state. They ensure that elevation changes are consistent "
-        "across actions and component types. For example, all components that lift on press have "
-        "the same elevation change relative to their resting elevation.\n"
-        "Once the input event is completed or cancelled, the component will return to its resting "
-        "elevation.\n\n"
-
-        "Avoiding elevation interference.\n\n"
-
-        "Components with responsive elevations may encounter other components as they move between "
-        "their resting elevations and dynamic elevation offsets. Because material cannot pass "
-        "through other material, components avoid interfering with one another any number of ways, "
-        "whether on a per component basis or using the entire app layout.\n"
-        "On a component level, components can move or be removed before they cause interference. "
-        "For example, a floating action button (FAB) can disappear or move off screen before a "
-        "user picks up a card, or it can move if a snackbar appears.\n"
-        "On the layout level, design your app layout to minimize opportunities for interference. "
-        "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
-        "when a user tries to pick up one of cards.\n\n"
-    </string>
-    <string name="fursa_url_head">http://fursa.nyayozangu.com/post/</string>
+    <string name="facebook_app_id" translatable="false">195155624430705</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb195155624430705</string>
+    <string name="title_activity_scrolling" translatable="false">New Post</string>
+    <string name="fursa_url_head" translatable="false">http://fursa.nyayozangu.com/post/</string>
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://fursa.nyayozangu.com\",\n  }\n}]</string>
     <string name="finish_tut_text">Finish</string>
     <string name="back_tut_text">Back</string>
     <string name="next_tut_text">Next</string>
-    <string name="title_activity_view_category">ViewCategoryActivity</string>
+    <string name="title_activity_view_category" translatable="false">ViewCategoryActivity</string>
     <string name="posted_by_text">Posted by:</string>
     <string name="search_hint">Search</string>
     <string name="cat_featured">Featured</string>
@@ -145,86 +56,15 @@
     <string name="contact_us_sett_button">Contact Us</string>
     <string name="privacy_policy_sett_button">Privacy Policy</string>
     <string name="feedback_sett_button">Feedback</string>
-    <string name="title_activity_my_posts">MyPostsActivity</string>
+    <string name="title_activity_my_posts" translatable="false">MyPostsActivity</string>
     <string name="cancel_text">Cancel</string>
     <string name="login_text">Login</string>
     <string name="not_logged_in_text">You are not logged in</string>
     <string name="login_to_post_text">Log in to post items</string>
     <string name="title_activity_my_subscriptions">My Subscriptions</string>
-
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
-
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <string-array name="multi_select_list_preference_default_value" />
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
-    <string name="login_to_view_post_text">Login to view your posts</string>
-    <string name="login_to_view_subs_text">Login to view your subscriptions</string>
-    <string name="search_view_query_hint_text">Search Fursa</string>
+    <string name="login_to_view_post_text" translatable="false">Login to view your posts</string>
+    <string name="login_to_view_subs_text" translatable="false">Login to view your subscriptions</string>
+    <string name="search_view_query_hint_text" translatable="false">Search Fursa</string>
     <string name="title_text">Title</string>
     <string name="comment_text">Comment</string>
     <string name="username_text">Username</string>
@@ -238,7 +78,7 @@
     <string name="enter_location_create_post_hint_text">Enter a location (optional)</string>
     <string name="enter_event_date_create_post_hint_text">Enter a date for an event (optional)</string>
     <string name="enter_price_create_post_hint_text">Enter a price value (optional)</string>
-    <string name="zero_text">0</string>
+    <string name="zero_text" translatable="false">0</string>
     <string name="save_text">Save</string>
     <string name="share_text">Share</string>
     <string name="title_view_post_text">Title</string>
@@ -251,10 +91,10 @@
     <string name="user_view_post_text">User</string>
     <string name="login_alert_fragment_text">Login</string>
     <string name="login_to_view_saved_items_alert_fragment_text">Login to view saved items</string>
-    <string name="date_post_placeholder_text">Jan 14 2018</string>
+    <string name="date_post_placeholder_text" translatable="false">Jan 14 2018</string>
     <string name="username_post_placeholder_text">Username</string>
-    <string name="desc_post_placeholder_text">this is random text for the placeholder of the image veia hdod lookd i=too maih intteo iwws</string>
-    <string name="location__post_placeholder_text">Dar es Salaam Tanzania</string>
+    <string name="desc_post_placeholder_text" translatable="false">this is random text for the placeholder of the image veia hdod lookd i=too maih intteo iwws</string>
+    <string name="location__post_placeholder_text" translatable="false">Dar es Salaam Tanzania</string>
     <string name="post_title__post_placeholder_text">Post Title</string>
     <string name="name_text">Name</string>
     <string name="phone_text">Phone</string>
@@ -273,13 +113,13 @@
     <string name="login_to_like">Login to like items</string>
     <string name="default_notification_channel_name">Updates</string>
     <string name="email_ver_text">Email Verification</string>
-    <string name="ok_text">Ok</string>
+    <string name="ok_text" translatable="false">Ok</string>
     <string name="send_email_text">Sending Email…</string>
     <string name="verify_to_comment_text">You have to verify your email address to comment on a post.</string>
     <string name="login_to_create_post">Login to create a post</string>
-    <string name="title_activity_view_image">ViewImageActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_view_image" translatable="false">ViewImageActivity</string>
+    <string name="dummy_button" translatable="false">Dummy Button</string>
+    <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
     <string name="logging_in_text">Logging in…</string>
     <string name="see_list_text">See list</string>
     <string name="login_to_save_text">Log in to save items</string>
@@ -312,9 +152,9 @@
     <string name="submitting">Submitting…</string>
     <string name="thanks_feedback_text">Thank you for your feedback</string>
     <string name="failed_to_submit_text">Failed to submit your feedback, please try again later</string>
-    <string name="family_email">family@nyayozangu.com</string>
+    <string name="family_email" translatable="false">family@nyayozangu.com</string>
     <string name="privacy_policy_text">Privacy Policy</string>
-    <string name="privacy_policy_url">http://fursa.nyayozangu.com/privacy_policy/</string>
+    <string name="privacy_policy_url" translatable="false">http://fursa.nyayozangu.com/privacy_policy/</string>
     <string name="searching_text">Searching…</string>
     <string name="failed_to_complete_text">Failed to complete action</string>
     <string name="cat_services">Services</string>
@@ -326,12 +166,15 @@
     <string name="failed_to_comment_text">Failed to post comment</string>
     <string name="wrong_password_text">Wrong password</string>
     <string name="report_comment_text">Report comment</string>
-    <string name="channel_name">updates</string>
-    <string name="channel_description">updates from fursa</string>
+    <string name="channel_name" translatable="false">updates</string>
+    <string name="channel_description" translatable="false">updates from fursa</string>
     <string name="something_went_wrong_text">Sorry, something went wrong</string>
-    <string name="view_comment_text">View comment</string>
-    <string name="admin_option_text">Admin options</string>
+    <string name="view_comment_text" translatable="false">View comment</string>
+    <string name="admin_option_text" translatable="false">Admin options</string>
     <string name="cat_qna_text"><![CDATA[Q&A]]></string>
     <string name="login_to_sub_comments">Log in to subscribe to comments notifications</string>
+    <string name="login_to_feedback">Log in to submit a feedback</string>
+    <string name="feedback_desc_hint">Enter a feedback description</string>
+    <string name="subscribing_text">Subscribing...</string>
 
 </resources>

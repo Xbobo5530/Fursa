@@ -503,7 +503,6 @@ public class ViewPostActivity extends AppCompatActivity {
         //get post title on create
         postTitle = getPostTitle(postId);
 
-
         //handle action clicks
         //handle comments click
         commentsButton.setOnClickListener(new View.OnClickListener() {

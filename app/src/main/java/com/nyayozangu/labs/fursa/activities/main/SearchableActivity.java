@@ -2,6 +2,7 @@ package com.nyayozangu.labs.fursa.activities.main;
 
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
@@ -13,7 +14,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
 /**
  * search for items
  * Created by Sean on 4/13/18.
@@ -41,12 +47,13 @@ import java.util.List;
 
 public class SearchableActivity extends AppCompatActivity {
 
-    // TODO: 4/18/18 handle saerch when the search result has no content
+    // TODO: 4/18/18 handle search when the search result has no content
     private static final String TAG = "Sean";
     //common methods
     private CoMeth coMeth = new CoMeth();
     private String searchQuery;
     private RecyclerView searchFeed;
+    private SearchView searchView;
 
     //retrieve posts
     private List<Posts> postsList;
@@ -60,14 +67,31 @@ public class SearchableActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.search_toolbar_menu, menu);
+
+        /*SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, SearchableActivity.class)));
+        mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));*/
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        return true;
+    }
+
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search);
 
-
+        //handle search
         Toolbar toolbar = findViewById(R.id.searchToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getString(R.string.search_text)); // TODO: 4/29/18 saerch title not showing
+        getSupportActionBar().setTitle(getString(R.string.search_text));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +102,6 @@ public class SearchableActivity extends AppCompatActivity {
 
             }
         });
-
 
         //initiate items
         searchFeed = findViewById(R.id.searchRecyclerView);
@@ -118,6 +141,7 @@ public class SearchableActivity extends AppCompatActivity {
             suggestions.saveRecentQuery(searchQuery, null);
             doMySearch(searchQuery);
 
+
         } else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 
             // Handle a suggestions click (because the suggestions all use ACTION_VIEW)
@@ -125,18 +149,21 @@ public class SearchableActivity extends AppCompatActivity {
             doMySearch(searchQuery);
 
         }
+
+        hideKeyBoard();
     }
 
     private void doMySearch(final String query) {
 
-        Log.d(TAG, "doMySearch: ");
-
+        Log.d(TAG, "doMySearch: \nquery is: " + query);
         //loading
         showProgress(getString(R.string.searching_text));
-
+        //clear old search
+        postsList.clear();
+        usersList.clear();
+        //search for new content
         final Query firstQuery = coMeth.getDb()
-                .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING);
+                .collection("Posts");
         //get all posts from the database
         loadPosts(firstQuery, query);
 
@@ -174,7 +201,7 @@ public class SearchableActivity extends AppCompatActivity {
                 }
 
 
-                // TODO: 5/2/18 hanlde no posts found notif
+                // TODO: 5/2/18 handle no posts found notif
                 /*if (postsList.isEmpty()) {
 
                     //no posts
@@ -204,7 +231,9 @@ public class SearchableActivity extends AppCompatActivity {
             ArrayList catsArray = post.getCategories();
             for (int i = 0; i < catsArray.size(); i++) {
 
-                catString = catString.concat(coMeth.getCatValue((catsArray.get(i)).toString()).toLowerCase() + " ");
+                catString = catString.concat(
+                        coMeth.getCatValue(
+                                (catsArray.get(i)).toString()).toLowerCase() + " ");
 
             }
         }
@@ -330,7 +359,6 @@ public class SearchableActivity extends AppCompatActivity {
 
                         }
 
-
                     }
                 });
 
@@ -349,6 +377,18 @@ public class SearchableActivity extends AppCompatActivity {
         Snackbar.make(findViewById(R.id.searchView),
                 message, Snackbar.LENGTH_LONG)
                 .show();
+    }
+
+    private void hideKeyBoard() {
+
+        Log.d(TAG, "hideKeyBoard: ");
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+            Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
+        }
+
     }
 
 }

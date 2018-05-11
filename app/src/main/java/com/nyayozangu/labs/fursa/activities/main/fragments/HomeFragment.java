@@ -87,6 +87,8 @@ public class HomeFragment extends Fragment {
                 Boolean reachedBottom = !homeFeedView.canScrollVertically(1);
                 if (reachedBottom) {
 
+
+                    //clear post list
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     loadMorePosts();
 
@@ -239,10 +241,12 @@ public class HomeFragment extends Fragment {
                                             //check if task is successful
                                             if (task.isSuccessful()) {
 
+                                                Log.d(TAG, "onComplete: adding posts");
                                                 Users user = task.getResult().toObject(Users.class);
                                                 usersList.add(user);
                                                 postsList.add(post);
                                                 postsRecyclerAdapter.notifyDataSetChanged();
+
                                             }
 
                                         }

@@ -175,7 +175,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
             }
 
-
         }
 
         //initiate items
@@ -210,13 +209,12 @@ ViewCategoryActivity extends AppCompatActivity {
                     if (coMeth.isLoggedIn()) {
                         Log.d(TAG, "onClick: is logged in");
 
-
                         //show progress
-                        showProgress("Subscribing...");
-
+                        showProgress(getString(R.string.subscribing_text));
                         userId = coMeth.getUid();
 
-                        coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
+                        coMeth.getDb()
+                                .collection("Users/" + userId + "/Subscriptions")
                                 .document("categories")
                                 .collection("Categories").document(currentCat).get()
                                 .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
@@ -290,11 +288,10 @@ ViewCategoryActivity extends AppCompatActivity {
         catFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
 
+                super.onScrolled(recyclerView, dx, dy);
                 Boolean reachedBottom = !catFeed.canScrollVertically(1);
                 if (reachedBottom) {
-
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     loadMorePosts();
                 }
@@ -302,9 +299,9 @@ ViewCategoryActivity extends AppCompatActivity {
         });
 
 
+        // TODO: 5/10/18 remember, removed limit to pagination
         final Query firstQuery = coMeth.getDb().
                 collection("Posts")
-                .limit(10)
                 .orderBy("timestamp", Query.Direction.DESCENDING);
         postsList.clear();
         usersList.clear();
@@ -530,8 +527,9 @@ ViewCategoryActivity extends AppCompatActivity {
             //open db and get post likes
 
             processCounts(postId, post, "Likes");
-            processCounts(postId, post, "Saves");
-            processCounts(postId, post, "Comments");
+            // TODO: 5/10/18 add saves and comments to processing popular comments
+            /*processCounts(postId, post, "Saves");
+            processCounts(postId, post, "Comments");*/
 
 
         } else {
