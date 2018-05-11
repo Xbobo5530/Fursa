@@ -78,7 +78,7 @@
         app:backgroundTint="@android:color/holo_red_dark"
         app:layout_anchor="@id/create_post_app_bar"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_action_edit_white" />
+        app:srcCompat="@drawable/ic_action_add_image" />
 
 
 </android.support.design.widget.CoordinatorLayout>

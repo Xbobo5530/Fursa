@@ -17,6 +17,8 @@
         android:hint="@string/enter_contact_name_contact_dialog_text"
         android:inputType="textPersonName"
         android:singleLine="true"
+        android:textColor="@color/black_overlay"
+        android:textColorHint="@color/black_overlay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -33,6 +35,8 @@
         android:hint="@string/enter_contact_phone_number_contact_dialog_text"
         android:inputType="phone"
         android:singleLine="true"
+        android:textColor="@color/black_overlay"
+        android:textColorHint="@color/black_overlay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contactNameDialogEditText" />
@@ -50,6 +54,8 @@
         android:hint="@string/enter_contact_email_contact_diaog_text"
         android:inputType="textEmailAddress"
         android:singleLine="true"
+        android:textColor="@color/black_overlay"
+        android:textColorHint="@color/black_overlay"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

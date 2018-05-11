@@ -176,5 +176,6 @@
     <string name="login_to_feedback">Log in to submit a feedback</string>
     <string name="feedback_desc_hint">Enter a feedback description</string>
     <string name="subscribing_text">Subscribing...</string>
+    <string name="price_text">Price</string>
 
 </resources>

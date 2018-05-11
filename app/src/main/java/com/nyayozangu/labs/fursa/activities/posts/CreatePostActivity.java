@@ -508,7 +508,7 @@ public class CreatePostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
-                builder.setTitle("Post Description")
+                builder.setTitle(getString(R.string.price_text))
                         .setIcon(R.drawable.ic_action_price);
 
                 final EditText input = new EditText(CreatePostActivity.this);
