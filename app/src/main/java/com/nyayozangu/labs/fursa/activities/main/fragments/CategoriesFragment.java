@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.SimpleAdapter;
 
@@ -82,6 +84,10 @@ public class CategoriesFragment extends Fragment {
 
         SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.cat_grid_item_layout, from, to);
         GridView catGridView = view.findViewById(R.id.catsGridView);
+
+        View gridCell = inflater.inflate(R.layout.cat_grid_item_layout, null);
+        int cellWidth = measureCellWidth(getContext(), gridCell);
+        catGridView.setColumnWidth(cellWidth);
         catGridView.setAdapter(simpleAdapter);
 
         catGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -116,6 +122,24 @@ public class CategoriesFragment extends Fragment {
         Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);
         openCatIntent.putExtra("category", catKey);
         startActivity(openCatIntent);
+    }
+
+    public int measureCellWidth(Context context, View cell) {
+
+        // We need a fake parent
+        FrameLayout buffer = new FrameLayout(context);
+        android.widget.AbsListView.LayoutParams layoutParams =
+                new android.widget.AbsListView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        buffer.addView(cell, layoutParams);
+
+        cell.forceLayout();
+        cell.measure(1000, 1000);
+
+        int width = cell.getMeasuredWidth();
+
+        buffer.removeAllViews();
+
+        return width;
     }
 
 
