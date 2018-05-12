@@ -1,6 +1,9 @@
 package com.nyayozangu.labs.fursa.activities.categories;
 
 import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,7 +14,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -25,6 +32,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.main.SearchableActivity;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
@@ -44,10 +52,13 @@ import javax.annotation.Nullable;
 public class
 ViewCategoryActivity extends AppCompatActivity {
 
+    // TODO: 5/12/18 handle deep link intent for incoming categories
+
     private static final String TAG = "Sean";
 
     private RecyclerView catFeed;
     private SwipeRefreshLayout swipeRefresh;
+    private SearchView searchView;
 
     private FloatingActionButton subscribeFab;
 
@@ -73,6 +84,20 @@ ViewCategoryActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.view_cat_toolbar_menu, menu);
+        //handle search
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView = (SearchView) menu.findItem(R.id.viewCatSearchMenuItem).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(
+                new ComponentName(this, SearchableActivity.class)));
+        searchView.setQueryHint(getResources().getString(R.string.search_hint));
+        return true;
+    }
+
+    @Override
     public void onBackPressed() {
         goToMain();
     }
@@ -83,6 +108,48 @@ ViewCategoryActivity extends AppCompatActivity {
         goToMainIntent.putExtra("destination", "categories");
         startActivity(goToMainIntent);
         finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.viewCatShareMenuItem:
+                shareCat();
+                break;
+            case R.id.viewCatDetailsMenuItem:
+                //open a dialog box with cat details
+                showCatDetailsDialog();
+                break;
+            default:
+                Log.d(TAG, "onOptionsItemSelected: on view cat toolbar menu default");
+
+        }
+
+        return true;
+    }
+
+    private void showCatDetailsDialog() {
+        // TODO: 5/12/18 open a dialog box with cat detail
+        Log.d(TAG, "showCatDetailsDialog: ");
+
+    }
+
+    private void shareCat() {
+        Log.d(TAG, "Sharing cat");
+        //create cat url
+        String catUrl = getResources().getString(R.string.fursa_url_cat_head) + currentCat;
+        String postTitle = coMeth.getCatValue(currentCat);
+        String fullShareMsg = getString(R.string.app_name) + ":\n" +
+                postTitle + "\n" +
+                catUrl;
+        Log.d(TAG, "fullShareMsg is: " + fullShareMsg);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+        startActivity(Intent.createChooser(shareIntent, "Share with"));
     }
 
     @Override

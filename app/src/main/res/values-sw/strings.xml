@@ -98,14 +98,14 @@
     <string name="send_email_text">Inatuna barua pepe</string>
     <string name="verify_to_comment_text">Hakiki barua pepe yako ili kutoa maoni kwenye machapisho</string>
     <string name="login_to_create_post">Ingia kwenye akaunti yako kuandika chapisho</string>
-    <string name="logging_in_text">Inaingia kwenye akaunti sasa...</string>
+    <string name="logging_in_text">Inaingia kwenye akaunti sasa…</string>
     <string name="see_list_text">Fungua orodha</string>
     <string name="login_to_save_text">Ingia kwenye akaunti kuhifadhi machapisho</string>
     <string name="email_sent_text">Barua pepe imekweshatumwa</string>
     <string name="confirm_del_text">Unauhakika unataka kufuta chapisho hili?</string>
     <string name="del_post_text">Futa chapisho</string>
     <string name="del_success_text">Chapisho limekwesha futwa</string>
-    <string name="loading_text">Subiri...</string>
+    <string name="loading_text">Subiri…</string>
     <string name="exit_text">Toka</string>
     <string name="confirm_ext_text">Unauhakika unataka kutoka?</string>
     <string name="report_submit_failed_text">Imashindikana kuchapisha</string>
@@ -127,7 +127,7 @@
     <string name="failed_to_post_text">Imeshindikana kuchapisha</string>
     <string name="failed_to_upload_image_text">Imeshindikana kupakia picha</string>
     <string name="feedback_title_text">Maoni</string>
-    <string name="submitting">Inarejesha...</string>
+    <string name="submitting">Inarejesha…</string>
     <string name="thanks_feedback_text">Asante kwa maoni yako</string>
     <string name="failed_to_submit_text">Imeshindikana kurejesha maoni yako, jaribu tena baadae</string>
     <string name="privacy_policy_text">Vigezo na masharti</string>
@@ -147,9 +147,10 @@
     <string name="login_to_sub_comments">Ingia kwa akaunti yako kupata taarifa mpya</string>
     <string name="login_to_feedback">Ingia kwa akaunti yako kutoa maoni</string>
     <string name="feedback_desc_hint">Andika maoni yako</string>
-    <string name="subscribing_text">Inasajiri...</string>
+    <string name="subscribing_text">Inasajiri…</string>
     <string name="cat_popular">Mchapisho maarufu</string>
     <string name="price_text">Bei</string>
     <string name="view_post_text">Chapisho</string>
     <string name="failed_to_load_locations_text">Imeshindikana kufungua \'maeneo\'</string>
+    <string name="view_details_text">Taarifa zaidi</string>
 </resources>

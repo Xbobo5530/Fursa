@@ -69,12 +69,7 @@ public class SearchableActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.search_toolbar_menu, menu);
-
-        /*SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, SearchableActivity.class)));
-        mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));*/
-
+        //handle search
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -113,7 +108,6 @@ public class SearchableActivity extends AppCompatActivity {
         String className = "SearchableActivity";
         searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         coMeth.handlePostsView(SearchableActivity.this, SearchableActivity.this, searchFeed);
-//        searchFeed.setLayoutManager(new LinearLayoutManager(this));
         //set an adapter for the recycler view
         searchFeed.setAdapter(searchRecyclerAdapter);
         handleIntent(getIntent());

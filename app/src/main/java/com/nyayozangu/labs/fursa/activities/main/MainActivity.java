@@ -98,16 +98,15 @@ public class MainActivity extends AppCompatActivity {
         savedFragment = new SavedFragment();
         alertFragment = new AlertFragment();
 
-        userProfileImage = findViewById(R.id.currentUserImageView);
+
 
         //initiate elements
         mainSearchView = findViewById(R.id.mainSearchView);
         searchButton = findViewById(R.id.searchButton);
         searchLayout = findViewById(R.id.mainSearchConsLayout);
-
+        userProfileImage = findViewById(R.id.currentUserImageView);
         createPostButton = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
-
         fursaTitle = findViewById(R.id.fursaTitleTextView);
 
         //search
@@ -294,7 +293,8 @@ public class MainActivity extends AppCompatActivity {
         //handle search
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, SearchableActivity.class)));
+        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(
+                new ComponentName(this, SearchableActivity.class)));
         mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
 
 
