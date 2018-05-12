@@ -121,6 +121,11 @@ public class CreatePostActivity extends AppCompatActivity {
     private ArrayList<String> cats;
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        handleIntent();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         Log.d(TAG, "at CreatePostActivity, onCreate()");

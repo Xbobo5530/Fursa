@@ -35,7 +35,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/setupImageCircleImageView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/setupImageCircleImageView"
-                app:srcCompat="@drawable/ic_action_edit_white" />
+                app:srcCompat="@drawable/ic_action_add_image" />
 
             <EditText
                 android:id="@+id/accNameEditText"

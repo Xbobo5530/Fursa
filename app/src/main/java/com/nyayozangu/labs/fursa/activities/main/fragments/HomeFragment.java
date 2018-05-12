@@ -2,10 +2,12 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
 import android.app.ProgressDialog;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -72,7 +74,23 @@ public class HomeFragment extends Fragment {
         //initiate the PostsRecyclerAdapter
         String className = "HomeFragment";
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
-        homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        if ((getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
+            // on a large screen device ...
+            homeFeedView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+
+        } else if ((getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE) {
+            //on xlarge device
+            homeFeedView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+
+        } else {
+            //on small, normal or undefined screen devices
+            homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        }
+
         homeFeedView.setAdapter(postsRecyclerAdapter);
 
         //loading
