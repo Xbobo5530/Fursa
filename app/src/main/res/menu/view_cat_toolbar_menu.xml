@@ -7,9 +7,9 @@
         android:icon="@drawable/ic_action_share_white"
         android:title="@string/share_text"
         app:showAsAction="always" />
-    <item
+    <!--<item
         android:id="@+id/viewCatDetailsMenuItem"
-        android:title="@string/view_details_text" />
+        android:title="@string/view_details_text" />-->
 
     <item
         android:id="@+id/viewCatSearchMenuItem"

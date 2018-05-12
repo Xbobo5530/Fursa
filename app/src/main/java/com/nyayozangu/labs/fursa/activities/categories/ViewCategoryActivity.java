@@ -134,6 +134,24 @@ ViewCategoryActivity extends AppCompatActivity {
         // TODO: 5/12/18 open a dialog box with cat detail
         Log.d(TAG, "showCatDetailsDialog: ");
 
+        /*showProgress(getString(R.string.loading_text));
+
+        //get
+        coMeth.getDb()
+                .collection("Users/" + userId + "/Subscriptions/" )
+                .
+
+        AlertDialog.Builder viewCatDetailsBuilder = new AlertDialog.Builder(ViewCategoryActivity.this);
+        viewCatDetailsBuilder.setTitle(coMeth.getCatValue(currentCat))
+                .setIcon(getDrawable(R.drawable.ic_action_info_grey))
+                .setMessage(catDetails)
+                .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+*/
     }
 
     private void shareCat() {
