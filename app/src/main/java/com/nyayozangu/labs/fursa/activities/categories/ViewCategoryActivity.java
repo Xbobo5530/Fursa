@@ -60,13 +60,9 @@ ViewCategoryActivity extends AppCompatActivity {
 
     //recycler adapter
     private PostsRecyclerAdapter categoryRecyclerAdapter;
-
     private DocumentSnapshot lastVisiblePost;
-
     private Boolean isFirstPageFirstLoad = true;
-
     private String userId;
-
     private String currentCat;
     private String catDesc;
     private ProgressDialog progressDialog;
@@ -337,7 +333,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         break;
 
                     case "queries":
-                        getSupportActionBar().setTitle(getString(R.string.cat_queries));
+                        getSupportActionBar().setTitle(getString(R.string.cat_qna_text));
                         break;
 
                     default:

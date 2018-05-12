@@ -513,7 +513,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                 Log.d(TAG, "Sharing post");
                 //create post url
-                String postUrl = getResources().getString(R.string.fursa_url_head) + postId;
+                String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
                 String postTitle = getPostTitle(postId);
                 String fullShareMsg = getString(R.string.app_name) + ":\n" +
                         postTitle + "\n" +
@@ -1150,7 +1150,7 @@ public class ViewPostActivity extends AppCompatActivity {
         if (Intent.ACTION_VIEW.equals(appLinkAction) && appLinkData != null) {
             String postUrl = String.valueOf(appLinkData);
 
-            int endOfUrlHead = getResources().getString(R.string.fursa_url_head).length();
+            int endOfUrlHead = getResources().getString(R.string.fursa_url_post_head).length();
             postId = postUrl.substring(endOfUrlHead);
 
             Log.i(TAG, "incomingUrl is " + postId);

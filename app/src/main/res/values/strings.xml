@@ -9,18 +9,15 @@
     <string name="acc_save_button">Save settings</string>
     <string name="submit_new_post_button">Submit</string>
     <string name="new_post_description_hint">Add description</string>
-
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-
     <string name="facebook_app_id" translatable="false">195155624430705</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb195155624430705</string>
     <string name="title_activity_scrolling" translatable="false">New Post</string>
-    <string name="fursa_url_head" translatable="false">http://fursa.nyayozangu.com/post/</string>
+    <string name="fursa_url_post_head" translatable="false">http://fursa.nyayozangu.com/post/</string>
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://fursa.nyayozangu.com\",\n  }\n}]</string>
     <string name="finish_tut_text">Finish</string>
     <string name="back_tut_text">Back</string>
     <string name="next_tut_text">Next</string>
-    <string name="title_activity_view_category" translatable="false">ViewCategoryActivity</string>
+    <string name="title_activity_view_category" translatable="false">View category</string>
     <string name="posted_by_text">Posted by:</string>
     <string name="search_hint">Search</string>
     <string name="cat_featured">Featured</string>
@@ -118,8 +115,6 @@
     <string name="verify_to_comment_text">You have to verify your email address to comment on a post.</string>
     <string name="login_to_create_post">Login to create a post</string>
     <string name="title_activity_view_image" translatable="false">ViewImageActivity</string>
-    <string name="dummy_button" translatable="false">Dummy Button</string>
-    <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
     <string name="logging_in_text">Logging in…</string>
     <string name="see_list_text">See list</string>
     <string name="login_to_save_text">Log in to save items</string>
@@ -175,7 +170,10 @@
     <string name="login_to_sub_comments">Log in to subscribe to comments notifications</string>
     <string name="login_to_feedback">Log in to submit a feedback</string>
     <string name="feedback_desc_hint">Enter a feedback description</string>
-    <string name="subscribing_text">Subscribing...</string>
+    <string name="subscribing_text">Subscribing…</string>
     <string name="price_text">Price</string>
+    <string name="view_post_text">View post</string>
+    <string name="failed_to_load_locations_text">Failed to load location</string>
+    <string name="fursa_url_cat_head" translatable="false">http://fursa.nyayozangu.com/category/</string>
 
 </resources>

@@ -354,7 +354,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             public void onClick(View v) {
                 Log.d(TAG, "Sharing post");
                 //create post url
-                String postUrl = context.getResources().getString(R.string.fursa_url_head) + postId;
+                String postUrl = context.getResources().getString(R.string.fursa_url_post_head) + postId;
                 // TODO: 5/9/18 check anomaly in sharing posts title mixup
 
                 String fullShareMsg = context.getString(R.string.app_name) + ":\n" +

@@ -456,7 +456,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     AlertDialog.Builder locationErrorBuilder = new AlertDialog.Builder(CreatePostActivity.this);
                     locationErrorBuilder.setTitle("Error")
                             .setIcon(getDrawable(R.drawable.ic_action_red_alert))
-                            .setMessage("Failed to load locations at this moment\n Please try again later")
+                            .setMessage(R.string.failed_to_load_locations_text)
                             .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {

@@ -25,7 +25,7 @@
             android:resource="@string/asset_statements" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBuYym_3btmkmg4xGx2PO07J9c_kTLfy2I" />
+            android:value="AIzaSyCvQ8Nln1V2dmZr6UE1A2z5qO0Q0N11MFA" />
 
         <activity
             android:name=".activities.main.MainActivity"
@@ -88,7 +88,7 @@
         <activity
             android:name=".activities.posts.ViewPostActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:label="@string/title_activity_scrolling"
+            android:label="@string/view_post_text"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme">
             <intent-filter>
