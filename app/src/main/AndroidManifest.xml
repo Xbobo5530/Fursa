@@ -25,7 +25,7 @@
             android:resource="@string/asset_statements" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCvQ8Nln1V2dmZr6UE1A2z5qO0Q0N11MFA" />
+            android:value="AIzaSyDhaspaApHTdZF05YKL8zmA2medxahQwRs" />
 
         <activity
             android:name=".activities.main.MainActivity"
@@ -99,7 +99,7 @@
 
                 <data
                     android:host="fursa.nyayozangu.com"
-                    android:pathPattern=".*"
+                    android:pathPattern="/post/.*"
                     android:scheme="http" />
             </intent-filter>
         </activity>
@@ -144,7 +144,19 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_view_category"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="fursa.nyayozangu.com"
+                    android:pathPattern="/category/.*"
+                    android:scheme="http" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.settings.MyPostsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

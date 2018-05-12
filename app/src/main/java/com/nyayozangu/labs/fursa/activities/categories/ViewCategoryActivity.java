@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -114,44 +115,13 @@ ViewCategoryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-
             case R.id.viewCatShareMenuItem:
                 shareCat();
                 break;
-            case R.id.viewCatDetailsMenuItem:
-                //open a dialog box with cat details
-                showCatDetailsDialog();
-                break;
             default:
                 Log.d(TAG, "onOptionsItemSelected: on view cat toolbar menu default");
-
         }
-
         return true;
-    }
-
-    private void showCatDetailsDialog() {
-        // TODO: 5/12/18 open a dialog box with cat detail
-        Log.d(TAG, "showCatDetailsDialog: ");
-
-        /*showProgress(getString(R.string.loading_text));
-
-        //get
-        coMeth.getDb()
-                .collection("Users/" + userId + "/Subscriptions/" )
-                .
-
-        AlertDialog.Builder viewCatDetailsBuilder = new AlertDialog.Builder(ViewCategoryActivity.this);
-        viewCatDetailsBuilder.setTitle(coMeth.getCatValue(currentCat))
-                .setIcon(getDrawable(R.drawable.ic_action_info_grey))
-                .setMessage(catDetails)
-                .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-*/
     }
 
     private void shareCat() {
@@ -202,7 +172,11 @@ ViewCategoryActivity extends AppCompatActivity {
         catFeed.setAdapter(categoryRecyclerAdapter);
 
         //handle intent
-        handleIntent();
+        if (getIntent() != null) {
+            handleIntent();
+        } else {
+            goToMain();
+        }
 
         //initiate items
         subscribeFab = findViewById(R.id.subscribeCatFab);
@@ -347,84 +321,110 @@ ViewCategoryActivity extends AppCompatActivity {
 
             }
         });
+
     }
+
 
     /**
      * handles incoming intents
      */
     private void handleIntent() {
-        // TODO: 5/12/18 add deep link to category
-        if (getIntent() != null) {
-            Log.d(TAG, "getIntent is not null");
-            Intent getPostIdIntent = getIntent();
+
+        Log.d(TAG, "handleIntent: ");
+        Intent getPostIdIntent = getIntent();
+        if (getPostIdIntent.getStringExtra("category") != null) {
             String category = getPostIdIntent.getStringExtra("category");
-            if (category != null) {
-                Log.d(TAG, "cat is: " + category);
+            setCurrentCat(category);
+        } else {
+            //intent is from deep link
+            String category = handleDeepLink(getIntent());
+            setCurrentCat(category);
+        }
+    }
 
-                currentCat = category;
+    private String handleDeepLink(Intent intent) {
 
-                /*
-                "Featured",
-                "Popular",
-                "UpComing",
-                "Events",
-                "Business",
-                "Buy and sell",
-                "Education",
-                "Jobs",
-                "Queries"*/
+        // handle app links
+        Log.i(TAG, "at handleDeepLinkIntent");
+        String appLinkAction = intent.getAction();
+        Uri appLinkData = intent.getData();
 
-                //set the category name ot toolbar
-                switch (category) {
+        if (Intent.ACTION_VIEW.equals(appLinkAction) && appLinkData != null) {
 
-                    case "featured":
-                        getSupportActionBar().setTitle(getString(R.string.cat_featured));
-                        break;
+            String postUrl = String.valueOf(appLinkData);
+            int endOfUrlHead = getResources().getString(R.string.fursa_url_cat_head).length();
+            currentCat = postUrl.substring(endOfUrlHead);
+            Log.i(TAG, "incoming cat is " + currentCat);
+        }
+        return currentCat;
+    }
 
-                    case "popular":
-                        getSupportActionBar().setTitle(getString(R.string.cat_popular));
-                        break;
+    private void setCurrentCat(String category) {
+        if (category != null) {
+            Log.d(TAG, "cat is: " + category);
 
-                    case "upcoming":
-                        getSupportActionBar().setTitle(getString(R.string.cat_upcoming));
-                        break;
+            currentCat = category;
 
-                    case "events":
-                        getSupportActionBar().setTitle(getString(R.string.cat_events));
-                        break;
+        /*
+        "Featured",
+        "Popular",
+        "UpComing",
+        "Events",
+        "Business",
+        "Buy and sell",
+        "Education",
+        "Jobs",
+        "Queries"*/
 
-                    case "places":
-                        getSupportActionBar().setTitle(getString(R.string.cat_places));
-                        break;
+            //set the category name ot toolbar
+            switch (category) {
 
-                    case "services":
-                        getSupportActionBar().setTitle(getString(R.string.cat_services));
-                        break;
+                case "featured":
+                    getSupportActionBar().setTitle(getString(R.string.cat_featured));
+                    break;
 
-                    case "business":
-                        getSupportActionBar().setTitle(getString(R.string.cat_business));
-                        break;
+                case "popular":
+                    getSupportActionBar().setTitle(getString(R.string.cat_popular));
+                    break;
 
-                    case "buysell":
-                        getSupportActionBar().setTitle(getString(R.string.cat_buysell));
-                        break;
+                case "upcoming":
+                    getSupportActionBar().setTitle(getString(R.string.cat_upcoming));
+                    break;
 
-                    case "education":
-                        getSupportActionBar().setTitle(getString(R.string.cat_education));
-                        break;
+                case "events":
+                    getSupportActionBar().setTitle(getString(R.string.cat_events));
+                    break;
 
-                    case "jobs":
-                        getSupportActionBar().setTitle(getString(R.string.cat_jobs));
-                        break;
+                case "places":
+                    getSupportActionBar().setTitle(getString(R.string.cat_places));
+                    break;
 
-                    case "queries":
-                        getSupportActionBar().setTitle(getString(R.string.cat_qna_text));
-                        break;
+                case "services":
+                    getSupportActionBar().setTitle(getString(R.string.cat_services));
+                    break;
 
-                    default:
-                        Log.d(TAG, "onCreate: default is selected");
-                }
+                case "business":
+                    getSupportActionBar().setTitle(getString(R.string.cat_business));
+                    break;
 
+                case "buysell":
+                    getSupportActionBar().setTitle(getString(R.string.cat_buysell));
+                    break;
+
+                case "education":
+                    getSupportActionBar().setTitle(getString(R.string.cat_education));
+                    break;
+
+                case "jobs":
+                    getSupportActionBar().setTitle(getString(R.string.cat_jobs));
+                    break;
+
+                case "queries":
+                    getSupportActionBar().setTitle(getString(R.string.cat_qna_text));
+                    break;
+
+                default:
+                    Log.d(TAG, "onCreate: default is selected");
             }
 
         }
@@ -514,7 +514,7 @@ ViewCategoryActivity extends AppCompatActivity {
         Log.d(TAG, "processCategories: ");
         //get received intent
 
-        final String category = getIntent().getStringExtra("category");
+        final String category = currentCat;
         Log.d(TAG, "processCategories: \ncategory is: " + category);
 
         switch (category) {
@@ -843,6 +843,16 @@ ViewCategoryActivity extends AppCompatActivity {
         goToLoginIntent.putExtra("message", message);
         startActivity(goToLoginIntent);
         finish();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (getIntent() != null) {
+            handleIntent();
+        } else {
+            goToMain();
+        }
     }
 
     private void showProgress(String message) {
