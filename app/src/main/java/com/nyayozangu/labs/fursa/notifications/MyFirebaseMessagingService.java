@@ -243,7 +243,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setLargeIcon(BitmapFactory.decodeResource(
-                        getResources(), R.drawable.appic))
+                        getResources(), R.mipmap.ic_launcher))
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(messageBody));
 
