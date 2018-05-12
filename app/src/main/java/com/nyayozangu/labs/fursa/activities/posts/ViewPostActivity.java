@@ -428,6 +428,11 @@ public class ViewPostActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        handleIntent();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_post);
@@ -482,23 +487,7 @@ public class ViewPostActivity extends AppCompatActivity {
         reportDetailsString = "";
 
         //handle intent
-        if (getIntent() != null) {
-            if (getIntent().hasExtra("postId")) {
-                //get the sent intent
-                Intent getPostIdIntent = getIntent();
-                postId = getPostIdIntent.getStringExtra("postId");
-                Log.d(TAG, "postId is: " + postId);
-            } else {
-                postId = handleDeepLinks(getIntent());
-            }
-        } else {
-            if (hasAdminAccess()) {
-                startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
-                finish();
-            } else {
-                goToMain();
-            }
-        }
+        handleIntent();
 
         //get post title on create
         postTitle = getPostTitle(postId);
@@ -559,27 +548,27 @@ public class ViewPostActivity extends AppCompatActivity {
                                 .collection("Posts/" + postId + "/Saves")
                                 .document(currentUserId).get()
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                                if (!task.getResult().exists()) {
+                                        if (!task.getResult().exists()) {
 
-                                    Map<String, Object> savesMap = new HashMap<>();
-                                    savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                    //save new post
-                                    coMeth.getDb().collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
-                                    //notify user that post has been saved
-                                    showSaveSnack(getString(R.string.added_to_saved_text));
+                                            Map<String, Object> savesMap = new HashMap<>();
+                                            savesMap.put("timestamp", FieldValue.serverTimestamp());
+                                            //save new post
+                                            coMeth.getDb().collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
+                                            //notify user that post has been saved
+                                            showSaveSnack(getString(R.string.added_to_saved_text));
 
-                                } else {
+                                        } else {
 
-                                    //delete saved post
-                                    coMeth.getDb().collection("Posts/" + postId + "/Saves")
-                                            .document(currentUserId)
-                                            .delete();
-                                }
-                            }
-                        });
+                                            //delete saved post
+                                            coMeth.getDb().collection("Posts/" + postId + "/Saves")
+                                                    .document(currentUserId)
+                                                    .delete();
+                                        }
+                                    }
+                                });
                     } else {
                         //user is not logged in
                         Log.d(TAG, "user is not logged in");
@@ -620,26 +609,26 @@ public class ViewPostActivity extends AppCompatActivity {
                                 .document(currentUserId)
                                 .get()
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                //get data from teh likes collection
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        //get data from teh likes collection
 
 
-                                // TODO: 5/6/18 check if the internet actually works
-                                //check if current user has already liked post
-                                if (!task.getResult().exists()) {
+                                        // TODO: 5/6/18 check if the internet actually works
+                                        //check if current user has already liked post
+                                        if (!task.getResult().exists()) {
 
-                                    Map<String, Object> likesMap = new HashMap<>();
-                                    likesMap.put("timestamp", FieldValue.serverTimestamp());
-                                    //can alternatively ne written
-                                    coMeth.getDb().collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
+                                            Map<String, Object> likesMap = new HashMap<>();
+                                            likesMap.put("timestamp", FieldValue.serverTimestamp());
+                                            //can alternatively ne written
+                                            coMeth.getDb().collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
 
-                                } else {
-                                    //delete the like
-                                    coMeth.getDb().collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
-                                }
-                            }
-                        });
+                                        } else {
+                                            //delete the like
+                                            coMeth.getDb().collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
+                                        }
+                                    }
+                                });
 
                     } else {
 
@@ -668,35 +657,35 @@ public class ViewPostActivity extends AppCompatActivity {
         coMeth.getDb()
                 .collection("Posts/" + postId + "/Likes")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-                //check if exits
-                if (!queryDocumentSnapshots.isEmpty()) {
-                    //post has likes
-                    int likes = queryDocumentSnapshots.getDocuments().size();
-                    Log.d(TAG, "post has" + likes + " likes");
-                    //set likes to likesTextView
-                    likesCountText.setText(Integer.toString(likes));
-                }
-            }
-        });
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                        //check if exits
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            //post has likes
+                            int likes = queryDocumentSnapshots.getDocuments().size();
+                            Log.d(TAG, "post has" + likes + " likes");
+                            //set likes to likesTextView
+                            likesCountText.setText(Integer.toString(likes));
+                        }
+                    }
+                });
 
         //set comments
         coMeth.getDb()
                 .collection("Posts/" + postId + "/Comments")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
-                Log.d(TAG, "at onEvent, when likes change");
-                if (!queryDocumentSnapshots.isEmpty()) {
+                        Log.d(TAG, "at onEvent, when likes change");
+                        if (!queryDocumentSnapshots.isEmpty()) {
 
-                    //post has likes
-                    int numberOfComments = queryDocumentSnapshots.size();
-                    commentsCountText.setText(Integer.toString(numberOfComments));
-                }
-            }
-        });
+                            //post has likes
+                            int numberOfComments = queryDocumentSnapshots.size();
+                            commentsCountText.setText(Integer.toString(numberOfComments));
+                        }
+                    }
+                });
 
 
         //set like button
@@ -710,47 +699,47 @@ public class ViewPostActivity extends AppCompatActivity {
                     .collection("Posts/" + postId + "/Likes")
                     .document(currentUserId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        @Override
+                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                    //update the like button real time
-                    if (documentSnapshot.exists()) {
+                            //update the like button real time
+                            if (documentSnapshot.exists()) {
 
-                        Log.d(TAG, "at get likes, updating likes real time");
-                        //user has liked
-                        likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_liked));
+                                Log.d(TAG, "at get likes, updating likes real time");
+                                //user has liked
+                                likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_liked));
 
-                    } else {
+                            } else {
 
-                        //current user has not liked the post
-                        likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_unclicked));
-                    }
-                }
-            });
+                                //current user has not liked the post
+                                likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_unclicked));
+                            }
+                        }
+                    });
 
             //set saves
             coMeth.getDb()
                     .collection("Posts/" + postId + "/Saves")
                     .document(currentUserId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        @Override
+                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                    //update the save button real time
-                    if (documentSnapshot.exists()) {
+                            //update the save button real time
+                            if (documentSnapshot.exists()) {
 
-                        Log.d(TAG, "at get saves, updating saves realtime");
-                        //user has saved post
-                        saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmarked));
+                                Log.d(TAG, "at get saves, updating saves realtime");
+                                //user has saved post
+                                saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmarked));
 
-                    } else {
+                            } else {
 
-                        //user has not liked post
-                        saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmark_outline));
+                                //user has not liked post
+                                saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmark_outline));
 
-                    }
-                }
-            });
+                            }
+                        }
+                    });
 
         }
 
@@ -891,65 +880,65 @@ public class ViewPostActivity extends AppCompatActivity {
                             .collection("Users")
                             .document(postUserId)
                             .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                                @Override
+                                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                            //check if user exists
-                            if (documentSnapshot.exists()) {
+                                    //check if user exists
+                                    if (documentSnapshot.exists()) {
 
-                                //user exists
-                                if (documentSnapshot.get("thumb") != null) {
+                                        //user exists
+                                        if (documentSnapshot.get("thumb") != null) {
 
-                                    //user has thumb
-                                    String userThumbDwnUrl = documentSnapshot.get("thumb").toString();
-                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                            userThumbDwnUrl,
-                                            userImage);
-                                    Log.d(TAG, "onEvent: user thumb set");
+                                            //user has thumb
+                                            String userThumbDwnUrl = documentSnapshot.get("thumb").toString();
+                                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                                    userThumbDwnUrl,
+                                                    userImage);
+                                            Log.d(TAG, "onEvent: user thumb set");
 
-                                } else if (documentSnapshot.get("image") != null) {
+                                        } else if (documentSnapshot.get("image") != null) {
 
-                                    //use has no thumb but has image
-                                    String userImageDwnUrl = documentSnapshot.get("image").toString();
-                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                            userImageDwnUrl,
-                                            userImage);
-                                    Log.d(TAG, "onEvent: user thumb set");
+                                            //use has no thumb but has image
+                                            String userImageDwnUrl = documentSnapshot.get("image").toString();
+                                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                                    userImageDwnUrl,
+                                                    userImage);
+                                            Log.d(TAG, "onEvent: user thumb set");
 
-                                } else {
+                                        } else {
 
-                                    //user has no image or thumb
-                                    userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
-                                    Log.d(TAG, "onEvent: placeholder user image set");
+                                            //user has no image or thumb
+                                            userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                                            Log.d(TAG, "onEvent: placeholder user image set");
+
+                                        }
+
+                                        //set name
+                                        //get user name
+                                        if (documentSnapshot.get("name") != null) {
+
+                                            String username = documentSnapshot.get("name").toString();
+                                            String userNameMessage = getString(R.string.posted_by_text) + "\n" + username;
+                                            userTextView.setText(userNameMessage);
+
+
+                                        } else {
+
+                                            //use name is null, hide the user layout
+                                            viewPostUserLayout.setVisibility(View.GONE);
+
+                                        }
+
+                                    } else {
+
+                                        //user does not exist
+                                        userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+
+                                    }
+
 
                                 }
-
-                                //set name
-                                //get user name
-                                if (documentSnapshot.get("name") != null) {
-
-                                    String username = documentSnapshot.get("name").toString();
-                                    String userNameMessage = getString(R.string.posted_by_text) + "\n" + username;
-                                    userTextView.setText(userNameMessage);
-
-
-                                } else {
-
-                                    //use name is null, hide the user layout
-                                    viewPostUserLayout.setVisibility(View.GONE);
-
-                                }
-
-                            } else {
-
-                                //user does not exist
-                                userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
-
-                            }
-
-
-                        }
-                    });
+                            });
 
 
                     //get categories
@@ -1068,6 +1057,26 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void handleIntent() {
+        if (getIntent() != null) {
+            if (getIntent().hasExtra("postId")) {
+                //get the sent intent
+                Intent getPostIdIntent = getIntent();
+                postId = getPostIdIntent.getStringExtra("postId");
+                Log.d(TAG, "postId is: " + postId);
+            } else {
+                postId = handleDeepLinks(getIntent());
+            }
+        } else {
+            if (hasAdminAccess()) {
+                startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
+                finish();
+            } else {
+                goToMain();
+            }
+        }
     }
 
     //retrieve the post title

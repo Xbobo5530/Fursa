@@ -58,12 +58,11 @@
         </activity>
         <activity
             android:name=".activities.settings.LoginActivity"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:windowSoftInputMode="adjustPan|adjustResize" />
         <activity android:name=".activities.settings.AccountActivity" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/Base.Theme.AppCompat" />
 
         <meta-data
@@ -88,8 +87,9 @@
         </activity>
         <activity
             android:name=".activities.posts.ViewPostActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_scrolling"
-            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -105,8 +105,8 @@
         </activity>
         <activity
             android:name=".activities.posts.CreatePostActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -125,7 +125,6 @@
         </activity>
         <activity
             android:name=".activities.SplashActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -135,20 +134,21 @@
         </activity>
         <activity
             android:name=".activities.settings.SettingsActivity"
-            android:screenOrientation="portrait" />
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".activities.comments.CommentsActivity"
-            android:screenOrientation="portrait" />
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".activities.tutorial.TutorialActivity" />
         <activity
             android:name=".activities.categories.ViewCategoryActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_view_category"
-            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activities.settings.MyPostsActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_my_posts"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity android:name=".activities.settings.MySubscriptionsActivity" />
 

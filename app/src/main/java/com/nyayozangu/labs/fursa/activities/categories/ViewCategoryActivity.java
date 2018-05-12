@@ -25,6 +25,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
@@ -72,6 +73,24 @@ ViewCategoryActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        handleIntent();
+    }
+
+    @Override
+    public void onBackPressed() {
+        goToMain();
+    }
+
+    private void goToMain() {
+        Intent goToMainIntent = new Intent(ViewCategoryActivity.this, MainActivity.class);
+        goToMainIntent.putExtra("action", "goto");
+        goToMainIntent.putExtra("destination", "categories");
+        startActivity(goToMainIntent);
+        finish();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_category);
@@ -85,7 +104,7 @@ ViewCategoryActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                goToMain();
             }
         });
 
@@ -101,81 +120,8 @@ ViewCategoryActivity extends AppCompatActivity {
         catFeed.setLayoutManager(new LinearLayoutManager(this));
         catFeed.setAdapter(categoryRecyclerAdapter);
 
-        //get the sent intent
-        if (getIntent() != null) {
-            Log.d(TAG, "getIntent is not null");
-            Intent getPostIdIntent = getIntent();
-            String category = getPostIdIntent.getStringExtra("category");
-            if (category != null) {
-                Log.d(TAG, "cat is: " + category);
-
-                currentCat = category;
-
-                /*
-                "Featured",
-                "Popular",
-                "UpComing",
-                "Events",
-                "Business",
-                "Buy and sell",
-                "Education",
-                "Jobs",
-                "Queries"*/
-
-                //set the category name ot toolbar
-                switch (category) {
-
-                    case "featured":
-                        getSupportActionBar().setTitle(getString(R.string.cat_featured));
-                        break;
-
-                    case "popular":
-                        getSupportActionBar().setTitle(getString(R.string.cat_popular));
-                        break;
-
-                    case "upcoming":
-                        getSupportActionBar().setTitle(getString(R.string.cat_upcoming));
-                        break;
-
-                    case "events":
-                        getSupportActionBar().setTitle(getString(R.string.cat_events));
-                        break;
-
-                    case "places":
-                        getSupportActionBar().setTitle(getString(R.string.cat_places));
-                        break;
-
-                    case "services":
-                        getSupportActionBar().setTitle(getString(R.string.cat_services));
-                        break;
-
-                    case "business":
-                        getSupportActionBar().setTitle(getString(R.string.cat_business));
-                        break;
-
-                    case "buysell":
-                        getSupportActionBar().setTitle(getString(R.string.cat_buysell));
-                        break;
-
-                    case "education":
-                        getSupportActionBar().setTitle(getString(R.string.cat_education));
-                        break;
-
-                    case "jobs":
-                        getSupportActionBar().setTitle(getString(R.string.cat_jobs));
-                        break;
-
-                    case "queries":
-                        getSupportActionBar().setTitle(getString(R.string.cat_queries));
-                        break;
-
-                    default:
-                        Log.d(TAG, "onCreate: default is selected");
-                }
-
-            }
-
-        }
+        //handle intent
+        handleIntent();
 
         //initiate items
         subscribeFab = findViewById(R.id.subscribeCatFab);
@@ -299,7 +245,7 @@ ViewCategoryActivity extends AppCompatActivity {
         });
 
 
-        // TODO: 5/10/18 remember, removed limit to pagination
+        // TODO: 5/10/18 note, removed limit to pagination
         final Query firstQuery = coMeth.getDb().
                 collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING);
@@ -320,6 +266,87 @@ ViewCategoryActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    /**
+     * handles incoming intents
+     */
+    private void handleIntent() {
+        // TODO: 5/12/18 add deep link to category
+        if (getIntent() != null) {
+            Log.d(TAG, "getIntent is not null");
+            Intent getPostIdIntent = getIntent();
+            String category = getPostIdIntent.getStringExtra("category");
+            if (category != null) {
+                Log.d(TAG, "cat is: " + category);
+
+                currentCat = category;
+
+                /*
+                "Featured",
+                "Popular",
+                "UpComing",
+                "Events",
+                "Business",
+                "Buy and sell",
+                "Education",
+                "Jobs",
+                "Queries"*/
+
+                //set the category name ot toolbar
+                switch (category) {
+
+                    case "featured":
+                        getSupportActionBar().setTitle(getString(R.string.cat_featured));
+                        break;
+
+                    case "popular":
+                        getSupportActionBar().setTitle(getString(R.string.cat_popular));
+                        break;
+
+                    case "upcoming":
+                        getSupportActionBar().setTitle(getString(R.string.cat_upcoming));
+                        break;
+
+                    case "events":
+                        getSupportActionBar().setTitle(getString(R.string.cat_events));
+                        break;
+
+                    case "places":
+                        getSupportActionBar().setTitle(getString(R.string.cat_places));
+                        break;
+
+                    case "services":
+                        getSupportActionBar().setTitle(getString(R.string.cat_services));
+                        break;
+
+                    case "business":
+                        getSupportActionBar().setTitle(getString(R.string.cat_business));
+                        break;
+
+                    case "buysell":
+                        getSupportActionBar().setTitle(getString(R.string.cat_buysell));
+                        break;
+
+                    case "education":
+                        getSupportActionBar().setTitle(getString(R.string.cat_education));
+                        break;
+
+                    case "jobs":
+                        getSupportActionBar().setTitle(getString(R.string.cat_jobs));
+                        break;
+
+                    case "queries":
+                        getSupportActionBar().setTitle(getString(R.string.cat_queries));
+                        break;
+
+                    default:
+                        Log.d(TAG, "onCreate: default is selected");
+                }
+
+            }
+
+        }
     }
 
     private void loadPosts(Query firstQuery) {

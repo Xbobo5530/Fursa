@@ -322,6 +322,10 @@ public class MainActivity extends AppCompatActivity {
                                 mainBottomNav.setSelectedItemId(R.id.bottomNavSavedItem);
                                 break;
 
+                            case "categories":
+                                mainBottomNav.setSelectedItemId(R.id.bottomNavCatItem);
+                                break;
+
                             default:
 
                                 Log.d(TAG, "onCreate: at default");
