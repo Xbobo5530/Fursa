@@ -129,18 +129,15 @@ public class CategoriesFragment extends Fragment {
         // We need a fake parent
         FrameLayout buffer = new FrameLayout(context);
         android.widget.AbsListView.LayoutParams layoutParams =
-                new android.widget.AbsListView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                new android.widget.AbsListView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
         buffer.addView(cell, layoutParams);
-
         cell.forceLayout();
         cell.measure(1000, 1000);
-
         int width = cell.getMeasuredWidth();
-
         buffer.removeAllViews();
 
         return width;
     }
-
 
 }

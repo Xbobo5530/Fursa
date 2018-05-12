@@ -2,13 +2,10 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
 import android.app.ProgressDialog;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -75,7 +72,8 @@ public class HomeFragment extends Fragment {
         String className = "HomeFragment";
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
 
-        if ((getResources().getConfiguration().screenLayout &
+        coMeth.handlePostsView(getContext(), getActivity(), homeFeedView);
+        /*if ((getResources().getConfiguration().screenLayout &
                 Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
             // on a large screen device ...
             homeFeedView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
@@ -89,7 +87,7 @@ public class HomeFragment extends Fragment {
             //on small, normal or undefined screen devices
             homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        }
+        }*/
 
         homeFeedView.setAdapter(postsRecyclerAdapter);
 

@@ -9,7 +9,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -84,7 +83,8 @@ public class MyPostsActivity extends AppCompatActivity {
         //initiate the PostsRecyclerAdapter
         String className = "MyPostsActivity";
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
-        myPostsFeed.setLayoutManager(new LinearLayoutManager(MyPostsActivity.this));
+        coMeth.handlePostsView(MyPostsActivity.this, MyPostsActivity.this, myPostsFeed);
+//        myPostsFeed.setLayoutManager(new LinearLayoutManager(MyPostsActivity.this));
         myPostsFeed.setAdapter(postsRecyclerAdapter);
 
         //initialize items

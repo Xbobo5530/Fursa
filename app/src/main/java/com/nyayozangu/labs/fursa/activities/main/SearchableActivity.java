@@ -9,7 +9,6 @@ import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
@@ -113,8 +112,8 @@ public class SearchableActivity extends AppCompatActivity {
         //initiate the PostsRecyclerAdapter
         String className = "SearchableActivity";
         searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
-        //set a layout manager for searchFeed (recycler view)
-        searchFeed.setLayoutManager(new LinearLayoutManager(this));
+        coMeth.handlePostsView(SearchableActivity.this, SearchableActivity.this, searchFeed);
+//        searchFeed.setLayoutManager(new LinearLayoutManager(this));
         //set an adapter for the recycler view
         searchFeed.setAdapter(searchRecyclerAdapter);
         handleIntent(getIntent());

@@ -1,10 +1,15 @@
 package com.nyayozangu.labs.fursa.commonmethods;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.ImageView;
@@ -384,6 +389,27 @@ public class CoMeth {
         }
 
     }
+
+    public void handlePostsView(Context context, Activity activity, RecyclerView recyclerView) {
+
+        Log.d(TAG, "handlePostsView: ");
+        if ((context.getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
+            // on a large screen device ...
+            recyclerView.setLayoutManager(new GridLayoutManager(activity, 2));
+
+        } else if ((context.getResources().getConfiguration().screenLayout &
+                Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE) {
+            //on xlarge device
+            recyclerView.setLayoutManager(new GridLayoutManager(activity, 3));
+
+        } else {
+            //on small, normal or undefined screen devices
+            recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+
+        }
+    }
+
 
 }
 
