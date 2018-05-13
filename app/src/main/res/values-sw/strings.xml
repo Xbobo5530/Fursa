@@ -54,9 +54,9 @@
     <string name="title_text">Kichwa cha chapisho</string>
     <string name="comment_text">Maoni</string>
     <string name="username_text">Jina na mtumiaji</string>
-    <string name="enter_contact_name_contact_dialog_text">Ingiza jina la mhusika</string>
-    <string name="enter_contact_phone_number_contact_dialog_text">Ingiza namba ya simu ya mhusika</string>
-    <string name="enter_contact_email_contact_diaog_text">Ingiza barua pepe ya mhusika</string>
+    <string name="contact_name_hint">Ingiza jina la mhusika</string>
+    <string name="phone_hint">Ingiza namba ya simu ya mhusika</string>
+    <string name="email_website_hint">Ingiza barua pepe ya mhusika</string>
     <string name="enter_post_title_create_post_hint_text">Andika kichwa cha chapisho</string>
     <string name="enter_description_hint_text">Andika maelezo ya chapisho</string>
     <string name="enter_contact_details_create_post_hint_text">Andika taarifa za mawasiliano ya mhusika (sio lazima)</string>
@@ -80,7 +80,7 @@
     <string name="post_title__post_placeholder_text">Kichwa cha chapisho</string>
     <string name="name_text">Jina</string>
     <string name="phone_text">Namba ya sim</string>
-    <string name="email_text">Barua pepe</string>
+    <string name="email_text">Barua pepe au tovuti</string>
     <string name="search_text">Tafuta</string>
     <string name="cat_places">Maeneo</string>
     <string name="report_text">Toa taarifa</string>
@@ -88,7 +88,7 @@
     <string name="delete_text">Futa</string>
     <string name="login_with_email_text">Ingia kwa barua pepe</string>
     <string name="post_not_found_text">Imeshindikana kupata chapisho</string>
-    <string name="posting_text">Inatuma...</string>
+    <string name="posting_text">Inatuma…</string>
     <string name="internet_fail">Imashindikana kujiunga na mtandao</string>
     <string name="added_to_saved_text">Imaongezwa kwenye machapisho yalio hifadhiwa</string>
     <string name="login_to_view_options_text">Ingia kuona machaguzi ya chapisho</string>

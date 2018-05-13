@@ -611,9 +611,8 @@ public class ViewPostActivity extends AppCompatActivity {
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
                                         //get data from teh likes collection
-
-
                                         // TODO: 5/6/18 check if the internet actually works
                                         //check if current user has already liked post
                                         if (!task.getResult().exists()) {
@@ -1116,23 +1115,6 @@ public class ViewPostActivity extends AppCompatActivity {
         Log.d(TAG, "getPostTitle: post title is " + postTitle);
         return postTitle;
 
-    }
-
-
-    private void setImage(String downloadUrl) {
-        RequestOptions placeHolderOptions = new RequestOptions();
-        placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-
-        Glide.with(getApplicationContext())
-                .applyDefaultRequestOptions(placeHolderOptions)
-                .load(downloadUrl).into(userImage);
-
-        Log.d(TAG, "onEvent: image set");
-    }
-
-    private void callContact(String phone) {
-        Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
-        startActivity(callIntent);
     }
 
     private void goToMain() {

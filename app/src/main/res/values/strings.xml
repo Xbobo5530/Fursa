@@ -65,9 +65,9 @@
     <string name="title_text">Title</string>
     <string name="comment_text">Comment</string>
     <string name="username_text">Username</string>
-    <string name="enter_contact_name_contact_dialog_text">Enter contact name</string>
-    <string name="enter_contact_phone_number_contact_dialog_text">Enter contact phone number</string>
-    <string name="enter_contact_email_contact_diaog_text">Enter contact email</string>
+    <string name="contact_name_hint">Contact name</string>
+    <string name="phone_hint">Phone number</string>
+    <string name="email_website_hint">Email and/or website</string>
     <string name="enter_post_title_create_post_hint_text">Enter a title for your post</string>
     <string name="enter_description_hint_text">Enter a description</string>
     <string name="enter_contact_details_create_post_hint_text">Enter contact details (optional)</string>
@@ -176,5 +176,6 @@
     <string name="failed_to_load_locations_text">Failed to load location</string>
     <string name="fursa_url_cat_head" translatable="false">http://fursa.nyayozangu.com/category/</string>
     <string name="view_details_text">View details</string>
+    <string name="app_download_url" translatable="false">https://play.google.com/store/apps/details?id=com.nyayozangu.labs.fursa</string>
 
 </resources>

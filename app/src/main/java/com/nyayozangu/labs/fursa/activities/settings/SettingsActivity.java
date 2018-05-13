@@ -28,7 +28,7 @@ import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
@@ -41,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Button myPostsButton;
     private Button mySubsButton;
 
+    private Button shareAppButton;
     private Button feedbackButton;
     private Button contactUsButton;
     private Button privacyPolicyButton;
@@ -65,6 +66,7 @@ public class SettingsActivity extends AppCompatActivity {
         myPostsButton = findViewById(R.id.settingsPostsButton);
         mySubsButton = findViewById(R.id.settingsSubsButton);
 
+        shareAppButton = findViewById(R.id.settingsShareAppButton);
         feedbackButton = findViewById(R.id.settingsFeedbackButton);
         contactUsButton = findViewById(R.id.settingsContactButton);
         privacyPolicyButton = findViewById(R.id.settingsPolicyButton);
@@ -73,7 +75,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         //handle toolbar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Settings");
+        getSupportActionBar().setTitle(getString(R.string.action_settings));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,7 +118,6 @@ public class SettingsActivity extends AppCompatActivity {
 
             }
         });
-
 
         //set user details
         //check is user is logged in
@@ -187,81 +188,15 @@ public class SettingsActivity extends AppCompatActivity {
 
         }
 
-        //handle my posts
-        myPostsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (new CoMeth().isLoggedIn()) {
-
-                    //open the users posts page
-                    goToMyPosts();
-
-                } else {
-
-                    //user is not logged in
-                    String message = getString(R.string.login_to_view_post_text);
-                    goToLogin(message);
-
-                }
-            }
-        });
-
-        //handle my subscriptions
-        mySubsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //check if is logged in
-                if (new CoMeth().isLoggedIn()) {
-
-                    //user is logged in
-                    goToMySubs();
-
-                } else {
-
-                    //not logged in
-                    String message = getString(R.string.login_to_view_subs_text);
-                    goToLogin(message);
-
-                }
-
-            }
-        });
-
-        //handle feedback
-        feedbackButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                goToFeedback();
-
-            }
-        });
-
-        //handle contact us
-        contactUsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                        "mailto", getString(R.string.family_email), null));
-                startActivity(Intent.createChooser(emailIntent, "Contact us"));
-
-            }
-        });
-
-        //handle privacy policy
-        privacyPolicyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                goToPrivacyPolicy();
-
-            }
-        });
+        //hanld other button clicks
+        myPostsButton.setOnClickListener(this);
+        mySubsButton.setOnClickListener(this);
+        shareAppButton.setOnClickListener(this);
+        feedbackButton.setOnClickListener(this);
+        contactUsButton.setOnClickListener(this);
+        privacyPolicyButton.setOnClickListener(this);
 
         //handle admin access
-        // TODO: 5/6/18 handle admin access
         if (coMeth.isConnected() && coMeth.isLoggedIn()) {
 
             try {
@@ -298,7 +233,6 @@ public class SettingsActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
                                     getAdminPassword(task);
-
 
                                 }
                             });
@@ -451,4 +385,62 @@ public class SettingsActivity extends AppCompatActivity {
                 message, Snackbar.LENGTH_LONG).show();
     }
 
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+
+            case R.id.settingsPostsButton:
+                if (coMeth.isLoggedIn()) {
+                    goToMyPosts();
+                } else {
+                    goToLogin(getString(R.string.login_to_view_post_text));
+                }
+                break;
+            case R.id.settingsSubsButton:
+                if (coMeth.isLoggedIn()) {
+                    goToMySubs();
+                } else {
+                    goToLogin(getString(R.string.login_to_view_subs_text));
+                }
+                break;
+            case R.id.settingsShareAppButton:
+                shareApp();
+                break;
+            case R.id.settingsFeedbackButton:
+                if (coMeth.isLoggedIn()) {
+                    goToFeedback();
+                } else {
+                    goToLogin(getString(R.string.login_to_feedback));
+                }
+                break;
+            case R.id.settingsContactButton:
+                sendEmail();
+                break;
+            case R.id.settingsPolicyButton:
+                goToPrivacyPolicy();
+                break;
+            default:
+                Log.d(TAG, "onClick: settings onclick at default");
+        }
+    }
+
+    private void shareApp() {
+        Log.d(TAG, "Sharing app");
+        //create post url
+        String appUrl = getResources().getString(R.string.app_download_url);
+        String fullShareMsg = "Download the Fursa app " +
+                "to view and share experiences and opportunities with friends\n" + appUrl;
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+        startActivity(Intent.createChooser(shareIntent, "Share with"));
+    }
+
+    private void sendEmail() {
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto", getString(R.string.family_email), null));
+        startActivity(Intent.createChooser(emailIntent, "Contact us"));
+    }
 }
