@@ -118,6 +118,7 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
 
+        //set user details
         //check is user is logged in
         if (coMeth.isLoggedIn()) {
             //get current user is
@@ -263,15 +264,17 @@ public class SettingsActivity extends AppCompatActivity {
         // TODO: 5/6/18 handle admin access
         if (coMeth.isConnected() && coMeth.isLoggedIn()) {
 
-            //get user email address
-            FirebaseUser user = coMeth.getAuth().getCurrentUser();
-            assert user != null;
-            String userEmail = user.getEmail();
-            if (userEmail != null) {
-                //get admins
-                checkAdminAcc(userEmail);
+            try {
+                //get user email address
+                FirebaseUser user = coMeth.getAuth().getCurrentUser();
+                String userEmail = user.getEmail();
+                if (userEmail != null) {
+                    //get admins
+                    checkAdminAcc(userEmail);
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "onCreate: checking admin access failed " + e.getMessage());
             }
-
 
         }
 
