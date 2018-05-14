@@ -36,6 +36,7 @@
                 android:id="@+id/viewPostToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:background="@color/black_transparent"
                 app:layout_collapseMode="pin"
                 app:menu="@menu/view_post_toolbar_menu"
                 app:popupTheme="@style/AppTheme.PopupOverlay">

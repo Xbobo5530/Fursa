@@ -620,7 +620,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             if (imageDownloadUrl != null && thumbDownloadUrl != null) {
 
                 RequestOptions requestOptions = new RequestOptions();
-                requestOptions.placeholder(R.drawable.ic_action_image_placeholder);
+                requestOptions.placeholder(R.drawable.appiconshadow);
                 Glide.with(context)
                         .applyDefaultRequestOptions(requestOptions)
                         .load(imageDownloadUrl)
