@@ -56,6 +56,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -65,6 +66,8 @@ import java.util.UUID;
 import id.zelory.compressor.Compressor;
 
 public class CreatePostActivity extends AppCompatActivity {
+
+    // TODO: 5/13/18 check if user email is verified
 
     private static final String TAG = "Sean";
 
@@ -119,6 +122,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private ArrayList<String> locationArray;
     private Date timestamp;
     private ArrayList<String> cats;
+    private ArrayList<String> tags;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -170,6 +174,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
         priceField = findViewById(R.id.createPostPriceLayout);
         priceTextView = findViewById(R.id.createPostPriceTextView);
+
+        tags = new ArrayList<>();
 
         if (coMeth.isLoggedIn()) {
 
@@ -963,6 +969,10 @@ public class CreatePostActivity extends AppCompatActivity {
         postMap.put("desc", desc);
         postMap.put("user_id", currentUserId);
 
+        //process tags
+        tags.addAll(Arrays.asList(coMeth.generatePostTags(title)));
+        tags.addAll(Arrays.asList(coMeth.generatePostTags(desc)));
+
         //get the current time
         postMap.put("timestamp", FieldValue.serverTimestamp());
         //handle contact details
@@ -971,11 +981,11 @@ public class CreatePostActivity extends AppCompatActivity {
         }
         //handle location
         if (postPlace != null) {
-
             //set up an array for location
             locationArray.add(postPlace.getName().toString());
             locationArray.add(postPlace.getAddress().toString());
-
+            tags.addAll(Arrays.asList(coMeth.generatePostTags(postPlace.getName().toString())));
+            tags.addAll(Arrays.asList(coMeth.generatePostTags(postPlace.getAddress().toString())));
         }
         //location
         if (locationArray != null && locationArray.size() > 0) {
@@ -997,7 +1007,7 @@ public class CreatePostActivity extends AppCompatActivity {
         if (!catsStringsArray.isEmpty()) {
             postMap.put("categories", catsStringsArray);
         }
-
+        postMap.put("tags", tags);
         return postMap;
 
     }
@@ -1014,11 +1024,16 @@ public class CreatePostActivity extends AppCompatActivity {
                     contactDetails.add(contactName);
                     contactDetails.add(contactPhone);
                     contactDetails.add(contactEmail);
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactPhone)));
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactEmail)));
 
                 } else {
 
                     contactDetails.add(contactName);
                     contactDetails.add(contactPhone);
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactPhone)));
 
                 }
 
@@ -1028,10 +1043,13 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     contactDetails.add(contactName);
                     contactDetails.add(contactEmail);
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactEmail)));
 
                 } else {
 
                     contactDetails.add(contactName);
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
 
                 }
 
@@ -1045,10 +1063,13 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     contactDetails.add(contactPhone);
                     contactDetails.add(contactEmail);
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactPhone)));
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactEmail)));
 
                 } else {
 
                     contactDetails.add(contactPhone);
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactPhone)));
 
                 }
 
@@ -1057,6 +1078,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 if (contactEmail != null) {
 
                     contactDetails.add(contactEmail);
+                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactEmail)));
 
                 } else {
 

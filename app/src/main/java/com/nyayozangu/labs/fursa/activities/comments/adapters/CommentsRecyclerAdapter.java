@@ -18,6 +18,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -27,13 +29,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
+import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -61,6 +66,8 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
     private String reportDetails;
     private String reportedItemsString;
     private ProgressDialog progressDialog;
+    private String[] reportOptionsList;
+    private boolean isAdmin = false;
 
 
     //empty constructor for receiving the posts
@@ -75,10 +82,12 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
     @NonNull
     @Override
-    public CommentsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CommentsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                                                 int viewType) {
 
         //inflate the viewHolder
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_list_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.comment_list_item, parent, false);
         context = parent.getContext();
 
         //initialize Firebase
@@ -92,13 +101,14 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final CommentsRecyclerAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final CommentsRecyclerAdapter.ViewHolder holder,
+                                 final int position) {
         Log.d(TAG, "at onBindViewHolder");
-
         holder.setIsRecyclable(false);
 
         //set comment
         String comment = commentsList.get(position).getComment();
+        final String commentId = commentsList.get(position).CommentId;
         Log.d(TAG, "onBindViewHolder: \ncomment is: " + comment);
         holder.setComment(comment);
 
@@ -122,8 +132,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                                             reportComment(holder, commentsList.get(position));
                                             break;
                                         case "Delete":
-                                            // TODO: 5/6/18 handle delete comment
-//                                            deleteComment();
+                                            deleteComment(holder, postId, commentId);
                                         default:
                                             Log.d(TAG, "onClick: comments select items default");
 
@@ -164,43 +173,63 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
                     try {
                         //user exists
-                        String username = documentSnapshot.get("name").toString();
-
+                        Users user = documentSnapshot.toObject(Users.class);
+                        String username = user.getName();
                         //set name to name textView
                         holder.setUsername(username);
-
                         //set user image
                         try {
-                            String userImageDownloadUrl = documentSnapshot.get("image").toString();
+                            String userImageDownloadUrl = user.getImage();
                             holder.setImage(userImageDownloadUrl);
                         } catch (NullPointerException userImageException) {
-
                             //user image is null
                             Log.e(TAG, "onEvent: ", userImageException);
-
-
                         }
 
                     } catch (NullPointerException userInfoErrorException) {
-
                         Log.e(TAG, "onEvent: \nuserInfoErrorException: " +
                                 userInfoErrorException.getMessage(), userInfoErrorException);
 
                     }
 
                 } else {
-
                     //user does not exist
                     Log.d(TAG, "onEvent: user does not exist");
-
-
                 }
             }
         });
 
     }
 
-    private void reportComment(@NonNull final CommentsRecyclerAdapter.ViewHolder holder, final Comments comment) {
+    private void deleteComment(@NonNull final CommentsRecyclerAdapter.ViewHolder holder,
+                               final String postId,
+                               final String commentId) {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Comments/")
+                .document(commentId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            coMeth.getDb()
+                                    .collection("Posts/" + postId + "/Comments/")
+                                    .document(commentId)
+                                    .delete();
+                            showSnack(holder, context.getString(R.string.del_success_text));
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        showSnack(holder, context.getString(R.string.something_went_wrong_text));
+                    }
+                });
+    }
+
+    private void reportComment(@NonNull final CommentsRecyclerAdapter.ViewHolder holder,
+                               final Comments comment) {
 
         //create report map
         final Map<String, Object> reportMap = new HashMap<>();
@@ -218,7 +247,8 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
         AlertDialog.Builder reportFlagsBuilder = new AlertDialog.Builder(context);
         reportFlagsBuilder.setTitle(context.getString(R.string.report_comment_text))
                 .setIcon(context.getDrawable(R.drawable.ic_action_red_flag))
-                .setMultiChoiceItems(coMeth.reportList, null, new DialogInterface.OnMultiChoiceClickListener() {
+                .setMultiChoiceItems(coMeth.reportList, null,
+                        new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 
@@ -248,45 +278,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                             reportedItemsString = reportedItemsString.concat(item + "\n");
                         }
                         //get reporters list
-                        coMeth.getDb()
-                                .collection("Flags/comments/Comments")
-                                .document(comment.CommentId)
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                        if (task.isSuccessful() && task.getResult().exists()) {
-
-                                            flags = (ArrayList) task.getResult().get("flags");
-                                            //update reporters list
-                                            reportDetails = coMeth.getUid() + "\n" + reportedItemsString.trim();
-                                            flags.add(reportDetails);
-                                            reportMap.put("flags", flags);
-                                            submitReport(holder, comment, reportMap);
-
-                                        } else {
-
-                                            if (!task.isSuccessful()) {
-                                                dialog.cancel();
-                                                showSnack(holder, context.getString(R.string.something_went_wrong_text));
-                                                Log.d(TAG, "onComplete: task failed");
-
-                                            }
-                                            if (!task.getResult().exists()) {
-
-                                                //update reporters list
-                                                reportDetails = coMeth.getUid() + "\n" + reportedItemsString.trim();
-                                                flags.add(reportDetails);
-                                                reportMap.put("flags", flags);
-                                                submitReport(holder, comment, reportMap);
-                                            }
-
-                                        }
-
-                                    }
-                                });
-
+                        getReportersList(dialog, comment, reportMap, holder);
 
 
                     }
@@ -300,6 +292,51 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                     }
                 })
                 .show();
+    }
+
+    private void getReportersList(final DialogInterface dialog,
+                                  final Comments comment,
+                                  final Map<String, Object> reportMap,
+                                  @NonNull final ViewHolder holder) {
+        coMeth.getDb()
+                .collection("Flags/comments/Comments")
+                .document(comment.CommentId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                        if (task.isSuccessful() && task.getResult().exists()) {
+
+                            flags = (ArrayList) task.getResult().get("flags");
+                            //update reporters list
+                            reportDetails = coMeth.getUid() + "\n" + reportedItemsString.trim();
+                            flags.add(reportDetails);
+                            reportMap.put("flags", flags);
+                            submitReport(holder, comment, reportMap);
+
+                        } else {
+
+                            if (!task.isSuccessful()) {
+                                dialog.cancel();
+                                showSnack(holder,
+                                        context.getString(R.string.something_went_wrong_text));
+                                Log.d(TAG, "onComplete: task failed");
+
+                            }
+                            if (!task.getResult().exists()) {
+
+                                //update reporters list
+                                reportDetails = coMeth.getUid() + "\n" + reportedItemsString.trim();
+                                flags.add(reportDetails);
+                                reportMap.put("flags", flags);
+                                submitReport(holder, comment, reportMap);
+                            }
+
+                        }
+
+                    }
+                });
     }
 
     private void submitReport(
@@ -329,7 +366,8 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
                             coMeth.stopLoading(progressDialog);
                             showSnack(holder, "Failed to report comment");
-                            Log.d(TAG, "onComplete: failed to report comment " + task.getException());
+                            Log.d(TAG, "onComplete: failed to report comment " +
+                                    task.getException());
 
                         }
 
@@ -371,14 +409,80 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
         // TODO: 5/6/18 handle admin actions and user actions
         // TODO: 5/6/18 handle delete comment and del comment permissions
+        //get postUserId
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            Posts posts = documentSnapshot.toObject(Posts.class);
+                            String postUserId = posts.getUser_id();
+                            //generate report options
+                            if (postUserId.equals(coMeth.getUid()) || isAdmin()) {
+                                reportOptionsList = new String[]{
+                                        context.getString(R.string.report_text),
+                                        context.getString(R.string.delete_text)
+                                };
+                            } else {
+                                //normal user
+                                reportOptionsList = new String[]{
+                                        context.getString(R.string.report_text)
+                                };
+                            }
+                        } else {
+                            //post does not exist
+                            Log.d(TAG, "onSuccess: post does not exist");
+                            reportOptionsList = new String[]{
+                                    context.getString(R.string.report_text)
+                            };
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: getting post failed");
+                        reportOptionsList = new String[]{
+                                context.getString(R.string.report_text)
+                        };
+                    }
+                });
+        Log.d(TAG, "getCommentReportOptionsList: \nreport option list is: " +
+                reportOptionsList);
+        return reportOptionsList;
+    }
 
-        return new String[]{
-
-                context.getString(R.string.report_text)
-
-        };
-
-
+    /**
+     * checks if current user is admin
+     *
+     * @return boolean true if user is admin
+     * false if user is not admin
+     */
+    private boolean isAdmin() {
+        String userEmail = Objects.requireNonNull(coMeth.getAuth().getCurrentUser()).getEmail();
+        coMeth.getDb()
+                .collection("Admins")
+                .document(userEmail)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            isAdmin = true;
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: " + e.getMessage());
+                    }
+                });
+        Log.d(TAG, "isAdmin: " + isAdmin);
+        return isAdmin;
     }
 
     private void showSnack(@NonNull CommentsRecyclerAdapter.ViewHolder holder, String message) {
@@ -390,30 +494,6 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
         //take user to the login page
         Log.d(TAG, "at goToLogin");
         context.startActivity(new Intent(context, LoginActivity.class));
-
-    }
-
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        android.support.v7.app.AlertDialog.Builder loginAlertBuilder = new android.support.v7.app.AlertDialog.Builder(context);
-        loginAlertBuilder.setTitle(context.getString(R.string.login_text))
-                .setIcon(context.getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage(context.getString(R.string.not_logged_in_text) + message)
-                .setPositiveButton(context.getString(R.string.login_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton(context.getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
     }
 
     @Override
@@ -437,7 +517,6 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
             super(itemView);
             //use mView to populate other methods
             mView = itemView;
-
             commentItemView = mView.findViewById(R.id.commentsItemLayout);
             userImageView = mView.findViewById(R.id.commentUserImage);
             commentTextView = mView.findViewById(R.id.commentTextView);
@@ -448,12 +527,13 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
         public void setImage(String imageUrl) {
 
             userImageView = mView.findViewById(R.id.commentUserImage);
-
             //add the placeholder image
             RequestOptions placeHolderOptions = new RequestOptions();
-            placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
-            Glide.with(context).applyDefaultRequestOptions(placeHolderOptions).load(imageUrl).into(userImageView);
-
+            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
+            Glide.with(context)
+                    .applyDefaultRequestOptions(placeHolderOptions)
+                    .load(imageUrl)
+                    .into(userImageView);
         }
 
         public void setUsername(String username) {

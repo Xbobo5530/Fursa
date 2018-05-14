@@ -22,6 +22,7 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
     public ArrayList<String> categories;
     public Date timestamp;
     public Date event_date;
+    public ArrayList<String> tags;
 
 
     //empty constructor
@@ -38,7 +39,8 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
                  Date event_date,
                  ArrayList<String> categories,
                  ArrayList<String> contact_details,
-                 ArrayList<String> location) {
+                 ArrayList<String> location,
+                 ArrayList<String> tags) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
@@ -51,6 +53,7 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
         this.location = location;
         this.timestamp = timestamp;
         this.contact_details = contact_details;
+        this.tags = tags;
 
     }
 
@@ -141,5 +144,13 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
 
     public void setContact_details(ArrayList<String> contact_details) {
         this.contact_details = contact_details;
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
     }
 }

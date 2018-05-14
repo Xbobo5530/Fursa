@@ -344,10 +344,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void goToMyPosts() {
-
-        //open the myposts page
-        startActivity(new Intent(SettingsActivity.this, MyPostsActivity.class));
-
+        //open the my posts page
+        Intent goToMyPostsIntent = new Intent(SettingsActivity.this, UserPostsActivity.class);
+        goToMyPostsIntent.putExtra("userId", coMeth.getUid());
+        startActivity(goToMyPostsIntent);
     }
 
     @Override
@@ -357,13 +357,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         //handle logout
         if (coMeth.isLoggedIn()) {
-
             logoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     confirmSignOut();
-
                 }
             });
         } else {

@@ -410,6 +410,18 @@ public class CoMeth {
         }
     }
 
+    public void showProgress(String message, ProgressDialog progressDialog, Context context) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
+    public String[] generatePostTags(String textToProcess) {
+        return textToProcess.split("\\W+");
+    }
+
 
 }
 

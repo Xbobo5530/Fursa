@@ -14,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -59,6 +60,7 @@ public class AccountActivity extends AppCompatActivity {
     private EditText userBioField;
     private Button saveButton;
     private FloatingActionButton editImageFab;
+    private Toolbar toolbar;
     //user
     private String userId;
     private boolean imageIsChanged = false;
@@ -77,6 +79,18 @@ public class AccountActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.accSaveButton);
         editImageFab = findViewById(R.id.accEditFab);
         userBioField = findViewById(R.id.accSettingAboutEditText);
+        toolbar = findViewById(R.id.accountSettingsToolbar);
+
+        //handle toolbar
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(getString(R.string.account_settings_acc_text));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //user
         userId = coMeth.getUid();

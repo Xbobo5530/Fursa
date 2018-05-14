@@ -26,6 +26,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDhaspaApHTdZF05YKL8zmA2medxahQwRs" />
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="text" />
 
         <activity
             android:name=".activities.main.MainActivity"
@@ -158,7 +161,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.settings.MyPostsActivity"
+            android:name=".activities.settings.UserPostsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_my_posts"
             android:theme="@style/AppTheme" />
@@ -192,7 +195,8 @@
             android:theme="@style/FullscreenTheme" />
         <activity android:name=".activities.settings.FeedbackActivity" />
         <activity android:name=".activities.settings.PrivacyPolicyActivity" />
-        <activity android:name=".activities.settings.AdminActivity"></activity>
+        <activity android:name=".activities.settings.AdminActivity" />
+        <activity android:name=".users.UserPageActivity"></activity>
     </application>
 
 </manifest>

@@ -42,6 +42,8 @@ import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.AdminActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.UserPageActivity;
+import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -873,7 +875,18 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     //get user id for the post
                     postUserId = post.getUser_id();
+                    //set the post user layout click
+                    viewPostUserLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 
+                            Intent goToUserPageIntent = new Intent(
+                                    ViewPostActivity.this, UserPageActivity.class);
+                            goToUserPageIntent.putExtra("userId", postUserId);
+                            startActivity(goToUserPageIntent);
+
+                        }
+                    });
                     //check db for user
                     coMeth.getDb()
                             .collection("Users")
@@ -885,53 +898,48 @@ public class ViewPostActivity extends AppCompatActivity {
                                     //check if user exists
                                     if (documentSnapshot.exists()) {
 
-                                        //user exists
-                                        if (documentSnapshot.get("thumb") != null) {
+                                        //make user object
+                                        Users user = documentSnapshot.toObject(Users.class);
 
+                                        //user exists
+                                        if (user.getThumb() != null) {
                                             //user has thumb
-                                            String userThumbDwnUrl = documentSnapshot.get("thumb").toString();
+                                            String userThumbDwnUrl = user.getThumb();
                                             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                                     userThumbDwnUrl,
                                                     userImage);
                                             Log.d(TAG, "onEvent: user thumb set");
 
-                                        } else if (documentSnapshot.get("image") != null) {
-
+                                        } else if (user.getImage() != null) {
                                             //use has no thumb but has image
-                                            String userImageDwnUrl = documentSnapshot.get("image").toString();
+                                            String userImageDwnUrl = user.getImage();
                                             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                                     userImageDwnUrl,
                                                     userImage);
                                             Log.d(TAG, "onEvent: user thumb set");
 
                                         } else {
-
                                             //user has no image or thumb
-                                            userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                                            userImage.setImageDrawable(
+                                                    getDrawable(R.drawable.ic_action_person_placeholder));
                                             Log.d(TAG, "onEvent: placeholder user image set");
-
                                         }
-
                                         //set name
                                         //get user name
-                                        if (documentSnapshot.get("name") != null) {
-
-                                            String username = documentSnapshot.get("name").toString();
+                                        if (user.getName() != null) {
+                                            String username = user.getName();
                                             String userNameMessage = getString(R.string.posted_by_text) + "\n" + username;
                                             userTextView.setText(userNameMessage);
 
-
                                         } else {
-
                                             //use name is null, hide the user layout
                                             viewPostUserLayout.setVisibility(View.GONE);
 
                                         }
-
                                     } else {
-
                                         //user does not exist
-                                        userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                                        userImage.setImageDrawable(
+                                                getDrawable(R.drawable.ic_action_person_placeholder));
 
                                     }
 
@@ -1144,19 +1152,11 @@ public class ViewPostActivity extends AppCompatActivity {
     }
 
     private void showProgress(String message) {
-
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
         progressDialog = new ProgressDialog(ViewPostActivity.this);
         progressDialog.setMessage(message);
-
         progressDialog.show();
-
-       /* // TODO: 4/22/18 when editing post, saving a post crashes the app due to showing porogress bar
-        if (!(ViewPostActivity.this.isFinishing())) {
-            progressDialog.show();
-        }*/
-
     }
 
     private void showSnack(String message) {

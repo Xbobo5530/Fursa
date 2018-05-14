@@ -45,6 +45,7 @@ import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
+import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
@@ -121,17 +122,9 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
         //handle clicks
         postDetailsLayout.setOnClickListener(this);
-
-        //go to user profile
-        currentUserImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //go to current user profile
-                startActivity(new Intent(CommentsActivity.this, SettingsActivity.class));
-
-            }
-        });
+        postUserImage.setOnClickListener(this);
+        postTitleField.setOnClickListener(this);
+        currentUserImage.setOnClickListener(this);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -169,7 +162,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
             } else {
 
-                currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                currentUserImage.setImageDrawable(
+                        getResources().getDrawable(R.drawable.ic_action_person_placeholder));
                 //clicking send to go to login with postId intent
                 sendButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -182,11 +176,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
             }
 
         } else {
-
             Log.d(TAG, "onCreate: device is not connected to the internet");
-
         }
-
     }
 
 
@@ -197,7 +188,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
             Log.d(TAG, "postId is: " + postId);
         } else {
             //intent is empty
-            goToMain();
+            finish();
         }
     }
 
@@ -250,40 +241,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                 commentsMap.put("user_id", currentUserId);
 
                                 //upload comment to cloud
-                                coMeth.getDb()
-                                        .collection("Posts/" + postId + "/Comments")
-                                        .document(randomCommentId)
-                                        .set(commentsMap)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-
-                                                //check if task is successful
-                                                if (task.isSuccessful()) {
-
-                                                    //subscribe user to post
-                                                    coMeth.getDb()
-                                                            .collection("Users/" + currentUserId + "/Subscriptions")
-                                                            .document("comments")
-                                                            .collection("Comments")
-                                                            .document(postId)
-                                                            .set(commentsMap);
-                                                    //subscribe user to topic
-                                                    Log.d(TAG, "onComplete: subscribing user to post");
-                                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                                    //notify subscribers
-                                                    Log.d(TAG, "onComplete: notifying user");
-                                                    new Notify().execute("comment_updates", postId);
-
-                                                } else {
-
-                                                    showSnack(getString(R.string.failed_to_comment_text) + ": " + task.getResult().toString());
-
-                                                }
-
-                                            }
-                                        });
-
+                                uploadComment(commentsMap, randomCommentId);
                                 coMeth.stopLoading(progressDialog, swipeRefreshLayout);
 
                             }
@@ -297,6 +255,43 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
             showVerEmailDialog(); //alert user is not verified
 
         }
+    }
+
+    private void uploadComment(final Map<String, Object> commentsMap, String randomCommentId) {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Comments")
+                .document(randomCommentId)
+                .set(commentsMap)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                        //check if task is successful
+                        if (task.isSuccessful()) {
+
+                            //subscribe user to post
+                            coMeth.getDb()
+                                    .collection("Users/" + currentUserId + "/Subscriptions")
+                                    .document("comments")
+                                    .collection("Comments")
+                                    .document(postId)
+                                    .set(commentsMap);
+                            //subscribe user to topic
+                            Log.d(TAG, "onComplete: subscribing user to post");
+                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                            //notify subscribers
+                            Log.d(TAG, "onComplete: notifying user");
+                            new Notify().execute("comment_updates", postId);
+
+                        } else {
+
+                            showSnack(getString(R.string.failed_to_comment_text) + ": " +
+                                    task.getResult().toString());
+
+                        }
+
+                    }
+                });
     }
 
     private void setUserDetails() {
@@ -351,8 +346,14 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
                             //convert post to object
                             Posts post = task.getResult().toObject(Posts.class);
-                            String postUserId = post.getUser_id();
-
+                            final String postUserId = post.getUser_id();
+                            //on click user image
+                            postUserImage.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    goToUserPage(postUserId);
+                                }
+                            });
                             //set post details
                             String postTitle = post.getTitle();
                             postTitleField.setText(postTitle);
@@ -414,7 +415,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                             }
                             if (!task.getResult().exists()) {
 
-                                //post does nnot exist
+                                //post does not exist
                                 // TODO: 5/4/18 handle post does not exist
 
                             }
@@ -480,7 +481,12 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     //setting sub icon on toolbar
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        setSubscribeIconStatus(menu);
+        return true;
 
+    }
+
+    private void setSubscribeIconStatus(Menu menu) {
         if (coMeth.isConnected()) {
             if (coMeth.isLoggedIn()) {
                 currentUserId = coMeth.getUid();
@@ -492,25 +498,25 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                         .document("comments").collection("Comments")
                         .document(postId)
                         .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                            @Override
+                            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
 
-                        //check if user is already subscribed
-                        if (documentSnapshot.exists()) {
+                                //check if user is already subscribed
+                                if (documentSnapshot.exists()) {
 
-                            //set subscribed icon
-                            subscribeButton.setIcon(R.drawable.ic_action_subscribed);
+                                    //set subscribed icon
+                                    subscribeButton.setIcon(R.drawable.ic_action_subscribed);
 
-                        } else {
+                                } else {
 
 
-                            //user is not subscribed
-                            subscribeButton.setIcon(R.drawable.ic_action_subscribe);
+                                    //user is not subscribed
+                                    subscribeButton.setIcon(R.drawable.ic_action_subscribe);
 
-                        }
+                                }
 
-                    }
-                });
+                            }
+                        });
 
                 coMeth.getDb()
                         .collection("Posts")
@@ -555,8 +561,6 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
             }
 
         }
-        return true;
-
     }
 
     @Override
@@ -574,17 +578,30 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
         switch (item.getItemId()) {
 
             case R.id.comSubMenuItem:
+                subscribe();
+                break;
+            default:
+                break;
 
-                if (coMeth.isLoggedIn()) {
+        }
+        return true;
 
-                    //check if user is already subscribed
-                    coMeth.getDb()
-                            .collection("Users/" + currentUserId + "/Subscriptions")
-                            .document("comments")
-                            .collection("Comments")
-                            .document(postId)
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+    }
+
+    /**
+     * subscribe current user to post comments
+     */
+    private void subscribe() {
+        if (coMeth.isLoggedIn()) {
+
+            //check if user is already subscribed
+            coMeth.getDb()
+                    .collection("Users/" + currentUserId + "/Subscriptions")
+                    .document("comments")
+                    .collection("Comments")
+                    .document(postId)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -635,23 +652,11 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                         }
                     });
 
-                } else {
+        } else {
 
-                    goToLogin(getString(R.string.login_to_sub_comments));
-
-                }
-                break;
-
-            case R.id.commentSearchMenuItem:
-                // TODO: 4/25/18 handle searching comments
-                break;
-
-            default:
-                break;
+            goToLogin(getString(R.string.login_to_sub_comments));
 
         }
-        return true;
-
     }
 
     private void goToLogin(String message) {
@@ -744,17 +749,32 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
         switch (v.getId()) {
 
-            case R.id.commentpostDetailsConstraintLayout:
-                Intent openPostIntent = new Intent(this, ViewPostActivity.class);
-                openPostIntent.putExtra("postId", postId);
-                startActivity(openPostIntent);
-                finish();
+            case R.id.commentsPostTitleTextView:
+                goToPost();
                 break;
-
+            case R.id.commentsPostUsernameTextView:
+                goToPost();
+                break;
+            case R.id.commentsCurrentUserImageView:
+                //go to current user profile
+                startActivity(new Intent(CommentsActivity.this, SettingsActivity.class));
+                break;
             default:
                 Log.d(TAG, "onClick: at default");
-
         }
+    }
 
+    private void goToUserPage(String userId) {
+        Intent goToUserPageIntent = new Intent(
+                CommentsActivity.this, UserPageActivity.class);
+        goToUserPageIntent.putExtra("userId", userId);
+        startActivity(goToUserPageIntent);
+    }
+
+    private void goToPost() {
+        Intent openPostIntent = new Intent(this, ViewPostActivity.class);
+        openPostIntent.putExtra("postId", postId);
+        startActivity(openPostIntent);
+        finish();
     }
 }

@@ -153,4 +153,7 @@
     <string name="view_post_text">Chapisho</string>
     <string name="failed_to_load_locations_text">Imeshindikana kufungua \'maeneo\'</string>
     <string name="view_details_text">Taarifa zaidi</string>
+    <string name="user_not_found_text">Imeshindikana kupata mtumiaji sahihi</string>
+    <string name="my_posts_text">Machapisho yangu</string>
+    <string name="posts_text">Machapisho</string>
 </resources>
