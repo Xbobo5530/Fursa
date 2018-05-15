@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -73,23 +74,10 @@ public class HomeFragment extends Fragment {
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
 
         coMeth.handlePostsView(getContext(), getActivity(), homeFeedView);
-        /*if ((getResources().getConfiguration().screenLayout &
-                Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
-            // on a large screen device ...
-            homeFeedView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-
-        } else if ((getResources().getConfiguration().screenLayout &
-                Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE) {
-            //on xlarge device
-            homeFeedView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-
-        } else {
-            //on small, normal or undefined screen devices
-            homeFeedView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        }*/
-
         homeFeedView.setAdapter(postsRecyclerAdapter);
+        //animation
+        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+        homeFeedView.setItemAnimator(itemAnimator);
 
         //loading
         showProgress(getString(R.string.loading_text));
@@ -191,7 +179,8 @@ public class HomeFragment extends Fragment {
 
                                         }
                                         //notify the recycler adapter of the set change
-                                        postsRecyclerAdapter.notifyDataSetChanged();
+                                        postsRecyclerAdapter.notifyItemInserted(postsList.size() - 1);
+//                                        postsRecyclerAdapter.notifyDataSetChanged();
 
                                     } else {
 
@@ -261,7 +250,8 @@ public class HomeFragment extends Fragment {
                                                 Users user = task.getResult().toObject(Users.class);
                                                 usersList.add(user);
                                                 postsList.add(post);
-                                                postsRecyclerAdapter.notifyDataSetChanged();
+                                                postsRecyclerAdapter.notifyItemInserted(postsList.size());
+//                                                postsRecyclerAdapter.notifyDataSetChanged();
 
                                             }
 
@@ -286,18 +276,6 @@ public class HomeFragment extends Fragment {
         progressDialog.setMessage(message);
         progressDialog.show();
     }
-
-    /*private void hideProgress() {
-        if (progressDialog.isShowing()){
-            progressDialog.dismiss();
-        }
-    }
-
-    private void stopRefreshing() {
-        if (swipeRefresh.isRefreshing()){
-            swipeRefresh.setRefreshing(false);
-        }
-    }*/
 
     private void stopLoading() {
 

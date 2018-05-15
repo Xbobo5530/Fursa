@@ -15,8 +15,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.nyayozangu.labs.fursa.R;
 
-import uk.co.senab.photoview.PhotoViewAttacher;
-
 
 public class ViewImageActivity extends AppCompatActivity {
 
@@ -82,14 +80,14 @@ public class ViewImageActivity extends AppCompatActivity {
             }
         });
         //handle zoom
-        PhotoViewAttacher mAttacher = new PhotoViewAttacher(mContentView);
+        /*PhotoViewAttacher mAttacher = new PhotoViewAttacher(mContentView);
         mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
             @Override
             public void onPhotoTap(View view, float x, float y) {
                 toggle();
             }
         });
-        mAttacher.update();
+        mAttacher.update();*/
         //handle image intent
         handleIntent();
 

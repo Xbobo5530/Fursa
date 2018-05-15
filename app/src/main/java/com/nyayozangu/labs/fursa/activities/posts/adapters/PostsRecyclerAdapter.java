@@ -88,7 +88,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder, int position) {
         Log.d(TAG, "at onBindViewHolder");
 
-        holder.setIsRecyclable(false);
+//        holder.setIsRecyclable(false);
 
         //get title from holder
         postTitle = postsList.get(position).getTitle();

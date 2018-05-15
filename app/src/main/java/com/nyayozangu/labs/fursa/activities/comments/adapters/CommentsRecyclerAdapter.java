@@ -104,7 +104,6 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
     public void onBindViewHolder(@NonNull final CommentsRecyclerAdapter.ViewHolder holder,
                                  final int position) {
         Log.d(TAG, "at onBindViewHolder");
-        holder.setIsRecyclable(false);
 
         //set comment
         String comment = commentsList.get(position).getComment();

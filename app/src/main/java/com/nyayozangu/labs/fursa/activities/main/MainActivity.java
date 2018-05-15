@@ -49,7 +49,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    // TODO: 4/6/18 add bottom navigation fade in feature
+
+    // TODO: 5/14/18 add a timer to record when a user has not poened the app for 2 days
 
     private static final String TAG = "Sean";
 

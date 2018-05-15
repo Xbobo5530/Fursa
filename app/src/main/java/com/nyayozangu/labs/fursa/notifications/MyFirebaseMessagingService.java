@@ -222,9 +222,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, noExtraNotifIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
-
             buildNotif(title, messageBody, null);
-
         }
 
     }
