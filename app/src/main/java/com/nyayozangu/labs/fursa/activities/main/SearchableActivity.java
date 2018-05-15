@@ -309,7 +309,7 @@ public class SearchableActivity extends AppCompatActivity {
 
         Log.d(TAG, "getFilteredPosts: called");
         //get user_id for post
-        String postUserId = post.getUser_id();
+        final String postUserId = post.getUser_id();
         coMeth.getDb()
                 .collection("Users")
                 .document(postUserId)
@@ -321,7 +321,8 @@ public class SearchableActivity extends AppCompatActivity {
                         //check if task is successful
                         if (task.isSuccessful() && task.getResult().exists()) {
 
-                            Users user = task.getResult().toObject(Users.class);
+                            String psotuserId = task.getResult().getId();
+                            Users user = task.getResult().toObject(Users.class).withId(postUserId);
                             //check if post is already added to the post list
                             if (!postsList.contains(post)) {
                                 //add new post to the local postsList

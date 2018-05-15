@@ -213,6 +213,31 @@ public class CoMeth {
                 return "jobs";
             case "Queries":
                 return "queries";
+
+
+            //handle swahili items
+            case "Spesheli":
+                return "featured";
+            case "Mchapisho maarufu":
+                return "popular";
+            case "Zifuatazo":
+                return "upcoming";
+            case "Matukio":
+                return "events";
+            case "Maeneo":
+                return "places";
+            case "Huduma":
+                return "services";
+            case "Biashara":
+                return "business";
+            case "Kununua na kuuza":
+                return "buysell";
+            case "Elimu":
+                return "education";
+            case "Nafasi za kazi":
+                return "jobs";
+            case "Maswali na majibu":
+                return "queries";
             default:
                 return null;
         }
@@ -385,6 +410,18 @@ public class CoMeth {
         if (postList.size() > 0) {
 
             this.stopLoading(progressDialog, swipeRefreshLayout);
+
+        }
+
+    }
+
+    public void onResultStopLoading(List<Posts> postList,
+                                    ProgressDialog progressDialog) {
+
+        Log.d(TAG, "onResultStopLoading: ");
+        if (postList.size() > 0) {
+
+            this.stopLoading(progressDialog);
 
         }
 

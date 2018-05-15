@@ -137,7 +137,7 @@ ViewCategoryActivity extends AppCompatActivity {
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
         shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
-        startActivity(Intent.createChooser(shareIntent, "Share with"));
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_with_text)));
     }
 
     @Override
@@ -183,13 +183,10 @@ ViewCategoryActivity extends AppCompatActivity {
         swipeRefresh = findViewById(R.id.catSwipeRefresh);
 
         if (coMeth.isConnected()) {
-
             if (coMeth.isLoggedIn()) {
-
                 //check if user is subscribed and set fab
                 setFab();
             }
-
         } else {
 
             //user is not connected to internet
@@ -258,12 +255,11 @@ ViewCategoryActivity extends AppCompatActivity {
                                             Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
                                             //set fab image
                                             subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
-
                                         }
                                     }
                                 });
 
-                        progressDialog.dismiss();
+                        coMeth.stopLoading(progressDialog);
 
                     } else {
 
@@ -600,7 +596,6 @@ ViewCategoryActivity extends AppCompatActivity {
                 Long eventDateMils = (eventDate.getTime());
                 Long nowMils = new Date().getTime();
 
-
                 Calendar endCal = Calendar.getInstance();
                 Log.d(TAG, "filterCat: event cal is " + endCal);
                 endCal.add(Calendar.MONTH, 6);
@@ -704,10 +699,7 @@ ViewCategoryActivity extends AppCompatActivity {
                                     break;
                                 default:
                                     Log.d(TAG, "onEvent: on popular default");
-
                             }
-
-
                         }
 
                     }
@@ -729,7 +721,8 @@ ViewCategoryActivity extends AppCompatActivity {
                             //check if user exists
                             if (task.getResult().exists()) {
 
-                                Users user = task.getResult().toObject(Users.class);
+                                String userId = task.getResult().getId();
+                                Users user = task.getResult().toObject(Users.class).withId(userId);
                                 //add new post to the local postsList
                                 if (isFirstPageFirstLoad) {
 

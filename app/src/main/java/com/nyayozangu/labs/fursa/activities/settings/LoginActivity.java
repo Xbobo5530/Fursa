@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,7 +16,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -68,9 +68,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private CoMeth coMeth = new CoMeth();
     private Button loginButton;
     private Button loginRegistrationButton;
-    private ImageButton closeLoginButton;
     private ProgressDialog progressDialog;
-
+    private Toolbar toolbar;
     private TextView loginAlertTextView;
 
     //social login buttons
@@ -95,7 +94,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginButton.setVisibility(View.GONE);
             loginRegistrationButton.setVisibility(View.GONE);
             googleSignInButton.setVisibility(View.GONE);
-            facebookLoginButton.setVisibility(View.GONE);
+//            facebookLoginButton.setVisibility(View.GONE);
             twitterLoginButton.setVisibility(View.GONE);
             //show connection alert
             loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
@@ -106,7 +105,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginButton.setVisibility(View.VISIBLE);
             loginRegistrationButton.setVisibility(View.VISIBLE);
             googleSignInButton.setVisibility(View.VISIBLE);
-            facebookLoginButton.setVisibility(View.VISIBLE);
+//            facebookLoginButton.setVisibility(View.VISIBLE);
             twitterLoginButton.setVisibility(View.VISIBLE);
 
         }
@@ -130,9 +129,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         //initiating elements
         loginButton = findViewById(R.id.loginButton);
         loginRegistrationButton = findViewById(R.id.loginRegisterButton);
-        closeLoginButton = findViewById(R.id.login_close_button);
         loginAlertTextView = findViewById(R.id.loginAlertTextView);
-
+        toolbar = findViewById(R.id.loginToolbar);
         //social login
         googleSignInButton = findViewById(R.id.google_sign_in_button);
         twitterLoginButton = findViewById(R.id.twitter_login_button);
@@ -143,6 +141,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         final String postId = getPostIdIntent.getStringExtra("postId");
         Log.d(TAG, "postId is: " + postId);
 
+        //handle toolbar
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(getString(R.string.login_text));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //check connection to show the login buttons
         if (!coMeth.isConnected()) {
@@ -151,7 +159,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginButton.setVisibility(View.GONE);
             loginRegistrationButton.setVisibility(View.GONE);
             googleSignInButton.setVisibility(View.GONE);
-            facebookLoginButton.setVisibility(View.GONE);
+//            facebookLoginButton.setVisibility(View.GONE);
             twitterLoginButton.setVisibility(View.GONE);
             //show connection alert
             loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
@@ -162,7 +170,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginButton.setVisibility(View.VISIBLE);
             loginRegistrationButton.setVisibility(View.VISIBLE);
             googleSignInButton.setVisibility(View.VISIBLE);
-            facebookLoginButton.setVisibility(View.VISIBLE);
+//            facebookLoginButton.setVisibility(View.VISIBLE);
             twitterLoginButton.setVisibility(View.VISIBLE);
 
         }
@@ -176,15 +184,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginAlertTextView.setVisibility(View.VISIBLE);
 
         }
-
-        closeLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //user closes the login page ad goes back to home page
-                finish();
-
-            }
-        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -392,7 +391,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             public void onClick(View v) {
                 //sign with google
                 signIn();
-
             }
         });
 
@@ -590,12 +588,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     //go to accounts page
     private void goToAccSettings() {
         startActivity(new Intent(LoginActivity.this, AccountActivity.class));
-        finish();
-    }
-
-    //take user to main activity
-    private void goToMain() {
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
     }
 

@@ -156,7 +156,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
     private void processShowingFab() {
         String currentUserId = coMeth.getUid();
-        if (currentUserId.equals(userId)) {
+        if (currentUserId != null && currentUserId.equals(userId)) {
             //show fab
             newPostFab.setVisibility(View.VISIBLE);
         } else {
@@ -243,7 +243,6 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                             String postId = doc.getDocument().getId();
                             Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                             filterPosts(post, userId);
-
                         }
                     }
 
@@ -275,29 +274,24 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                             //check if task is successful
                             if (task.isSuccessful()) {
 
-                                Users user = task.getResult().toObject(Users.class);
+                                String postUserId = task.getResult().getId();
+                                Users user = task.getResult().toObject(Users.class).withId(postUserId);
                                 //add new post to the local postsList
                                 if (isFirstPageFirstLoad) {
-
                                     postsList.add(0, post);
                                     usersList.add(0, user);
-
                                 } else {
-
                                     usersList.add(user);
                                     postsList.add(post);
-
                                 }
-
                                 postsRecyclerAdapter.notifyDataSetChanged();
+                                coMeth.onResultStopLoading(postsList, progressDialog, swipeRefresh);
                             } else {
 
                                 //task failed
                                 Log.d(TAG, "onComplete: getting users task failed");
-
+                                coMeth.stopLoading(progressDialog, swipeRefresh);
                             }
-
-                            coMeth.stopLoading(progressDialog, swipeRefresh);
 
                         }
                     });

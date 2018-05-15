@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,6 +26,7 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.Users;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,6 +51,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private Button adminButton;
 
     private android.support.v7.widget.Toolbar toolbar;
+    private ImageView editProfileIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         userBioTextView = findViewById(R.id.settingsUserBioTextView);
         logoutButton = findViewById(R.id.settingsLogoutButton);
         editProfileButton = findViewById(R.id.settingsEditProfileButton);
+        editProfileIcon = findViewById(R.id.settingsEditImageView);
 
         myPostsButton = findViewById(R.id.settingsPostsButton);
         mySubsButton = findViewById(R.id.settingsSubsButton);
@@ -98,7 +102,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             });
         } else {
             //user is signed out
-            logoutButton.setText("Login");
+            logoutButton.setText(getString(R.string.login_text));
             logoutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -107,17 +111,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 }
             });
         }
-
-        //edit profile
-        editProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                goToAccSet();
-                finish();
-
-            }
-        });
 
         //set user details
         //check is user is logged in
@@ -133,12 +126,14 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
                             //check if user exists
                             if (documentSnapshot.exists()) {
+                                //get object
+                                Users user = documentSnapshot.toObject(Users.class);
                                 //set name
-                                String username = documentSnapshot.get("name").toString();
+                                String username = user.getName();
                                 usernameTextView.setText(username);
                                 //set bio
                                 try {
-                                    String bio = documentSnapshot.get("bio").toString();
+                                    String bio = user.getBio();
                                     userBioTextView.setText(bio);
                                 } catch (NullPointerException error) {
                                     Log.d(TAG, "error: no bio");
@@ -147,7 +142,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
                                 //set image
                                 try {
-                                    final String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
+                                    final String userProfileImageDownloadUrl = user.getImage();
 
                                     coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                             userProfileImageDownloadUrl,
@@ -166,10 +161,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                                     });
 
                                 } catch (NullPointerException userImageException) {
-
                                     //user image is null
                                     Log.e(TAG, "onEvent: ", userImageException);
-
                                 }
 
                             } else {
@@ -182,19 +175,20 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
             //user is not logged in
             usernameTextView.setVisibility(View.GONE);
-            userBioTextView.setText("You are currently not logged in \nclick the login button to log in");
+            userBioTextView.setText(getString(R.string.not_logged_in_text));
             userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
             editProfileButton.setVisibility(View.INVISIBLE); //hide the edit profile button
-
+            editProfileIcon.setVisibility(View.GONE); //hide the edit profile icon
         }
 
-        //hanld other button clicks
+        //handle other button clicks
         myPostsButton.setOnClickListener(this);
         mySubsButton.setOnClickListener(this);
         shareAppButton.setOnClickListener(this);
         feedbackButton.setOnClickListener(this);
         contactUsButton.setOnClickListener(this);
         privacyPolicyButton.setOnClickListener(this);
+        editProfileButton.setOnClickListener(this);
 
         //handle admin access
         if (coMeth.isConnected() && coMeth.isLoggedIn()) {
@@ -210,9 +204,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             } catch (Exception e) {
                 Log.d(TAG, "onCreate: checking admin access failed " + e.getMessage());
             }
-
         }
-
     }
 
     private void checkAdminAcc(String userEmail) {
@@ -233,12 +225,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                                 @Override
                                 public void onClick(View v) {
                                     getAdminPassword(task);
-
                                 }
                             });
-
                         }
-
                     }
                 });
     }
@@ -301,6 +290,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private void goToAccSet() {
         startActivity(new Intent(this, AccountActivity.class));
+        finish();
     }
 
     private void confirmSignOut() {
@@ -416,6 +406,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.settingsPolicyButton:
                 goToPrivacyPolicy();
+                break;
+            case R.id.settingsEditProfileButton:
+                goToAccSet();
                 break;
             default:
                 Log.d(TAG, "onClick: settings onclick at default");

@@ -21,9 +21,10 @@
 
     <TextView
         android:id="@+id/catGridItemTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="16dp"
         android:elevation="@dimen/cardview_default_radius"
         android:text="@string/title_text"
@@ -31,6 +32,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/catGridItemImageView"
+        app:layout_constraintEnd_toEndOf="@+id/catGridItemImageView"
         app:layout_constraintStart_toStartOf="@+id/catGridItemImageView" />
 
 </android.support.constraint.ConstraintLayout>

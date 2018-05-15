@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,6 +33,7 @@ import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
@@ -46,7 +49,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Adapter class for the Recycler view
  */
 
-public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
+public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> implements View.OnClickListener {
 
 
     private static final String TAG = "Sean";
@@ -57,12 +60,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     public Context context;
 
+    private int lastPosition = -1;
+
     private String userId;
     private String className;
     private ProgressDialog progressDialog;
     private CoMeth coMeth = new CoMeth();
 
     private String postTitle;
+    private String postUserId;
 
     //empty constructor for receiving the posts
     public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList, String className) {
@@ -75,29 +81,27 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     @NonNull
     @Override
-    public PostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public PostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                                              int viewType) {
 
         //inflate the viewHolder
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_list_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
 
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder,
+                                 int position) {
+
         Log.d(TAG, "at onBindViewHolder");
-
-//        holder.setIsRecyclable(false);
-
-        //get title from holder
         postTitle = postsList.get(position).getTitle();
-        //set the post title
         holder.setTitle(postTitle);
-        //set the data after the viewHolder has been bound
         String descData = postsList.get(position).getDesc();
-        //set the description to the view holder
         holder.setDesc(descData);
+
         //set location
         ArrayList locationArray = postsList.get(position).getLocation();
         holder.setPostLocation(locationArray);
@@ -120,10 +124,18 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //receive the post id
         final String postId = postsList.get(position).PostId;
+        Log.d(TAG, "onBindViewHolder: \npostId is " + postId);
         //handle name and image
         String userName = usersList.get(position).getName();
         String userImageDownloadUri = usersList.get(position).getImage();
+        postUserId = usersList.get(position).UserId;
+        Log.d(TAG, "onBindViewHolder: \npostUseId is " + postUserId);
         holder.setUserData(userName, userImageDownloadUri);
+
+        //use image click listener
+        holder.postUserImageCircleView.setOnClickListener(this);
+        holder.postUsernameTextView.setOnClickListener(this);
+
         //handle date for posts
         if (postsList.get(position).getTimestamp() != null) {
 
@@ -138,21 +150,21 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         coMeth.getDb()
                 .collection("Posts/" + postId + "/Likes")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-                Log.d(TAG, "at onEvent, when likes change");
-                if (!queryDocumentSnapshots.isEmpty()) {
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                        Log.d(TAG, "at onEvent, when likes change");
+                        if (!queryDocumentSnapshots.isEmpty()) {
 
-                    //post has likes
-                    int numberOfLikes = queryDocumentSnapshots.size();
-                    holder.updateLikesCount(numberOfLikes);
+                            //post has likes
+                            int numberOfLikes = queryDocumentSnapshots.size();
+                            holder.updateLikesCount(numberOfLikes);
 
-                } else {
-                    //post has no likes
-                    holder.updateLikesCount(0);
-                }
-            }
-        });
+                        } else {
+                            //post has no likes
+                            holder.updateLikesCount(0);
+                        }
+                    }
+                });
 
 
         if (coMeth.isLoggedIn()) {
@@ -162,39 +174,39 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     .collection("Posts/" + postId + "/Likes")
                     .document(currentUserId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        @Override
+                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                    //update the like button real time
-                    if (documentSnapshot.exists()) {
-                        Log.d(TAG, "at get likes, updating likes real time");
-                        //user has liked
-                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
-                    } else {
-                        //current user has not liked the post
-                        holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
-                    }
-                }
-            });
+                            //update the like button real time
+                            if (documentSnapshot.exists()) {
+                                Log.d(TAG, "at get likes, updating likes real time");
+                                //user has liked
+                                holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
+                            } else {
+                                //current user has not liked the post
+                                holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
+                            }
+                        }
+                    });
 
             //get saves
             coMeth.getDb()
                     .collection("Posts/" + postId + "/Saves")
                     .document(currentUserId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                    //update the save button real time
-                    if (documentSnapshot.exists()) {
-                        Log.d(TAG, "at get saves, updating saves realtime");
-                        //user has saved post
-                        holder.postSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmarked));
-                    } else {
-                        //user has not liked post
-                        holder.postSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmark_outline));
-                    }
-                }
-            });
+                        @Override
+                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                            //update the save button real time
+                            if (documentSnapshot.exists()) {
+                                Log.d(TAG, "at get saves, updating saves realtime");
+                                //user has saved post
+                                holder.postSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmarked));
+                            } else {
+                                //user has not liked post
+                                holder.postSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmark_outline));
+                            }
+                        }
+                    });
 
         }
 
@@ -407,20 +419,20 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         coMeth.getDb()
                 .collection("Posts/" + postId + "/Comments")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-                Log.d(TAG, "at onEvent, when likes change");
-                if (!queryDocumentSnapshots.isEmpty()) {
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                        Log.d(TAG, "at onEvent, when likes change");
+                        if (!queryDocumentSnapshots.isEmpty()) {
 
-                    //post has likes
-                    int numberOfComments = queryDocumentSnapshots.size();
-                    holder.updateCommentsCount(numberOfComments);
-                } else {
-                    //post has no likes
-                    holder.updateCommentsCount(0);
-                }
-            }
-        });
+                            //post has likes
+                            int numberOfComments = queryDocumentSnapshots.size();
+                            holder.updateCommentsCount(numberOfComments);
+                        } else {
+                            //post has no likes
+                            holder.updateCommentsCount(0);
+                        }
+                    }
+                });
 
         //comment icon click action
         holder.postCommentButton.setOnClickListener(new View.OnClickListener() {
@@ -436,6 +448,19 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
 
 
+        //set animation
+        setAnimation(holder.itemView, position);
+
+    }
+
+    private void setAnimation(View viewToAnimate, int position) {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
+//            Animation animation = AnimationUtils.loadAnimation(context, R.anim.fall_down);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
     private String getTittle(String postId) {
@@ -539,6 +564,32 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         return postsList.size();
     }
 
+    /**
+     * go to the user profile page
+     *
+     * @param postUserId the user id of the current post
+     */
+    private void goToUserProfile(String postUserId) {
+        Intent goToUserProfileIntent = new Intent(context, UserPageActivity.class);
+        goToUserProfileIntent.putExtra("userId", postUserId);
+        Log.d(TAG, "goToUserProfile: \nuserId is " + postUserId);
+        context.startActivity(goToUserProfileIntent);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.postUserImageCircleImageView:
+                goToUserProfile(postUserId);
+                break;
+            case R.id.postUsernameTextView:
+                goToUserProfile(postUserId);
+                break;
+            default:
+                Log.d(TAG, "onClick: post recycker adapter on default");
+        }
+    }
+
     //implement the viewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -549,7 +600,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         private TextView titleTextView;
         private TextView descTextView;
         private ImageView postImageView;
-        private TextView postUserNameTextView;
+        private TextView postUsernameTextView;
         private TextView postDateTextView;
         private CircleImageView postUserImageCircleView;
 
@@ -645,29 +696,21 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 postLocationTextView = mView.findViewById(R.id.postLocationTextView);
                 String locationString = "";
                 for (int i = 0; i < locationArray.size(); i++) {
-
                     locationString = locationString.concat(locationArray.get(i).toString() + "\n");
-
                 }
                 postLocationTextView.setText(locationString.trim());
 
             } else {
-
                 Log.d(TAG, "location details are null");
                 postLocationTextView.setVisibility(View.GONE);
-
             }
 
         }
 
         //set post date
         public void setPostDate(String date) {
-
-            // TODO: 4/4/18 show different time status  like one minute ago ++
-
             postDateTextView = mView.findViewById(R.id.postDateTextView);
             postDateTextView.setText(date);
-
         }
 
         //update the number of likes
@@ -689,8 +732,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         public void setUserData(String userName, String userImageDownloadUri) {
 
-            postUserNameTextView = mView.findViewById(R.id.postUsernameTextView);
-            postUserNameTextView.setText(userName);
+            postUsernameTextView = mView.findViewById(R.id.postUsernameTextView);
+            postUsernameTextView.setText(userName);
 
             postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
             //add the placeholder image

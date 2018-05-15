@@ -29,7 +29,6 @@
                 android:id="@+id/createPostImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="50dp"
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/appiconshadow" />
 
@@ -38,6 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
+                android:background="@color/black_transparent"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
 
                 <android.support.constraint.ConstraintLayout

@@ -1,184 +1,186 @@
 <resources>
     <string name="app_name" translatable="false">Fursa</string>
-    <string name="action_settings">Settings</string>
-    <string name="login_email_edit_text">Email</string>
-    <string name="password_text">Password</string>
-    <string name="login_button">Login</string>
-    <string name="login_register_edit_text">Register with Email</string>
-    <string name="acc_name_hint">Your name</string>
-    <string name="acc_save_button">Save settings</string>
-    <string name="submit_new_post_button">Submit</string>
-    <string name="new_post_description_hint">Add description</string>
+    <string name="action_settings" translatable="false">Settings</string>
+    <string name="login_email_edit_text" translatable="false">Email</string>
+    <string name="password_text" translatable="false">Password</string>
+    <string name="login_button" translatable="false">Login</string>
+    <string name="login_register_edit_text" translatable="false">Register with Email</string>
+    <string name="acc_name_hint" translatable="false">Your name</string>
+    <string name="acc_save_button" translatable="false">Save settings</string>
+    <string name="submit_new_post_button" translatable="false">Submit</string>
+    <string name="new_post_description_hint" translatable="false">Add description</string>
     <string name="facebook_app_id" translatable="false">195155624430705</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb195155624430705</string>
     <string name="title_activity_scrolling" translatable="false">New Post</string>
     <string name="fursa_url_post_head" translatable="false">http://fursa.nyayozangu.com/post/</string>
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://fursa.nyayozangu.com\",\n  }\n}]</string>
-    <string name="finish_tut_text">Finish</string>
-    <string name="back_tut_text">Back</string>
-    <string name="next_tut_text">Next</string>
+    <string name="finish_tut_text" translatable="false">Finish</string>
+    <string name="back_tut_text" translatable="false">Back</string>
+    <string name="next_tut_text" translatable="false">Next</string>
     <string name="title_activity_view_category" translatable="false">View category</string>
-    <string name="posted_by_text">Posted by:</string>
-    <string name="search_hint">Search</string>
-    <string name="cat_featured">Featured</string>
-    <string name="cat_popular">Popular</string>
-    <string name="cat_upcoming">Up Coming</string>
-    <string name="cat_events">Events</string>
-    <string name="cat_business">Business</string>
-    <string name="cat_buysell">Buy and sell</string>
-    <string name="cat_education">Education</string>
-    <string name="cat_jobs">Jobs</string>
-    <string name="cat_queries">Queries</string>
-    <string name="failed_to_connect_text">Failed to connect to the internet</string>
-    <string name="log_to_subscribe_text">Log in to subscribe</string>
-    <string name="subscribe_to_text">Subscribed to</string>
-    <string name="sucscribe_failed_text">Failed to subscribe</string>
-    <string name="done_text">Done</string>
-    <string name="about_hint_acc_text">About</string>
-    <string name="account_settings_acc_text">Account settings</string>
-    <string name="post_your_comment_hint">Post your comment here</string>
-    <string name="submit_text">Submit</string>
-    <string name="enter_email_hint">Enter an email address</string>
-    <string name="confirm_password_reg_edit_text">Confirm password</string>
-    <string name="chose_password_reg_edittext">Chose a password</string>
-    <string name="register_reg_button_text">Register</string>
-    <string name="have_account_reg_button_text">Have an Account?</string>
-    <string name="sign_up_with_email_reg_text">Sign up with email</string>
-    <string name="user_bio_sett_textview_hint">User Bio</string>
-    <string name="username_sett_textview_hint">Username</string>
-    <string name="logout_sett_button">Logout</string>
-    <string name="edit_profile_sett_button">Edit Profile</string>
-    <string name="my_subscriptions_sett_button">My Subscriptions</string>
-    <string name="my_posts_sett_button">My Posts</string>
-    <string name="contact_us_sett_button">Contact Us</string>
-    <string name="privacy_policy_sett_button">Privacy Policy</string>
-    <string name="feedback_sett_button">Feedback</string>
+    <string name="posted_by_text" translatable="false">Posted by:</string>
+    <string name="search_hint" translatable="false">Search</string>
+    <string name="cat_featured" translatable="false">Featured</string>
+    <string name="cat_popular" translatable="false">Popular</string>
+    <string name="cat_upcoming" translatable="false">Up Coming</string>
+    <string name="cat_events" translatable="false">Events</string>
+    <string name="cat_business" translatable="false">Business</string>
+    <string name="cat_buysell" translatable="false">Buy and sell</string>
+    <string name="cat_education" translatable="false">Education</string>
+    <string name="cat_jobs" translatable="false">Jobs</string>
+    <string name="cat_queries" translatable="false">Queries</string>
+    <string name="failed_to_connect_text" translatable="false">Failed to connect to the internet</string>
+    <string name="log_to_subscribe_text" translatable="false">Log in to subscribe</string>
+    <string name="subscribe_to_text" translatable="false">Subscribed to</string>
+    <string name="sucscribe_failed_text" translatable="false">Failed to subscribe</string>
+    <string name="done_text" translatable="false">Done</string>
+    <string name="about_hint_acc_text" translatable="false">About</string>
+    <string name="account_settings_acc_text" translatable="false">Account settings</string>
+    <string name="post_your_comment_hint" translatable="false">Post your comment here</string>
+    <string name="submit_text" translatable="false">Submit</string>
+    <string name="enter_email_hint" translatable="false">Enter an email address</string>
+    <string name="confirm_password_reg_edit_text" translatable="false">Confirm password</string>
+    <string name="chose_password_reg_edittext" translatable="false">Chose a password</string>
+    <string name="register_reg_button_text" translatable="false">Register</string>
+    <string name="have_account_reg_button_text" translatable="false">Have an Account?</string>
+    <string name="sign_up_with_email_reg_text" translatable="false">Sign up with email</string>
+    <string name="user_bio_sett_textview_hint" translatable="false">User Bio</string>
+    <string name="username_sett_textview_hint" translatable="false">Username</string>
+    <string name="logout_sett_button" translatable="false">Logout</string>
+    <string name="edit_profile_sett_button" translatable="false">Edit Profile</string>
+    <string name="my_subscriptions_sett_button" translatable="false">My Subscriptions</string>
+    <string name="my_posts_sett_button" translatable="false">My Posts</string>
+    <string name="contact_us_sett_button" translatable="false">Contact Us</string>
+    <string name="privacy_policy_sett_button" translatable="false">Privacy Policy</string>
+    <string name="feedback_sett_button" translatable="false">Feedback</string>
     <string name="title_activity_my_posts" translatable="false">MyPostsActivity</string>
-    <string name="cancel_text">Cancel</string>
-    <string name="login_text">Login</string>
-    <string name="not_logged_in_text">You are not logged in</string>
-    <string name="login_to_post_text">Log in to post items</string>
-    <string name="title_activity_my_subscriptions">My Subscriptions</string>
+    <string name="cancel_text" translatable="false">Cancel</string>
+    <string name="login_text" translatable="false">Login</string>
+    <string name="not_logged_in_text" translatable="false">You are not logged in</string>
+    <string name="login_to_post_text" translatable="false">Log in to post items</string>
+    <string name="title_activity_my_subscriptions" translatable="false">My Subscriptions</string>
     <string name="login_to_view_post_text" translatable="false">Login to view your posts</string>
     <string name="login_to_view_subs_text" translatable="false">Login to view your subscriptions</string>
     <string name="search_view_query_hint_text" translatable="false">Search Fursa</string>
-    <string name="title_text">Title</string>
-    <string name="comment_text">Comment</string>
-    <string name="username_text">Username</string>
-    <string name="contact_name_hint">Contact name</string>
-    <string name="phone_hint">Phone number</string>
-    <string name="email_website_hint">Email and/or website</string>
-    <string name="enter_post_title_create_post_hint_text">Enter a title for your post</string>
-    <string name="enter_description_hint_text">Enter a description</string>
-    <string name="enter_contact_details_create_post_hint_text">Enter contact details (optional)</string>
-    <string name="select_categories_create_post_hint_text">Select related categories</string>
-    <string name="enter_location_create_post_hint_text">Enter a location (optional)</string>
-    <string name="enter_event_date_create_post_hint_text">Enter a date for an event (optional)</string>
-    <string name="enter_price_create_post_hint_text">Enter a price value (optional)</string>
+    <string name="title_text" translatable="false">Title</string>
+    <string name="comment_text" translatable="false">Comment</string>
+    <string name="username_text" translatable="false">Username</string>
+    <string name="contact_name_hint" translatable="false">Contact name</string>
+    <string name="phone_hint" translatable="false">Phone number</string>
+    <string name="email_website_hint" translatable="false">Email and/or website</string>
+    <string name="enter_post_title_create_post_hint_text" translatable="false">Enter a title for your post</string>
+    <string name="enter_description_hint_text" translatable="false">Enter a description</string>
+    <string name="enter_contact_details_create_post_hint_text" translatable="false">Enter contact details (optional)</string>
+    <string name="select_categories_create_post_hint_text" translatable="false">Select related categories</string>
+    <string name="enter_location_create_post_hint_text" translatable="false">Enter a location (optional)</string>
+    <string name="enter_event_date_create_post_hint_text" translatable="false">Enter a date for an event (optional)</string>
+    <string name="enter_price_create_post_hint_text" translatable="false">Enter a price value (optional)</string>
     <string name="zero_text" translatable="false">0</string>
-    <string name="save_text">Save</string>
-    <string name="share_text">Share</string>
-    <string name="title_view_post_text">Title</string>
-    <string name="desc_text">Description</string>
-    <string name="contact_view_post_text">Contact</string>
-    <string name="location_view_post_text">Location</string>
-    <string name="event_date_view_post_text">Event Date</string>
-    <string name="price_view_post_text">Price</string>
-    <string name="time_view_post_text">Time</string>
-    <string name="user_view_post_text">User</string>
-    <string name="login_alert_fragment_text">Login</string>
-    <string name="login_to_view_saved_items_alert_fragment_text">Login to view saved items</string>
+    <string name="save_text" translatable="false">Save</string>
+    <string name="share_text" translatable="false">Share</string>
+    <string name="title_view_post_text" translatable="false">Title</string>
+    <string name="desc_text" translatable="false">Description</string>
+    <string name="contact_view_post_text" translatable="false">Contact</string>
+    <string name="location_view_post_text" translatable="false">Location</string>
+    <string name="event_date_view_post_text" translatable="false">Event Date</string>
+    <string name="price_view_post_text" translatable="false">Price</string>
+    <string name="time_view_post_text" translatable="false">Time</string>
+    <string name="user_view_post_text" translatable="false">User</string>
+    <string name="login_alert_fragment_text" translatable="false">Login</string>
+    <string name="login_to_view_saved_items_alert_fragment_text" translatable="false">Login to view saved items</string>
     <string name="date_post_placeholder_text" translatable="false">Jan 14 2018</string>
-    <string name="username_post_placeholder_text">Username</string>
+    <string name="username_post_placeholder_text" translatable="false">Username</string>
     <string name="desc_post_placeholder_text" translatable="false">this is random text for the placeholder of the image veia hdod lookd i=too maih intteo iwws</string>
     <string name="location__post_placeholder_text" translatable="false">Dar es Salaam Tanzania</string>
-    <string name="post_title__post_placeholder_text">Post Title</string>
-    <string name="name_text">Name</string>
-    <string name="phone_text">Phone</string>
-    <string name="email_text">Email</string>
-    <string name="search_text">Search</string>
-    <string name="cat_places">Places</string>
-    <string name="report_text">Report</string>
-    <string name="edit_text">Edit</string>
-    <string name="delete_text">Delete</string>
-    <string name="login_with_email_text">Login with Email</string>
-    <string name="post_not_found_text">Could not find post</string>
-    <string name="posting_text">Posting…</string>
-    <string name="internet_fail">Failed to connect to the internet</string>
-    <string name="added_to_saved_text">Added to saved items</string>
-    <string name="login_to_view_options_text">Login to view post options</string>
-    <string name="login_to_like">Login to like items</string>
-    <string name="default_notification_channel_name">Updates</string>
-    <string name="email_ver_text">Email Verification</string>
+    <string name="post_title__post_placeholder_text" translatable="false">Post Title</string>
+    <string name="name_text" translatable="false">Name</string>
+    <string name="phone_text" translatable="false">Phone</string>
+    <string name="email_text" translatable="false">Email</string>
+    <string name="search_text" translatable="false">Search</string>
+    <string name="cat_places" translatable="false">Places</string>
+    <string name="report_text" translatable="false">Report</string>
+    <string name="edit_text" translatable="false">Edit</string>
+    <string name="delete_text" translatable="false">Delete</string>
+    <string name="login_with_email_text" translatable="false">Login with Email</string>
+    <string name="post_not_found_text" translatable="false">Could not find post</string>
+    <string name="posting_text" translatable="false">Posting…</string>
+    <string name="internet_fail" translatable="false">Failed to connect to the internet</string>
+    <string name="added_to_saved_text" translatable="false">Added to saved items</string>
+    <string name="login_to_view_options_text" translatable="false">Login to view post options</string>
+    <string name="login_to_like" translatable="false">Login to like items</string>
+    <string name="default_notification_channel_name" translatable="false">Updates</string>
+    <string name="email_ver_text" translatable="false">Email Verification</string>
     <string name="ok_text" translatable="false">Ok</string>
-    <string name="send_email_text">Sending Email…</string>
-    <string name="verify_to_comment_text">You have to verify your email address to comment on a post.</string>
-    <string name="login_to_create_post">Login to create a post</string>
+    <string name="send_email_text" translatable="false">Sending Email…</string>
+    <string name="verify_to_comment_text" translatable="false">You have to verify your email address to comment on a post.</string>
+    <string name="login_to_create_post" translatable="false">Login to create a post</string>
     <string name="title_activity_view_image" translatable="false">ViewImageActivity</string>
-    <string name="logging_in_text">Logging in…</string>
-    <string name="see_list_text">See list</string>
-    <string name="login_to_save_text">Log in to save items</string>
-    <string name="email_sent_text">Email sent</string>
-    <string name="confirm_del_text">Are you sure you want to delete this post?</string>
-    <string name="del_post_text">Delete Post</string>
-    <string name="del_success_text">Post successfully Deleted</string>
-    <string name="loading_text">Loading…</string>
-    <string name="exit_text">Exit</string>
-    <string name="confirm_ext_text">Are you sure you want to exit?</string>
-    <string name="report_submit_failed_text">Failed to submit report</string>
-    <string name="login_to_report">Log in to report content</string>
-    <string name="categories_text">Categories</string>
-    <string name="min_ago_text">1 minute ago</string>
-    <string name="hr_ago_text">1 hour ago</string>
-    <string name="hrs_ago_text">hours ago</string>
-    <string name="day_ago_text">days ago</string>
-    <string name="weeks_ago_text">weeks ago</string>
-    <string name="months_ago_text">months ago</string>
-    <string name="spam_text">Spam</string>
-    <string name="inapropriate_text">Inappropriate content</string>
-    <string name="mins_ago_text">minutes ago</string>
-    <string name="view_full_desc_text">View full description</string>
-    <string name="posted_text">Posted</string>
-    <string name="report_submitted_text">Your report has been submitted for reviews.</string>
-    <string name="enter_post_details_text">Enter post details to proceed</string>
-    <string name="failed_to_post_text">Failed to post</string>
-    <string name="failed_to_upload_image_text">Failed to upload image</string>
-    <string name="feedback_title_text">Feedback</string>
-    <string name="submitting">Submitting…</string>
-    <string name="thanks_feedback_text">Thank you for your feedback</string>
-    <string name="failed_to_submit_text">Failed to submit your feedback, please try again later</string>
+    <string name="logging_in_text" translatable="false">Logging in…</string>
+    <string name="see_list_text" translatable="false">See list</string>
+    <string name="login_to_save_text" translatable="false">Log in to save items</string>
+    <string name="email_sent_text" translatable="false">Email sent</string>
+    <string name="confirm_del_text" translatable="false">Are you sure you want to delete this post?</string>
+    <string name="del_post_text" translatable="false">Delete Post</string>
+    <string name="del_success_text" translatable="false">Post successfully Deleted</string>
+    <string name="loading_text" translatable="false">Loading…</string>
+    <string name="exit_text" translatable="false">Exit</string>
+    <string name="confirm_ext_text" translatable="false">Are you sure you want to exit?</string>
+    <string name="report_submit_failed_text" translatable="false">Failed to submit report</string>
+    <string name="login_to_report" translatable="false">Log in to report content</string>
+    <string name="categories_text" translatable="false">Categories</string>
+    <string name="min_ago_text" translatable="false">1 minute ago</string>
+    <string name="hr_ago_text" translatable="false">1 hour ago</string>
+    <string name="hrs_ago_text" translatable="false">hours ago</string>
+    <string name="day_ago_text" translatable="false">days ago</string>
+    <string name="weeks_ago_text" translatable="false">weeks ago</string>
+    <string name="months_ago_text" translatable="false">months ago</string>
+    <string name="spam_text" translatable="false">Spam</string>
+    <string name="inapropriate_text" translatable="false">Inappropriate content</string>
+    <string name="mins_ago_text" translatable="false">minutes ago</string>
+    <string name="view_full_desc_text" translatable="false">View full description</string>
+    <string name="posted_text" translatable="false">Posted</string>
+    <string name="report_submitted_text" translatable="false">Your report has been submitted for reviews.</string>
+    <string name="enter_post_details_text" translatable="false">Enter post details to proceed</string>
+    <string name="failed_to_post_text" translatable="false">Failed to post</string>
+    <string name="failed_to_upload_image_text" translatable="false">Failed to upload image</string>
+    <string name="feedback_title_text" translatable="false">Feedback</string>
+    <string name="submitting" translatable="false">Submitting…</string>
+    <string name="thanks_feedback_text" translatable="false">Thank you for your feedback</string>
+    <string name="failed_to_submit_text" translatable="false">Failed to submit your feedback, please try again later</string>
     <string name="family_email" translatable="false">family@nyayozangu.com</string>
-    <string name="privacy_policy_text">Privacy Policy</string>
+    <string name="privacy_policy_text" translatable="false">Privacy Policy</string>
     <string name="privacy_policy_url" translatable="false">http://fursa.nyayozangu.com/privacy_policy/</string>
-    <string name="searching_text">Searching…</string>
-    <string name="failed_to_complete_text">Failed to complete action</string>
-    <string name="cat_services">Services</string>
-    <string name="logout_text">Logout</string>
-    <string name="confirm_lougout_text">Are you sure you want to logout?</string>
-    <string name="login_to_comment">Log in to comment</string>
-    <string name="comments_text">Comments</string>
-    <string name="posting_comment_text">Posting comment…</string>
-    <string name="failed_to_comment_text">Failed to post comment</string>
-    <string name="wrong_password_text">Wrong password</string>
-    <string name="report_comment_text">Report comment</string>
+    <string name="searching_text" translatable="false">Searching…</string>
+    <string name="failed_to_complete_text" translatable="false">Failed to complete action</string>
+    <string name="cat_services" translatable="false">Services</string>
+    <string name="logout_text" translatable="false">Logout</string>
+    <string name="confirm_lougout_text" translatable="false">Are you sure you want to logout?</string>
+    <string name="login_to_comment" translatable="false">Log in to comment</string>
+    <string name="comments_text" translatable="false">Comments</string>
+    <string name="posting_comment_text" translatable="false">Posting comment…</string>
+    <string name="failed_to_comment_text" translatable="false">Failed to post comment</string>
+    <string name="wrong_password_text" translatable="false">Wrong password</string>
+    <string name="report_comment_text" translatable="false">Report comment</string>
     <string name="channel_name" translatable="false">updates</string>
     <string name="channel_description" translatable="false">updates from fursa</string>
-    <string name="something_went_wrong_text">Sorry, something went wrong</string>
+    <string name="something_went_wrong_text" translatable="false">Sorry, something went wrong</string>
     <string name="view_comment_text" translatable="false">View comment</string>
     <string name="admin_option_text" translatable="false">Admin options</string>
-    <string name="cat_qna_text"><![CDATA[Q&A]]></string>
-    <string name="login_to_sub_comments">Log in to subscribe to comments notifications</string>
-    <string name="login_to_feedback">Log in to submit a feedback</string>
-    <string name="feedback_desc_hint">Enter a feedback description</string>
-    <string name="subscribing_text">Subscribing…</string>
-    <string name="price_text">Price</string>
-    <string name="view_post_text">View post</string>
-    <string name="failed_to_load_locations_text">Failed to load location</string>
+    <string name="cat_qna_text" translatable="false"><![CDATA[Q&A]]></string>
+    <string name="login_to_sub_comments" translatable="false">Log in to subscribe to comments notifications</string>
+    <string name="login_to_feedback" translatable="false">Log in to submit a feedback</string>
+    <string name="feedback_desc_hint" translatable="false">Enter a feedback description</string>
+    <string name="subscribing_text" translatable="false">Subscribing…</string>
+    <string name="price_text" translatable="false">Price</string>
+    <string name="view_post_text" translatable="false">View post</string>
+    <string name="failed_to_load_locations_text" translatable="false">Failed to load location</string>
     <string name="fursa_url_cat_head" translatable="false">http://fursa.nyayozangu.com/category/</string>
-    <string name="view_details_text">View details</string>
+    <string name="view_details_text" translatable="false">View details</string>
     <string name="app_download_url" translatable="false">https://play.google.com/store/apps/details?id=com.nyayozangu.labs.fursa</string>
-    <string name="user_not_found_text">User not found</string>
-    <string name="my_posts_text">My Posts</string>
-    <string name="posts_text">posts</string>
+    <string name="user_not_found_text" translatable="false">User not found</string>
+    <string name="my_posts_text" translatable="false">My Posts</string>
+    <string name="posts_text" translatable="false">posts</string>
+    <string name="share_with_text" translatable="false">Share with</string>
+    <string name="create_post_text" translatable="false">Create post</string>
 
 </resources>

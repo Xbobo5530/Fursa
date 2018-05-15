@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -68,6 +70,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
     private ProgressDialog progressDialog;
     private String[] reportOptionsList;
     private boolean isAdmin = false;
+    private int lastPosition = -1;
 
 
     //empty constructor for receiving the posts
@@ -198,6 +201,19 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
             }
         });
 
+        //set animation
+        setAnimation(holder.itemView, position);
+
+    }
+
+    private void setAnimation(View viewToAnimate, int position) {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition) {
+//            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.fall_down);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
     private void deleteComment(@NonNull final CommentsRecyclerAdapter.ViewHolder holder,

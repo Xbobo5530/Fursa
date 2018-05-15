@@ -105,7 +105,7 @@
     <string name="confirm_del_text">Unauhakika unataka kufuta chapisho hili?</string>
     <string name="del_post_text">Futa chapisho</string>
     <string name="del_success_text">Chapisho limekwesha futwa</string>
-    <string name="loading_text">Subiri…</string>
+    <string name="loading_text">Tafadhali subiri…</string>
     <string name="exit_text">Toka</string>
     <string name="confirm_ext_text">Unauhakika unataka kutoka?</string>
     <string name="report_submit_failed_text">Imashindikana kuchapisha</string>
@@ -156,4 +156,6 @@
     <string name="user_not_found_text">Imeshindikana kupata mtumiaji sahihi</string>
     <string name="my_posts_text">Machapisho yangu</string>
     <string name="posts_text">Machapisho</string>
+    <string name="share_with_text">Shirikisha na…</string>
+    <string name="create_post_text">Tengeneza chapisho</string>
 </resources>

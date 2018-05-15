@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,8 +75,8 @@ public class HomeFragment extends Fragment {
         coMeth.handlePostsView(getContext(), getActivity(), homeFeedView);
         homeFeedView.setAdapter(postsRecyclerAdapter);
         //animation
-        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-        homeFeedView.setItemAnimator(itemAnimator);
+        /*RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+        homeFeedView.setItemAnimator(itemAnimator);*/
 
         //loading
         showProgress(getString(R.string.loading_text));
@@ -165,7 +164,8 @@ public class HomeFragment extends Fragment {
                                     //check if task is successful
                                     if (task.isSuccessful()) {
 
-                                        Users user = task.getResult().toObject(Users.class);
+                                        String userId = task.getResult().getId();
+                                        Users user = task.getResult().toObject(Users.class).withId(userId);
                                         //add new post to the local postsList
                                         if (isFirstPageFirstLoad) {
 
@@ -179,8 +179,9 @@ public class HomeFragment extends Fragment {
 
                                         }
                                         //notify the recycler adapter of the set change
-                                        postsRecyclerAdapter.notifyItemInserted(postsList.size() - 1);
-//                                        postsRecyclerAdapter.notifyDataSetChanged();
+//                                        postsRecyclerAdapter.notifyItemInserted(postsList.size()-1);
+                                        postsRecyclerAdapter.notifyDataSetChanged();
+//                                        postsRecyclerAdapter.notifyItemRangeInserted(postsRecyclerAdapter.getItemCount(), postsList.size());
 
                                     } else {
 
@@ -250,8 +251,8 @@ public class HomeFragment extends Fragment {
                                                 Users user = task.getResult().toObject(Users.class);
                                                 usersList.add(user);
                                                 postsList.add(post);
-                                                postsRecyclerAdapter.notifyItemInserted(postsList.size());
-//                                                postsRecyclerAdapter.notifyDataSetChanged();
+//                                                postsRecyclerAdapter.notifyItemInserted(postsList.size());
+                                                postsRecyclerAdapter.notifyDataSetChanged();
 
                                             }
 

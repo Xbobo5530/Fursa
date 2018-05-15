@@ -206,8 +206,8 @@ public class SavedFragment extends Fragment {
                                                 //check if task is success
                                                 if (task.isSuccessful()) {
 
-                                                    //add user convert current user to object
-                                                    Users user = task.getResult().toObject(Users.class);
+                                                    String postUserId = task.getResult().getId();
+                                                    Users user = task.getResult().toObject(Users.class).withId(postUserId);
                                                     //add post to saved posts list
                                                     if (isFirstPageFirstLoad) {
 
@@ -267,7 +267,6 @@ public class SavedFragment extends Fragment {
         //go to login page
         startActivity(new Intent(getActivity(), LoginActivity.class));
     }
-
 
     //loading more posts
     public void loadMorePosts() {

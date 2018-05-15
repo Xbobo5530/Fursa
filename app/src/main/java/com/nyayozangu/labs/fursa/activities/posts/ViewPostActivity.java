@@ -987,12 +987,12 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     }
 
-                    coMeth.stopLoading(progressDialog, null);
+                    coMeth.stopLoading(progressDialog);
 
 
                 } else {
                     //post does not exist
-                    progressDialog.dismiss();
+                    coMeth.stopLoading(progressDialog);
                     Log.d(TAG, "Error: post does not exist");
                     //save error and notify in main
                     Intent postNotFountIntent = new Intent(ViewPostActivity.this, MainActivity.class);
@@ -1002,7 +1002,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     finish();
                 }
 
-                coMeth.stopLoading(progressDialog, null);
+                coMeth.stopLoading(progressDialog);
 
             }
         });
@@ -1037,7 +1037,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                 //set click actions
                                 //open view cat activity
                                 Intent catIntent = new Intent(ViewPostActivity.this, ViewCategoryActivity.class);
-                                catIntent.putExtra("category", catKeys.get(which).toString());
+                                catIntent.putExtra("category", catKeys.get(which));
                                 startActivity(catIntent);
                                 finish();
 

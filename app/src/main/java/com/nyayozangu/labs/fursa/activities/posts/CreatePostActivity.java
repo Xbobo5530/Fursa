@@ -139,7 +139,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.createPostToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Create Post");
+        getSupportActionBar().setTitle(getString(R.string.create_post_text));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -572,9 +572,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         showProgress(getString(R.string.submitting));
                         //disable the submit button
                         submitButton.setClickable(false);
-                        //description is not empty and image is not null
-
-                        //check if is new post or edit post
                         if (!isEditPost()) {
 
                             //is new post
@@ -1050,11 +1047,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     contactDetails.add(contactName);
                     tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
-
                 }
-
             }
-
         } else {
 
             if (contactPhone != null) {
@@ -1351,6 +1345,7 @@ public class CreatePostActivity extends AppCompatActivity {
         //construct the dialog box
         progressDialog = new ProgressDialog(CreatePostActivity.this);
         progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
         progressDialog.show();
 
     }
