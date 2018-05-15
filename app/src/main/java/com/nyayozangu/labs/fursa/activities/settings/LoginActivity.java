@@ -94,7 +94,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginButton.setVisibility(View.GONE);
             loginRegistrationButton.setVisibility(View.GONE);
             googleSignInButton.setVisibility(View.GONE);
-//            facebookLoginButton.setVisibility(View.GONE);
+            facebookLoginButton.setVisibility(View.GONE);
             twitterLoginButton.setVisibility(View.GONE);
             //show connection alert
             loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginButton.setVisibility(View.VISIBLE);
             loginRegistrationButton.setVisibility(View.VISIBLE);
             googleSignInButton.setVisibility(View.VISIBLE);
-//            facebookLoginButton.setVisibility(View.VISIBLE);
+            facebookLoginButton.setVisibility(View.VISIBLE);
             twitterLoginButton.setVisibility(View.VISIBLE);
 
         }
@@ -159,7 +159,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginButton.setVisibility(View.GONE);
             loginRegistrationButton.setVisibility(View.GONE);
             googleSignInButton.setVisibility(View.GONE);
-//            facebookLoginButton.setVisibility(View.GONE);
+            facebookLoginButton.setVisibility(View.GONE);
             twitterLoginButton.setVisibility(View.GONE);
             //show connection alert
             loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
@@ -170,7 +170,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             loginButton.setVisibility(View.VISIBLE);
             loginRegistrationButton.setVisibility(View.VISIBLE);
             googleSignInButton.setVisibility(View.VISIBLE);
-//            facebookLoginButton.setVisibility(View.VISIBLE);
+            facebookLoginButton.setVisibility(View.VISIBLE);
             twitterLoginButton.setVisibility(View.VISIBLE);
 
         }
