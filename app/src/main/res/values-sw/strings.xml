@@ -56,7 +56,7 @@
     <string name="username_text">Jina na mtumiaji</string>
     <string name="contact_name_hint">Ingiza jina la mhusika</string>
     <string name="phone_hint">Ingiza namba ya simu ya mhusika</string>
-    <string name="email_website_hint">Ingiza barua pepe ya mhusika</string>
+    <string name="email_website_hint">Barua pepe, tovuti, au link</string>
     <string name="enter_post_title_create_post_hint_text">Andika kichwa cha chapisho</string>
     <string name="enter_description_hint_text">Andika maelezo ya chapisho</string>
     <string name="enter_contact_details_create_post_hint_text">Andika taarifa za mawasiliano ya mhusika (sio lazima)</string>

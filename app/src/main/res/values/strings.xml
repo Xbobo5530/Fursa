@@ -67,7 +67,7 @@
     <string name="username_text" translatable="false">Username</string>
     <string name="contact_name_hint" translatable="false">Contact name</string>
     <string name="phone_hint" translatable="false">Phone number</string>
-    <string name="email_website_hint" translatable="false">Email and/or website</string>
+    <string name="email_website_hint" translatable="false">Email, website, or link</string>
     <string name="enter_post_title_create_post_hint_text" translatable="false">Enter a title for your post</string>
     <string name="enter_description_hint_text" translatable="false">Enter a description</string>
     <string name="enter_contact_details_create_post_hint_text" translatable="false">Enter contact details (optional)</string>
@@ -182,5 +182,6 @@
     <string name="posts_text" translatable="false">posts</string>
     <string name="share_with_text" translatable="false">Share with</string>
     <string name="create_post_text" translatable="false">Create post</string>
+    <string name="share_with_friends_text">Share with friends</string>
 
 </resources>

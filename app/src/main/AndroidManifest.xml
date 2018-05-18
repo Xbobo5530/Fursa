@@ -61,7 +61,6 @@
         </activity>
         <activity
             android:name=".activities.settings.LoginActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
             android:windowSoftInputMode="adjustPan|adjustResize" />
         <activity android:name=".activities.settings.AccountActivity" />
         <activity
@@ -88,7 +87,6 @@
         </activity>
         <activity
             android:name=".activities.posts.ViewPostActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/view_post_text"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme">
@@ -133,9 +131,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.settings.SettingsActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".activities.settings.SettingsActivity" />
         <activity
             android:name=".activities.comments.CommentsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />

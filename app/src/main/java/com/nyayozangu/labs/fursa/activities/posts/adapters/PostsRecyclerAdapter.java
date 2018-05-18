@@ -49,7 +49,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Adapter class for the Recycler view
  */
 
-public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> implements View.OnClickListener {
+public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
 
 
     private static final String TAG = "Sean";
@@ -133,8 +133,18 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         holder.setUserData(userName, userImageDownloadUri);
 
         //use image click listener
-        holder.postUserImageCircleView.setOnClickListener(this);
-        holder.postUsernameTextView.setOnClickListener(this);
+        holder.postUserImageCircleView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openPost(postId);
+            }
+        });
+        holder.postUsernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openPost(postId);
+            }
+        });
 
         //handle date for posts
         if (postsList.get(position).getTimestamp() != null) {
@@ -167,9 +177,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
 
 
-        if (coMeth.isLoggedIn()) {
-            //get likes
-            //determine likes by current user
+        //determine likes by current user
+        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+
+            //check post likes
             coMeth.getDb()
                     .collection("Posts/" + postId + "/Likes")
                     .document(currentUserId)
@@ -181,15 +192,17 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                             if (documentSnapshot.exists()) {
                                 Log.d(TAG, "at get likes, updating likes real time");
                                 //user has liked
-                                holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_liked));
+                                holder.postLikeButton.setImageDrawable(
+                                        context.getDrawable(R.drawable.ic_action_liked));
                             } else {
                                 //current user has not liked the post
-                                holder.postLikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_like_unclicked));
+                                holder.postLikeButton.setImageDrawable(
+                                        context.getDrawable(R.drawable.ic_action_like_unclicked));
                             }
                         }
                     });
 
-            //get saves
+            //check post saves
             coMeth.getDb()
                     .collection("Posts/" + postId + "/Saves")
                     .document(currentUserId)
@@ -200,15 +213,18 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                             if (documentSnapshot.exists()) {
                                 Log.d(TAG, "at get saves, updating saves realtime");
                                 //user has saved post
-                                holder.postSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmarked));
+                                holder.postSaveButton.setImageDrawable(
+                                        context.getDrawable(R.drawable.ic_action_bookmarked));
                             } else {
                                 //user has not liked post
-                                holder.postSaveButton.setImageDrawable(context.getDrawable(R.drawable.ic_action_bookmark_outline));
+                                holder.postSaveButton.setImageDrawable(
+                                        context.getDrawable(R.drawable.ic_action_bookmark_outline));
                             }
                         }
                     });
 
         }
+
 
         //likes feature
         //set an a click listener to the like button
@@ -574,20 +590,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         goToUserProfileIntent.putExtra("userId", postUserId);
         Log.d(TAG, "goToUserProfile: \nuserId is " + postUserId);
         context.startActivity(goToUserProfileIntent);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.postUserImageCircleImageView:
-                goToUserProfile(postUserId);
-                break;
-            case R.id.postUsernameTextView:
-                goToUserProfile(postUserId);
-                break;
-            default:
-                Log.d(TAG, "onClick: post recycker adapter on default");
-        }
     }
 
     //implement the viewHolder

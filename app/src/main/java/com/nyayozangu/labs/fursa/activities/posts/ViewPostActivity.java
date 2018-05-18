@@ -20,8 +20,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -856,21 +854,21 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     if (postImageUri != null && postThumbUrl != null) {
 
-                        RequestOptions placeHolderOptions = new RequestOptions();
-                        placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
-                        Glide.with(getApplicationContext())
-                                .applyDefaultRequestOptions(placeHolderOptions)
-                                .load(postImageUri)
-                                .thumbnail(Glide.with(getApplicationContext()).load(postThumbUrl))
-                                .into(viewPostImage);
-
+                        try {
+                            coMeth.setImage(R.drawable.appiconshadow,
+                                    postImageUri,
+                                    postThumbUrl,
+                                    viewPostImage);
+                        } catch (Exception glideException) {
+                            Log.d(TAG, "onEvent: glide exception " +
+                                    glideException.getMessage());
+                            //set placeholder image
+                            viewPostImage.setImageDrawable(getDrawable(R.drawable.appiconshadow));
+                        }
                         Log.d(TAG, "onEvent: image set");
-
                     } else {
-
                         //post has no image, hide the image view
                         viewPostImage.setVisibility(View.GONE);
-
                     }
 
                     //get user id for the post

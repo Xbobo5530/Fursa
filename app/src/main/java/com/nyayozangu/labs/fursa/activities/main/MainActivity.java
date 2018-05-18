@@ -27,10 +27,15 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
@@ -38,12 +43,15 @@ import com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
+import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -89,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        cleanDB();
+        
         //subscribe to app updates
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
         Log.d(TAG, "user subscribed to topic UPDATES");
@@ -343,6 +353,56 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+
+    }
+
+    private void cleanDB() {
+        Log.d(TAG, "cleanDB: ");
+        //get all user posts and check if user exists
+        coMeth.getDb()
+                .collection("Posts")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                if (doc.getType() == DocumentChange.Type.ADDED) {
+                                    final String postId = doc.getDocument().getId();
+                                    final Posts post = doc.getDocument().toObject(Posts.class);
+                                    String postUserId = post.getUser_id();
+                                    //check if user still exists
+                                    coMeth.getDb()
+                                            .collection("Users")
+                                            .document(postUserId)
+                                            .get()
+                                            .addOnCompleteListener(
+                                                    new OnCompleteListener<DocumentSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(
+                                                                @NonNull Task<DocumentSnapshot> task) {
+                                                            if (!task.getResult().exists()) {
+                                                                //delete post
+                                                                coMeth.getDb()
+                                                                        .collection("Posts")
+                                                                        .document(postId)
+                                                                        .delete();
+                                                            }
+                                                        }
+                                                    })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG,
+                                                            "onFailure: failed to get post with error" +
+                                                                    "\nerror is: " + e.getMessage());
+                                                }
+                                            });
+                                }
+                            }
+                        }
+                    }
+                });
 
     }
 

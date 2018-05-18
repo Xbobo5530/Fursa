@@ -23,8 +23,8 @@ android {
         applicationId "com.nyayozangu.labs.fursa"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 9
-        versionName "1.0.9 Beta"
+        versionCode 10
+        versionName "1.0.10 Beta"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

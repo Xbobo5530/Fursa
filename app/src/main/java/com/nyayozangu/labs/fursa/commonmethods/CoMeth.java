@@ -7,9 +7,9 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.ImageView;
@@ -166,24 +166,32 @@ public class CoMeth {
     }
 
     public void signOut() {
-
         this.getAuth().signOut();
-
     }
 
     public StorageReference getStorageRef() {
-
         return FirebaseStorage.getInstance().getReference();
-
     }
 
     public void setImage(int placeholderDrawable, String imageUrl, ImageView targetImageView) {
+        Log.d(TAG, "setImage: no thumb");
         RequestOptions placeHolderRequest = new RequestOptions();
         placeHolderRequest.placeholder(placeholderDrawable);
         //loading the string for url to the image view
         Glide.with(getApplicationContext())
                 .setDefaultRequestOptions(placeHolderRequest)
                 .load(imageUrl)
+                .into(targetImageView);
+    }
+
+    public void setImage(int placeholderDrawable, String imageUrl, String thumbUrl, ImageView targetImageView) {
+        Log.d(TAG, "setImage: with thumb");
+        RequestOptions placeHolderOptions = new RequestOptions();
+        placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
+        Glide.with(getApplicationContext())
+                .applyDefaultRequestOptions(placeHolderOptions)
+                .load(imageUrl)
+                .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
                 .into(targetImageView);
     }
 
@@ -213,7 +221,6 @@ public class CoMeth {
                 return "jobs";
             case "Queries":
                 return "queries";
-
 
             //handle swahili items
             case "Spesheli":
@@ -433,12 +440,13 @@ public class CoMeth {
         if ((context.getResources().getConfiguration().screenLayout &
                 Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
             // on a large screen device ...
-            recyclerView.setLayoutManager(new GridLayoutManager(activity, 2));
+            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
 
         } else if ((context.getResources().getConfiguration().screenLayout &
                 Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE) {
             //on xlarge device
-            recyclerView.setLayoutManager(new GridLayoutManager(activity, 3));
+            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+
 
         } else {
             //on small, normal or undefined screen devices
