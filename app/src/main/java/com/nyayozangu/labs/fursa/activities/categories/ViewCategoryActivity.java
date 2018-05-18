@@ -56,14 +56,11 @@ import javax.annotation.Nullable;
 public class
 ViewCategoryActivity extends AppCompatActivity {
 
-    // TODO: 5/12/18 handle deep link intent for incoming categories
-
     private static final String TAG = "Sean";
 
     private RecyclerView catFeed;
     private SwipeRefreshLayout swipeRefresh;
     private SearchView searchView;
-
     private FloatingActionButton subscribeFab;
 
     //retrieve posts
@@ -138,7 +135,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         .setLink(Uri.parse(catUrl))
                         .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
                         .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                                .setMinimumVersion(9)
+                                .setMinimumVersion(10)
                                 .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
                                 .build())
                         // TODO: 5/18/18 handle opening links on ios
@@ -334,8 +331,6 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         });
 
-
-        // TODO: 5/10/18 note, removed limit to pagination
         final Query firstQuery = coMeth.getDb().
                 collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING);

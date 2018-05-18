@@ -24,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -139,29 +141,17 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
         //check if device is connected
         if (coMeth.isConnected()) {
-            //set post details
             setPostDetails();
-            //retrieve comments
             retrieveComments();
-            //inform user to login to comment
             if (coMeth.isLoggedIn()) {
-
-                //set user details on bottom field
                 setUserDetails();
-
                 sendButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        //post comment
                         postComment();
-
                     }
                 });
-
-
             } else {
-
                 currentUserImage.setImageDrawable(
                         getResources().getDrawable(R.drawable.ic_action_person_placeholder));
                 //clicking send to go to login with postId intent
@@ -196,10 +186,10 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
         return intent.getStringExtra("postId");
     }
 
-    private void goToMain() {
+    private void goToMain(String message) {
         Intent goToMainIntent = new Intent(this, MainActivity.class);
         goToMainIntent.putExtra("action", "notify");
-        goToMainIntent.putExtra("message", getString(R.string.something_went_wrong_text));
+        goToMainIntent.putExtra("message", message);
         startActivity(goToMainIntent);
         finish();
     }
@@ -338,14 +328,12 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                 .collection("Posts")
                 .document(postId)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                        if (task.isSuccessful() && task.getResult().exists()) {
-
-                            //convert post to object
-                            Posts post = task.getResult().toObject(Posts.class);
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //post exists
+                            Posts post = documentSnapshot.toObject(Posts.class);
                             final String postUserId = post.getUser_id();
                             //on click user image
                             postUserImage.setOnClickListener(new View.OnClickListener() {
@@ -359,51 +347,30 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                             postTitleField.setText(postTitle);
 
                             //access users to get user details
-                            coMeth.getDb()
-                                    .collection("Users")
-                                    .document(postUserId)
-                                    .get()
-                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            getUserData(postUserId);
+                        } else {
+                            //post does not exist
+                            //go to main
+                            goToMain(getString(R.string.post_not_found_text));
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get post: " + e.getMessage());
 
-                                            if (task.isSuccessful() && task.getResult().exists()) {
+                    }
+                })
 
-                                                //get user details
-                                                //convert user to object
-                                                Users user = task.getResult().toObject(Users.class);
-                                                String username = user.getName();
-                                                //set username
-                                                postUsernameField.setText(username);
-                                                //set user image
-                                                String userImageDownloadUrl = user.getImage();
-                                                String userThumbDownloadUrl = user.getThumb();
-                                                if (userThumbDownloadUrl != null) {
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                                                    coMeth.setImage(R.drawable.ic_action_person_placeholder, userThumbDownloadUrl, postUserImage);
+                        if (task.isSuccessful() && task.getResult().exists()) {
 
-                                                } else {
+                            //convert post to object
 
-                                                    coMeth.setImage(R.drawable.ic_action_person_placeholder, userImageDownloadUrl, postUserImage);
-
-                                                }
-
-                                            } else {
-
-                                                if (!task.isSuccessful()) {
-
-                                                    // TODO: 5/4/18 handle task failed
-
-                                                }
-                                                if (!task.getResult().exists()) {
-
-                                                    // TODO: 5/4/18 handle user does not exist
-                                                }
-
-                                            }
-
-                                        }
-                                    });
 
                         } else {
 
@@ -422,6 +389,47 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
                         }
 
+                    }
+                });
+    }
+
+    private void getUserData(String postUserId) {
+        coMeth.getDb()
+                .collection("Users")
+                .document(postUserId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            Users user = documentSnapshot.toObject(Users.class);
+                            String username = user.getName();
+                            //set username
+                            postUsernameField.setText(username);
+                            //set user image
+                            String userImageDownloadUrl = user.getImage();
+                            String userThumbDownloadUrl = user.getThumb();
+                            if (userThumbDownloadUrl != null) {
+                                coMeth.setImage(
+                                        R.drawable.ic_action_person_placeholder,
+                                        userThumbDownloadUrl, postUserImage);
+                            } else {
+                                coMeth.setImage(
+                                        R.drawable.ic_action_person_placeholder,
+                                        userImageDownloadUrl, postUserImage);
+                            }
+                        } else {
+                            //user does not exist
+                            showSnack(getString(R.string.something_went_wrong_text));
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: " +
+                                "\nfailed to get user details:" +
+                                e.getMessage());
                     }
                 });
     }

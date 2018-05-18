@@ -486,7 +486,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .setLink(Uri.parse(postUrl))
                 .setDynamicLinkDomain(context.getString(R.string.dynamic_link_domain))
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                        .setMinimumVersion(9)
+                        .setMinimumVersion(10)
                         .setFallbackUrl(Uri.parse(context.getString(R.string.playstore_url)))
                         .build())
                 // TODO: 5/18/18 handle opening links on ios

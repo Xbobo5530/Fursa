@@ -119,15 +119,14 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
             @Override
             public void onClick(View v) {
 
-                //open report alert dialog
-                AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
-                reportBuilder.setTitle("Comment Options")
-                        .setIcon(context.getDrawable(R.drawable.ic_action_comment))
-                        .setItems(getCommentReportOptionsList(), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+                    //open report alert dialog
+                    AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
+                    reportBuilder.setTitle("Comment Options")
+                            .setIcon(context.getDrawable(R.drawable.ic_action_comment))
+                            .setItems(getCommentReportOptionsList(), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
                                     switch (getCommentReportOptionsList()[which]) {
 
                                         case "Report":
@@ -140,24 +139,20 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
                                     }
 
-                                } else {
-
-                                    if (!coMeth.isConnected()) {
-
-                                        // TODO: 5/6/18 handle not connect
-                                        // show snack
-
-                                    }
-                                    if (!coMeth.isLoggedIn()) {
-
-                                        //show login alert
-                                        // TODO: 5/6/18 show login alert
-                                    }
                                 }
-
-                            }
-                        })
-                        .show();
+                            })
+                            .show();
+                } else {
+                    if (!coMeth.isConnected()) {
+                        showSnack(holder, context.getString(R.string.failed_to_connect_text));
+                    }
+                    if (!coMeth.isLoggedIn()) {
+                        Intent goToLoginIntent = new Intent(context, LoginActivity.class);
+                        goToLoginIntent.putExtra("message",
+                                context.getString(R.string.login_to_report));
+                        context.startActivity(goToLoginIntent);
+                    }
+                }
             }
         });
 
@@ -170,9 +165,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                 //check if user exists
                 if (documentSnapshot.exists()) {
 
-                    // TODO: 4/16/18 test when user is not available
-
-
+                    // TODO: 5/18/18 clean users on comments
                     try {
                         //user exists
                         Users user = documentSnapshot.toObject(Users.class);
@@ -422,8 +415,6 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
     //get comment report options list
     private String[] getCommentReportOptionsList() {
 
-        // TODO: 5/6/18 handle admin actions and user actions
-        // TODO: 5/6/18 handle delete comment and del comment permissions
         //get postUserId
         coMeth.getDb()
                 .collection("Posts")
