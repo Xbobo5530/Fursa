@@ -25,6 +25,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -512,19 +515,10 @@ public class ViewPostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Log.d(TAG, "Sharing post");
-                //create post url
+                //get post url
+                showProgress(getString(R.string.loading_text));
                 String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
-                String postTitle = getPostTitle(postId);
-                String fullShareMsg = getString(R.string.app_name) + ":\n" +
-                        postTitle + "\n" +
-                        postUrl;
-                Log.d(TAG, "fullShareMsg is: " + fullShareMsg);
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
-                shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
-                startActivity(Intent.createChooser(shareIntent, "Share with"));
-
+                shareDynamicLink(postUrl);
             }
         });
 
@@ -1062,6 +1056,55 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void shareDynamicLink(String postUrl) {
+        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse(postUrl))
+                .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
+                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
+                        .setMinimumVersion(9)
+                        .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
+                        .build())
+                // TODO: 5/18/18 hanlde opeinig links on ios
+                /*.setIosParameters(new DynamicLink.IosParameters.Builder(FirebaseApp.getInstance().getApplicationContext().getPackageName())
+                        .setCustomScheme(getString(R.string.playstore_url))
+                        .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
+                        .build())*/
+                .setSocialMetaTagParameters(
+                        new DynamicLink.SocialMetaTagParameters.Builder()
+                                .setTitle(getString(R.string.app_name))
+                                .setDescription(getString(R.string.sharing_opp_text))
+                                .setImageUrl(Uri.parse(getString(R.string.app_icon_url)))
+                                .build())
+                .buildShortDynamicLink()
+                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                        if (task.isSuccessful()) {
+                            Uri shortLink = task.getResult().getShortLink();
+                            Uri flowchartLink = task.getResult().getPreviewLink();
+                            Log.d(TAG, "onComplete: short link is: " + shortLink);
+
+                            //show share dialog
+                            String postTitle = getPostTitle(postId);
+                            String fullShareMsg = getString(R.string.app_name) + ":\n" +
+                                    postTitle + "\n" +
+                                    shortLink;
+                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                            shareIntent.setType("text/plain");
+                            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+                            coMeth.stopLoading(progressDialog);
+                            startActivity(Intent.createChooser(shareIntent, "Share with"));
+                        } else {
+                            Log.d(TAG, "onComplete: \ncreating short link task failed\n" +
+                                    task.getException());
+                            coMeth.stopLoading(progressDialog);
+                            showSnack(getString(R.string.failed_to_share_text));
+                        }
+                    }
+                });
     }
 
     private void handleIntent() {

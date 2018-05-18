@@ -183,5 +183,10 @@
     <string name="share_with_text" translatable="false">Share with</string>
     <string name="create_post_text" translatable="false">Create post</string>
     <string name="share_with_friends_text">Share with friends</string>
+    <string name="dynamic_link_domain" translatable="false">ty64x.app.goo.gl</string>
+    <string name="failed_to_share_text">Failed to share</string>
+    <string name="app_icon_url"><![CDATA[https://firebasestorage.googleapis.com/v0/b/fursa-c181d.appspot.com/o/ic_launcher-web.png?alt=media&token=4ebbe991-147c-4b87-8985-462fd2052b0a]]></string>
+    <string name="sharing_opp_text">Sharing experiences and opportunities</string>
+    <string name="playstore_url">https://play.google.com/store/apps/details?id=com.nyayozangu.labs.fursa</string>
 
 </resources>

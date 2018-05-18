@@ -23,6 +23,9 @@ import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -125,19 +128,55 @@ ViewCategoryActivity extends AppCompatActivity {
     }
 
     private void shareCat() {
+
         Log.d(TAG, "Sharing cat");
+        showProgress(getString(R.string.loading_text));
         //create cat url
         String catUrl = getResources().getString(R.string.fursa_url_cat_head) + currentCat;
-        String postTitle = coMeth.getCatValue(currentCat);
-        String fullShareMsg = getString(R.string.app_name) + ":\n" +
-                postTitle + "\n" +
-                catUrl;
-        Log.d(TAG, "fullShareMsg is: " + fullShareMsg);
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_with_text)));
+        Task<ShortDynamicLink> shortLinkTask =
+                FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse(catUrl))
+                        .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
+                        .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
+                                .setMinimumVersion(9)
+                                .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
+                                .build())
+                        // TODO: 5/18/18 handle opening links on ios
+                        .setSocialMetaTagParameters(
+                                new DynamicLink.SocialMetaTagParameters.Builder()
+                                        .setTitle(getString(R.string.app_name))
+                                        .setDescription(getString(R.string.sharing_opp_text))
+                                        .setImageUrl(Uri.parse(getString(R.string.app_icon_url)))
+                                        .build())
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                if (task.isSuccessful()) {
+                                    Uri shortLink = task.getResult().getShortLink();
+                                    Uri flowchartLink = task.getResult().getPreviewLink();
+                                    Log.d(TAG, "onComplete: short link is: " + shortLink);
+
+                                    //show share dialog
+                                    String catTitle = coMeth.getCatValue(currentCat);
+                                    String fullShareMsg = getString(R.string.app_name) + ":\n" +
+                                            catTitle + "\n" +
+                                            shortLink;
+                                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                    shareIntent.setType("text/plain");
+                                    shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                                            getResources().getString(R.string.app_name));
+                                    shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+                                    coMeth.stopLoading(progressDialog);
+                                    startActivity(Intent.createChooser(shareIntent, "Share with"));
+                                } else {
+                                    Log.d(TAG, "onComplete: \ncreating short link task failed\n" +
+                                            task.getException());
+                                    coMeth.stopLoading(progressDialog);
+                                    showSnack(getString(R.string.failed_to_share_text));
+                                }
+                            }
+                        });
     }
 
     @Override

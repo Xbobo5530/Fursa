@@ -85,6 +85,8 @@ dependencies {
     compile 'com.ms-square:expandableTextView:0.1.4'
     //mlkit
     implementation 'com.google.firebase:firebase-ml-vision:15.0.0'
+    //dynamic links
+    implementation 'com.google.firebase:firebase-invites:15.0.1'
 }
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.android.application'

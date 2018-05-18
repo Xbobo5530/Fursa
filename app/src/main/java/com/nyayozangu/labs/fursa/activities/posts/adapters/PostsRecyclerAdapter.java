@@ -3,6 +3,7 @@ package com.nyayozangu.labs.fursa.activities.posts.adapters;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -376,25 +380,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //share post
         //set onclick listener to the share button
-        final String postTitle = getTittle(postId);
+        final String postTitle = getPostTitle(postId);
         holder.postSharePostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Sharing post");
+                showProgress(context.getString(R.string.loading_text));
                 //create post url
                 String postUrl = context.getResources().getString(R.string.fursa_url_post_head) + postId;
-                // TODO: 5/9/18 check anomaly in sharing posts title mixup
-
-                String fullShareMsg = context.getString(R.string.app_name) + ":\n" +
-                        postTitle + "\n" +
-                        postUrl;
-                Log.d(TAG, "postUrl is: " + postUrl);
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.app_name));
-                shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
-                context.startActivity(Intent.createChooser(shareIntent, "Share this post with"));
-
+                shareDynamicLink(postUrl, postTitle, holder);
             }
         });
 
@@ -469,6 +463,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     }
 
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
     private void setAnimation(View viewToAnimate, int position) {
         // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition) {
@@ -479,7 +481,51 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private String getTittle(String postId) {
+    private void shareDynamicLink(String postUrl, final String postTitle, final ViewHolder holder) {
+        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse(postUrl))
+                .setDynamicLinkDomain(context.getString(R.string.dynamic_link_domain))
+                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
+                        .setMinimumVersion(9)
+                        .setFallbackUrl(Uri.parse(context.getString(R.string.playstore_url)))
+                        .build())
+                // TODO: 5/18/18 handle opening links on ios
+                .setSocialMetaTagParameters(
+                        new DynamicLink.SocialMetaTagParameters.Builder()
+                                .setTitle(context.getString(R.string.app_name))
+                                .setDescription(context.getString(R.string.sharing_opp_text))
+                                .setImageUrl(Uri.parse(context.getString(R.string.app_icon_url)))
+                                .build())
+                .buildShortDynamicLink()
+                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                        if (task.isSuccessful()) {
+                            Uri shortLink = task.getResult().getShortLink();
+                            Uri flowchartLink = task.getResult().getPreviewLink();
+                            Log.d(TAG, "onComplete: short link is: " + shortLink);
+
+                            //show share dialog
+                            String fullShareMsg = context.getString(R.string.app_name) + ":\n" +
+                                    postTitle + "\n" +
+                                    shortLink;
+                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                            shareIntent.setType("text/plain");
+                            shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.app_name));
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+                            coMeth.stopLoading(progressDialog);
+                            context.startActivity(Intent.createChooser(shareIntent, "Share with"));
+                        } else {
+                            Log.d(TAG, "onComplete: \ncreating short link task failed\n" +
+                                    task.getException());
+                            coMeth.stopLoading(progressDialog);
+                            showSnack(holder, context.getString(R.string.failed_to_share_text));
+                        }
+                    }
+                });
+    }
+
+    private String getPostTitle(String postId) {
         //get data from db
         coMeth.getDb()
                 .collection("Posts")
