@@ -28,6 +28,7 @@ import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
@@ -109,7 +110,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param messageBody the message of the notification
      * @param extraInfo   the url to open when the notification is opened
      */
-    private void sendNotification(final String title, final String messageBody, String notifType, String extraInfo) {
+    private void sendNotification(final String title,
+                                  final String messageBody,
+                                  String notifType,
+                                  String extraInfo) {
         Log.d(TAG, "at sendNotification");
 
         if (notifType != null) {
@@ -200,6 +204,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     catsNotifIntent.putExtra("category", extraInfo);
                     catsNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, catsNotifIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+                    buildNotif(title, messageBody, null);
+                    break;
+
+                case "likes_updates":
+
+                    Intent likesNotifIntent = new Intent(this, ViewPostActivity.class);
+                    likesNotifIntent.putExtra("postId", extraInfo);
+                    likesNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, likesNotifIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     buildNotif(title, messageBody, null);
                     break;

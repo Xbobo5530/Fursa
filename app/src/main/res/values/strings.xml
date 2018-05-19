@@ -188,5 +188,11 @@
     <string name="app_icon_url"><![CDATA[https://firebasestorage.googleapis.com/v0/b/fursa-c181d.appspot.com/o/ic_launcher-web.png?alt=media&token=4ebbe991-147c-4b87-8985-462fd2052b0a]]></string>
     <string name="sharing_opp_text">Sharing experiences and opportunities</string>
     <string name="playstore_url">https://play.google.com/store/apps/details?id=com.nyayozangu.labs.fursa</string>
+    <string name="action_name_text">action</string>
+    <string name="notify_value_text">notify</string>
+    <string name="message_name_text">message</string>
+    <string name="goto_value_text">goto</string>
+    <string name="destionation_name_text">destination</string>
+    <string name="saved_value_text">saved</string>
 
 </resources>

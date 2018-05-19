@@ -492,7 +492,8 @@ public class CreatePostActivity extends AppCompatActivity {
                 int MONTH = calendar.get(Calendar.MONTH);
                 int DAY = calendar.get(Calendar.DAY_OF_MONTH);
 
-                final DatePickerDialog eventDatePickerDialog = new DatePickerDialog(CreatePostActivity.this,
+                final DatePickerDialog eventDatePickerDialog =
+                        new DatePickerDialog(CreatePostActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -502,7 +503,8 @@ public class CreatePostActivity extends AppCompatActivity {
                         // TODO: 5/2/18 check setting event date on edit post fails
                         Log.d(TAG, "date selected is: " + eventDate.toString());
                         //set selected date to the eventDate textView
-                        eventDateTextView.setText(android.text.format.DateFormat.format("EEE, MMM d, 20yy", eventDate).toString());
+                        eventDateTextView.setText(android.text.format.DateFormat
+                                .format("EEE, MMM d, 20yy", eventDate).toString());
 
 
                     }
@@ -625,7 +627,8 @@ public class CreatePostActivity extends AppCompatActivity {
                                                     //post no longer exists
                                                     Log.d(TAG, "onComplete: post does not exist");
                                                     //go to main
-                                                    Intent postNotFoundIntent = new Intent(CreatePostActivity.this, MainActivity.class);
+                                                    Intent postNotFoundIntent =
+                                                            new Intent(CreatePostActivity.this, MainActivity.class);
                                                     postNotFoundIntent.putExtra("action", "notify");
                                                     postNotFoundIntent.putExtra("message", getString(R.string.post_not_found_text));
                                                     startActivity(postNotFoundIntent);
@@ -762,7 +765,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
                                                         //update users posts list
                                                         updateMyPosts(currentPostId);
-
 
                                                     } else {
 

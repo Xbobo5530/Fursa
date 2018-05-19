@@ -131,14 +131,11 @@ public class AccountActivity extends AppCompatActivity {
                             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                     image,
                                     setupImage);
-
                             //update the imageUri
                             userImageUri = Uri.parse(image);
                         } catch (NullPointerException userImageException) {
-
                             //user image is null
                             Log.e(TAG, "onComplete: ", userImageException);
-
                         }
 
                     } else {
@@ -156,7 +153,8 @@ public class AccountActivity extends AppCompatActivity {
                             }
                         }
                         //set default user Image
-                        setupImage.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
+                        setupImage.setImageDrawable(
+                                getResources().getDrawable(R.drawable.appiconshadow));
 
                     }
 
@@ -181,10 +179,14 @@ public class AccountActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     //user is running marshmallow or greater
                     //check user permission
-                    if (ContextCompat.checkSelfPermission(AccountActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(
+                            AccountActivity.this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         //permission not yet granted
                         //ask for permission
-                        ActivityCompat.requestPermissions(AccountActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                        ActivityCompat.requestPermissions(
+                                AccountActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
 
                     } else {
@@ -214,7 +216,7 @@ public class AccountActivity extends AppCompatActivity {
                     //hide keyboard
                     hideKeyBoard();
                     //show progress bar
-                    showProgress("Loading...");
+                    showProgress(getString(R.string.loading_text));
                     //generate randomString name for image based on firebase time stamp
                     final String randomName = UUID.randomUUID().toString();
                     //check if data (image) has changed
@@ -436,6 +438,7 @@ public class AccountActivity extends AppCompatActivity {
         //construct the dialog box
         progressDialog = new ProgressDialog(AccountActivity.this);
         progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
         progressDialog.show();
     }
 

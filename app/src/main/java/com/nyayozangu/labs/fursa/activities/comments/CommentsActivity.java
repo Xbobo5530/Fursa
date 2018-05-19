@@ -188,8 +188,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
     private void goToMain(String message) {
         Intent goToMainIntent = new Intent(this, MainActivity.class);
-        goToMainIntent.putExtra("action", "notify");
-        goToMainIntent.putExtra("message", message);
+        goToMainIntent.putExtra(getString(R.string.action_name_text), getString(R.string.notify_value_text));
+        goToMainIntent.putExtra(getString(R.string.message_name_text), message);
         startActivity(goToMainIntent);
         finish();
     }

@@ -24,6 +24,7 @@ public class Notify extends AsyncTask<String, String, Void> {
     private static final String API_KEY = "key=AAAAx83bavk:APA91bHl_bttQCZ9UtkPMnBdz6VIjXj-4BD6S3ZDcUL20153ns6a2Aep0BdU_f0tP5pkeIyEivOyuebqmplIVt1-bhRNtgxQD_SqcmdhBM5DaJg6v0e59gyTvNSkt0RcN9WmgzSTJCtq";
     private String token;
 
+    // TODO: 5/19/18 handle strings with string resources 
     @Override
     protected Void doInBackground(String... strings) {
 
@@ -49,7 +50,6 @@ public class Notify extends AsyncTask<String, String, Void> {
 
             JSONObject json = new JSONObject();
 
-            // TODO: 4/25/18 specify topics to send notifications to
             //comment updates
             switch (strings[0]) {
 
@@ -65,6 +65,20 @@ public class Notify extends AsyncTask<String, String, Void> {
                             "\ntopic is: " + topic +
                             "\npostId is: " + postId);
                     break;
+
+                case "likes_updates":
+
+                    postId = strings[1];
+                    //notification type is likes updates
+                    topic = topic.concat(postId);
+                    json.put("to", topic);
+                    passNotifDetails(conn, json, "LIKES", postId);
+                    Log.d(TAG, "doInBackground: " +
+                            "\nnotifType is: LIKES" +
+                            "\ntopic is: " + topic +
+                            "\npostId is: " + postId);
+                    break;
+
 
                 case "saved_posts_updates":
 
@@ -97,7 +111,10 @@ public class Notify extends AsyncTask<String, String, Void> {
         return null;
     }
 
-    private void passNotifDetails(HttpURLConnection conn, JSONObject json, String notifType, String extraInfo) throws JSONException, IOException {
+    private void passNotifDetails(HttpURLConnection conn,
+                                  JSONObject json,
+                                  String notifType,
+                                  String extraInfo) throws JSONException, IOException {
         JSONObject info = new JSONObject();
 
         //create diff conditions for diff types of notifications
@@ -112,18 +129,30 @@ public class Notify extends AsyncTask<String, String, Void> {
 
                 Log.d(TAG, "passNotifDetails: \nextraInfo is:" + extraInfo);
                 break;
+
+            case "LIKES":
+                info.put("title", "New Likes");   // Notification title
+                info.put("message", "Check out new Likes on the posts you follow"); // Notification body
+                info.put("notif_type", "likes_updates");
+                info.put("extra", extraInfo);
+
+                Log.d(TAG, "passNotifDetails: \nextraInfo is:" + extraInfo);
+                break;
+
             case "SAVED":
                 info.put("title", "Saved Post Updates");   // Notification title
                 info.put("message", "Check out new updates on your saved posts"); // Notification body
                 info.put("notif_type", "saved_posts_updates");
                 info.put("extra", extraInfo);
                 break;
+
             case "CATS":
                 info.put("title", "New Posts on Categories you follow");   // Notification title
                 info.put("message", "Check out new posts on the categories you follow"); // Notification body
                 info.put("notif_type", "categories_updates");
                 info.put("extra", extraInfo);
                 break;
+
             default:
                 Log.d(TAG, "passNotifDetails: at default");
                 info.put("title", "Sharing experiences and opportunities");   // Notification title

@@ -122,7 +122,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //handle post image
-        String imageUrl = postsList.get(position).getImage_url();
+        final String imageUrl = postsList.get(position).getImage_url();
         String thumbUrl = postsList.get(position).getThumb_url();
         holder.setPostImage(imageUrl, thumbUrl);
 
@@ -388,7 +388,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 showProgress(context.getString(R.string.loading_text));
                 //create post url
                 String postUrl = context.getResources().getString(R.string.fursa_url_post_head) + postId;
-                shareDynamicLink(postUrl, postTitle, holder);
+                shareDynamicLink(postUrl, postTitle, imageUrl, holder);
             }
         });
 
@@ -481,7 +481,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void shareDynamicLink(String postUrl, final String postTitle, final ViewHolder holder) {
+    private void shareDynamicLink(String postUrl,
+                                  final String postTitle,
+                                  final String postImageUrl,
+                                  final ViewHolder holder) {
         Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(postUrl))
                 .setDynamicLinkDomain(context.getString(R.string.dynamic_link_domain))
@@ -493,8 +496,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
                                 .setTitle(context.getString(R.string.app_name))
-                                .setDescription(context.getString(R.string.sharing_opp_text))
-                                .setImageUrl(Uri.parse(context.getString(R.string.app_icon_url)))
+                                .setDescription(postTitle)
+                                .setImageUrl(Uri.parse(getImageUrl(postImageUrl)))
                                 .build())
                 .buildShortDynamicLink()
                 .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
@@ -523,6 +526,21 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         }
                     }
                 });
+    }
+
+    /**
+     * checks if post has an image
+     *
+     * @return String post image download url
+     * if the post has an image
+     * or the default app icon download url if the post has no image
+     */
+    private String getImageUrl(String postImageUrl) {
+        if (postImageUrl != null) {
+            return postImageUrl;
+        } else {
+            return context.getString(R.string.app_icon_url);
+        }
     }
 
     private String getPostTitle(String postId) {

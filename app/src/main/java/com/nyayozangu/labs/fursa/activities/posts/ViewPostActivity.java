@@ -43,6 +43,7 @@ import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.AdminActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.notifications.Notify;
 import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -58,6 +60,7 @@ public class ViewPostActivity extends AppCompatActivity {
     // TODO: 5/7/18 reorganize code on click listeners
 
     private static final String TAG = "Sean";
+    private static final String SENDER_ID = "858152200953";
     MenuItem editPost;
     MenuItem deletePost;
     //post image
@@ -112,6 +115,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private String reportDetailsString;
 
     private boolean isAdmin = false;
+    private AtomicInteger msgId;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -489,6 +493,8 @@ public class ViewPostActivity extends AppCompatActivity {
         reportedItems = new ArrayList<String>();
         reportDetailsString = "";
 
+        msgId = new AtomicInteger();
+
         //handle intent
         handleIntent();
 
@@ -506,19 +512,6 @@ public class ViewPostActivity extends AppCompatActivity {
                 commentsIntent.putExtra("postId", postId);
                 startActivity(commentsIntent);
 
-            }
-        });
-
-        //handle share click
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Log.d(TAG, "Sharing post");
-                //get post url
-                showProgress(getString(R.string.loading_text));
-                String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
-                shareDynamicLink(postUrl);
             }
         });
 
@@ -614,11 +607,33 @@ public class ViewPostActivity extends AppCompatActivity {
                                             Map<String, Object> likesMap = new HashMap<>();
                                             likesMap.put("timestamp", FieldValue.serverTimestamp());
                                             //can alternatively ne written
-                                            coMeth.getDb().collection("Posts/" + postId + "/Likes").document(currentUserId).set(likesMap);
+                                            coMeth.getDb()
+                                                    .collection("Posts/" + postId + "/Likes")
+                                                    .document(currentUserId).set(likesMap);
+
+                                            //notify subscribers
+                                            /*FirebaseMessaging fm = FirebaseMessaging.getInstance();
+                                                fm.send(new RemoteMessage.Builder(SENDER_ID + "@gcm.googleapis.com")
+                                                  .setMessageId(Integer.toString(msgId.incrementAndGet()))
+                                                  .addData("my_message", "Hello World")
+                                                  .addData("my_action","SAY_HELLO")
+                                                  .build());*/
+
+                                            /*String title = data.get("title");
+                                                String message = data.get("message");
+                                                String notifType = data.get("notif_type");
+                                                String extraInfo = data.get("extra").trim();*/
+
+
+                                            String notifType = "likes_updates";
+                                            new Notify().execute(notifType, postId);
+                                            Log.d(TAG, "onComplete: notification sent");
 
                                         } else {
                                             //delete the like
-                                            coMeth.getDb().collection("Posts/" + postId + "/Likes").document(currentUserId).delete();
+                                            coMeth.getDb()
+                                                    .collection("Posts/" + postId + "/Likes")
+                                                    .document(currentUserId).delete();
                                         }
                                     }
                                 });
@@ -716,19 +731,22 @@ public class ViewPostActivity extends AppCompatActivity {
                     .document(currentUserId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
-                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        public void onEvent(
+                                DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
                             //update the save button real time
                             if (documentSnapshot.exists()) {
 
                                 Log.d(TAG, "at get saves, updating saves realtime");
                                 //user has saved post
-                                saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmarked));
+                                saveButton.setImageDrawable(
+                                        getDrawable(R.drawable.ic_action_bookmarked));
 
                             } else {
 
                                 //user has not liked post
-                                saveButton.setImageDrawable(getDrawable(R.drawable.ic_action_bookmark_outline));
+                                saveButton.setImageDrawable(
+                                        getDrawable(R.drawable.ic_action_bookmark_outline));
 
                             }
                         }
@@ -739,7 +757,8 @@ public class ViewPostActivity extends AppCompatActivity {
         //set contents
         coMeth.getDb()
                 .collection("Posts")
-                .document(postId).addSnapshotListener(ViewPostActivity.this, new EventListener<DocumentSnapshot>() {
+                .document(postId).addSnapshotListener(
+                ViewPostActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
@@ -787,7 +806,6 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     }
 
-
                     //set location
                     ArrayList<String> locationArray = post.getLocation();
                     String locationString = "";
@@ -798,35 +816,28 @@ public class ViewPostActivity extends AppCompatActivity {
                         Log.d(TAG, "onEvent: location is " + locationArray);
 
                         for (int i = 0; i < locationArray.size(); i++) {
-
-                            locationString = locationString.concat(locationArray.get(i).toString() + "\n");
-
+                            locationString = locationString.concat(
+                                    locationArray.get(i).toString() + "\n");
                         }
-
                         locationTextView.setText(locationString.trim());
-
                     } else {
-
                         viewPostLocationLayout.setVisibility(View.GONE);
                     }
 
                     //set price
                     String price = post.getPrice();
                     if (price != null) {
-
                         priceTextView.setText(price);
-
                     } else {
-
                         viewPostPriceLayout.setVisibility(View.GONE);
-
                     }
 
                     //set event date
                     if (post.getEvent_date() != null) {
                         long eventDate = post.getEvent_date().getTime();
                         Log.d(TAG, String.valueOf(eventDate));
-                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy", new Date(eventDate)).toString();
+                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy",
+                                new Date(eventDate)).toString();
                         Log.d(TAG, "onEvent: \nebentDateString: " + eventDateString);
                         eventDateTextView.setText(eventDateString);
                     }else{
@@ -967,16 +978,11 @@ public class ViewPostActivity extends AppCompatActivity {
                             catArray.add(String.valueOf(categories.get(i)));
 
                         }
-
                         catTextView.setText(catString.trim());
 
                     } else {
-
-                        //post has not categories
-                        // hide categories layout
                         viewPostCatLayout.setVisibility(View.GONE);
                         Log.d(TAG, "onEvent: post has no cats");
-
                     }
 
                     coMeth.stopLoading(progressDialog);
@@ -987,11 +993,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     coMeth.stopLoading(progressDialog);
                     Log.d(TAG, "Error: post does not exist");
                     //save error and notify in main
-                    Intent postNotFountIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-                    postNotFountIntent.putExtra("action", "notify");
-                    postNotFountIntent.putExtra("message", "Could not find post");
-                    startActivity(postNotFountIntent);
-                    finish();
+                    goToMain(getString(R.string.post_not_found_text));
                 }
 
                 coMeth.stopLoading(progressDialog);
@@ -1000,6 +1002,19 @@ public class ViewPostActivity extends AppCompatActivity {
         });
 
         //handle clicks
+        //handle share click
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d(TAG, "Sharing post");
+                //get post url
+                showProgress(getString(R.string.loading_text));
+                String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
+                shareDynamicLink(postUrl);
+            }
+        });
+
         //post image click
         viewPostImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1028,7 +1043,8 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                 //set click actions
                                 //open view cat activity
-                                Intent catIntent = new Intent(ViewPostActivity.this, ViewCategoryActivity.class);
+                                Intent catIntent = new Intent(
+                                        ViewPostActivity.this, ViewCategoryActivity.class);
                                 catIntent.putExtra("category", catKeys.get(which));
                                 startActivity(catIntent);
                                 finish();
@@ -1052,7 +1068,6 @@ public class ViewPostActivity extends AppCompatActivity {
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
-
             }
         });
 
@@ -1067,15 +1082,11 @@ public class ViewPostActivity extends AppCompatActivity {
                         .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
                         .build())
                 // TODO: 5/18/18 hanlde opeinig links on ios
-                /*.setIosParameters(new DynamicLink.IosParameters.Builder(FirebaseApp.getInstance().getApplicationContext().getPackageName())
-                        .setCustomScheme(getString(R.string.playstore_url))
-                        .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
-                        .build())*/
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
                                 .setTitle(getString(R.string.app_name))
-                                .setDescription(getString(R.string.sharing_opp_text))
-                                .setImageUrl(Uri.parse(getString(R.string.app_icon_url)))
+                                .setDescription(getPostTitle(postId))
+                                .setImageUrl(Uri.parse(getPostImageUrl()))
                                 .build())
                 .buildShortDynamicLink()
                 .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
@@ -1093,10 +1104,12 @@ public class ViewPostActivity extends AppCompatActivity {
                                     shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");
-                            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
+                            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                                    getResources().getString(R.string.app_name));
                             shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
                             coMeth.stopLoading(progressDialog);
-                            startActivity(Intent.createChooser(shareIntent, "Share with"));
+                            startActivity(Intent.createChooser(shareIntent,
+                                    getString(R.string.share_with_text)));
                         } else {
                             Log.d(TAG, "onComplete: \ncreating short link task failed\n" +
                                     task.getException());
@@ -1107,23 +1120,43 @@ public class ViewPostActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Checks if the post has an image
+     *
+     * @return String image download url
+     * if post has image returns post image url
+     * else returns the default app icon download url
+     */
+    private String getPostImageUrl() {
+        if (postImageUri != null) {
+            return postImageUri;
+        } else {
+            return getString(R.string.app_icon_url);
+        }
+    }
+
     private void handleIntent() {
-        if (getIntent() != null) {
-            if (getIntent().hasExtra("postId")) {
-                //get the sent intent
-                Intent getPostIdIntent = getIntent();
-                postId = getPostIdIntent.getStringExtra("postId");
-                Log.d(TAG, "postId is: " + postId);
+        if (coMeth.isConnected()) {
+            if (getIntent() != null) {
+                if (getIntent().hasExtra("postId")) {
+                    //get the sent intent
+                    Intent getPostIdIntent = getIntent();
+                    postId = getPostIdIntent.getStringExtra("postId");
+                    Log.d(TAG, "postId is: " + postId);
+                } else {
+                    postId = handleDeepLinks(getIntent());
+                }
             } else {
-                postId = handleDeepLinks(getIntent());
+                if (hasAdminAccess()) {
+                    startActivity(new Intent(
+                            ViewPostActivity.this, AdminActivity.class));
+                    finish();
+                } else {
+                    goToMain(getString(R.string.something_went_wrong_text));
+                }
             }
         } else {
-            if (hasAdminAccess()) {
-                startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
-                finish();
-            } else {
-                goToMain();
-            }
+            goToMain(getString(R.string.failed_to_connect_text));
         }
     }
 
@@ -1150,6 +1183,7 @@ public class ViewPostActivity extends AppCompatActivity {
                         } else {
 
                             //post does not exist
+                            goToMain(getString(R.string.post_not_found_text));
 
                         }
 
@@ -1166,8 +1200,12 @@ public class ViewPostActivity extends AppCompatActivity {
 
     }
 
-    private void goToMain() {
-        startActivity(new Intent(ViewPostActivity.this, MainActivity.class));
+    private void goToMain(String message) {
+        Intent goToMainIntent = new Intent(ViewPostActivity.this, MainActivity.class);
+        goToMainIntent.putExtra(getString(R.string.action_name_text),
+                getString(R.string.notify_value_text));
+        goToMainIntent.putExtra(getString(R.string.message_name_text), message);
+        startActivity(goToMainIntent);
         finish();
     }
 
@@ -1212,21 +1250,22 @@ public class ViewPostActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        Intent goToSavedIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-                        goToSavedIntent.putExtra("action", "goto");
-                        goToSavedIntent.putExtra("destination", "saved");
+                        Intent goToSavedIntent = new Intent(
+                                ViewPostActivity.this, MainActivity.class);
+                        goToSavedIntent.putExtra(getString(R.string.action_name_text),
+                                getString(R.string.goto_value_text));
+                        goToSavedIntent.putExtra(getString(R.string.destionation_name_text),
+                                getString(R.string.saved_value_text));
                         startActivity(goToSavedIntent);
                         finish();
-
                     }
                 })
                 .show();
     }
 
     private void goToLogin(String message) {
-
         Intent loginIntent = new Intent(ViewPostActivity.this, LoginActivity.class);
-        loginIntent.putExtra("message", message);
+        loginIntent.putExtra(getString(R.string.message_name_text), message);
         startActivity(loginIntent);
 
     }
