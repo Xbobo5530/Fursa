@@ -85,7 +85,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private ConstraintLayout viewPostLocationLayout;
     private ConstraintLayout viewPostPriceLayout;
     private ConstraintLayout viewPostTimeLayout;
-    private ConstraintLayout viewPostEventDateLayout;
+    private ConstraintLayout eventDateLayout;
     private ConstraintLayout viewPostContactLayout;
     private ConstraintLayout viewPostUserLayout;
     private ConstraintLayout viewPostCatLayout;
@@ -481,7 +481,7 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostLocationLayout = findViewById(R.id.viewPostLocationLayout);
         viewPostPriceLayout = findViewById(R.id.viewPostPriceLayout);
         viewPostTimeLayout = findViewById(R.id.viewPostTimeLayout);
-        viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
+        eventDateLayout = findViewById(R.id.viewPostEventDateLayout);
         viewPostContactLayout = findViewById(R.id.viewPostContactLayout);
 
         tagsTextView = findViewById(R.id.viewPostTagsTextView);
@@ -842,10 +842,10 @@ public class ViewPostActivity extends AppCompatActivity {
                         Log.d(TAG, String.valueOf(eventDate));
                         String eventDateString = DateFormat.format("EEE, MMM d, 20yy",
                                 new Date(eventDate)).toString();
-                        Log.d(TAG, "onEvent: \nebentDateString: " + eventDateString);
+                        Log.d(TAG, "onEvent: \neventDateString: " + eventDateString);
                         eventDateTextView.setText(eventDateString);
                     }else{
-                        viewPostEventDateLayout.setVisibility(View.GONE);
+                        eventDateLayout.setVisibility(View.GONE);
                     }
 
                     //set the time
@@ -968,7 +968,7 @@ public class ViewPostActivity extends AppCompatActivity {
                         for (int i = 0; i < catKeys.size(); i++) {
 
                             //go through catKeys and get values
-                            String catValue = coMeth.getCatValue(catKeys.get(i).toString());
+                            String catValue = coMeth.getCatValue(catKeys.get(i));
                             categories.add(catValue);
 
                         }
@@ -1095,6 +1095,7 @@ public class ViewPostActivity extends AppCompatActivity {
                         .show();
             }
         });
+
 
     }
 
@@ -1294,5 +1295,4 @@ public class ViewPostActivity extends AppCompatActivity {
         startActivity(loginIntent);
 
     }
-
 }
