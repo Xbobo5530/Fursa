@@ -194,5 +194,7 @@
     <string name="goto_value_text">goto</string>
     <string name="destionation_name_text">destination</string>
     <string name="saved_value_text">saved</string>
+    <string name="no_posts_found_text">No posts found</string>
+    <string name="tags_create_post_hint_text">Tags</string>
 
 </resources>

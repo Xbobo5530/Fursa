@@ -359,36 +359,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "onFailure: failed to get post: " + e.getMessage());
-
-                    }
-                })
-
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                        if (task.isSuccessful() && task.getResult().exists()) {
-
-                            //convert post to object
-
-
-                        } else {
-
-                            if (!task.isSuccessful()) {
-
-                                //getting posts failed
-                                // TODO: 5/4/18 handle task failed
-
-                            }
-                            if (!task.getResult().exists()) {
-
-                                //post does not exist
-                                // TODO: 5/4/18 handle post does not exist
-
-                            }
-
-                        }
-
+                        showSnack(getString(R.string.something_went_wrong_text));
                     }
                 });
     }

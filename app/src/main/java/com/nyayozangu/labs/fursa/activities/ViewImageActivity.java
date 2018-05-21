@@ -106,7 +106,7 @@ public class ViewImageActivity extends AppCompatActivity {
 
     private void setImage(String downloadUrl) {
         RequestOptions placeHolderOptions = new RequestOptions();
-        placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
+        placeHolderOptions.placeholder(R.drawable.appiconshadow);
         Glide.with(getApplicationContext())
                 .applyDefaultRequestOptions(placeHolderOptions)
                 .load(downloadUrl)

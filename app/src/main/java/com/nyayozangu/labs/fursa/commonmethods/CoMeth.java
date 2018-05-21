@@ -463,9 +463,9 @@ public class CoMeth {
         progressDialog.show();
     }
 
-    public String[] generatePostTags(String textToProcess) {
-        return textToProcess.split("\\W+");
-    }
+//    public String[] generatePostTags(String textToProcess) {
+//        return textToProcess.split("\\W+");
+//    }
 
 
 }

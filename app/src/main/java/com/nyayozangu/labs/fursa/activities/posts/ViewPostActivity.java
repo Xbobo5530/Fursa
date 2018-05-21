@@ -1099,7 +1099,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                             //show share dialog
                             String postTitle = getPostTitle(postId);
-                            String fullShareMsg = getString(R.string.app_name) + ":\n" +
+                            String fullShareMsg = getString(R.string.app_name) + "\n" +
                                     postTitle + "\n" +
                                     shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);

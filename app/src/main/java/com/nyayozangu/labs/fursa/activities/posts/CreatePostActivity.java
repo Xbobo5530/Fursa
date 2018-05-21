@@ -56,7 +56,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -185,8 +184,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
             //user is not logged in
             Intent homeIntent = new Intent(CreatePostActivity.this, MainActivity.class);
-            homeIntent.putExtra("action", "notify");
-            homeIntent.putExtra("message", getString(R.string.not_logged_in_text));
+            homeIntent.putExtra(getString(R.string.action_name_text), getString(R.string.notify_value_text));
+            homeIntent.putExtra(getString(R.string.message_name_text), getString(R.string.not_logged_in_text));
             startActivity(homeIntent);
             finish();
 
@@ -197,6 +196,7 @@ public class CreatePostActivity extends AppCompatActivity {
             handleIntent();
 
         }
+
 
         descField.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -948,9 +948,7 @@ public class CreatePostActivity extends AppCompatActivity {
             String notifType = "categories_updates";
             Log.d(TAG, "notifyNewPostCatsUpdates: cat is " + catsStringsArray.get(i));
             new Notify().execute(notifType, catsStringsArray.get(i));
-
         }
-
     }
 
     @NonNull
@@ -968,10 +966,6 @@ public class CreatePostActivity extends AppCompatActivity {
         postMap.put("desc", desc);
         postMap.put("user_id", currentUserId);
 
-        //process tags
-        tags.addAll(Arrays.asList(coMeth.generatePostTags(title)));
-        tags.addAll(Arrays.asList(coMeth.generatePostTags(desc)));
-
         //get the current time
         postMap.put("timestamp", FieldValue.serverTimestamp());
         //handle contact details
@@ -983,8 +977,6 @@ public class CreatePostActivity extends AppCompatActivity {
             //set up an array for location
             locationArray.add(postPlace.getName().toString());
             locationArray.add(postPlace.getAddress().toString());
-            tags.addAll(Arrays.asList(coMeth.generatePostTags(postPlace.getName().toString())));
-            tags.addAll(Arrays.asList(coMeth.generatePostTags(postPlace.getAddress().toString())));
         }
         //location
         if (locationArray != null && locationArray.size() > 0) {
@@ -1006,7 +998,23 @@ public class CreatePostActivity extends AppCompatActivity {
         if (!catsStringsArray.isEmpty()) {
             postMap.put("categories", catsStringsArray);
         }
-        postMap.put("tags", tags);
+        //create tags
+        String titleDesc = title + " " + desc;
+        if (titleDesc.contains("#")) {
+            Log.d(TAG, "handleMap: has #");
+            int hashPos = titleDesc.indexOf("#");
+            while (hashPos < titleDesc.length() &&
+                    titleDesc.indexOf("#", hashPos) != -1 &&
+                    hashPos != -1) {
+                String tag = titleDesc.substring(hashPos + 1, titleDesc.indexOf(" ", hashPos));
+                tags.add(tag);
+                Log.d(TAG, "handleMap: tag is " + tag);
+                hashPos = titleDesc.indexOf("#", hashPos + 1);
+            }
+            Log.d(TAG, "handleMap: tags are " + tags);
+            postMap.put("tags", tags);
+
+        }
         return postMap;
 
     }
@@ -1015,75 +1023,38 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
         if (contactName != null) {
-
             if (contactPhone != null) {
-
                 if (contactEmail != null) {
-
                     contactDetails.add(contactName);
                     contactDetails.add(contactPhone);
                     contactDetails.add(contactEmail);
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactPhone)));
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactEmail)));
-
                 } else {
-
                     contactDetails.add(contactName);
                     contactDetails.add(contactPhone);
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactPhone)));
-
                 }
-
             } else {
-
                 if (contactEmail != null) {
-
                     contactDetails.add(contactName);
                     contactDetails.add(contactEmail);
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactEmail)));
-
                 } else {
-
                     contactDetails.add(contactName);
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactName)));
                 }
             }
         } else {
-
             if (contactPhone != null) {
-
                 if (contactEmail != null) {
-
                     contactDetails.add(contactPhone);
                     contactDetails.add(contactEmail);
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactPhone)));
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactEmail)));
-
                 } else {
-
                     contactDetails.add(contactPhone);
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactPhone)));
-
                 }
-
             } else {
-
                 if (contactEmail != null) {
-
                     contactDetails.add(contactEmail);
-                    tags.addAll(Arrays.asList(coMeth.generatePostTags(contactEmail)));
-
                 } else {
-
                     contactDetails = null;
-
                 }
-
             }
-
         }
     }
 
@@ -1112,7 +1083,6 @@ public class CreatePostActivity extends AppCompatActivity {
             Intent getEditPostIdIntent = getIntent();
             String postId = getEditPostIdIntent.getStringExtra("editPost");
             Log.d(TAG, "postId is: " + postId);
-
             //populate data
             populateEditPostData(postId);
 

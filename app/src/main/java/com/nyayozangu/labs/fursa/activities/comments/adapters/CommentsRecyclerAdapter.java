@@ -165,7 +165,6 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                 //check if user exists
                 if (documentSnapshot.exists()) {
 
-                    // TODO: 5/18/18 clean users on comments
                     try {
                         //user exists
                         Users user = documentSnapshot.toObject(Users.class);

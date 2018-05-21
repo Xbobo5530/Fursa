@@ -24,7 +24,7 @@ public class Notify extends AsyncTask<String, String, Void> {
     private static final String API_KEY = "key=AAAAx83bavk:APA91bHl_bttQCZ9UtkPMnBdz6VIjXj-4BD6S3ZDcUL20153ns6a2Aep0BdU_f0tP5pkeIyEivOyuebqmplIVt1-bhRNtgxQD_SqcmdhBM5DaJg6v0e59gyTvNSkt0RcN9WmgzSTJCtq";
     private String token;
 
-    // TODO: 5/19/18 handle strings with string resources 
+    // TODO: 5/19/18 handle strings with string resources
     @Override
     protected Void doInBackground(String... strings) {
 

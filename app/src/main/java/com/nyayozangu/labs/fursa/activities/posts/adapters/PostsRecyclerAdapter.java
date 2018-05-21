@@ -509,7 +509,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                             Log.d(TAG, "onComplete: short link is: " + shortLink);
 
                             //show share dialog
-                            String fullShareMsg = context.getString(R.string.app_name) + ":\n" +
+                            String fullShareMsg = context.getString(R.string.app_name) + "\n" +
                                     postTitle + "\n" +
                                     shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);

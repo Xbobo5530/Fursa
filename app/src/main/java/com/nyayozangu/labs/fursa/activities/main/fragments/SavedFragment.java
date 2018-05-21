@@ -212,16 +212,20 @@ public class SavedFragment extends Fragment {
                                                     if (isFirstPageFirstLoad) {
 
 
-                                                        //add the post at position 0 of the postsList
-                                                        savedPostsList.add(0, post);
-                                                        usersList.add(0, user);
+                                                        if (!savedPostsList.contains(post)) {
+                                                            //add the post at position 0 of the postsList
+                                                            savedPostsList.add(0, post);
+                                                            usersList.add(0, user);
+                                                        }
 
 
                                                     } else {
 
-                                                        //if the first page is loaded the add new post normally
-                                                        savedPostsList.add(post);
-                                                        usersList.add(user);
+                                                        if (!savedPostsList.contains(post)) {
+                                                            //if the first page is loaded the add new post normally
+                                                            savedPostsList.add(post);
+                                                            usersList.add(user);
+                                                        }
 
                                                     }
 
@@ -279,9 +283,11 @@ public class SavedFragment extends Fragment {
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(20);
 
-        nextQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+        nextQuery.addSnapshotListener(
+                getActivity(), new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(final QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+            public void onEvent(
+                    final QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
                 Log.d(TAG, "onEvent: next query");
                 try {
@@ -303,7 +309,8 @@ public class SavedFragment extends Fragment {
                                 coMeth.getDb().collection("Posts")
                                         .document(postId)
                                         .get()
-                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        .addOnCompleteListener(
+                                                new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -315,25 +322,31 @@ public class SavedFragment extends Fragment {
                                             if (task.getResult().exists()) {
 
                                                 //post exists, convert post to object
-                                                final Posts post = task.getResult().toObject(Posts.class).withId(postId);
+                                                final Posts post =
+                                                        task.getResult().toObject(Posts.class).withId(postId);
 
                                                 coMeth.getDb().collection("Users")
                                                         .document(currentUserId)
                                                         .get()
-                                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                        .addOnCompleteListener(
+                                                                new OnCompleteListener<DocumentSnapshot>() {
                                                     @Override
-                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    public void onComplete(
+                                                            @NonNull Task<DocumentSnapshot> task) {
 
                                                         //check if task is success
                                                         if (task.isSuccessful()) {
 
+                                                            String postUserId = task.getResult().getId();
                                                             //add user convert current user to object
-                                                            Users user = task.getResult().toObject(Users.class);
-                                                            //add post to saved posts list
-                                                            savedPostsList.add(post);
-                                                            usersList.add(user);
-                                                            //notify the recycler adapter of the set change
-                                                            savedPostsRecyclerAdapter.notifyDataSetChanged();
+                                                            Users user = task.getResult().toObject(Users.class).withId(postUserId);
+                                                            if (!savedPostsList.contains(post)) {
+                                                                //add post to saved posts list
+                                                                savedPostsList.add(post);
+                                                                usersList.add(user);
+                                                                //notify the recycler adapter of the set change
+                                                                savedPostsRecyclerAdapter.notifyDataSetChanged();
+                                                            }
 
                                                         }
 
@@ -356,9 +369,6 @@ public class SavedFragment extends Fragment {
 
                                     }
                                 });
-
-
-
                             }
                         }
 
@@ -371,8 +381,6 @@ public class SavedFragment extends Fragment {
                 }
             }
         });
-
-
     }
 
 

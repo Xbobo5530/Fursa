@@ -78,6 +78,10 @@ public class HomeFragment extends Fragment {
         /*RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
         homeFeedView.setItemAnimator(itemAnimator);*/
 
+        // TODO: 5/21/18 load old data then show new data notofocation
+        // TODO: 5/21/18 check if user is firs time loading
+        // TODO: 5/21/18 check if there is cached data
+
         //loading
         showProgress(getString(R.string.loading_text));
 
@@ -103,7 +107,7 @@ public class HomeFragment extends Fragment {
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(10);
+                .limit(5);
         //get all posts from the database
         loadPosts(firstQuery);
 
@@ -212,7 +216,7 @@ public class HomeFragment extends Fragment {
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
-                .limit(20);
+                .limit(10);
 
         nextQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override

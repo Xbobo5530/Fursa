@@ -156,7 +156,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
                                     //show share dialog
                                     String catTitle = coMeth.getCatValue(currentCat);
-                                    String fullShareMsg = getString(R.string.app_name) + ":\n" +
+                                    String fullShareMsg = getString(R.string.app_name) + "\n" +
                                             catTitle + "\n" +
                                             shortLink;
                                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -165,9 +165,11 @@ ViewCategoryActivity extends AppCompatActivity {
                                             getResources().getString(R.string.app_name));
                                     shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
                                     coMeth.stopLoading(progressDialog);
-                                    startActivity(Intent.createChooser(shareIntent, "Share with"));
+                                    startActivity(Intent.createChooser(
+                                            shareIntent, getString(R.string.share_with_text)));
                                 } else {
-                                    Log.d(TAG, "onComplete: \ncreating short link task failed\n" +
+                                    Log.d(TAG, "onComplete: " +
+                                            "\ncreating short link task failed\n" +
                                             task.getException());
                                     coMeth.stopLoading(progressDialog);
                                     showSnack(getString(R.string.failed_to_share_text));
@@ -664,9 +666,8 @@ ViewCategoryActivity extends AppCompatActivity {
             //open db and get post likes
 
             processCounts(postId, post, "Likes");
-            // TODO: 5/10/18 add saves and comments to processing popular comments
-            /*processCounts(postId, post, "Saves");
-            processCounts(postId, post, "Comments");*/
+            processCounts(postId, post, "Saves");
+            processCounts(postId, post, "Comments");
 
 
         } else {
@@ -682,7 +683,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 } else {
 
                     //posts dont have current cat
-                    // TODO: 5/3/18 show the no posts in current cat
+                    showSnack(getString(R.string.no_posts_found_text));
                     coMeth.stopLoading(progressDialog, swipeRefresh);
 
                 }
@@ -711,14 +712,14 @@ ViewCategoryActivity extends AppCompatActivity {
                             switch (collectionName) {
 
                                 case "Likes":
-                                    if (count > 1) {
+                                    if (count > 10) {
                                         if (!postsList.contains(post)) {
                                             getFilteredPosts(post);
                                         }
                                     }
                                     break;
                                 case "Saves":
-                                    if (count > 1) {
+                                    if (count > 10) {
                                         if (!postsList.contains(post)) {
                                             getFilteredPosts(post);
                                         }
@@ -746,7 +747,8 @@ ViewCategoryActivity extends AppCompatActivity {
                 .collection("Users")
                 .document(postUserId)
                 .get()
-                .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
+                .addOnCompleteListener(
+                        ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -761,15 +763,19 @@ ViewCategoryActivity extends AppCompatActivity {
                                 if (isFirstPageFirstLoad) {
 
                                     //add the post at position 0 of the postsList
-                                    postsList.add(0, post);
-                                    usersList.add(0, user);
+                                    if (!postsList.contains(post)) {
+                                        postsList.add(0, post);
+                                        usersList.add(0, user);
+                                    }
 
 
                                 } else {
 
                                     //if the first page is loaded the add new post normally
-                                    postsList.add(post);
-                                    usersList.add(user);
+                                    if (!postsList.contains(post)) {
+                                        postsList.add(post);
+                                        usersList.add(user);
+                                    }
 
                                 }
                                 //notify the recycler adapter of the set change
@@ -781,7 +787,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
                                 //cat has no posts
                                 coMeth.stopLoading(progressDialog, swipeRefresh);
-                                showSnack("There are no posts in this category");
+//                                showSnack(getString(R.string.no_posts_found_text));
                                 Log.d(TAG, "onComplete: cat has no posts");
 
                             }
