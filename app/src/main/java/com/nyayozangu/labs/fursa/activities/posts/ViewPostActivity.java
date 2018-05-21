@@ -39,6 +39,7 @@ import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.main.SearchableActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.AdminActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
@@ -773,6 +774,18 @@ public class ViewPostActivity extends AppCompatActivity {
                     descTextView.setText(desc);
                     Log.d(TAG, "onEvent: desc set");
 
+                    //set tags
+                    tags = post.getTags();
+                    if (tags != null && !tags.isEmpty()) {
+                        String tagsString = "";
+                        for (int i = 0; i < tags.size(); i++) {
+                            tagsString = tagsString.concat("#" + tags.get(i) + " ");
+                        }
+                        tagsTextView.setText(tagsString.trim());
+                    } else {
+                        tagsLayout.setVisibility(View.GONE);
+                    }
+
                     //set the contact info
                     ArrayList<String> contactArray = post.getContact_details();
                     if (contactArray != null) {
@@ -1032,7 +1045,6 @@ public class ViewPostActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
-                                //set click actions
                                 //open view cat activity
                                 Intent catIntent = new Intent(
                                         ViewPostActivity.this, ViewCategoryActivity.class);
@@ -1059,6 +1071,28 @@ public class ViewPostActivity extends AppCompatActivity {
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
+            }
+        });
+
+        //tags layout click
+        tagsLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: tags are: " + tags);
+                AlertDialog.Builder tagsBuilder =
+                        new AlertDialog.Builder(ViewPostActivity.this);
+                tagsBuilder.setTitle(getString(R.string.tags_text))
+                        .setIcon(getDrawable(R.drawable.ic_action_tags))
+                        .setItems(tags.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent searchTagIntent = new Intent(
+                                        ViewPostActivity.this, SearchableActivity.class);
+                                searchTagIntent.putExtra("tag", tags.get(which));
+                                startActivity(searchTagIntent);
+                            }
+                        })
+                        .show();
             }
         });
 
