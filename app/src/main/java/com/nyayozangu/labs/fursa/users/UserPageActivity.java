@@ -118,7 +118,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                 } else {
                                     //no user image
                                     userImageView.setImageDrawable(
-                                            getDrawable(R.drawable.appiconshadow));
+                                            getResources().getDrawable(R.drawable.appiconshadow));
                                 }
                             } else {
                                 //user does not exist
@@ -194,10 +194,6 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 Log.d(TAG, "onClick: at user page click listener default");
 
         }
-
-    }
-
-    private void openImage() {
 
     }
 

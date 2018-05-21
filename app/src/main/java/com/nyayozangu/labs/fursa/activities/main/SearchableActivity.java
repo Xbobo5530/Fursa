@@ -104,7 +104,8 @@ public class SearchableActivity extends AppCompatActivity {
         //initiate the PostsRecyclerAdapter
         String className = "SearchableActivity";
         searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
-        coMeth.handlePostsView(SearchableActivity.this, SearchableActivity.this, searchFeed);
+        coMeth.handlePostsView(
+                SearchableActivity.this, SearchableActivity.this, searchFeed);
         //set an adapter for the recycler view
         searchFeed.setAdapter(searchRecyclerAdapter);
         handleIntent(getIntent());
@@ -130,7 +131,6 @@ public class SearchableActivity extends AppCompatActivity {
                     MySuggestionProvider.MODE);
             suggestions.saveRecentQuery(searchQuery, null);
             doMySearch(searchQuery);
-
 
         } else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 
@@ -239,9 +239,8 @@ public class SearchableActivity extends AppCompatActivity {
             contactArray = post.getContact_details();
 
             for (int i = 0; i < contactArray.size(); i++) {
-
-                contactString = contactString.concat(contactArray.get(i).toString().toLowerCase() + " ");
-
+                contactString = contactString.concat(
+                        contactArray.get(i).toString().toLowerCase() + " ");
             }
         }
         //handle location search
@@ -250,9 +249,8 @@ public class SearchableActivity extends AppCompatActivity {
 
             ArrayList locArray = post.getLocation();
             for (int i = 0; i < locArray.size(); i++) {
-
-                locString = locString.concat(locArray.get(i).toString().toLowerCase() + " ");
-
+                locString = locString.concat(
+                        locArray.get(i).toString().toLowerCase() + " ");
             }
 
         }
@@ -282,8 +280,8 @@ public class SearchableActivity extends AppCompatActivity {
 
             Date eventDate = post.getEvent_date();
             long eventDateMils = eventDate.getTime();
-            eventDateString = DateFormat.format("EEE, MMM d, 20yy", new Date(eventDateMils)).toString().toLowerCase();
-
+            eventDateString = DateFormat.format(
+                    "EEE, MMM d, 20yy", new Date(eventDateMils)).toString().toLowerCase();
         }
 
         if (title.contains(searchQuery)) {
@@ -322,7 +320,7 @@ public class SearchableActivity extends AppCompatActivity {
                         //check if task is successful
                         if (task.isSuccessful() && task.getResult().exists()) {
 
-                            String psotuserId = task.getResult().getId();
+                            String psotUserId = task.getResult().getId();
                             Users user = task.getResult().toObject(Users.class).withId(postUserId);
                             //check if post is already added to the post list
                             if (!postsList.contains(post)) {
@@ -383,7 +381,6 @@ public class SearchableActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
         }
-
     }
 
 }

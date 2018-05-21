@@ -84,6 +84,8 @@ public class HomeFragment extends Fragment {
         // TODO: 5/21/18 check if user is firs time loading
         // TODO: 5/21/18 check if there is cached data
 
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
         //loading
         showProgress(getString(R.string.loading_text));
 
@@ -107,9 +109,10 @@ public class HomeFragment extends Fragment {
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(5);
+                .limit(10);
         //get all posts from the database
         loadPosts(firstQuery);
+
 
         //handle refresh
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -171,39 +174,31 @@ public class HomeFragment extends Fragment {
                                         Users user = task.getResult().toObject(Users.class).withId(userId);
                                         //add new post to the local postsList
                                         if (isFirstPageFirstLoad) {
-
-                                            usersList.add(0, user);
-                                            postsList.add(0, post);
-
+                                            if (!postsList.contains(post)) {
+                                                usersList.add(0, user);
+                                                postsList.add(0, post);
+                                            }
                                         } else {
-
-                                            usersList.add(user);
-                                            postsList.add(post);
-
+                                            if (!postsList.contains(post)) {
+                                                usersList.add(user);
+                                                postsList.add(post);
+                                            }
                                         }
-                                        //notify the recycler adapter of the set change
-//                                        postsRecyclerAdapter.notifyItemInserted(postsList.size()-1);
                                         postsRecyclerAdapter.notifyDataSetChanged();
-//                                        postsRecyclerAdapter.notifyItemRangeInserted(postsRecyclerAdapter.getItemCount(), postsList.size());
-
                                     } else {
 
                                         //no posts
+                                        Log.d(TAG, "onComplete: no posts");
 
                                     }
                                     coMeth.stopLoading(progressDialog, swipeRefresh);
-
                                 }
                             });
-
-
                         }
                     }
-
                     //the first page has already loaded
                     isFirstPageFirstLoad = false;
                 }
-
             }
         });
     }
@@ -223,22 +218,13 @@ public class HomeFragment extends Fragment {
 
                 //check if there area more posts
                 if (!queryDocumentSnapshots.isEmpty()) {
-
-                    //get the last visible post
                     lastVisiblePost = queryDocumentSnapshots.getDocuments()
                             .get(queryDocumentSnapshots.size() - 1);
-
-                    //create a for loop to check for document changes
                     for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                        //check if an item is added
                         if (doc.getType() == DocumentChange.Type.ADDED) {
-
-                            //get the post id for likes feature
                             String postId = doc.getDocument().getId();
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                             String postUserId = doc.getDocument().getString("user_id");
-
-                            //get user_id for post
                             coMeth.getDb()
                                     .collection("Users")
                                     .document(postUserId)
@@ -246,17 +232,15 @@ public class HomeFragment extends Fragment {
                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
                                             //check if task is successful
                                             if (task.isSuccessful()) {
-
                                                 Log.d(TAG, "onComplete: adding posts");
                                                 Users user = task.getResult().toObject(Users.class);
-                                                usersList.add(user);
-                                                postsList.add(post);
-//                                                postsRecyclerAdapter.notifyItemInserted(postsList.size());
+                                                if (!postsList.contains(post)) {
+                                                    usersList.add(user);
+                                                    postsList.add(post);
+                                                }
                                                 postsRecyclerAdapter.notifyDataSetChanged();
-
                                             }
 
                                         }
@@ -279,18 +263,6 @@ public class HomeFragment extends Fragment {
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage(message);
         progressDialog.show();
-    }
-
-    private void stopLoading() {
-
-        Log.d(TAG, "stopLoading: ");
-        if (progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-
-        if (swipeRefresh.isRefreshing()) {
-            swipeRefresh.setRefreshing(false);
-        }
     }
 
 }

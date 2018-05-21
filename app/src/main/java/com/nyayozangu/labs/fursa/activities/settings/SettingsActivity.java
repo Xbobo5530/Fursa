@@ -15,13 +15,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
@@ -35,21 +35,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
     private CircleImageView userImage;
-    private TextView usernameTextView;
-    private TextView userBioTextView;
-    private Button logoutButton;
-    private Button editProfileButton;
-
-    private Button myPostsButton;
-    private Button mySubsButton;
-
-    private Button shareAppButton;
-    private Button feedbackButton;
-    private Button contactUsButton;
-    private Button privacyPolicyButton;
-
-    private Button adminButton;
-
+    private TextView usernameTextView, userBioTextView;
+    private Button logoutButton, editProfileButton, myPostsButton, mySubsButton,
+            shareAppButton, feedbackButton, contactUsButton, privacyPolicyButton,
+            adminButton;
     private android.support.v7.widget.Toolbar toolbar;
     private ImageView editProfileIcon;
 
@@ -120,11 +109,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             coMeth.getDb()
                     .collection("Users")
                     .document(userId)
-                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-
-                            //check if user exists
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (documentSnapshot.exists()) {
                                 //get object
                                 Users user = documentSnapshot.toObject(Users.class);
@@ -132,14 +120,13 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                                 String username = user.getName();
                                 usernameTextView.setText(username);
                                 //set bio
-                                try {
-                                    String bio = user.getBio();
+                                String bio = user.getBio();
+                                if (bio != null) {
                                     userBioTextView.setText(bio);
-                                } catch (NullPointerException error) {
+                                } else {
                                     Log.d(TAG, "error: no bio");
                                     userBioTextView.setVisibility(View.GONE);
                                 }
-
                                 //set image
                                 try {
                                     final String userProfileImageDownloadUrl = user.getImage();
@@ -153,7 +140,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                                         @Override
                                         public void onClick(View v) {
 
-                                            Intent userImageIntent = new Intent(SettingsActivity.this, ViewImageActivity.class);
+                                            Intent userImageIntent = new Intent(
+                                                    SettingsActivity.this, ViewImageActivity.class);
                                             userImageIntent.putExtra("imageUrl", userProfileImageDownloadUrl);
                                             startActivity(userImageIntent);
 
@@ -166,8 +154,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                                 }
 
                             } else {
-                                Log.d(TAG, "user does now exist");
-                                userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                                Log.d(TAG, "user does not exist");
+                                // TODO: 5/21/18 code review
+                                userImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
                             }
                         }
                     });
@@ -176,7 +165,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             //user is not logged in
             usernameTextView.setVisibility(View.GONE);
             userBioTextView.setText(getString(R.string.not_logged_in_text));
-            userImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+            userImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
             editProfileButton.setVisibility(View.INVISIBLE); //hide the edit profile button
             editProfileIcon.setVisibility(View.GONE); //hide the edit profile icon
         }
@@ -190,21 +179,28 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         privacyPolicyButton.setOnClickListener(this);
         editProfileButton.setOnClickListener(this);
 
-        //handle admin access
-        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
-
-            try {
-                //get user email address
-                FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                String userEmail = user.getEmail();
-                if (userEmail != null) {
-                    //get admins
-                    checkAdminAcc(userEmail);
+        privacyPolicyButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SettingsActivity.this, "Checking for admin access",
+                        Toast.LENGTH_SHORT).show();
+                //handle admin access
+                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+                    try {
+                        //get user email address
+                        FirebaseUser user = coMeth.getAuth().getCurrentUser();
+                        String userEmail = user.getEmail();
+                        if (userEmail != null) {
+                            //get admins
+                            checkAdminAcc(userEmail);
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "onCreate: checking admin access failed " + e.getMessage());
+                    }
                 }
-            } catch (Exception e) {
-                Log.d(TAG, "onCreate: checking admin access failed " + e.getMessage());
+                return true;
             }
-        }
+        });
     }
 
     private void checkAdminAcc(String userEmail) {
@@ -236,7 +232,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         //open dialog to enter password
         AlertDialog.Builder adminBuilder = new AlertDialog.Builder(SettingsActivity.this);
         adminBuilder.setTitle("Admin Login")
-                .setIcon(getDrawable(R.drawable.ic_action_person_placeholder));
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
 
         //construct the view
         final EditText input = new EditText(SettingsActivity.this);
@@ -296,7 +292,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private void confirmSignOut() {
         AlertDialog.Builder confirmLogoutBuilder = new AlertDialog.Builder(SettingsActivity.this);
         confirmLogoutBuilder.setTitle(getString(R.string.logout_text))
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage(getString(R.string.confirm_lougout_text))
                 .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                     @Override
@@ -313,8 +309,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                         coMeth.signOut();
                         Log.d(TAG, "user is logged out");
                         goToMain();
-
-
                     }
                 })
                 .show();

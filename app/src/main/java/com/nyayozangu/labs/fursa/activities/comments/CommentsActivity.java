@@ -310,7 +310,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
                             } catch (NullPointerException noImageFoundException) {
 
-                                currentUserImage.setImageDrawable(getDrawable(R.drawable.ic_action_person_placeholder));
+                                currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
                                 Log.d(TAG, "onEvent: error: no thumb found");
 
                             }
@@ -423,7 +423,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
                                     //a new comment is added
                                     String commentId = doc.getDocument().getId();
-                                    Comments comment = doc.getDocument().toObject(Comments.class).withId(commentId);
+                                    Comments comment =
+                                            doc.getDocument().toObject(Comments.class).withId(commentId);
                                     commentsList.add(comment);
                                     commentsRecyclerAdapter.notifyDataSetChanged();
                                     commentsRecyclerView.scrollToPosition(commentsList.size() - 1);

@@ -92,7 +92,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
-
         return new ViewHolder(view);
     }
 
@@ -197,11 +196,41 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 Log.d(TAG, "at get likes, updating likes real time");
                                 //user has liked
                                 holder.postLikeButton.setImageDrawable(
-                                        context.getDrawable(R.drawable.ic_action_liked));
+                                        context.getResources().getDrawable(R.drawable.ic_action_liked));
+
+                                //set click action for like
+                                holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        /**
+                                         * when like is clicked and user has already liked, delete existing like
+                                         * */
+                                        coMeth.getDb()
+                                                .collection("Posts/" + postId + "/Likes")
+                                                .document(currentUserId)
+                                                .delete();
+                                    }
+                                });
                             } else {
                                 //current user has not liked the post
                                 holder.postLikeButton.setImageDrawable(
-                                        context.getDrawable(R.drawable.ic_action_like_unclicked));
+                                        context.getResources().getDrawable(R.drawable.ic_action_like_unclicked));
+                                //set like click action
+                                holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        /**
+                                         * when like button is clicked and user has not liked post,
+                                         * add like to post
+                                         * */
+                                        Map<String, Object> likesMap = new HashMap<>();
+                                        likesMap.put("timestamp", FieldValue.serverTimestamp());
+                                        coMeth.getDb()
+                                                .collection("Posts/" + postId + "/Likes")
+                                                .document(currentUserId)
+                                                .set(likesMap);
+                                    }
+                                });
                             }
                         }
                     });
@@ -212,171 +241,89 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     .document(currentUserId)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
-                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        public void onEvent(DocumentSnapshot documentSnapshot,
+                                            FirebaseFirestoreException e) {
                             //update the save button real time
                             if (documentSnapshot.exists()) {
                                 Log.d(TAG, "at get saves, updating saves realtime");
                                 //user has saved post
                                 holder.postSaveButton.setImageDrawable(
-                                        context.getDrawable(R.drawable.ic_action_bookmarked));
+                                        context.getResources().getDrawable(R.drawable.ic_action_bookmarked));
+                                //set un-save click action
+                                holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //delete saved post
+                                        coMeth.getDb()
+                                                .collection("Posts/" + postId + "/Saves")
+                                                .document(currentUserId)
+                                                .delete();
+                                        coMeth.getDb()
+                                                .collection("Users/" + userId + "/Subscriptions")
+                                                .document("saved_posts").collection("SavedPosts")
+                                                .document(postId)
+                                                .delete();
+                                    }
+                                });
                             } else {
                                 //user has not liked post
                                 holder.postSaveButton.setImageDrawable(
-                                        context.getDrawable(R.drawable.ic_action_bookmark_outline));
+                                        context.getResources().getDrawable(R.drawable.ic_action_bookmark_outline));
+                                //set save action when user has not saved post
+                                holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Map<String, Object> savesMap = new HashMap<>();
+                                        savesMap.put("timestamp", FieldValue.serverTimestamp());
+                                        //save new post
+                                        coMeth.getDb()
+                                                .collection("Posts/" + postId + "/Saves")
+                                                .document(currentUserId)
+                                                .set(savesMap);
+                                        userId = coMeth.getUid();
+                                        coMeth.getDb()
+                                                .collection("Users/" + userId + "/Subscriptions")
+                                                .document("saved_posts").collection("SavedPosts")
+                                                .document(postId)
+                                                .set(savesMap);
+                                        showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
+                                    }
+                                });
+
                             }
                         }
                     });
 
+        } else {
+            if (!coMeth.isConnected()) {
+                holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showSnack(holder, context.getResources().getString(R.string.failed_to_connect_text));
+                    }
+                });
+                holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showSnack(holder, context.getResources().getString(R.string.failed_to_connect_text));
+                    }
+                });
+            }
+            if (!coMeth.isLoggedIn()) {
+                holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToLogin(context.getResources().getString(R.string.login_to_save_text));
+                    }
+                });
+                holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToLogin(context.getResources().getString(R.string.login_to_like));
+                    }
+                });
+            }
         }
-
-
-        //likes feature
-        //set an a click listener to the like button
-        holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //disable button
-                holder.postLikeButton.setClickable(false);
-
-                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
-
-                    coMeth.getDb()
-                            .collection("Posts/" + postId + "/Likes")
-                            .document(currentUserId)
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    //get data from teh likes collection
-                                    if (task.isSuccessful()) {
-                                        //check if current user has already liked post
-                                        if (!task.getResult().exists()) {
-
-                                            Map<String, Object> likesMap = new HashMap<>();
-                                            likesMap.put("timestamp", FieldValue.serverTimestamp());
-                                            coMeth.getDb()
-                                                    .collection("Posts/" + postId + "/Likes")
-                                                    .document(currentUserId)
-                                                    .set(likesMap);
-
-                                        } else {
-                                            //delete the like
-                                            coMeth.getDb()
-                                                    .collection("Posts/" + postId + "/Likes")
-                                                    .document(currentUserId)
-                                                    .delete();
-                                        }
-                                    } else {
-
-                                        Log.d(TAG, "onComplete: like post task failed\n" + task.getException());
-
-                                    }
-                                }
-                            });
-                } else {
-
-                    if (!coMeth.isLoggedIn()) {
-
-                        goToLogin(context.getString(R.string.login_to_like));
-
-                    }
-                    if (!coMeth.isConnected()) {
-
-                        //alert user is not connected
-                        showSnack(holder, context.getString(R.string.failed_to_connect_text));
-                    }
-
-                }
-
-                //enable button
-                holder.postLikeButton.setClickable(true);
-
-            }
-        });
-
-        //save button click listener
-        holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //disable button
-                holder.postSaveButton.setClickable(false);
-
-                //check if user is connected to the internet
-                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
-
-                    coMeth.getDb()
-                            .collection("Posts/" + postId + "/Saves")
-                            .document(currentUserId)
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                    if (task.isSuccessful()) {
-
-                                        //get data from the saves collections
-                                        //check if user has already saved the post
-                                        if (!task.getResult().exists()) {
-
-                                            Map<String, Object> savesMap = new HashMap<>();
-                                            savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                            //save new post
-                                            coMeth.getDb()
-                                                    .collection("Posts/" + postId + "/Saves")
-                                                    .document(currentUserId)
-                                                    .set(savesMap);
-                                            userId = coMeth.getUid();
-                                            coMeth.getDb()
-                                                    .collection("Users/" + userId + "/Subscriptions")
-                                                    .document("saved_posts").collection("SavedPosts")
-                                                    .document(postId)
-                                                    .set(savesMap);
-                                            showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
-
-                                        } else {
-
-                                            //delete saved post
-                                            coMeth.getDb()
-                                                    .collection("Posts/" + postId + "/Saves")
-                                                    .document(currentUserId)
-                                                    .delete();
-                                            coMeth.getDb()
-                                                    .collection("Users/" + userId + "/Subscriptions")
-                                                    .document("saved_posts").collection("SavedPosts")
-                                                    .document(postId)
-                                                    .delete();
-
-
-                                        }
-                                    } else {
-
-                                        //save post task has failed
-                                        Log.d(TAG, "onComplete: save post task failed\n" + task.getException());
-
-                                    }
-
-                                }
-                            });
-                } else {
-
-                    if (!coMeth.isConnected()) {
-                        //user is not connected to the internet
-                        //show alert dialog
-                        showSnack(holder, context.getString(R.string.internet_fail));
-                    }
-                    if (!coMeth.isLoggedIn()) {
-                        goToLogin(context.getString(R.string.login_to_save_text));
-                    }
-
-                }
-
-                //enable button
-                holder.postSaveButton.setClickable(true);
-
-            }
-        });
 
         //share post
         //set onclick listener to the share button
@@ -430,7 +377,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .collection("Posts/" + postId + "/Comments")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots,
+                                        FirebaseFirestoreException e) {
                         Log.d(TAG, "at onEvent, when likes change");
                         if (!queryDocumentSnapshots.isEmpty()) {
 
@@ -489,10 +437,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .setLink(Uri.parse(postUrl))
                 .setDynamicLinkDomain(context.getString(R.string.dynamic_link_domain))
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                        .setMinimumVersion(10)
+                        .setMinimumVersion(11)
                         .setFallbackUrl(Uri.parse(context.getString(R.string.playstore_url)))
                         .build())
-                // TODO: 5/18/18 handle opening links on ios
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
                                 .setTitle(context.getString(R.string.app_name))
@@ -555,16 +502,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                         //check if exists
                         if (documentSnapshot.exists()) {
-
                             //post exists
                             Posts post = documentSnapshot.toObject(Posts.class);
                             postTitle = post.getTitle();
                             Log.d(TAG, "onSuccess: post title is " + postTitle);
-
                         } else {
-
                             //post does not exist
-
+                            Log.d(TAG, "onSuccess: post does not exist");
                         }
 
                     }
@@ -663,33 +607,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         public View mView;
 
         //initiate elements in the view holder
-        private TextView titleTextView;
-        private TextView descTextView;
-        private ImageView postImageView;
         private TextView postUsernameTextView;
-        private TextView postDateTextView;
         private CircleImageView postUserImageCircleView;
-
-
-        //likes
-        private ImageView postLikeButton;
-        private TextView postLikesCount;
-        private TextView postCommentCount;
-
-        //saves
-        private ImageView postSaveButton;
-
-        //share
-        private ImageView postSharePostButton;
-
-        //comment
-        private ImageView postCommentButton;
-
-        //location
-        private TextView postLocationTextView;
-
-        //menu
-        private ImageView postMenuButton;
+        private TextView postLikesCount, postCommentCount,
+                postLocationTextView, postDateTextView, descTextView, titleTextView;
+        private ImageView postSaveButton, postSharePostButton, postCommentButton,
+                postImageView, postLikeButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -698,19 +621,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             postLikeButton = mView.findViewById(R.id.postLikeImageView);
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
-
             postSaveButton = mView.findViewById(R.id.postSaveImageView);
-
             postSharePostButton = mView.findViewById(R.id.postShareImageView);
-
             postImageView = mView.findViewById(R.id.postImageView);
-
             postCommentButton = mView.findViewById(R.id.postCommetnImageView);
             postCommentCount = mView.findViewById(R.id.postCommentCountText);
-
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
-
-            postMenuButton = mView.findViewById(R.id.postMenuImageView);
 
         }
 
@@ -781,19 +697,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //update the number of likes
         public void updateLikesCount(int likesCount) {
-
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
             postLikesCount.setText(String.valueOf(likesCount));
-
         }
 
-        // TODO: 4/7/18 use user thumb instead of user image
-
         public void updateCommentsCount(int numberOfComments) {
-
             postLikesCount = mView.findViewById(R.id.postCommentCountText);
             postLikesCount.setText(String.valueOf(numberOfComments));
-
         }
 
         public void setUserData(String userName, String userImageDownloadUri) {

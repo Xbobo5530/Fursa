@@ -135,7 +135,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         .setLink(Uri.parse(catUrl))
                         .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
                         .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                                .setMinimumVersion(10)
+                                .setMinimumVersion(11)
                                 .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
                                 .build())
                         // TODO: 5/18/18 handle opening links on ios
@@ -690,8 +690,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
             }
         }
-
-
     }
 
     private void processCounts(String postId, final Posts post, final String collectionName) {
@@ -787,7 +785,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
                                 //cat has no posts
                                 coMeth.stopLoading(progressDialog, swipeRefresh);
-//                                showSnack(getString(R.string.no_posts_found_text));
                                 Log.d(TAG, "onComplete: cat has no posts");
 
                             }

@@ -203,7 +203,6 @@ public class CreatePostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //crate a dialog tha twill have a
-                // TODO: 5/4/18 use a custom view to properly align the desc text
                 AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
                 builder.setTitle("Post Description")
                         .setIcon(R.drawable.ic_action_descritption);
@@ -377,9 +376,10 @@ public class CreatePostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //alert dialog builder
-                AlertDialog.Builder catPickerBuilder = new AlertDialog.Builder(CreatePostActivity.this);
+                AlertDialog.Builder catPickerBuilder =
+                        new AlertDialog.Builder(CreatePostActivity.this);
                 catPickerBuilder.setTitle(getString(R.string.categories_text))
-                        .setIcon(getDrawable(R.drawable.ic_action_cat_light))
+                        .setIcon(getResources().getDrawable(R.drawable.ic_action_cat_light))
                         .setMultiChoiceItems(coMeth.categories, null, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -461,7 +461,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     Log.e(TAG, "onClick: " + e.getMessage());
                     AlertDialog.Builder locationErrorBuilder = new AlertDialog.Builder(CreatePostActivity.this);
                     locationErrorBuilder.setTitle("Error")
-                            .setIcon(getDrawable(R.drawable.ic_action_red_alert))
+                            .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
                             .setMessage(R.string.failed_to_load_locations_text)
                             .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                                 @Override
@@ -1331,7 +1331,7 @@ public class CreatePostActivity extends AppCompatActivity {
         //Prompt user to log in
         AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(CreatePostActivity.this);
         loginAlertBuilder.setTitle("Login")
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage("You are not logged in\n" + message)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override

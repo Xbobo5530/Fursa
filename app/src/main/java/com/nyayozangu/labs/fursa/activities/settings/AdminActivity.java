@@ -256,7 +256,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
             HashMap<String, String> hm = new HashMap<>();
             hm.put("listView_report", reportedListItems[i]);
             hm.put("listView_icon",
-                    String.valueOf(getDrawable(R.drawable.ic_action_red_flag)));
+                    String.valueOf(getResources().getDrawable(R.drawable.ic_action_red_flag)));
             aList.add(hm);
         }
         Log.d(TAG, "handleAdapter: aList is " + aList);

@@ -27,15 +27,10 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
@@ -43,15 +38,11 @@ import com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
-import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
-import com.nyayozangu.labs.fursa.activities.settings.AccountActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -97,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        cleanDB();
+//        cleanDB();
         
         //subscribe to app updates
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
@@ -133,10 +124,8 @@ public class MainActivity extends AppCompatActivity {
         fursaTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Log.d(TAG, "onClick: fursa title is clicked");
                 openSearch();
-
             }
         });
 
@@ -157,33 +146,20 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.bottomNavHomeItem:
-
                         setFragment(homeFragment);
                         return true;
-
                     case R.id.bottomNavCatItem:
-
                         setFragment(categoriesFragment);
                         return true;
-
                     case R.id.bottomNavSavedItem:
-
                         if (coMeth.isLoggedIn()) {
-
                             setFragment(savedFragment);
-
                         } else {
-
                             setFragment(alertFragment);
-
                         }
-
                         return true;
-
                     default:
-
                         return false;
-
                 }
 
             }
@@ -215,7 +191,9 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (NullPointerException imageNotFoundException) {
 
                                     //user image not found
-                                    userProfileImage.setImageDrawable(getDrawable(R.drawable.appiconshadow));
+                                    userProfileImage
+                                            .setImageDrawable(getResources()
+                                                    .getDrawable(R.drawable.appiconshadow));
                                     Log.d(TAG, "onComplete: user has no profile image");
 
                                 }
@@ -229,14 +207,13 @@ public class MainActivity extends AppCompatActivity {
                     });
         } else {
 
-            userProfileImage.setImageDrawable(getDrawable(R.drawable.appiconshadow));
+            userProfileImage.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
 
         }
 
 
         //hide search layout
         searchLayout.setVisibility(View.GONE);
-
         //set click listener to image view
         userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -244,8 +221,6 @@ public class MainActivity extends AppCompatActivity {
                 goToSettings();
             }
         });
-
-
         createPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -283,7 +258,8 @@ public class MainActivity extends AppCompatActivity {
                     AlertDialog.Builder noNetBuilder = new AlertDialog.Builder(MainActivity.this);
                     noNetBuilder.setTitle("Connection Error")
                             .setIcon(R.drawable.ic_action_red_alert)
-                            .setMessage("Failed to connect to the internet\nCheck your connection and try again")
+                            .setMessage("Failed to connect to the internet" +
+                                    "\nCheck your connection and try again")
                             .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -340,70 +316,13 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d(TAG, "onCreate: at default");
 
                         }
-
                     default:
                         Log.d(TAG, "onCreate: at default");
-
                 }
             }
-
-
-
-
         }
 
     }
-
-    private void cleanDB() {
-        Log.d(TAG, "cleanDB: ");
-        //get all user posts and check if user exists
-        coMeth.getDb()
-                .collection("Posts")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                if (doc.getType() == DocumentChange.Type.ADDED) {
-                                    final String postId = doc.getDocument().getId();
-                                    final Posts post = doc.getDocument().toObject(Posts.class);
-                                    String postUserId = post.getUser_id();
-                                    //check if user still exists
-                                    coMeth.getDb()
-                                            .collection("Users")
-                                            .document(postUserId)
-                                            .get()
-                                            .addOnCompleteListener(
-                                                    new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(
-                                                                @NonNull Task<DocumentSnapshot> task) {
-                                                            if (!task.getResult().exists()) {
-                                                                //delete post
-                                                                coMeth.getDb()
-                                                                        .collection("Posts")
-                                                                        .document(postId)
-                                                                        .delete();
-                                                            }
-                                                        }
-                                                    })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG,
-                                                            "onFailure: failed to get post with error" +
-                                                                    "\nerror is: " + e.getMessage());
-                                                }
-                                            });
-                                }
-                            }
-                        }
-                    }
-                });
-
-    }
-
     private void goToLogin(String message) {
         Intent goToLogin = new Intent(MainActivity.this, LoginActivity.class);
         goToLogin.putExtra("message", message);
@@ -411,15 +330,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goToCreatePost() {
-        startActivity(new Intent(this, CreatePostActivity.class));
+        startActivity(
+                new Intent(this, CreatePostActivity.class));
     }
 
     private void goToSettings() {
-        startActivity(new Intent(this, SettingsActivity.class));
+        startActivity(
+                new Intent(this, SettingsActivity.class));
     }
 
     private void showVerEmailDialog() {
-        android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
+        android.app.AlertDialog.Builder emailVerBuilder =
+                new android.app.AlertDialog.Builder(MainActivity.this);
         emailVerBuilder.setTitle(R.string.email_ver_text)
                 .setIcon(R.drawable.ic_action_info_grey)
                 .setMessage("You have to verify your email address to create a post.")
@@ -536,16 +458,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void goToLogin() {
-        startActivity(new Intent(this, LoginActivity.class));
-    }
-
-
-    private void goToAccount() {
-        //go to Account page
-        startActivity(new Intent(MainActivity.this, AccountActivity.class));
-    }
-
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.main_activity_layout),
                 message, Snackbar.LENGTH_LONG).show();
@@ -614,5 +526,56 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    private void cleanDB() {
+        Log.d(TAG, "cleanDB: ");
+        //get all user posts and check if user exists
+        coMeth.getDb()
+                .collection("Posts")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                if (doc.getType() == DocumentChange.Type.ADDED) {
+                                    final String postId = doc.getDocument().getId();
+                                    final Posts post = doc.getDocument().toObject(Posts.class);
+                                    String postUserId = post.getUser_id();
+                                    //check if user still exists
+                                    coMeth.getDb()
+                                            .collection("Users")
+                                            .document(postUserId)
+                                            .get()
+                                            .addOnCompleteListener(
+                                                    new OnCompleteListener<DocumentSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(
+                                                                @NonNull Task<DocumentSnapshot> task) {
+                                                            if (!task.getResult().exists()) {
+                                                                //delete post
+                                                                coMeth.getDb()
+                                                                        .collection("Posts")
+                                                                        .document(postId)
+                                                                        .delete();
+                                                            }
+                                                        }
+                                                    })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG,
+                                                            "onFailure: failed to get post with error" +
+                                                                    "\nerror is: " + e.getMessage());
+                                                }
+                                            });
+                                }
+                            }
+                        }
+                    }
+                });
+
+    }
+    */
 
 }

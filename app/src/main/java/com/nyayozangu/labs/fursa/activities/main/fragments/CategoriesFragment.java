@@ -42,9 +42,6 @@ public class CategoriesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
-
-
-
         final String[] catTitle = new String[]{
 
 //                getResources().getString(R.string.cat_featured),
@@ -82,7 +79,8 @@ public class CategoriesFragment extends Fragment {
         String[] from = {"listView_image", "listView_title"};
         int[] to = {R.id.catGridItemImageView, R.id.catGridItemTextView};
 
-        SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.cat_grid_item_layout, from, to);
+        SimpleAdapter simpleAdapter =
+                new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.cat_grid_item_layout, from, to);
         GridView catGridView = view.findViewById(R.id.catsGridView);
 
         View gridCell = inflater.inflate(R.layout.cat_grid_item_layout, null);

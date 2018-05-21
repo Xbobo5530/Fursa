@@ -2,14 +2,11 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,7 +24,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
-import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
@@ -78,7 +74,6 @@ public class SavedFragment extends Fragment {
         String className = "SavedFragment";
         savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList, className);
         coMeth.handlePostsView(getContext(), getActivity(), savedPostsView);
-//        savedPostsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         savedPostsView.setAdapter(savedPostsRecyclerAdapter);
 
         //loading
@@ -100,7 +95,6 @@ public class SavedFragment extends Fragment {
             }
         });
 
-
         if (coMeth.isConnected() && coMeth.isLoggedIn()) {
 
             currentUserId = coMeth.getUid();
@@ -113,8 +107,6 @@ public class SavedFragment extends Fragment {
 
             }
         }
-
-
         Log.d(TAG, "onCreateView: \ncurrentUserId is: " + currentUserId);
 
         final Query firstQuery = coMeth.getDb()
@@ -130,44 +122,30 @@ public class SavedFragment extends Fragment {
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
                 //get new posts
                 savedPostsView.getRecycledViewPool().clear();
                 savedPostsList.clear();
                 usersList.clear();
                 loadPosts(firstQuery);
-
             }
         });
-
         return view;
     }
-
 
     private void loadPosts(Query firstQuery) {
         firstQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
                 //check if the data is loaded for the first time
                 if (isFirstPageFirstLoad) {
-
-                    //get the last visible post
-                    try {
-
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        //get the last visible post
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
                         savedPostsList.clear();
                         usersList.clear();
-
-                    } catch (Exception exception) {
-
-                        Log.d(TAG, "Error: " + exception.getMessage());
-
                     }
-
                 }
-
                 //create a for loop to check for document changes
                 for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
 
@@ -210,47 +188,31 @@ public class SavedFragment extends Fragment {
                                                     Users user = task.getResult().toObject(Users.class).withId(postUserId);
                                                     //add post to saved posts list
                                                     if (isFirstPageFirstLoad) {
-
-
                                                         if (!savedPostsList.contains(post)) {
                                                             //add the post at position 0 of the postsList
                                                             savedPostsList.add(0, post);
                                                             usersList.add(0, user);
                                                         }
-
-
                                                     } else {
-
                                                         if (!savedPostsList.contains(post)) {
-                                                            //if the first page is loaded the add new post normally
                                                             savedPostsList.add(post);
                                                             usersList.add(user);
                                                         }
-
                                                     }
-
                                                     //notify the recycler adapter of the set change
                                                     savedPostsRecyclerAdapter.notifyDataSetChanged();
-
                                                 }
-
                                             }
                                         });
-
                                     } else {
-
                                         //post does not exist
                                         Log.d(TAG, "onComplete: post does not exist");
-
                                     }
-
                                 } else {
-
                                     //task failed
-                                    Log.d(TAG, "onComplete: getting post from Posts task failed\n" + task.getException());
-
+                                    Log.d(TAG, "onComplete: " +
+                                            "getting post from Posts task failed\n" + task.getException());
                                 }
-
                                 coMeth.stopLoading(progressDialog, swipeRefresh);
 
                             }
@@ -265,11 +227,6 @@ public class SavedFragment extends Fragment {
 
             }
         });
-    }
-
-    private void goToLogin() {
-        //go to login page
-        startActivity(new Intent(getActivity(), LoginActivity.class));
     }
 
     //loading more posts
@@ -341,9 +298,10 @@ public class SavedFragment extends Fragment {
                                                             //add user convert current user to object
                                                             Users user = task.getResult().toObject(Users.class).withId(postUserId);
                                                             if (!savedPostsList.contains(post)) {
-                                                                //add post to saved posts list
-                                                                savedPostsList.add(post);
-                                                                usersList.add(user);
+                                                                if (!savedPostsList.contains(post)) {
+                                                                    savedPostsList.add(post);
+                                                                    usersList.add(user);
+                                                                }
                                                                 //notify the recycler adapter of the set change
                                                                 savedPostsRecyclerAdapter.notifyDataSetChanged();
                                                             }
@@ -363,7 +321,10 @@ public class SavedFragment extends Fragment {
                                         } else {
 
                                             //task failed
-                                            Log.d(TAG, "onComplete: getting post from Posts task failed\n" + task.getException());
+                                            Log.d(TAG,
+                                                    "onComplete: " +
+                                                            "getting post from Posts task failed\n" +
+                                                            task.getException());
 
                                         }
 
@@ -389,29 +350,6 @@ public class SavedFragment extends Fragment {
     private void showSnack(String message) {
         Snackbar.make(getActivity().findViewById(R.id.main_activity_layout),
                 message, Snackbar.LENGTH_SHORT).show();
-    }
-
-    private void showLoginAlertDialog(String message) {
-        //Prompt user to log in
-        AlertDialog.Builder loginAlertBuilder = new AlertDialog.Builder(getContext());
-        loginAlertBuilder.setTitle("Login")
-                .setIcon(getActivity().getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage("You are not logged in\n" + message)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //send user to login activity
-                        goToLogin();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //cancel
-                        dialog.cancel();
-                    }
-                })
-                .show();
     }
 
     //show progress

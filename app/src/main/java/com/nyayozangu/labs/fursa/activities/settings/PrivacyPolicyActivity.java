@@ -42,9 +42,7 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
 
             webview.setVisibility(View.GONE);
             showSnack(getString(R.string.failed_to_connect_text));
-
         }
-
     }
 
 

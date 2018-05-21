@@ -49,7 +49,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by Sean on 4/9/18.
  */
 
-public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapter.ViewHolder> {
+public class CommentsRecyclerAdapter extends
+        RecyclerView.Adapter<CommentsRecyclerAdapter.ViewHolder> {
 
 
     private static final String TAG = "Sean";
@@ -123,7 +124,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                     //open report alert dialog
                     AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
                     reportBuilder.setTitle("Comment Options")
-                            .setIcon(context.getDrawable(R.drawable.ic_action_comment))
+                            .setIcon(context.getResources().getDrawable(R.drawable.ic_action_comment))
                             .setItems(getCommentReportOptionsList(), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -253,7 +254,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
         //show report flags list
         AlertDialog.Builder reportFlagsBuilder = new AlertDialog.Builder(context);
         reportFlagsBuilder.setTitle(context.getString(R.string.report_comment_text))
-                .setIcon(context.getDrawable(R.drawable.ic_action_red_flag))
+                .setIcon(context.getResources().getDrawable(R.drawable.ic_action_red_flag))
                 .setMultiChoiceItems(coMeth.reportList, null,
                         new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
@@ -398,7 +399,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
         //show an alert dialog to inform user task is successful
         AlertDialog.Builder reportCommentSuccessBuilder = new AlertDialog.Builder(context);
         reportCommentSuccessBuilder.setTitle(context.getString(R.string.report_comment_text))
-                .setIcon(context.getDrawable(R.drawable.ic_action_red_flag))
+                .setIcon(context.getResources().getDrawable(R.drawable.ic_action_red_flag))
                 .setMessage("Report successifully submitted for review")
                 .setPositiveButton(context.getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                     @Override

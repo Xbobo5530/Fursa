@@ -197,7 +197,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 //show login in with email dialog
                 AlertDialog.Builder loginBuilder = new AlertDialog.Builder(LoginActivity.this);
                 loginBuilder.setTitle("Login with Email")
-                        .setIcon(getDrawable(R.drawable.ic_action_contact_email))
+                        .setIcon(getResources().getDrawable(R.drawable.ic_action_contact_email))
                         .setView(loginView)
                         .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
@@ -278,7 +278,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                 AlertDialog.Builder registerDialog = new AlertDialog.Builder(LoginActivity.this);
                 registerDialog.setTitle("Register with Email")
-                        .setIcon(getDrawable(R.drawable.ic_action_email))
+                        .setIcon(getResources().getDrawable(R.drawable.ic_action_email))
                         .setView(registerView)
                         .setPositiveButton("Register", new DialogInterface.OnClickListener() {
                             @Override

@@ -24,7 +24,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
@@ -61,63 +60,37 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
     private static final String SENDER_ID = "858152200953";
-    MenuItem editPost;
-    MenuItem deletePost;
-    //post image
-    String postImageUri;
-    String postThumbUrl;
+    private CoMeth coMeth = new CoMeth();
+
+    private MenuItem editPost, deletePost;
     private ImageView viewPostImage;
     private FloatingActionButton viewPostActionsFAB;
     //    private TextView descTextView;
     private ExpandableTextView descTextView;
-    private TextView timeTextView;
-    private TextView priceTextView;
-    private TextView locationTextView;
-    private TextView titleTextView;
-    private TextView eventDateTextView;
-    private TextView contactTextView;
-    private TextView userTextView;
-    private TextView catTextView;
-    private TextView tagsTextView;
+    private TextView timeTextView, priceTextView, locationTextView,
+            titleTextView, eventDateTextView, contactTextView,
+            userTextView, catTextView, tagsTextView,
+            commentsCountText, likesCountText;
+
     private CircleImageView userImage; //image of user who posted post
-    private ConstraintLayout viewPostTitleLayout;
-    private ConstraintLayout viewPostDescLayout;
-    private ConstraintLayout viewPostLocationLayout;
-    private ConstraintLayout viewPostPriceLayout;
-    private ConstraintLayout viewPostTimeLayout;
-    private ConstraintLayout eventDateLayout;
-    private ConstraintLayout viewPostContactLayout;
-    private ConstraintLayout viewPostUserLayout;
-    private ConstraintLayout viewPostCatLayout;
-    private ConstraintLayout tagsLayout;
-    private String postUserId;
-    private String currentUserId;
-    private ConstraintLayout actionsLayout;
+    private ConstraintLayout viewPostTitleLayout, viewPostDescLayout,
+            viewPostLocationLayout, viewPostPriceLayout, viewPostTimeLayout,
+            eventDateLayout, viewPostContactLayout, viewPostUserLayout,
+            viewPostCatLayout, tagsLayout, actionsLayout;
+
+    private String postUserId, currentUserId, contactDetails,
+            desc, postId, postTitle,
+            reportDetailsString,
+            postImageUri, postThumbUrl;
     private ImageView likeButton;
-    private TextView likesCountText;
-    private ImageView commentsButton;
-    private TextView commentsCountText;
-    private ImageView saveButton;
-    private ImageView shareButton;
-    private String contactDetails;
+    private ImageView commentsButton, shareButton, saveButton;
     private android.support.v7.widget.Toolbar toolbar;
     //progress
     private ProgressDialog progressDialog;
     //save categories to list
-    private ArrayList<String> catArray;
-    private ArrayList<String> catKeys;
-    //post content
-    private String desc;
-    private String postId;
-    private String postTitle;
-    //common methods
-    private CoMeth coMeth = new CoMeth();
-    private ArrayList<String> reportedItems;
-    private ArrayList flagsArray;
-    private String reportDetailsString;
+    private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags;
 
     private boolean isAdmin = false;
-    private ArrayList<String> tags;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -142,12 +115,9 @@ public class ViewPostActivity extends AppCompatActivity {
                     deletePost.setVisible(false);
                 }
             }
-
         } else {
-
             editPost.setVisible(false);
             deletePost.setVisible(false);
-
         }
 
         return true;
@@ -161,36 +131,15 @@ public class ViewPostActivity extends AppCompatActivity {
      * false if current user is not admin
      */
     private boolean isAdmin() {
-
-        //get current user
-        FirebaseUser user = coMeth.getAuth().getCurrentUser();
-        if (user.getEmail() != null) {
-
-            String userEmail = user.getEmail();
-            //check if user email is in admin
-            coMeth.getDb()
-                    .collection("Admins")
-                    .document(userEmail)
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            //check if user exists
-                            //user is admin
-                            isAdmin = documentSnapshot.exists();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to get admins");
-                        }
-                    });
-
+        if (getIntent() != null &&
+                getIntent().getStringExtra("permission") != null) {
+            if (getIntent().getStringExtra("permission").equals("admin")) {
+                isAdmin = true;
+            }
         }
         return isAdmin;
-
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -302,11 +251,11 @@ public class ViewPostActivity extends AppCompatActivity {
                                             } else {
 
                                                 if (!task.isSuccessful()) {
-                                                    // TODO: 5/7/18 handle task failed
+                                                    showSnack(getResources().getString(
+                                                            R.string.something_went_wrong_text));
                                                 }
                                                 if (!task.getResult().exists()) {
                                                     //post has not been reported
-                                                    // TODO: 5/7/18 handle task not reported
                                                     flagsArray.add(coMeth.getUid() + "\n" + reportDetailsString);
                                                     reportMap.put("flags", flagsArray);
                                                     submitReport(reportMap);
@@ -384,8 +333,8 @@ public class ViewPostActivity extends AppCompatActivity {
         AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(ViewPostActivity.this);
         deleteBuilder.setTitle(R.string.del_post_text)
                 .setMessage(confirmDelMessage)
-                .setIcon(getDrawable(R.drawable.ic_action_red_alert))
-                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
+                .setPositiveButton(getResources().getString(R.string.delete_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -393,8 +342,9 @@ public class ViewPostActivity extends AppCompatActivity {
                         coMeth.getDb().collection("Posts").document(postId).delete();
                         coMeth.stopLoading(progressDialog, null);
                         Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-                        delResultIntent.putExtra("action", "notify");
-                        delResultIntent.putExtra("message", getString(R.string.del_success_text));
+                        delResultIntent.putExtra(
+                                getResources().getString(R.string.action_name_text), getResources().getString(R.string.notify_value_text));
+                        delResultIntent.putExtra(getResources().getString(R.string.message_name_text), getString(R.string.del_success_text));
                         if (hasAdminAccess()) {
                             //go back to admin page
                             startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
@@ -520,7 +470,7 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
-        //handle save click
+        /*//handle save click
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -580,9 +530,9 @@ public class ViewPostActivity extends AppCompatActivity {
                 saveButton.setClickable(true);
 
             }
-        });
+        });*/
 
-        //handle like click
+        /*//handle like click
         likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -590,12 +540,8 @@ public class ViewPostActivity extends AppCompatActivity {
                 //disable button
                 likeButton.setClickable(false);
 
-                if (coMeth.isConnected()) {
-
-                    if (coMeth.isLoggedIn()) {
-
+                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
                         final String currentUserId = coMeth.getUid();
-
                         coMeth.getDb()
                                 .collection("Posts/" + postId + "/Likes")
                                 .document(currentUserId)
@@ -630,19 +576,18 @@ public class ViewPostActivity extends AppCompatActivity {
                                     }
                                 });
 
-                    } else {
 
-                        //user is not logged in
-                        Log.d(TAG, "use is not logged in");
-                        //notify user
-                        String message = getString(R.string.login_to_like);
-                        goToLogin(message);
-
-                    }
                 } else {
 
-                    //alert user is not connected
-                    showSnack(getString(R.string.failed_to_connect_text));
+                    if (!coMeth.isConnected()) {
+                        //alert user is not connected
+                        showSnack(getString(R.string.failed_to_connect_text));
+                    }
+                    if (!coMeth.isLoggedIn()){
+                        Log.d(TAG, "use is not logged in");
+                        String message = getString(R.string.login_to_like);
+                        goToLogin(message);
+                    }
 
                 }
 
@@ -651,7 +596,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
             }
         });
-
+*/
 
         //set likes
         coMeth.getDb()
@@ -688,13 +633,14 @@ public class ViewPostActivity extends AppCompatActivity {
                 });
 
 
-        //set like button
-        if (coMeth.isLoggedIn()) {
+        //set likes and saves
+        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
             //get likes
             //determine likes by current user
 
-            String currentUserId = coMeth.getUid();
+            final String currentUserId = coMeth.getUid();
 
+            //handle like button
             coMeth.getDb()
                     .collection("Posts/" + postId + "/Likes")
                     .document(currentUserId)
@@ -707,17 +653,48 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                 Log.d(TAG, "at get likes, updating likes real time");
                                 //user has liked
-                                likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_liked));
+                                likeButton.setImageDrawable(
+                                        getResources().getDrawable(R.drawable.ic_action_liked));
+
+                                //handle click like to remove like
+                                likeButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //remove save
+                                        coMeth.getDb()
+                                                .collection("Posts/" + postId + "/Likes")
+                                                .document(currentUserId).delete();
+                                    }
+                                });
 
                             } else {
 
                                 //current user has not liked the post
-                                likeButton.setImageDrawable(getDrawable(R.drawable.ic_action_like_unclicked));
+                                likeButton.setImageDrawable(
+                                        getResources().getDrawable(R.drawable.ic_action_like_unclicked));
+
+                                likeButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //add save
+                                        Map<String, Object> likesMap = new HashMap<>();
+                                        likesMap.put("timestamp", FieldValue.serverTimestamp());
+                                        //can alternatively ne written
+                                        coMeth.getDb()
+                                                .collection("Posts/" + postId + "/Likes")
+                                                .document(currentUserId).set(likesMap);
+
+                                        //notify subscribers
+                                        String notifType = "likes_updates";
+                                        new Notify().execute(notifType, postId);
+                                        Log.d(TAG, "onComplete: notification sent");
+                                    }
+                                });
                             }
                         }
                     });
 
-            //set saves
+            //handle save button
             coMeth.getDb()
                     .collection("Posts/" + postId + "/Saves")
                     .document(currentUserId)
@@ -732,18 +709,72 @@ public class ViewPostActivity extends AppCompatActivity {
                                 Log.d(TAG, "at get saves, updating saves realtime");
                                 //user has saved post
                                 saveButton.setImageDrawable(
-                                        getDrawable(R.drawable.ic_action_bookmarked));
+                                        getResources().getDrawable(R.drawable.ic_action_bookmarked));
+                                //handle save button click
+                                saveButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //remove saved on click
+                                        coMeth.getDb().collection("Posts/" + postId + "/Saves")
+                                                .document(currentUserId)
+                                                .delete();
+                                    }
+                                });
 
                             } else {
 
                                 //user has not liked post
                                 saveButton.setImageDrawable(
-                                        getDrawable(R.drawable.ic_action_bookmark_outline));
+                                        getResources().getDrawable(R.drawable.ic_action_bookmark_outline));
+                                //handle save button click
+                                saveButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //save post
+                                        Map<String, Object> savesMap = new HashMap<>();
+                                        savesMap.put("timestamp", FieldValue.serverTimestamp());
+                                        coMeth.getDb().collection("Posts/" + postId + "/Saves")
+                                                .document(currentUserId)
+                                                .set(savesMap);
+                                        //notify user that post has been saved
+                                        showSaveSnack(getString(R.string.added_to_saved_text));
+                                    }
+                                });
 
                             }
                         }
                     });
 
+        } else {
+            if (!coMeth.isConnected()) {
+                //save button
+                saveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToMain(getResources().getString(R.string.failed_to_connect_text));
+                    }
+                });
+                likeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToMain(getResources().getString(R.string.failed_to_connect_text));
+                    }
+                });
+            }
+            if (!coMeth.isLoggedIn()) {
+                saveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToLogin(getResources().getString(R.string.login_to_save_text));
+                    }
+                });
+                likeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToLogin(getResources().getString(R.string.login_to_like));
+                    }
+                });
+            }
         }
 
         //set contents
@@ -872,7 +903,7 @@ public class ViewPostActivity extends AppCompatActivity {
                             Log.d(TAG, "onEvent: glide exception " +
                                     glideException.getMessage());
                             //set placeholder image
-                            viewPostImage.setImageDrawable(getDrawable(R.drawable.appiconshadow));
+                            viewPostImage.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
                         }
                         Log.d(TAG, "onEvent: image set");
                     } else {
@@ -928,7 +959,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                         } else {
                                             //user has no image or thumb
                                             userImage.setImageDrawable(
-                                                    getDrawable(R.drawable.ic_action_person_placeholder));
+                                                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
                                             Log.d(TAG, "onEvent: placeholder user image set");
                                         }
                                         //set name
@@ -946,7 +977,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                     } else {
                                         //user does not exist
                                         userImage.setImageDrawable(
-                                                getDrawable(R.drawable.ic_action_person_placeholder));
+                                                getResources().getDrawable(R.drawable.ic_action_person_placeholder));
 
                                     }
 
@@ -1040,7 +1071,7 @@ public class ViewPostActivity extends AppCompatActivity {
                 //open alert dialog
                 AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
                 catDialogBuilder.setTitle("Categories")
-                        .setIcon(getDrawable(R.drawable.ic_action_categories))
+                        .setIcon(getResources().getDrawable(R.drawable.ic_action_categories))
                         .setItems(catArray.toArray(new String[0]), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -1082,7 +1113,7 @@ public class ViewPostActivity extends AppCompatActivity {
                 AlertDialog.Builder tagsBuilder =
                         new AlertDialog.Builder(ViewPostActivity.this);
                 tagsBuilder.setTitle(getString(R.string.tags_text))
-                        .setIcon(getDrawable(R.drawable.ic_action_tags))
+                        .setIcon(getResources().getDrawable(R.drawable.ic_action_tags))
                         .setItems(tags.toArray(new String[0]), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -1104,10 +1135,9 @@ public class ViewPostActivity extends AppCompatActivity {
                 .setLink(Uri.parse(postUrl))
                 .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                        .setMinimumVersion(10)
+                        .setMinimumVersion(11)
                         .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
                         .build())
-                // TODO: 5/18/18 hanlde opeinig links on ios
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
                                 .setTitle(getString(R.string.app_name))
