@@ -50,6 +50,7 @@ public class HomeFragment extends Fragment {
     private DocumentSnapshot lastVisiblePost;
     private Boolean isFirstPageFirstLoad = true;
     private ProgressDialog progressDialog;
+    private ArrayList<String> tags;
 
     public HomeFragment() {
     } // Required empty public constructor
@@ -67,6 +68,7 @@ public class HomeFragment extends Fragment {
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
+        tags = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
         String className = "HomeFragment";
@@ -94,11 +96,9 @@ public class HomeFragment extends Fragment {
                 Boolean reachedBottom = !homeFeedView.canScrollVertically(1);
                 if (reachedBottom) {
 
-
                     //clear post list
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     loadMorePosts();
-
                 }
             }
         });
@@ -121,7 +121,6 @@ public class HomeFragment extends Fragment {
                 postsList.clear();
                 usersList.clear();
                 loadPosts(firstQuery);
-
             }
         });
 
@@ -143,7 +142,6 @@ public class HomeFragment extends Fragment {
                                 .get(queryDocumentSnapshots.size() - 1);
                         postsList.clear();
                         usersList.clear();
-
                     }
 
                     //create a for loop to check for document changes
@@ -156,6 +154,7 @@ public class HomeFragment extends Fragment {
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                             final String postUserId = post.getUser_id();
                             Log.d(TAG, "onEvent: user_id is " + postUserId);
+
                             //get user_id for post
                             coMeth.getDb()
                                     .collection("Users")

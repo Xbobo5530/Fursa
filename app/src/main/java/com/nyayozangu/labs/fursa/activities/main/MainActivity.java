@@ -109,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
         savedFragment = new SavedFragment();
         alertFragment = new AlertFragment();
 
-
-
         //initiate elements
         mainSearchView = findViewById(R.id.mainSearchView);
         searchButton = findViewById(R.id.searchButton);

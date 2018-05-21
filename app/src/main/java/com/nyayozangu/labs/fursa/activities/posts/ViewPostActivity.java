@@ -51,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -78,6 +77,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private TextView contactTextView;
     private TextView userTextView;
     private TextView catTextView;
+    private TextView tagsTextView;
     private CircleImageView userImage; //image of user who posted post
     private ConstraintLayout viewPostTitleLayout;
     private ConstraintLayout viewPostDescLayout;
@@ -88,6 +88,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private ConstraintLayout viewPostContactLayout;
     private ConstraintLayout viewPostUserLayout;
     private ConstraintLayout viewPostCatLayout;
+    private ConstraintLayout tagsLayout;
     private String postUserId;
     private String currentUserId;
     private ConstraintLayout actionsLayout;
@@ -115,7 +116,7 @@ public class ViewPostActivity extends AppCompatActivity {
     private String reportDetailsString;
 
     private boolean isAdmin = false;
-    private AtomicInteger msgId;
+    private ArrayList<String> tags;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -482,6 +483,9 @@ public class ViewPostActivity extends AppCompatActivity {
         viewPostEventDateLayout = findViewById(R.id.viewPostEventDateLayout);
         viewPostContactLayout = findViewById(R.id.viewPostContactLayout);
 
+        tagsTextView = findViewById(R.id.viewPostTagsTextView);
+        tagsLayout = findViewById(R.id.viewPostTagsLayout);
+
         userTextView = findViewById(R.id.viewPostUserTextView);
         viewPostUserLayout = findViewById(R.id.viewPostUserLayout);
 
@@ -492,8 +496,8 @@ public class ViewPostActivity extends AppCompatActivity {
         flagsArray = new ArrayList();
         reportedItems = new ArrayList<String>();
         reportDetailsString = "";
+        tags = new ArrayList<>();
 
-        msgId = new AtomicInteger();
 
         //handle intent
         handleIntent();
@@ -612,19 +616,6 @@ public class ViewPostActivity extends AppCompatActivity {
                                                     .document(currentUserId).set(likesMap);
 
                                             //notify subscribers
-                                            /*FirebaseMessaging fm = FirebaseMessaging.getInstance();
-                                                fm.send(new RemoteMessage.Builder(SENDER_ID + "@gcm.googleapis.com")
-                                                  .setMessageId(Integer.toString(msgId.incrementAndGet()))
-                                                  .addData("my_message", "Hello World")
-                                                  .addData("my_action","SAY_HELLO")
-                                                  .build());*/
-
-                                            /*String title = data.get("title");
-                                                String message = data.get("message");
-                                                String notifType = data.get("notif_type");
-                                                String extraInfo = data.get("extra").trim();*/
-
-
                                             String notifType = "likes_updates";
                                             new Notify().execute(notifType, postId);
                                             Log.d(TAG, "onComplete: notification sent");

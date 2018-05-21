@@ -522,7 +522,7 @@ public class CreatePostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
                 builder.setTitle(getString(R.string.price_text))
-                        .setIcon(R.drawable.ic_action_price);
+                        .setIcon(R.drawable.ic_action_payment);
 
                 final EditText input = new EditText(CreatePostActivity.this);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
