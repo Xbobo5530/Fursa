@@ -206,7 +206,6 @@ ViewCategoryActivity extends AppCompatActivity {
         String className = "ViewCategoryActivity";
         categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         coMeth.handlePostsView(ViewCategoryActivity.this, ViewCategoryActivity.this, catFeed);
-//        catFeed.setLayoutManager(new LinearLayoutManager(this));
         catFeed.setAdapter(categoryRecyclerAdapter);
 
         //handle intent
@@ -686,7 +685,6 @@ ViewCategoryActivity extends AppCompatActivity {
                     coMeth.stopLoading(progressDialog, swipeRefresh);
 
                 }
-
             }
         }
     }

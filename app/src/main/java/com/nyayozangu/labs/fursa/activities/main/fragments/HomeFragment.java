@@ -113,8 +113,8 @@ public class HomeFragment extends Fragment {
 
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING);
-//                .limit(10);
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(10);
         // TODO: 5/21/18 remove limit before clean tags
         //get all posts from the database
         loadPosts(firstQuery);
@@ -165,7 +165,7 @@ public class HomeFragment extends Fragment {
                             Log.d(TAG, "onEvent: user_id is " + postUserId);
 
                             // TODO: 5/21/18 clean tags code
-                            cleanTags(doc, postId);
+//                            cleanTags(doc, postId);
 
                             //get user_id for post
                             coMeth.getDb()
@@ -213,6 +213,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void cleanTags(DocumentChange doc, String postId) {
+        Log.d(TAG, "cleanTags: ");
         if (doc.getDocument().get("tags") != null) {
 
             ArrayList oldTags = (ArrayList) doc.getDocument().get("tags");

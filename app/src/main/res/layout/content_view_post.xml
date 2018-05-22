@@ -338,7 +338,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_action_price" />
+                app:srcCompat="@drawable/ic_action_payment" />
 
             <TextView
                 android:id="@+id/viewPostPriceTextView"

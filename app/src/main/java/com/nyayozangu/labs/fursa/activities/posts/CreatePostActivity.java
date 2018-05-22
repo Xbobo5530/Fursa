@@ -1006,17 +1006,21 @@ public class CreatePostActivity extends AppCompatActivity {
             while (hashPos < titleDesc.length() &&
                     titleDesc.indexOf("#", hashPos) != -1 &&
                     hashPos != -1) {
-                String tag = titleDesc.substring(hashPos + 1, titleDesc.indexOf(" ", hashPos));
-                tags.add(tag);
-                Log.d(TAG, "handleMap: tag is " + tag);
+                if (titleDesc.indexOf(" ", hashPos) != -1) {
+                    String tag = titleDesc.substring(hashPos + 1, titleDesc.indexOf(" ", hashPos));
+                    tags.add(tag);
+                    Log.d(TAG, "handleMap: tag is " + tag);
+                } else {
+                    String tag = titleDesc.substring(hashPos + 1);
+                    tags.add(tag);
+                    Log.d(TAG, "handleMap: \nis last word tag is " + tag);
+                }
                 hashPos = titleDesc.indexOf("#", hashPos + 1);
             }
             Log.d(TAG, "handleMap: tags are " + tags);
             postMap.put("tags", tags);
-
         }
         return postMap;
-
     }
 
     private void processContactDetails() {
