@@ -1135,7 +1135,7 @@ public class ViewPostActivity extends AppCompatActivity {
                 .setLink(Uri.parse(postUrl))
                 .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                        .setMinimumVersion(11)
+                        .setMinimumVersion(12)
                         .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
                         .build())
                 .setSocialMetaTagParameters(

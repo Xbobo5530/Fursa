@@ -13,7 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -27,7 +30,9 @@ import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -84,7 +89,7 @@ public class HomeFragment extends Fragment {
         // TODO: 5/21/18 check if user is firs time loading
         // TODO: 5/21/18 check if there is cached data
 
-//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         //loading
         showProgress(getString(R.string.loading_text));
@@ -108,8 +113,9 @@ public class HomeFragment extends Fragment {
 
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(10);
+                .orderBy("timestamp", Query.Direction.DESCENDING);
+//                .limit(10);
+        // TODO: 5/21/18 remove limit before clean tags
         //get all posts from the database
         loadPosts(firstQuery);
 
@@ -158,6 +164,9 @@ public class HomeFragment extends Fragment {
                             final String postUserId = post.getUser_id();
                             Log.d(TAG, "onEvent: user_id is " + postUserId);
 
+                            // TODO: 5/21/18 clean tags code
+                            cleanTags(doc, postId);
+
                             //get user_id for post
                             coMeth.getDb()
                                     .collection("Users")
@@ -201,6 +210,32 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void cleanTags(DocumentChange doc, String postId) {
+        if (doc.getDocument().get("tags") != null) {
+
+            ArrayList oldTags = (ArrayList) doc.getDocument().get("tags");
+            if (oldTags.size() > 10) {
+
+                Map<String, Object> tagsMap = new HashMap<>();
+                coMeth.getDb()
+                        .collection("Posts")
+                        .document(postId)
+                        .update(tagsMap)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "onSuccess: tags cleanup successful");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to clean tags");
+                    }
+                });
+            }
+        }
     }
 
     //for loading more posts
