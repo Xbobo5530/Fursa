@@ -16,10 +16,12 @@ import android.widget.TextView;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.tutorial.adapters.SlideAdapter;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 public class TutorialActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
+    private CoMeth coMeth = new CoMeth();
     private ViewPager mSlideViewPager;
     private LinearLayout mDotsLayout;
     private SlideAdapter sliderAdapter;
@@ -67,6 +69,7 @@ public class TutorialActivity extends AppCompatActivity {
                         showProgress(getString(R.string.loading_text));
                         //start the main activity when finish is clicked
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        coMeth.stopLoading(progressDialog);
                         finish();
 
                     }
