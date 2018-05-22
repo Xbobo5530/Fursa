@@ -683,7 +683,6 @@ ViewCategoryActivity extends AppCompatActivity {
                 } else {
 
                     //posts dont have current cat
-                    showSnack(getString(R.string.no_posts_found_text));
                     coMeth.stopLoading(progressDialog, swipeRefresh);
 
                 }
