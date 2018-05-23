@@ -29,6 +29,7 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
     public Posts() {
     }
 
+    //main constructot
     public Posts(String user_id,
                  String image_url,
                  String thumb_url,
@@ -57,7 +58,9 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
 
     }
 
+    //getters
 
+    //setters
     public String getUser_id() {
         return user_id;
     }
@@ -153,4 +156,5 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
     public void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
+
 }

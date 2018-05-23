@@ -18,10 +18,8 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
         checkFirstRun();
         finish();
-
     }
 
     /**
@@ -45,25 +43,40 @@ public class SplashActivity extends AppCompatActivity {
 
             // This is just a normal run
             //start the main activity
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+
+            Intent goToMainIntent = new Intent(
+                    SplashActivity.this, MainActivity.class);
+            startActivity(goToMainIntent);
+            finish();
             Log.i("Sean", "At Splash, this is normal");
 
         } else if (savedVersionCode == DOES_NOT_EXIST) {
 
             // This is a new install (or the user cleared the shared preferences)
             //start the main activity
-            startActivity(new Intent(getApplicationContext(), TutorialActivity.class));
+            Intent goToTutorialIntent = new Intent(
+                    SplashActivity.this, TutorialActivity.class);
+            startActivity(goToTutorialIntent);
+            finish();
             Log.i("Sean", "At Splash, this is new install / cleared cache");
 
         } else if (currentVersionCode > savedVersionCode) {
 
             // This is an upgrade
             //start the main activity
-            // TODO: 5/11/18 create an updates page to let the user know of all the updated features
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            Intent infoUpdateIntent = new Intent(
+                    SplashActivity.this, MainActivity.class);
+            infoUpdateIntent.putExtra(
+                    getResources().getString(R.string.action_name_text),
+                    getResources().getString(R.string.update_value));
+            startActivity(infoUpdateIntent);
+            finish();
             Log.i("Sean", "At Splash, this is upgrade");
+        } else {
+            startActivity(new Intent(
+                    SplashActivity.this, MainActivity.class));
+            finish();
         }
-
         // Update the shared preferences with the current version code
         prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
     }

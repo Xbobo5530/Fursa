@@ -339,7 +339,7 @@ public class CoMeth {
         } else if (timeLapsed / (60 * 24) >= 1 && timeLapsed / (60 * 24) < 2) {
 
             //when a day has lapsed, less than 2 days
-            return "Yesterday";
+            return getApplicationContext().getResources().getString(R.string.yesterday_text);
 
         } else if (timeLapsed / (60 * 24) >= 2 && timeLapsed / (60 * 24) < 7) {
 
@@ -364,7 +364,8 @@ public class CoMeth {
         }
     }
 
-    public void stopLoading(ProgressDialog progressDialog, SwipeRefreshLayout swipeRefreshLayout) {
+    public void stopLoading(ProgressDialog progressDialog,
+                            SwipeRefreshLayout swipeRefreshLayout) {
 
         Log.d(TAG, "stopLoading: stopping");
         if (progressDialog != null) {
@@ -392,9 +393,7 @@ public class CoMeth {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
-
         }
-
     }
 
     public void stopLoading(SwipeRefreshLayout swipeRefreshLayout) {
@@ -434,6 +433,13 @@ public class CoMeth {
 
     }
 
+    /**
+     * checks if device screen is small, normal, large or large and sets posts
+     *
+     * @param activity     the activity the posts are shown in
+     * @param context      the context the posts are displayed
+     * @param recyclerView the recycler view to alter
+     */
     public void handlePostsView(Context context, Activity activity, RecyclerView recyclerView) {
 
         Log.d(TAG, "handlePostsView: ");

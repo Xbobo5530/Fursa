@@ -190,12 +190,15 @@
     <string name="playstore_url">https://play.google.com/store/apps/details?id=com.nyayozangu.labs.fursa</string>
     <string name="action_name_text">action</string>
     <string name="notify_value_text">notify</string>
-    <string name="message_name_text">message</string>
-    <string name="goto_value_text">goto</string>
-    <string name="destionation_name_text">destination</string>
-    <string name="saved_value_text">saved</string>
-    <string name="no_posts_found_text">No posts found</string>
-    <string name="tags_create_post_hint_text">Tags</string>
-    <string name="tags_text">Tags</string>
+    <string name="message_name_text" translatable="false">message</string>
+    <string name="goto_value_text" translatable="false">goto</string>
+    <string name="destionation_name_text" translatable="false">destination</string>
+    <string name="saved_value_text" translatable="false">saved</string>
+    <string name="no_posts_found_text" translatable="false">No posts found</string>
+    <string name="tags_create_post_hint_text" translatable="false">Tags</string>
+    <string name="tags_text" translatable="false">Tags</string>
+    <string name="update_value">update</string>
+    <string name="on_this_update_text">On this update</string>
+    <string name="yesterday_text">Yesterday</string>
 
 </resources>

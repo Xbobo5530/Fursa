@@ -55,8 +55,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
 
-
     private static final String TAG = "Sean";
+
+    // TODO: 5/23/18 remove recyclable
+    // TODO: 5/23/18 increase post actions click area
 
     //member variables for storing posts
     public List<Posts> postsList;
@@ -95,11 +97,21 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         return new ViewHolder(view);
     }
 
+    /*@Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+
+
+
+    }*/
+
     @Override
     public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder,
                                  int position) {
 
         Log.d(TAG, "at onBindViewHolder");
+
+//        holder.setIsRecyclable(false);
+
         postTitle = postsList.get(position).getTitle();
         holder.setTitle(postTitle);
         String descData = postsList.get(position).getDesc();
@@ -205,10 +217,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                         /**
                                          * when like is clicked and user has already liked, delete existing like
                                          * */
-                                        coMeth.getDb()
-                                                .collection("Posts/" + postId + "/Likes")
-                                                .document(currentUserId)
-                                                .delete();
+                                        unlikePost(postId, currentUserId);
+                                    }
+                                });
+                                holder.postLikesCount.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        unlikePost(postId, currentUserId);
                                     }
                                 });
                             } else {
@@ -223,12 +238,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                          * when like button is clicked and user has not liked post,
                                          * add like to post
                                          * */
-                                        Map<String, Object> likesMap = new HashMap<>();
-                                        likesMap.put("timestamp", FieldValue.serverTimestamp());
-                                        coMeth.getDb()
-                                                .collection("Posts/" + postId + "/Likes")
-                                                .document(currentUserId)
-                                                .set(likesMap);
+                                        likePost(postId, currentUserId);
+                                    }
+                                });
+                                holder.postLikesCount.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        likePost(postId, currentUserId);
                                     }
                                 });
                             }
@@ -254,15 +270,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     @Override
                                     public void onClick(View v) {
                                         //delete saved post
-                                        coMeth.getDb()
-                                                .collection("Posts/" + postId + "/Saves")
-                                                .document(currentUserId)
-                                                .delete();
-                                        coMeth.getDb()
-                                                .collection("Users/" + userId + "/Subscriptions")
-                                                .document("saved_posts").collection("SavedPosts")
-                                                .document(postId)
-                                                .delete();
+                                        unsavePost(postId, currentUserId);
+                                    }
+                                });
+                                holder.postSaveText.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        unsavePost(postId, currentUserId);
                                     }
                                 });
                             } else {
@@ -273,23 +287,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 holder.postSaveButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        Map<String, Object> savesMap = new HashMap<>();
-                                        savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                        //save new post
-                                        coMeth.getDb()
-                                                .collection("Posts/" + postId + "/Saves")
-                                                .document(currentUserId)
-                                                .set(savesMap);
-                                        userId = coMeth.getUid();
-                                        coMeth.getDb()
-                                                .collection("Users/" + userId + "/Subscriptions")
-                                                .document("saved_posts").collection("SavedPosts")
-                                                .document(postId)
-                                                .set(savesMap);
-                                        showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
+                                        savePost(postId, currentUserId, holder);
                                     }
                                 });
-
+                                holder.postSaveText.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        savePost(postId, currentUserId, holder);
+                                    }
+                                });
                             }
                         }
                     });
@@ -302,7 +308,19 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         showSnack(holder, context.getResources().getString(R.string.failed_to_connect_text));
                     }
                 });
+                holder.postSaveText.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showSnack(holder, context.getResources().getString(R.string.failed_to_connect_text));
+                    }
+                });
                 holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showSnack(holder, context.getResources().getString(R.string.failed_to_connect_text));
+                    }
+                });
+                holder.postLikesCount.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         showSnack(holder, context.getResources().getString(R.string.failed_to_connect_text));
@@ -332,10 +350,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Sharing post");
-                showProgress(context.getString(R.string.loading_text));
-                //create post url
-                String postUrl = context.getResources().getString(R.string.fursa_url_post_head) + postId;
-                shareDynamicLink(postUrl, postTitle, imageUrl, holder);
+                sharePost(postId, postTitle, imageUrl, holder);
+            }
+        });
+        holder.postShareText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Sharing post");
+                sharePost(postId, postTitle, imageUrl, holder);
             }
         });
 
@@ -397,11 +419,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             @Override
             public void onClick(View v) {
 
-                Log.d(TAG, "post image is clicked");
-                Intent openPostIntent = new Intent(context, CommentsActivity.class);
-                openPostIntent.putExtra("postId", postId);
-                context.startActivity(openPostIntent);
-
+                Log.d(TAG, "post comment is clicked");
+                openComments(postId);
+            }
+        });
+        holder.postCommentCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "post comment count is clicked");
+                openComments(postId);
             }
         });
 
@@ -409,6 +435,64 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         //set animation
         setAnimation(holder.itemView, position);
 
+    }
+
+    private void openComments(String postId) {
+        Intent openPostIntent = new Intent(context, CommentsActivity.class);
+        openPostIntent.putExtra("postId", postId);
+        context.startActivity(openPostIntent);
+    }
+
+    private void likePost(String postId, String currentUserId) {
+        Map<String, Object> likesMap = new HashMap<>();
+        likesMap.put("timestamp", FieldValue.serverTimestamp());
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Likes")
+                .document(currentUserId)
+                .set(likesMap);
+    }
+
+    private void unlikePost(String postId, String currentUserId) {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Likes")
+                .document(currentUserId)
+                .delete();
+    }
+
+    private void savePost(String postId, String currentUserId, @NonNull ViewHolder holder) {
+        Map<String, Object> savesMap = new HashMap<>();
+        savesMap.put("timestamp", FieldValue.serverTimestamp());
+        //save new post
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Saves")
+                .document(currentUserId)
+                .set(savesMap);
+        userId = coMeth.getUid();
+        coMeth.getDb()
+                .collection("Users/" + userId + "/Subscriptions")
+                .document("saved_posts").collection("SavedPosts")
+                .document(postId)
+                .set(savesMap);
+        showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
+    }
+
+    private void unsavePost(String postId, String currentUserId) {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Saves")
+                .document(currentUserId)
+                .delete();
+        coMeth.getDb()
+                .collection("Users/" + userId + "/Subscriptions")
+                .document("saved_posts").collection("SavedPosts")
+                .document(postId)
+                .delete();
+    }
+
+    private void sharePost(String postId, String postTitle, String imageUrl, @NonNull ViewHolder holder) {
+        showProgress(context.getString(R.string.loading_text));
+        //create post url
+        String postUrl = context.getResources().getString(R.string.fursa_url_post_head) + postId;
+        shareDynamicLink(postUrl, postTitle, imageUrl, holder);
     }
 
     private void showProgress(String message) {
@@ -610,7 +694,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         private TextView postUsernameTextView;
         private CircleImageView postUserImageCircleView;
         private TextView postLikesCount, postCommentCount,
-                postLocationTextView, postDateTextView, descTextView, titleTextView;
+                postLocationTextView, postDateTextView, descTextView, titleTextView,
+                postSaveText, postShareText;
         private ImageView postSaveButton, postSharePostButton, postCommentButton,
                 postImageView, postLikeButton;
 
@@ -627,6 +712,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postCommentButton = mView.findViewById(R.id.postCommetnImageView);
             postCommentCount = mView.findViewById(R.id.postCommentCountText);
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
+            postSaveText = mView.findViewById(R.id.postSaveTextTextView);
+            postShareText = mView.findViewById(R.id.postShareTextTextView);
 
         }
 
@@ -649,9 +736,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             postImageView = mView.findViewById(R.id.postImageView);
 
-
             if (imageDownloadUrl != null && thumbDownloadUrl != null) {
 
+                postImageView.setVisibility(View.VISIBLE);
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions.placeholder(R.drawable.appiconshadow);
                 Glide.with(context)
@@ -667,7 +754,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             }
         }
-
 
 
         //set post location

@@ -54,19 +54,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private NotificationCompat.Builder notificationBuilder;
     private NotificationManager notificationManager;
 
+    private String title;
+    private String message;
+    private String notifType;
+    private String extraInfo;
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
+        // TODO: 5/23/18 do code review
         Log.d(TAG, "onMessageReceived: ");
         Log.d(TAG, remoteMessage.toString());
 
         if (remoteMessage.getData().size() > 0) {
 
             Map<String, String> data = remoteMessage.getData();
-            String title = data.get("title");
-            String message = data.get("message");
-            String notifType = data.get("notif_type");
-            String extraInfo = data.get("extra").trim();
+            title = data.get("title");
+            message = data.get("message");
+            if (data.get("notif_type") != null) {
+                notifType = data.get("notif_type");
+            }
+            if (data.get("extra") != null) {
+                extraInfo = data.get("extra").trim();
+            }
             Log.d(TAG, "onMessageReceived: Message Received: \n" +
                     "Title: " + title + "\n" +
                     "Message: " + message + "\n" +
@@ -81,8 +91,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } else if (remoteMessage.getNotification() != null) {
             //has no data probably comes from database
             Log.d(TAG, "remoteMessage has no 'Data'");
-            String title = remoteMessage.getNotification().getTitle();
-            String message = remoteMessage.getNotification().getBody();
+            title = remoteMessage.getNotification().getTitle();
+            message = remoteMessage.getNotification().getBody();
 
             Log.d(TAG, "title is: " + title + "\nmessage is: " + message);
 
@@ -96,8 +106,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } else {
             //other weird cases
             Log.d(TAG, "data is null, notification is null");
-            String title = "Nyayo Zangu Store";
-            String message = "Sharing experiences and opportunities";
+            title = getResources().getString(R.string.app_name);
+            message = getResources().getString(R.string.sharing_opp_text);
             sendNotification(title, message, null, null);
         }
     }

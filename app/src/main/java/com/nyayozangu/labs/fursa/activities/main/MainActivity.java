@@ -27,11 +27,14 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.nyayozangu.labs.fursa.BuildConfig;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment;
@@ -48,7 +51,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-
     // TODO: 5/14/18 add a timer to record when a user has not poened the app for 2 days
 
     private static final String TAG = "Sean";
@@ -57,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
     private CoMeth coMeth = new CoMeth();
 
     //users
-    private String currentUserId;
     private FloatingActionButton createPostButton;
     private BottomNavigationView mainBottomNav;
     private TextView titleBarTextView;
@@ -78,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
     private List<String> lastSearches;
     private ProgressDialog progressDialog;
-
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -130,17 +130,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (!coMeth.isConnected()) {
-
             //notify user is not connected
             showSnack(getString(R.string.failed_to_connect_text));
-
         }
 
         //set the homeFragment when home the main activity is loaded
         setFragment(homeFragment);
 
         //set onclick Listener for when the navigation items are selected
-        mainBottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        mainBottomNav.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
@@ -206,9 +205,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
         } else {
-
             userProfileImage.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
-
         }
 
 
@@ -298,6 +295,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "notifyMessage is: " + notifyMessage);
                         break;
 
+                    case "update":
+                        showUpdateDialog();
+                        break;
+
                     case "goto":
 
                         switch (getActionIntent.getStringExtra("destination")) {
@@ -323,6 +324,48 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    private void showUpdateDialog() {
+        Log.d(TAG, "showUpdateDialog: ");
+        String currentVersionCode = String.valueOf(BuildConfig.VERSION_CODE);
+        coMeth.getDb()
+                .collection("Updates")
+                .document(currentVersionCode)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            handleUpdatesDialog(documentSnapshot);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get update info");
+                    }
+                });
+    }
+
+    private void handleUpdatesDialog(DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.get("info") != null) {
+            String updateInfo = documentSnapshot.get("info").toString();
+            AlertDialog.Builder updatesBuilder = new AlertDialog.Builder(MainActivity.this);
+            updatesBuilder.setTitle(getResources().getString(R.string.on_this_update_text))
+                    .setIcon(getResources().getDrawable(R.drawable.ic_action_updates))
+                    .setMessage(updateInfo)
+                    .setPositiveButton(getResources().getString(R.string.ok_text),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                    .show();
+        }
+    }
+
     private void goToLogin(String message) {
         Intent goToLogin = new Intent(MainActivity.this, LoginActivity.class);
         goToLogin.putExtra("message", message);
@@ -469,12 +512,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setFragment(Fragment fragment) {
-
         //begin transaction
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.mainFrameContainer, fragment);
         fragmentTransaction.commit();
-
     }
 
     public void doubleBackToExit() {

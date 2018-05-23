@@ -119,7 +119,6 @@ public class ViewPostActivity extends AppCompatActivity {
             editPost.setVisible(false);
             deletePost.setVisible(false);
         }
-
         return true;
     }
 
@@ -366,8 +365,6 @@ public class ViewPostActivity extends AppCompatActivity {
                     }
                 })
                 .show();
-
-
     }
 
     private boolean hasAdminAccess() {
@@ -383,7 +380,6 @@ public class ViewPostActivity extends AppCompatActivity {
         editIntent.putExtra("editPost", postId);
         startActivity(editIntent);
         finish();
-
     }
 
     @Override
@@ -463,7 +459,8 @@ public class ViewPostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //open comments page
-                Intent commentsIntent = new Intent(ViewPostActivity.this, CommentsActivity.class);
+                Intent commentsIntent = new Intent(
+                        ViewPostActivity.this, CommentsActivity.class);
                 commentsIntent.putExtra("postId", postId);
                 startActivity(commentsIntent);
 
@@ -861,7 +858,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
                     //set price
                     String price = post.getPrice();
-                    if (price != null) {
+                    if (price != null && !price.isEmpty()) {
                         priceTextView.setText(price);
                     } else {
                         viewPostPriceLayout.setVisibility(View.GONE);

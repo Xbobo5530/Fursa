@@ -85,7 +85,23 @@ public class HomeFragment extends Fragment {
         /*RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
         homeFeedView.setItemAnimator(itemAnimator);*/
 
-        // TODO: 5/21/18 load old data then show new data notofocation
+        //attempts to fix images on recycler view issue
+        /*homeFeedView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
+
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                Log.d(TAG, "onChildViewDetachedFromWindow: destroying cache");
+                view.destroyDrawingCache();
+
+            }
+        });*/
+
+
+        // TODO: 5/21/18 load old data then show new data notofication
         // TODO: 5/21/18 check if user is firs time loading
         // TODO: 5/21/18 check if there is cached data
 

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 // keystore.properties file, in the rootProject folder.
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -94,6 +95,10 @@ dependencies {
     def paging_version = "1.0.0"
 
     implementation "android.arch.paging:runtime:$paging_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.android.application'
+repositories {
+    mavenCentral()
+}

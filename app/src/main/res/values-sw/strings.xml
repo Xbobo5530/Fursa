@@ -159,4 +159,8 @@
     <string name="share_with_text">Shirikisha na…</string>
     <string name="create_post_text">Tengeneza chapisho</string>
     <string name="share_with_friends_text">Shirikisha marafiki</string>
+    <string name="yesterday_text">Jana</string>
+    <string name="update_value">Vilivyo ongezwa</string>
+    <string name="on_this_update_text">Maboresho kwenye toleo hili</string>
+    <string name="failed_to_share_text">Imeshindikana kushirikisha chapisho</string>
 </resources>
