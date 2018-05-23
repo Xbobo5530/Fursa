@@ -24,7 +24,7 @@ android {
         applicationId "com.nyayozangu.labs.fursa"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 12
+        versionCode 13
         versionName "1.0.12 Beta"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

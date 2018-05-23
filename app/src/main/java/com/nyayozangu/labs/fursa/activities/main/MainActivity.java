@@ -164,6 +164,37 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // TODO: 5/23/18 handle reselect bottom nav items
+        //handle bottom nav item re-selected
+        /*mainBottomNav.setOnNavigationItemReselectedListener(
+                new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.bottomNavHomeItem:
+
+                        *//*
+                        * Bundle bundle = new Bundle();
+                            bundle.putString("edttext", "From Activity");
+                            // set Fragmentclass Arguments
+                            Fragmentclass fragobj = new Fragmentclass();
+                            fragobj.setArguments(bundle);
+                        * *//*
+                        Log.d(TAG, "onNavigationItemReselected: ");
+                        Bundle bundle = new Bundle();
+                        bundle.putString("action", "home_reselect");
+                        homeFragment.setArguments(bundle);
+                        setFragment(homeFragment);
+                        break;
+                    case R.id.bottomNavSavedItem:
+                        setFragment(savedFragment);
+                        break;
+                    default:
+                        Log.d(TAG, "onNavigationItemReselected: ");
+                }
+            }
+        });*/
+
         //set the userProfile image
         if (coMeth.isLoggedIn()) {
 
@@ -328,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
     private void showUpdateDialog() {
         Log.d(TAG, "showUpdateDialog: ");
         String currentVersionCode = String.valueOf(BuildConfig.VERSION_CODE);
+        Log.d(TAG, "showUpdateDialog: \ncurrentVersionCode: " + currentVersionCode);
         coMeth.getDb()
                 .collection("Updates")
                 .document(currentVersionCode)
@@ -343,26 +375,30 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to get update info");
+                        Log.d(TAG, "onFailure: failed to get update info: " + e.getMessage());
                     }
                 });
     }
 
     private void handleUpdatesDialog(DocumentSnapshot documentSnapshot) {
+        Log.d(TAG, "handleUpdatesDialog: ");
         if (documentSnapshot.get("info") != null) {
-            String updateInfo = documentSnapshot.get("info").toString();
-            AlertDialog.Builder updatesBuilder = new AlertDialog.Builder(MainActivity.this);
-            updatesBuilder.setTitle(getResources().getString(R.string.on_this_update_text))
-                    .setIcon(getResources().getDrawable(R.drawable.ic_action_updates))
-                    .setMessage(updateInfo)
-                    .setPositiveButton(getResources().getString(R.string.ok_text),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                    .show();
+            if (documentSnapshot.get("info") != null) {
+                String updateInfo = documentSnapshot.get("info").toString();
+                AlertDialog.Builder updatesBuilder = new AlertDialog.Builder(MainActivity.this);
+                updatesBuilder.setTitle(getResources().getString(R.string.on_this_update_text))
+                        .setIcon(getResources().getDrawable(R.drawable.ic_action_updates))
+                        .setMessage(updateInfo)
+                        .setPositiveButton(getResources().getString(R.string.ok_text),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                        .setCancelable(false)
+                        .show();
+            }
         }
     }
 

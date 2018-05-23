@@ -59,7 +59,6 @@ public class ViewPostActivity extends AppCompatActivity {
     // TODO: 5/7/18 reorganize code on click listeners
 
     private static final String TAG = "Sean";
-    private static final String SENDER_ID = "858152200953";
     private CoMeth coMeth = new CoMeth();
 
     private MenuItem editPost, deletePost;
@@ -70,7 +69,8 @@ public class ViewPostActivity extends AppCompatActivity {
     private TextView timeTextView, priceTextView, locationTextView,
             titleTextView, eventDateTextView, contactTextView,
             userTextView, catTextView, tagsTextView,
-            commentsCountText, likesCountText;
+            commentsCountText, likesCountText, shareText,
+            saveText;
 
     private CircleImageView userImage; //image of user who posted post
     private ConstraintLayout viewPostTitleLayout, viewPostDescLayout,
@@ -409,8 +409,12 @@ public class ViewPostActivity extends AppCompatActivity {
         likesCountText = findViewById(R.id.viewPostLikesCountsTextView);
         commentsButton = findViewById(R.id.viewPostCommentImageView);
         commentsCountText = findViewById(R.id.viewPostCommentTextView);
+
         saveButton = findViewById(R.id.viewPostSaveImageView);
+        saveText = findViewById(R.id.viewPostSaveTextView);
+
         shareButton = findViewById(R.id.viewPostShareImageView);
+        shareText = findViewById(R.id.viewPostShareTextView);
 
         titleTextView = findViewById(R.id.viewPostTitleTextView);
         descTextView = findViewById(R.id.viewPostDescTextView);
@@ -459,141 +463,16 @@ public class ViewPostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //open comments page
-                Intent commentsIntent = new Intent(
-                        ViewPostActivity.this, CommentsActivity.class);
-                commentsIntent.putExtra("postId", postId);
-                startActivity(commentsIntent);
+                openComments();
 
             }
         });
-
-        /*//handle save click
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        commentsCountText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //disable button
-                saveButton.setClickable(false);
-
-                //check if user is connected to the internet
-                if (coMeth.isConnected()) {
-
-                    //check if user is logged in
-                    if (coMeth.isLoggedIn()) {
-
-                        final String currentUserId = coMeth.getUid();
-
-                        coMeth.getDb()
-                                .collection("Posts/" + postId + "/Saves")
-                                .document(currentUserId).get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                        if (!task.getResult().exists()) {
-
-                                            Map<String, Object> savesMap = new HashMap<>();
-                                            savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                            //save new post
-                                            coMeth.getDb().collection("Posts/" + postId + "/Saves").document(currentUserId).set(savesMap);
-                                            //notify user that post has been saved
-                                            showSaveSnack(getString(R.string.added_to_saved_text));
-
-                                        } else {
-
-                                            //delete saved post
-                                            coMeth.getDb().collection("Posts/" + postId + "/Saves")
-                                                    .document(currentUserId)
-                                                    .delete();
-                                        }
-                                    }
-                                });
-                    } else {
-                        //user is not logged in
-                        Log.d(TAG, "user is not logged in");
-                        //notify user
-
-                        String message = getString(R.string.login_to_save_text);
-                        goToLogin(message);
-                    }
-                } else {
-
-                    //user is not connected to the internet
-                    showSnack(getString(R.string.failed_to_connect_text));
-
-                }
-
-                //enable button
-                saveButton.setClickable(true);
-
-            }
-        });*/
-
-        /*//handle like click
-        likeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //disable button
-                likeButton.setClickable(false);
-
-                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
-                        final String currentUserId = coMeth.getUid();
-                        coMeth.getDb()
-                                .collection("Posts/" + postId + "/Likes")
-                                .document(currentUserId)
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                        //get data from teh likes collection
-                                        // TODO: 5/6/18 check if the internet actually works
-                                        //check if current user has already liked post
-                                        if (!task.getResult().exists()) {
-
-                                            Map<String, Object> likesMap = new HashMap<>();
-                                            likesMap.put("timestamp", FieldValue.serverTimestamp());
-                                            //can alternatively ne written
-                                            coMeth.getDb()
-                                                    .collection("Posts/" + postId + "/Likes")
-                                                    .document(currentUserId).set(likesMap);
-
-                                            //notify subscribers
-                                            String notifType = "likes_updates";
-                                            new Notify().execute(notifType, postId);
-                                            Log.d(TAG, "onComplete: notification sent");
-
-                                        } else {
-                                            //delete the like
-                                            coMeth.getDb()
-                                                    .collection("Posts/" + postId + "/Likes")
-                                                    .document(currentUserId).delete();
-                                        }
-                                    }
-                                });
-
-
-                } else {
-
-                    if (!coMeth.isConnected()) {
-                        //alert user is not connected
-                        showSnack(getString(R.string.failed_to_connect_text));
-                    }
-                    if (!coMeth.isLoggedIn()){
-                        Log.d(TAG, "use is not logged in");
-                        String message = getString(R.string.login_to_like);
-                        goToLogin(message);
-                    }
-
-                }
-
-                //enable button
-                likeButton.setClickable(true);
-
+                openComments();
             }
         });
-*/
 
         //set likes
         coMeth.getDb()
@@ -658,9 +537,13 @@ public class ViewPostActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         //remove save
-                                        coMeth.getDb()
-                                                .collection("Posts/" + postId + "/Likes")
-                                                .document(currentUserId).delete();
+                                        unlikePost(currentUserId);
+                                    }
+                                });
+                                likesCountText.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        unlikePost(currentUserId);
                                     }
                                 });
 
@@ -674,17 +557,13 @@ public class ViewPostActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         //add save
-                                        Map<String, Object> likesMap = new HashMap<>();
-                                        likesMap.put("timestamp", FieldValue.serverTimestamp());
-                                        //can alternatively ne written
-                                        coMeth.getDb()
-                                                .collection("Posts/" + postId + "/Likes")
-                                                .document(currentUserId).set(likesMap);
-
-                                        //notify subscribers
-                                        String notifType = "likes_updates";
-                                        new Notify().execute(notifType, postId);
-                                        Log.d(TAG, "onComplete: notification sent");
+                                        likePost(currentUserId);
+                                    }
+                                });
+                                likesCountText.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        likePost(currentUserId);
                                     }
                                 });
                             }
@@ -712,9 +591,13 @@ public class ViewPostActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         //remove saved on click
-                                        coMeth.getDb().collection("Posts/" + postId + "/Saves")
-                                                .document(currentUserId)
-                                                .delete();
+                                        unsavePost(currentUserId);
+                                    }
+                                });
+                                saveText.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        unsavePost(currentUserId);
                                     }
                                 });
 
@@ -728,13 +611,13 @@ public class ViewPostActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         //save post
-                                        Map<String, Object> savesMap = new HashMap<>();
-                                        savesMap.put("timestamp", FieldValue.serverTimestamp());
-                                        coMeth.getDb().collection("Posts/" + postId + "/Saves")
-                                                .document(currentUserId)
-                                                .set(savesMap);
-                                        //notify user that post has been saved
-                                        showSaveSnack(getString(R.string.added_to_saved_text));
+                                        savePost(currentUserId);
+                                    }
+                                });
+                                saveText.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        savePost(currentUserId);
                                     }
                                 });
 
@@ -1125,6 +1008,49 @@ public class ViewPostActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void savePost(String currentUserId) {
+        Map<String, Object> savesMap = new HashMap<>();
+        savesMap.put("timestamp", FieldValue.serverTimestamp());
+        coMeth.getDb().collection("Posts/" + postId + "/Saves")
+                .document(currentUserId)
+                .set(savesMap);
+        //notify user that post has been saved
+        showSaveSnack(getString(R.string.added_to_saved_text));
+    }
+
+    private void unsavePost(String currentUserId) {
+        coMeth.getDb().collection("Posts/" + postId + "/Saves")
+                .document(currentUserId)
+                .delete();
+    }
+
+    private void likePost(String currentUserId) {
+        Map<String, Object> likesMap = new HashMap<>();
+        likesMap.put("timestamp", FieldValue.serverTimestamp());
+        //can alternatively ne written
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Likes")
+                .document(currentUserId).set(likesMap);
+
+        //notify subscribers
+        String notifType = "likes_updates";
+        new Notify().execute(notifType, postId);
+        Log.d(TAG, "onComplete: notification sent");
+    }
+
+    private void unlikePost(String currentUserId) {
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Likes")
+                .document(currentUserId).delete();
+    }
+
+    private void openComments() {
+        Intent commentsIntent = new Intent(
+                ViewPostActivity.this, CommentsActivity.class);
+        commentsIntent.putExtra("postId", postId);
+        startActivity(commentsIntent);
     }
 
     private void shareDynamicLink(String postUrl) {
