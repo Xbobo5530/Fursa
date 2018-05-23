@@ -89,6 +89,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 //        cleanDB();
+
+        /*Log.d(TAG, "onCreate: testing process update info \nprocessed info is: " + processUpdate("Thank you for updating your Fursa app, here is what we have been working on:\\n\n" +
+                "New Features:\\n\n" +
+                "- Tag your posts by simply adding ‘#’ to words in your post title or post description\\n\n" +
+                "- Increased stability\\n\\n\n" +
+                "Bug Fixes:\\n\n" +
+                "- Faster loading speeds\\n\n" +
+                "- Fixed the no pots alert on the Categories Page\n"));*/
         
         //subscribe to app updates
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
@@ -385,10 +393,11 @@ public class MainActivity extends AppCompatActivity {
         if (documentSnapshot.get("info") != null) {
             if (documentSnapshot.get("info") != null) {
                 String updateInfo = documentSnapshot.get("info").toString();
+                String processedUpdateInfo = processUpdate(updateInfo);
                 AlertDialog.Builder updatesBuilder = new AlertDialog.Builder(MainActivity.this);
                 updatesBuilder.setTitle(getResources().getString(R.string.on_this_update_text))
                         .setIcon(getResources().getDrawable(R.drawable.ic_action_updates))
-                        .setMessage(updateInfo)
+                        .setMessage(processedUpdateInfo)
                         .setPositiveButton(getResources().getString(R.string.ok_text),
                                 new DialogInterface.OnClickListener() {
                                     @Override
@@ -400,6 +409,25 @@ public class MainActivity extends AppCompatActivity {
                         .show();
             }
         }
+    }
+
+    private String processUpdate(String updateInfo) {
+        Log.d(TAG, "processUpdate: ");
+        String processedUpdateInfo = "";
+        int breakPos = updateInfo.indexOf("#");
+        int startPos = 0;
+        while (breakPos != -1 &&
+                breakPos < updateInfo.length() &&
+                updateInfo.indexOf("#", breakPos) != -1) {
+            Log.d(TAG, "processUpdate: " +
+                    "\nbreakPos: " + breakPos +
+                    "\nstartPos is: " + startPos);
+            processedUpdateInfo = processedUpdateInfo.concat(updateInfo.substring(startPos, breakPos) + "\n");
+            startPos = breakPos + "#".length();
+            breakPos = updateInfo.indexOf("#", startPos);
+        }
+        Log.d(TAG, "processUpdate: processed update info is " + processedUpdateInfo);
+        return processedUpdateInfo;
     }
 
     private void goToLogin(String message) {
