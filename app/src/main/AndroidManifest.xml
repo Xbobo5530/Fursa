@@ -29,7 +29,10 @@
             android:value="AIzaSyDhaspaApHTdZF05YKL8zmA2medxahQwRs" />
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="text" />
+            android:value="text|label" />
+        <!--<meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="label" />-->
 
         <activity
             android:name=".activities.main.MainActivity"

@@ -521,7 +521,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .setLink(Uri.parse(postUrl))
                 .setDynamicLinkDomain(context.getString(R.string.dynamic_link_domain))
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                        .setMinimumVersion(12)
+                        .setMinimumVersion(13)
                         .setFallbackUrl(Uri.parse(context.getString(R.string.playstore_url)))
                         .build())
                 .setSocialMetaTagParameters(

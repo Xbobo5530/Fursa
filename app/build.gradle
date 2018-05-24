@@ -25,7 +25,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 13
-        versionName "1.0.12 Beta"
+        versionName "1.0.13 Beta"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -86,15 +86,14 @@ dependencies {
     //expandable text view
     compile 'com.ms-square:expandableTextView:0.1.4'
     //mlkit
-    implementation 'com.google.firebase:firebase-ml-vision:15.0.0'
+    implementation 'com.google.firebase:firebase-ml-vision:16.0.0'
+    implementation 'com.google.firebase:firebase-ml-vision-image-label-model:15.0.0'
     //dynamic links
     implementation 'com.google.firebase:firebase-invites:15.0.1'
     //multi dex
     compile 'com.android.support:multidex:1.0.3'
-    //paging
-    def paging_version = "1.0.0"
-
-    implementation "android.arch.paging:runtime:$paging_version"
+    //firebase app indexing
+    implementation 'com.google.firebase:firebase-appindexing:15.0.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 apply plugin: 'com.google.gms.google-services'

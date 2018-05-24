@@ -393,11 +393,11 @@ public class MainActivity extends AppCompatActivity {
         if (documentSnapshot.get("info") != null) {
             if (documentSnapshot.get("info") != null) {
                 String updateInfo = documentSnapshot.get("info").toString();
-                String processedUpdateInfo = processUpdate(updateInfo);
+//                String processedUpdateInfo = processUpdate(updateInfo);
                 AlertDialog.Builder updatesBuilder = new AlertDialog.Builder(MainActivity.this);
                 updatesBuilder.setTitle(getResources().getString(R.string.on_this_update_text))
                         .setIcon(getResources().getDrawable(R.drawable.ic_action_updates))
-                        .setMessage(processedUpdateInfo)
+                        .setMessage(updateInfo)
                         .setPositiveButton(getResources().getString(R.string.ok_text),
                                 new DialogInterface.OnClickListener() {
                                     @Override
@@ -411,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String processUpdate(String updateInfo) {
+    /*private String processUpdate(String updateInfo) {
         Log.d(TAG, "processUpdate: ");
         String processedUpdateInfo = "";
         int breakPos = updateInfo.indexOf("#");
@@ -428,7 +428,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.d(TAG, "processUpdate: processed update info is " + processedUpdateInfo);
         return processedUpdateInfo;
-    }
+    }*/
 
     private void goToLogin(String message) {
         Intent goToLogin = new Intent(MainActivity.this, LoginActivity.class);

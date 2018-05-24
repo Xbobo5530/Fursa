@@ -11,40 +11,27 @@ import java.util.Date;
 public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.PostId {
 
     //get all the details from database
-    public String user_id;
-    public String image_url;
-    public String thumb_url;
-    public String desc;
-    public String title;
-    public String price;
-    public ArrayList<String> location;
-    public ArrayList<String> contact_details;
-    public ArrayList<String> categories;
-    public Date timestamp;
-    public Date event_date;
-    public ArrayList<String> tags;
+    public String user_id, image_url, thumb_url, desc, title, price, image_text, image_labels;
+    public ArrayList<String> location, contact_details, categories, tags;
+    public Date timestamp, event_date;
+
 
 
     //empty constructor
     public Posts() {
     }
 
-    //main constructot
-    public Posts(String user_id,
-                 String image_url,
-                 String thumb_url,
-                 String desc,
-                 String title,
-                 String price,
-                 Date timestamp,
-                 Date event_date,
-                 ArrayList<String> categories,
-                 ArrayList<String> contact_details,
-                 ArrayList<String> location,
-                 ArrayList<String> tags) {
+    //main constructor
+    public Posts(String user_id, String image_url, String thumb_url, String image_labels,
+                 String image_text, String desc, String title, String price,
+                 Date timestamp, Date event_date,
+                 ArrayList<String> categories, ArrayList<String> contact_details,
+                 ArrayList<String> location, ArrayList<String> tags) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
+        this.image_labels = image_labels;
+        this.image_text = image_text;
         this.desc = desc;
         this.title = title;
         this.price = price;
@@ -91,6 +78,22 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
 
     public void setThumb_url(String thumb_url) {
         this.thumb_url = thumb_url;
+    }
+
+    public String getImage_text() {
+        return image_text;
+    }
+
+    public void setImage_text(String image_text) {
+        this.image_text = image_text;
+    }
+
+    public String getImage_labels() {
+        return image_labels;
+    }
+
+    public void setImage_labels(String image_labels) {
+        this.image_labels = image_labels;
     }
 
     public String getDesc() {

@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,8 +28,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
@@ -41,6 +41,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetector;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetectorOptions;
+import com.google.firebase.ml.vision.text.FirebaseVisionText;
+import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
@@ -59,6 +66,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -95,6 +103,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private TextView priceTextView;
     private TextView catsTextView;
     private String desc;
+    private String imageText = "", imageLabels = "";
     private String title;
     private ConstraintLayout descField;
     private ConstraintLayout categoriesField;
@@ -183,7 +192,8 @@ public class CreatePostActivity extends AppCompatActivity {
         } else {
 
             //user is not logged in
-            Intent homeIntent = new Intent(CreatePostActivity.this, MainActivity.class);
+            Intent homeIntent = new Intent(
+                    CreatePostActivity.this, MainActivity.class);
             homeIntent.putExtra(getString(R.string.action_name_text), getString(R.string.notify_value_text));
             homeIntent.putExtra(getString(R.string.message_name_text), getString(R.string.not_logged_in_text));
             startActivity(homeIntent);
@@ -192,9 +202,7 @@ public class CreatePostActivity extends AppCompatActivity {
         }
 
         if (getIntent() != null) {
-
             handleIntent();
-
         }
 
 
@@ -245,7 +253,8 @@ public class CreatePostActivity extends AppCompatActivity {
         contactField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertDialog.Builder contactDialogBuilder = new AlertDialog.Builder(CreatePostActivity.this);
+                final AlertDialog.Builder contactDialogBuilder =
+                        new AlertDialog.Builder(CreatePostActivity.this);
                 contactDialogBuilder.setTitle("Contact Details")
                         .setIcon(R.drawable.ic_action_contact)
                         .setView(contactDialogView)
@@ -253,110 +262,28 @@ public class CreatePostActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //user clicks done
-                                EditText contactNameField = contactDialogView.findViewById(R.id.contactNameDialogEditText);
-                                EditText contactPhoneField = contactDialogView.findViewById(R.id.contactPhoneDialogEditText);
-                                EditText contactEmailField = contactDialogView.findViewById(R.id.contactEmailDialogEditText);
+                                EditText contactNameField =
+                                        contactDialogView.findViewById(R.id.contactNameDialogEditText);
+                                EditText contactPhoneField =
+                                        contactDialogView.findViewById(R.id.contactPhoneDialogEditText);
+                                EditText contactEmailField =
+                                        contactDialogView.findViewById(R.id.contactEmailDialogEditText);
 
                                 //get values
                                 contactName = contactNameField.getText().toString().trim();
                                 contactPhone = contactPhoneField.getText().toString().trim();
                                 contactEmail = contactEmailField.getText().toString().trim();
 
-                                if (contactName.isEmpty() && contactPhone.isEmpty() && contactEmail.isEmpty()) {
-                                    //all fields are empty
-                                    dialog.cancel();
-
-                                } else {
-
-                                    //at least one field is filled
-                                    if (!contactName.isEmpty()) {
-
-                                        //name is not empty
-                                        if (!contactPhone.isEmpty()) {
-
-                                            //name and phone are not empty
-                                            if (!contactEmail.isEmpty()) {
-
-                                                //has name, phone and email
-                                                String contactDetails = contactName + "\n" + contactPhone + "\n" + contactEmail;
-                                                contactTextView.setText(contactDetails);
-
-                                            } else {
-
-                                                //has name and phone
-                                                String contactDetails = contactName + "\n" + contactPhone;
-                                                contactTextView.setText(contactDetails);
-
-                                            }
-
-                                        } else {
-
-                                            //has name
-                                            if (!contactEmail.isEmpty()) {
-
-                                                //has name and email
-                                                String contactDetails = contactName + "\n" + contactEmail;
-                                                contactTextView.setText(contactDetails);
-
-                                            } else {
-
-                                                //has name
-                                                contactTextView.setText("");
-
-                                            }
-
-                                        }
-
-                                    } else {
-
-                                        //name is empty
-                                        if (!contactPhone.isEmpty()) {
-
-                                            //has phone
-                                            if (!contactEmail.isEmpty()) {
-
-                                                //has email and phone
-                                                String contactDetails = contactPhone + "\n" + contactEmail;
-                                                contactTextView.setText(contactDetails);
-
-                                            } else {
-
-                                                //has phone
-                                                String contactDetails = contactPhone;
-                                                contactTextView.setText(contactDetails);
-
-                                            }
-
-                                        } else {
-
-                                            //name and phone are empty
-                                            if (!contactEmail.isEmpty()) {
-
-                                                //has email
-                                                String contactDetails = contactEmail;
-                                                contactTextView.setText(contactDetails);
-
-
-                                            } else {
-
-                                                //phone, email and name are all empty
-                                                //hide contact field
-                                                contactTextView.setText("");
-
-                                            }
-
-                                        }
-
-                                    }
-                                }
+                                processContactDetails(dialog);
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(
+                                getResources().getString(R.string.cancel_text),
+                                new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // user clicks cancel
                                 dialog.cancel();
-
                             }
                         })
                         .setCancelable(false);
@@ -418,12 +345,12 @@ public class CreatePostActivity extends AppCompatActivity {
 
                                 }
 
-                                // TODO: 5/3/18 chcek on createing pst selecting cats does not
+                                // TODO: 5/3/18 check on creating post selecting cats does not
                                 catsTextView.setText(catsString.trim());
                             }
                         })
 
-                        //set negative buttton
+                        //set negative button
                         .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -440,8 +367,6 @@ public class CreatePostActivity extends AppCompatActivity {
                 //show the dialog
                 catPickerBuilder.show();
 
-                // TODO: 5/3/18 test clearing items after showing dialog
-
             }
         });
 
@@ -453,30 +378,29 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 //open the pick location activity
                 try {
-                    Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                    Intent intent =
+                            new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                             .build(CreatePostActivity.this);
                     startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-                } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                } catch (GooglePlayServicesRepairableException |
+                        GooglePlayServicesNotAvailableException e) {
 
                     Log.e(TAG, "onClick: " + e.getMessage());
-                    AlertDialog.Builder locationErrorBuilder = new AlertDialog.Builder(CreatePostActivity.this);
+                    AlertDialog.Builder locationErrorBuilder =
+                            new AlertDialog.Builder(CreatePostActivity.this);
                     locationErrorBuilder.setTitle("Error")
                             .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
                             .setMessage(R.string.failed_to_load_locations_text)
                             .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
                                     //dismiss the dialog
                                     dialog.dismiss();
-
                                 }
                             })
                             //show the dialog
                             .show();
-
                 }
-
             }
         });
 
@@ -520,7 +444,8 @@ public class CreatePostActivity extends AppCompatActivity {
         priceField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
+                AlertDialog.Builder builder =
+                        new AlertDialog.Builder(CreatePostActivity.this);
                 builder.setTitle(getString(R.string.price_text))
                         .setIcon(R.drawable.ic_action_payment);
 
@@ -534,14 +459,16 @@ public class CreatePostActivity extends AppCompatActivity {
                 if (!priceTextView.getText().toString().isEmpty()) {
                     input.setText(priceTextView.getText().toString());
                 }
-                builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(
+                        getResources().getString(R.string.done_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         price = input.getText().toString().trim();
                         priceTextView.setText(price);
                     }
                 })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(
+                                getResources().getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
@@ -607,8 +534,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         downloadUri = post.getImage_url();
                                                     if (post.getThumb_url() != null)
                                                         downloadThumbUri = post.getThumb_url();
-                                                    /*if (post.getTitle() != null) title = post.getTitle();
-                                                    if (post.getDesc() != null) desc = post.getDesc();*/
                                                     if (post.getCategories() != null)
                                                         cats = post.getCategories();
                                                     if (post.getLocation() != null)
@@ -684,6 +609,96 @@ public class CreatePostActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void processContactDetails(DialogInterface dialog) {
+        if (contactName.isEmpty() && contactPhone.isEmpty() && contactEmail.isEmpty()) {
+            //all fields are empty
+            dialog.cancel();
+
+        } else {
+
+            //at least one field is filled
+            if (!contactName.isEmpty()) {
+
+                //name is not empty
+                if (!contactPhone.isEmpty()) {
+
+                    //name and phone are not empty
+                    if (!contactEmail.isEmpty()) {
+
+                        //has name, phone and email
+                        String contactDetails = contactName + "\n" + contactPhone + "\n" + contactEmail;
+                        contactTextView.setText(contactDetails);
+
+                    } else {
+
+                        //has name and phone
+                        String contactDetails = contactName + "\n" + contactPhone;
+                        contactTextView.setText(contactDetails);
+
+                    }
+
+                } else {
+
+                    //has name
+                    if (!contactEmail.isEmpty()) {
+
+                        //has name and email
+                        String contactDetails = contactName + "\n" + contactEmail;
+                        contactTextView.setText(contactDetails);
+
+                    } else {
+
+                        //has name
+                        contactTextView.setText("");
+
+                    }
+
+                }
+
+            } else {
+
+                //name is empty
+                if (!contactPhone.isEmpty()) {
+
+                    //has phone
+                    if (!contactEmail.isEmpty()) {
+
+                        //has email and phone
+                        String contactDetails = contactPhone + "\n" + contactEmail;
+                        contactTextView.setText(contactDetails);
+
+                    } else {
+
+                        //has phone
+                        String contactDetails = contactPhone;
+                        contactTextView.setText(contactDetails);
+
+                    }
+
+                } else {
+
+                    //name and phone are empty
+                    if (!contactEmail.isEmpty()) {
+
+                        //has email
+                        String contactDetails = contactEmail;
+                        contactTextView.setText(contactDetails);
+
+
+                    } else {
+
+                        //phone, email and name are all empty
+                        //hide contact field
+                        contactTextView.setText("");
+
+                    }
+
+                }
+
+            }
+        }
     }
 
     private void submitPost() {
@@ -771,15 +786,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         String errorMessage = task.getException().getMessage();
                                                         Log.d(TAG, "Db Update failed: " + errorMessage);
                                                         showSnack(getString(R.string.failed_to_upload_image_text));
-
                                                     }
-
                                                 }
                                             });
-
-
-                                    //
-
                                 } else {
 
                                     //is edit post
@@ -799,11 +808,10 @@ public class CreatePostActivity extends AppCompatActivity {
                                                         goToMain();
                                                         //notify users subscribed to cats
                                                         notifyNewPostCatsUpdates(catsStringsArray);
-                                                        Log.d(TAG, "onComplete: about to upload \ncategproes are: " + catsStringsArray);
+                                                        Log.d(TAG, "onComplete: about to upload " +
+                                                                "\ncategories are: " + catsStringsArray);
                                                         //subscribe current user to post comments
                                                         FirebaseMessaging.getInstance().subscribeToTopic(postId);
-
-
                                                     } else {
 
                                                         //upload failed
@@ -962,6 +970,13 @@ public class CreatePostActivity extends AppCompatActivity {
         if (downloadThumbUri != null) {
             postMap.put("thumb_url", downloadThumbUri);
         }
+        if (!imageLabels.isEmpty()) {
+            postMap.put("image_labels", imageLabels);
+        }
+        if (!imageText.isEmpty()) {
+            postMap.put("image_text", imageText);
+        }
+
         postMap.put("title", title);
         postMap.put("desc", desc);
         postMap.put("user_id", currentUserId);
@@ -1164,15 +1179,18 @@ public class CreatePostActivity extends AppCompatActivity {
                         String imageUrl = task.getResult().get("image_url").toString();
                         String thumbUrl = task.getResult().get("thumb_url").toString();
 
-
-                        RequestOptions placeHolderOptions = new RequestOptions();
+                        try {
+                            coMeth.setImage(R.drawable.appiconshadow, imageUrl, thumbUrl, createPostImageView);
+                        } catch (Exception e) {
+                            Log.d(TAG, "onComplete: failed to set create image");
+                        }
+                        /*RequestOptions placeHolderOptions = new RequestOptions();
                         placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
                         Glide.with(getApplicationContext())
                                 .applyDefaultRequestOptions(placeHolderOptions)
                                 .load(imageUrl)
                                 .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
-                                .into(createPostImageView);
-
+                                .into(createPostImageView);*/
                         //update the imageUrl
                         downloadUri = imageUrl;
                         downloadThumbUri = thumbUrl;
@@ -1278,7 +1296,8 @@ public class CreatePostActivity extends AppCompatActivity {
                 //get image uri
                 postImageUri = result.getUri();
                 createPostImageView.setImageURI(postImageUri);
-
+                //process image tags
+                processMLImage(postImageUri);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 //handle errors
@@ -1305,6 +1324,103 @@ public class CreatePostActivity extends AppCompatActivity {
                 // The user canceled the operation.
             }
         }
+    }
+
+    /**
+     * extract data from
+     *
+     * @param postImageUri image Uri
+     */
+    private void processMLImage(Uri postImageUri) {
+        Log.d(TAG, "processMLImage: ");
+        FirebaseVisionImage image = null; //initiate firebase vision image
+        try {
+            image = FirebaseVisionImage.fromFilePath(CreatePostActivity.this, postImageUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "processMLImage: e" + e.getMessage());
+        }
+
+        //initiate text detector
+        FirebaseVisionTextDetector textDetector = FirebaseVision.getInstance()
+                .getVisionTextDetector();
+        if (image != null) {
+            Task<FirebaseVisionText> result =
+                    textDetector.detectInImage(image)
+                            .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                                @Override
+                                public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                                    // Task completed successfully
+                                    for (FirebaseVisionText.Block block : firebaseVisionText.getBlocks()) {
+                                        Rect boundingBox = block.getBoundingBox();
+                                        Point[] cornerPoints = block.getCornerPoints();
+                                        String text = block.getText();
+                                        /*String newstr = "Word#$#$% Word λ1234ä, ñ, ж".replaceAll("\\P{L}+", "");*/
+                                        String cleanText = text.replaceAll("\\P{L}+", " ");
+                                        imageText = imageText.concat(cleanText);
+                                        Log.d(TAG, "onSuccess: \n text is: " + text +
+                                                "\nclean text is: " + cleanText);
+                                        // TODO: 5/24/18 continue text handling
+                                        /*for (FirebaseVisionText.Line line: block.getLines()) {
+                                            // ...
+                                            for (FirebaseVisionText.Element element: line.getElements()) {
+                                                // ...
+                                            }*/
+                                    }
+
+                                }
+                            }).addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    // Task failed with an exception
+                                    Log.d(TAG, "onFailure: e: " + e.getMessage());
+                                }
+                            });
+        }
+
+        //initiate image labling
+
+        FirebaseVisionLabelDetector labelDetector = FirebaseVision.getInstance()
+                .getVisionLabelDetector();
+        FirebaseVisionLabelDetectorOptions options =
+                new FirebaseVisionLabelDetectorOptions.Builder()
+                        .setConfidenceThreshold(0.8f)
+                        .build();
+        if (image != null) {
+
+            Task<List<FirebaseVisionLabel>> result =
+                    labelDetector.detectInImage(image)
+                            .addOnSuccessListener(
+                                    new OnSuccessListener<List<FirebaseVisionLabel>>() {
+                                        @Override
+                                        public void onSuccess(List<FirebaseVisionLabel> labels) {
+                                            // Task completed successfully
+                                            for (FirebaseVisionLabel label : labels) {
+                                                String labelText = label.getLabel();
+                                                imageLabels = imageLabels.concat(labelText + " ");
+                                                String entityId = label.getEntityId();
+                                                float confidence = label.getConfidence();
+                                                Log.d(TAG, "onSuccess: \nlabel is: " + labelText);
+                                            }
+
+                                        }
+                                    })
+                            .addOnFailureListener(
+                                    new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            // Task failed with an exception
+                                            // ...
+                                            Log.d(TAG, "onFailure: " +
+                                                    "\nfailed to get labels off image: "
+                                                    + e.getMessage());
+                                        }
+                                    });
+
+        }
+
+
     }
 
 
