@@ -176,9 +176,7 @@ public class SearchableActivity extends AppCompatActivity {
                                 .get(queryDocumentSnapshots.size() - 1);
                         postsList.clear();
                         usersList.clear();
-
                     }
-
                 }
 
                 //create a for loop to check for document changes
@@ -219,6 +217,17 @@ public class SearchableActivity extends AppCompatActivity {
         if (post.getPrice() != null) {
             String price = post.getPrice().toLowerCase();
         }
+        //image labels
+        String imageLabels = "";
+        if (post.getImage_labels() != null) {
+            imageLabels = post.getImage_labels().toLowerCase().trim();
+        }
+        //image text
+        String imageText = "";
+        if (post.getImage_text() != null) {
+            imageText = post.getImage_text().toLowerCase().trim();
+        }
+
         //handle categories
         String catString = "";
         if (post.getCategories() != null) {
@@ -232,12 +241,10 @@ public class SearchableActivity extends AppCompatActivity {
             }
         }
         // handle contact
-        ArrayList contactArray = new ArrayList();
+        ArrayList contactArray;
         String contactString = "";
         if (post.getContact_details() != null) {
-
             contactArray = post.getContact_details();
-
             for (int i = 0; i < contactArray.size(); i++) {
                 contactString = contactString.concat(
                         contactArray.get(i).toString().toLowerCase() + " ");
@@ -252,7 +259,6 @@ public class SearchableActivity extends AppCompatActivity {
                 locString = locString.concat(
                         locArray.get(i).toString().toLowerCase() + " ");
             }
-
         }
         //handle postUser
         String postUserId = post.getUser_id();
@@ -265,11 +271,13 @@ public class SearchableActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
                         if (task.isSuccessful() && task.getResult().exists()) {
-
                             Users user = task.getResult().toObject(Users.class);
                             String username = user.getName().toLowerCase();
                             if (username.contains(searchQuery)) getFilteredPosts(post);
-
+                            if (user.getBio() != null) {
+                                String bio = user.getBio().toLowerCase();
+                                if (bio.contains(searchQuery)) getFilteredPosts(post);
+                            }
                         }
 
                     }
@@ -288,6 +296,12 @@ public class SearchableActivity extends AppCompatActivity {
             getFilteredPosts(post);
         }
         if (desc.contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
+        if (imageLabels.contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
+        if (imageText.contains(searchQuery)) {
             getFilteredPosts(post);
         }
         if (locString.contains(searchQuery)) {
