@@ -138,7 +138,6 @@ ViewCategoryActivity extends AppCompatActivity {
                                 .setMinimumVersion(13)
                                 .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
                                 .build())
-                        // TODO: 5/18/18 handle opening links on ios
                         .setSocialMetaTagParameters(
                                 new DynamicLink.SocialMetaTagParameters.Builder()
                                         .setTitle(getString(R.string.app_name))

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -65,6 +66,8 @@ public class AccountActivity extends AppCompatActivity {
     private String userId;
     private boolean imageIsChanged = false;
     private ProgressDialog progressDialog;
+    private String userName;
+    private String userBio;
 
 
     @Override
@@ -207,8 +210,8 @@ public class AccountActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //get user details
-                final String userName = userNameField.getText().toString();
-                final String userBio = userBioField.getText().toString();
+                userName = userNameField.getText().toString();
+                userBio = userBioField.getText().toString();
 
                 //check if userNameField is empty
                 if (!TextUtils.isEmpty(userName)) {
@@ -217,105 +220,8 @@ public class AccountActivity extends AppCompatActivity {
                     hideKeyBoard();
                     //show progress bar
                     showProgress(getString(R.string.loading_text));
-                    //generate randomString name for image based on firebase time stamp
-                    final String randomName = UUID.randomUUID().toString();
-                    //check if data (image) has changed
-                    if (imageIsChanged) {
+                    submitAccountDetails();
 
-                        try {
-
-                            //upload the image to firebase
-                            userId = coMeth.getUid();
-                            StorageReference imagePath = coMeth.getStorageRef()
-                                    .child("profile_images")
-                                    .child(userId + ".jpg");
-
-                            //start handling data with firebase
-                            imagePath.putFile(userImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
-
-                                    Log.d(TAG, "at onComplete");
-                                    //check if is complete.
-                                    if (task.isSuccessful()) {
-                                    /*//update the database
-                                    updateDb(task, null,userName, userBio);*/
-
-                                        File newImageFile = new File(userImageUri.getPath());
-
-                                        try {
-                                            compressedImageFile = new Compressor(AccountActivity.this)
-                                                    .setMaxWidth(100)
-                                                    .setMaxHeight(100)
-                                                    .setQuality(2)
-                                                    .compressToBitmap(newImageFile);
-                                        } catch (IOException e) {
-
-                                            e.printStackTrace();
-
-                                        }
-
-                                        //handle Bitmap
-                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                        compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                        byte[] thumbData = baos.toByteArray();
-
-                                        //uploading the thumbnail
-                                        UploadTask uploadTask = coMeth.getStorageRef()
-                                                .child("profile_images/thumbs")
-                                                .child(randomName + ".jpg")
-                                                .putBytes(thumbData);
-                                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                            @Override
-                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                                //update dB with new thumb in task snapshot
-                                                updateDb(task, taskSnapshot, userName, userBio);
-
-                                            }
-
-
-                                        }).addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-
-                                                //upload failed
-                                                String errorMessage = task.getException().getMessage();
-                                                Log.d(TAG, "Db Update failed: " + errorMessage);
-                                                Snackbar.make(findViewById(R.id.account_layout),
-                                                        "Failed to upload image: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
-                                            }
-                                        });
-
-
-                                    } else {
-
-                                        //upload failed
-                                        Log.d(TAG, "upload failed");
-                                        String errorMessage = task.getException().getMessage();
-                                        Snackbar.make(findViewById(R.id.account_layout),
-                                                "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();
-
-                                    }
-
-                                    progressDialog.dismiss();
-
-                                }
-                            });
-                        } catch (NullPointerException userImageException) {
-
-                            Log.e(TAG, "onClick: ", userImageException.getCause());
-                            updateDb(null, null, userName, userBio);
-
-                        }
-
-
-                    } else {
-                        //no image selected, no name selected
-                        //update name but not the imageUri
-                        updateDb(null, null, userName, userBio);
-                    }
                 } else {
                     //field are empty
                     Snackbar.make(findViewById(R.id.account_layout),
@@ -324,6 +230,98 @@ public class AccountActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void submitAccountDetails() {
+        //generate randomString name for image based on firebase time stamp
+        final String randomName = UUID.randomUUID().toString();
+        //check if data (image) has changed
+        if (imageIsChanged) {
+
+            try {
+
+                //upload the image to firebase
+                userId = coMeth.getUid();
+                StorageReference imagePath = coMeth.getStorageRef()
+                        .child("profile_images")
+                        .child(userId + ".jpg");
+
+                //start handling data with firebase
+                imagePath.putFile(userImageUri).addOnCompleteListener(
+                        new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+
+                                Log.d(TAG, "at onComplete");
+                                //check if is complete.
+                                if (task.isSuccessful()) {
+                        /*//update the database
+                        updateDb(task, null,userName, userBio);*/
+
+                                    File newImageFile = new File(userImageUri.getPath());
+
+                                    try {
+                                        compressedImageFile = new Compressor(AccountActivity.this)
+                                                .setMaxWidth(100)
+                                                .setMaxHeight(100)
+                                                .setQuality(2)
+                                                .compressToBitmap(newImageFile);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    //handle Bitmap
+                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                    compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                    byte[] thumbData = baos.toByteArray();
+
+                                    //uploading the thumbnail
+                                    UploadTask uploadTask = coMeth.getStorageRef()
+                                            .child("profile_images/thumbs")
+                                            .child(randomName + ".jpg")
+                                            .putBytes(thumbData);
+                                    uploadTask.addOnSuccessListener(
+                                            new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                                    //update dB with new thumb in task snapshot
+                                                    updateDb(task, taskSnapshot, userName, userBio);
+
+                                                }
+
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+
+                                            //upload failed
+                                            String errorMessage = task.getException().getMessage();
+                                            Log.d(TAG, "Db Update failed: " + errorMessage);
+                                            Snackbar.make(findViewById(R.id.account_layout),
+                                                    "Failed to upload image: " +
+                                                            errorMessage, Snackbar.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+
+                                    //upload failed
+                                    Log.d(TAG, "upload failed");
+                                    String errorMessage = task.getException().getMessage();
+
+                                    Snackbar.make(findViewById(R.id.account_layout),
+                                            "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+            } catch (NullPointerException userImageException) {
+                Log.e(TAG, "onClick: ", userImageException.getCause());
+                updateDb(null, null, userName, userBio);
+            }
+        } else {
+            //no image selected, no name selected
+            //update name but not the imageUri
+            updateDb(null, null, userName, userBio);
+        }
     }
 
     private void updateDb(@NonNull Task<UploadTask.TaskSnapshot> task,
@@ -493,4 +491,14 @@ public class AccountActivity extends AppCompatActivity {
         }
 
     }
+
+    public class SubmitAccountDetailsTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            submitAccountDetails();
+            return null;
+        }
+    }
+
+
 }

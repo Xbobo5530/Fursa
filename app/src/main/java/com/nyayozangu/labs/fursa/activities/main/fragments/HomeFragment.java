@@ -103,7 +103,7 @@ public class HomeFragment extends Fragment {
 
         // TODO: 5/23/18 finish handle result for bottom nav item re-selected
         //fetch data from activity
-        /*if (getArguments() != null &&
+        if (getArguments() != null &&
                 getArguments().getString("action") != null){
             Log.d(TAG, "onCreateView: get arguments");
             String action = getArguments().getString("action");
@@ -111,7 +111,9 @@ public class HomeFragment extends Fragment {
                 Log.d(TAG, "onCreateView: action is home_reselected");
                 homeFeedView.smoothScrollToPosition(0);
             }
-        }*/
+        } else {
+            Log.d(TAG, "onCreateView: arguments are null");
+        }
 
         // TODO: 5/21/18 load old data then show new data notification
         // TODO: 5/21/18 check if user is firs time loading

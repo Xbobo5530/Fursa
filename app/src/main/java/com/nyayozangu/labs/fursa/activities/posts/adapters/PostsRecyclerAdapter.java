@@ -57,17 +57,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private static final String TAG = "Sean";
 
-    // TODO: 5/23/18 remove recyclable
-    // TODO: 5/23/18 increase post actions click area
-
     //member variables for storing posts
     public List<Posts> postsList;
     public List<Users> usersList;
-
     public Context context;
-
     private int lastPosition = -1;
-
     private String userId;
     private String className;
     private ProgressDialog progressDialog;

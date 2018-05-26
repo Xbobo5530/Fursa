@@ -182,13 +182,16 @@ public class SearchableActivity extends AppCompatActivity {
                 //create a for loop to check for document changes
                 for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                     //check if an item is added
+                    String postId = doc.getDocument().getId();
+                    Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                     if (doc.getType() == DocumentChange.Type.ADDED) {
-
-                        String postId = doc.getDocument().getId();
-                        Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                         //filter posts
                         filterPosts(post, searchQuery);
-
+                    } else if (doc.getType() == DocumentChange.Type.REMOVED) {
+                        // TODO: 5/25/18 test if documet is removed
+                        if (postsList.contains(post)) {
+                            postsList.remove(post);
+                        }
                     }
                 }
 
@@ -239,6 +242,15 @@ public class SearchableActivity extends AppCompatActivity {
                                 (catsArray.get(i)).toString()).toLowerCase() + " ");
 
             }
+        }
+        //handle tags
+        String tagsString = "";
+        if (post.getTags() != null) {
+            ArrayList tags = post.getTags();
+            for (int i = 0; i < tags.size(); i++) {
+                tagsString = tagsString.concat(tags.get(i) + " ");
+            }
+            Log.d(TAG, "filterPosts: \ntags string is: " + tagsString + "\ntags are: " + tags);
         }
         // handle contact
         ArrayList contactArray;
@@ -299,6 +311,9 @@ public class SearchableActivity extends AppCompatActivity {
             getFilteredPosts(post);
         }
         if (imageLabels.contains(searchQuery)) {
+            getFilteredPosts(post);
+        }
+        if (tagsString.contains(searchQuery)) {
             getFilteredPosts(post);
         }
         if (imageText.contains(searchQuery)) {

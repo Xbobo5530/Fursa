@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -121,14 +120,19 @@ public class CommentsRecyclerAdapter extends
             public void onClick(View v) {
 
                 if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+
+                    // TODO: 5/25/18 test report post options dialog fix
+                    showProgress(context.getResources().getString(R.string.loading_text));
                     //open report alert dialog
+                    final String[] reportOptionsList = getCommentReportOptionsList();
+
                     AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
                     reportBuilder.setTitle("Comment Options")
                             .setIcon(context.getResources().getDrawable(R.drawable.ic_action_comment))
-                            .setItems(getCommentReportOptionsList(), new DialogInterface.OnClickListener() {
+                            .setItems(reportOptionsList, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    switch (getCommentReportOptionsList()[which]) {
+                                    switch (reportOptionsList[which]) {
 
                                         case "Report":
                                             reportComment(holder, commentsList.get(position));
@@ -137,12 +141,10 @@ public class CommentsRecyclerAdapter extends
                                             deleteComment(holder, postId, commentId);
                                         default:
                                             Log.d(TAG, "onClick: comments select items default");
-
                                     }
 
                                 }
-                            })
-                            .show();
+                            }).show();
                 } else {
                     if (!coMeth.isConnected()) {
                         showSnack(holder, context.getString(R.string.failed_to_connect_text));
@@ -427,7 +429,7 @@ public class CommentsRecyclerAdapter extends
                             Posts posts = documentSnapshot.toObject(Posts.class);
                             String postUserId = posts.getUser_id();
                             //generate report options
-                            if (postUserId.equals(coMeth.getUid()) || isAdmin()) {
+                            if (postUserId.equals(coMeth.getUid())) {
                                 reportOptionsList = new String[]{
                                         context.getString(R.string.report_text),
                                         context.getString(R.string.delete_text)
@@ -445,6 +447,7 @@ public class CommentsRecyclerAdapter extends
                                     context.getString(R.string.report_text)
                             };
                         }
+                        coMeth.stopLoading(progressDialog);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -467,29 +470,6 @@ public class CommentsRecyclerAdapter extends
      * @return boolean true if user is admin
      * false if user is not admin
      */
-    private boolean isAdmin() {
-        String userEmail = Objects.requireNonNull(coMeth.getAuth().getCurrentUser()).getEmail();
-        coMeth.getDb()
-                .collection("Admins")
-                .document(userEmail)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            isAdmin = true;
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: " + e.getMessage());
-                    }
-                });
-        Log.d(TAG, "isAdmin: " + isAdmin);
-        return isAdmin;
-    }
 
     private void showSnack(@NonNull CommentsRecyclerAdapter.ViewHolder holder, String message) {
         Snackbar.make(holder.mView.findViewById(R.id.postLayout),
@@ -515,9 +495,7 @@ public class CommentsRecyclerAdapter extends
         //initiate items
         private ConstraintLayout commentItemView;
         private CircleImageView userImageView;
-        private TextView commentTextView;
-        private TextView usernameTextView;
-
+        private TextView commentTextView, usernameTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -527,7 +505,6 @@ public class CommentsRecyclerAdapter extends
             userImageView = mView.findViewById(R.id.commentUserImage);
             commentTextView = mView.findViewById(R.id.commentTextView);
             usernameTextView = mView.findViewById(R.id.commentUsernameTextView);
-
         }
 
         public void setImage(String imageUrl) {
@@ -543,17 +520,13 @@ public class CommentsRecyclerAdapter extends
         }
 
         public void setUsername(String username) {
-
             usernameTextView = mView.findViewById(R.id.commentUsernameTextView);
             usernameTextView.setText(username);
-
         }
 
         public void setComment(String comment) {
-
             commentTextView = mView.findViewById(R.id.commentTextView);
             commentTextView.setText(comment);
-
         }
 
     }

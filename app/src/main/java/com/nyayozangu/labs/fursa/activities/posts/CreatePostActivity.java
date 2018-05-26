@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -68,13 +69,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import id.zelory.compressor.Compressor;
 
 public class CreatePostActivity extends AppCompatActivity {
-
-    // TODO: 5/13/18 check if user email is verified
 
     private static final String TAG = "Sean";
 
@@ -131,6 +131,9 @@ public class CreatePostActivity extends AppCompatActivity {
     private Date timestamp;
     private ArrayList<String> cats;
     private ArrayList<String> tags;
+
+    //submit result
+    public boolean isSubmitSuccessful;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -505,7 +508,10 @@ public class CreatePostActivity extends AppCompatActivity {
 
                             //is new post
                             Log.d(TAG, "onClick: is new post");
-                            submitPost();
+                            new SubmitPostTask().execute();
+//                            submitPost();
+                            coMeth.stopLoading(progressDialog);
+                            goToMain(getString(R.string.post_will_be_available_text));
 
                         } else {
 
@@ -545,30 +551,26 @@ public class CreatePostActivity extends AppCompatActivity {
                                                     if (post.getPrice() != null)
                                                         price = post.getPrice();
 
-                                                    submitPost();
+                                                    new SubmitPostTask().execute();
+//                                                    submitPost();
+                                                    coMeth.stopLoading(progressDialog);
+                                                    goToMain(getString(R.string.post_will_be_available_text));
 
                                                 } else {
 
                                                     //post no longer exists
                                                     Log.d(TAG, "onComplete: post does not exist");
                                                     //go to main
-                                                    Intent postNotFoundIntent =
-                                                            new Intent(CreatePostActivity.this, MainActivity.class);
-                                                    postNotFoundIntent.putExtra("action", "notify");
-                                                    postNotFoundIntent.putExtra("message", getString(R.string.post_not_found_text));
-                                                    startActivity(postNotFoundIntent);
-                                                    finish();
-
+//                                                    goToMain(getResources().getString(R.string.post_not_found_text));
                                                 }
-
                                             } else {
 
                                                 //task failed
                                                 Log.d(TAG, "onComplete: task failed" + task.getException());
-                                                showSnack(getString(R.string.failed_to_complete_text));
+//                                                showSnack(getString(R.string.failed_to_complete_text));
+
 
                                             }
-
                                         }
                                     });
                         }
@@ -607,10 +609,13 @@ public class CreatePostActivity extends AppCompatActivity {
                         .start(CreatePostActivity.this);
             }
         });
-
-
     }
 
+    /**
+     * processed the contact details
+     *
+     * @param dialog the contact details alert dialog
+     */
     private void processContactDetails(DialogInterface dialog) {
         if (contactName.isEmpty() && contactPhone.isEmpty() && contactEmail.isEmpty()) {
             //all fields are empty
@@ -620,41 +625,28 @@ public class CreatePostActivity extends AppCompatActivity {
 
             //at least one field is filled
             if (!contactName.isEmpty()) {
-
                 //name is not empty
                 if (!contactPhone.isEmpty()) {
-
                     //name and phone are not empty
                     if (!contactEmail.isEmpty()) {
-
                         //has name, phone and email
                         String contactDetails = contactName + "\n" + contactPhone + "\n" + contactEmail;
                         contactTextView.setText(contactDetails);
-
                     } else {
-
                         //has name and phone
                         String contactDetails = contactName + "\n" + contactPhone;
                         contactTextView.setText(contactDetails);
-
                     }
-
                 } else {
-
                     //has name
                     if (!contactEmail.isEmpty()) {
-
                         //has name and email
                         String contactDetails = contactName + "\n" + contactEmail;
                         contactTextView.setText(contactDetails);
-
                     } else {
-
                         //has name
                         contactTextView.setText("");
-
                     }
-
                 }
 
             } else {
@@ -664,265 +656,310 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     //has phone
                     if (!contactEmail.isEmpty()) {
-
                         //has email and phone
                         String contactDetails = contactPhone + "\n" + contactEmail;
                         contactTextView.setText(contactDetails);
-
                     } else {
-
                         //has phone
                         String contactDetails = contactPhone;
                         contactTextView.setText(contactDetails);
-
                     }
-
                 } else {
 
                     //name and phone are empty
                     if (!contactEmail.isEmpty()) {
-
                         //has email
                         String contactDetails = contactEmail;
                         contactTextView.setText(contactDetails);
-
-
                     } else {
-
                         //phone, email and name are all empty
                         //hide contact field
                         contactTextView.setText("");
-
                     }
-
                 }
-
             }
         }
     }
 
-    private void submitPost() {
+    public void submitPost() {
 
-        //check if post has image
         Log.d(TAG, "submitPost: at submit post");
         if (postImageUri != null) {
-
-            //generate randomString name for image based on firebase time stamp
-            final String randomName = UUID.randomUUID().toString();
-            //define path to upload image
-            StorageReference filePath = coMeth.getStorageRef().child("post_images").child(randomName + ".jpg");
-            //upload the image
-            filePath.putFile(postImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
-
-                    //get download url
-                    downloadUri = task.getResult().getDownloadUrl().toString();
-                    //handle results after attempting to upload
-                    if (task.isSuccessful()) {
-
-                        //upload complete
-                        Log.d(TAG, "upload successful");
-                        File newImageFile = new File(postImageUri.getPath());
-
-                        try {
-                            compressedImageFile = new Compressor(CreatePostActivity.this)
-                                    .setMaxWidth(100)
-                                    .setMaxHeight(100)
-                                    .setQuality(3)
-                                    .compressToBitmap(newImageFile);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        //handle Bitmap
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                        byte[] thumbData = baos.toByteArray();
-                        //uploading the thumbnail
-                        UploadTask uploadTask = coMeth.getStorageRef().child("post_images/thumbs")
-                                .child(randomName + ".jpg")
-                                .putBytes(thumbData);
-
-                        //on success listener
-                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                //get downloadUri for thumbnail
-                                downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
-                                //on success
-                                Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
-                                //upload
-                                //check if its update or new post
-                                if (!isEditPost()) {
-
-                                    //is new post
-                                    coMeth.getDb()
-                                            .collection("Posts")
-                                            .add(postMap)
-                                            .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<DocumentReference> task) {
-
-                                                    //check the result
-                                                    if (task.isSuccessful()) {
-
-                                                        //db update successful
-                                                        Log.d(TAG, "Db Update successful");
-                                                        goToMain();
-                                                        //notify users subscribed to cats
-                                                        notifyNewPostCatsUpdates(catsStringsArray);
-                                                        Log.d(TAG, "onComplete: about to upload " +
-                                                                "\ncategories are: " + catsStringsArray);
-                                                        //subscribe current user to post comments
-                                                        String currentPostId = task.getResult().getId();
-                                                        FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
-                                                        //update users posts list
-                                                        updateMyPosts(currentPostId);
-
-                                                    } else {
-
-                                                        String errorMessage = task.getException().getMessage();
-                                                        Log.d(TAG, "Db Update failed: " + errorMessage);
-                                                        showSnack(getString(R.string.failed_to_upload_image_text));
-                                                    }
-                                                }
-                                            });
-                                } else {
-
-                                    //is edit post
-                                    coMeth.getDb()
-                                            .collection("Posts")
-                                            .document(postId)
-                                            .set(postMap)
-                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-
-                                                    //check the result
-                                                    if (task.isSuccessful()) {
-
-                                                        //db update successful
-                                                        Log.d(TAG, "Db Update successful");
-                                                        goToMain();
-                                                        //notify users subscribed to cats
-                                                        notifyNewPostCatsUpdates(catsStringsArray);
-                                                        Log.d(TAG, "onComplete: about to upload " +
-                                                                "\ncategories are: " + catsStringsArray);
-                                                        //subscribe current user to post comments
-                                                        FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                                    } else {
-
-                                                        //upload failed
-                                                        Log.d(TAG, "Db Update failed: " + task.getException());
-                                                        showSnack(getString(R.string.failed_to_upload_image_text));
-
-                                                    }
-
-                                                }
-                                            });
-
-                                }
-
-
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                //upload failed
-                                Log.d(TAG, "Db Update failed: " + task.getException());
-                                showSnack(getString(R.string.failed_to_upload_image_text));
-                            }
-                        });
-
-
-                    } else {
-
-                        //post failed
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        showSnack(getString(R.string.failed_to_upload_image_text));
-                    }
-
-                }
-            });
-
+            handlePostWithImage();
         } else {
-
             //post has no image
             //get map
-            Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
+            handlePostWithoutImage();
+        }
+    }
 
-            if (!isEditPost()) {
-                coMeth.getDb()
-                        .collection("Posts")
-                        .add(postMap)
-                        .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentReference> task) {
+    private void handlePostWithoutImage() {
+        Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
 
-                                //check if postig is successful
-                                if (task.isSuccessful()) {
+        if (!isEditPost()) {
+            coMeth.getDb()
+                    .collection("Posts")
+                    .add(postMap)
+                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentReference> task) {
 
-                                    goToMain();
-                                    //notify users subscribed to cats
-                                    notifyNewPostCatsUpdates(catsStringsArray);
-                                    Log.d(TAG, "onComplete: posted post without image");
+                            //check if posting is successful
+                            if (task.isSuccessful()) {
 
-                                    String currentPostId = task.getResult().getId();
-                                    FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
+                                //update submit post result
+//                                isSubmitSuccessful = true;
+//                                goToMain();
+                                //notify users subscribed to cats
+                                notifyNewPostCatsUpdates(catsStringsArray);
+                                Log.d(TAG, "onComplete: posted post without image");
+                                String currentPostId = task.getResult().getId();
+                                FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
+                                //update my posts
+                                updateMyPosts(currentPostId);
+                            } else {
 
-                                    //update my posts
-                                    updateMyPosts(currentPostId);
-
-
-                                } else {
-
-                                    //posting failed
-                                    Log.d(TAG, "onComplete: " + task.getException());
-                                    showSnack(getString(R.string.failed_to_post_text));
-
-                                }
-
+                                //update submit post result
+//                                    isSubmitSuccessful = false;
+                                //posting failed
+                                Log.d(TAG, "onComplete: " + task.getException());
+//                                    showSnack(getString(R.string.failed_to_post_text));
+//                                goToMain(getResources().getString(R.string.failed_to_post_text)
+//                                        + ": " + Objects.requireNonNull(task.getException()).getMessage());
                             }
-                        });
-            } else {
+                        }
+                    });
 
-                //for edit post
-                coMeth.getDb()
-                        .collection("Posts")
-                        .document(postId)
-                        .set(postMap)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
+//                return isSubmitSuccessful;
+        } else {
 
-                                //check if posting is successful
-                                if (task.isSuccessful()) {
+            //for edit post
+            coMeth.getDb()
+                    .collection("Posts")
+                    .document(postId)
+                    .set(postMap)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
 
-                                    goToMain();
-                                    //notify users subscribed to cats
-                                    notifyNewPostCatsUpdates(catsStringsArray);
-                                    Log.d(TAG, "onComplete: posted post without image");
-                                    //subscribe current user to post comments
-                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
-
-                                } else {
-
-                                    //posting failed
-                                    String errorMessage = task.getException().getMessage();
-                                    showSnack(getString(R.string.failed_to_post_text));
-
-                                }
-
+                            //check if posting is successful
+                            if (task.isSuccessful()) {
+                                //update post result
+                                isSubmitSuccessful = true;
+//                                goToMain();
+                                //notify users subscribed to cats
+                                notifyNewPostCatsUpdates(catsStringsArray);
+                                Log.d(TAG, "onComplete: posted post without image");
+                                //subscribe current user to post comments
+                                FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                            } else {
+                                //posting failed
+                                String errorMessage =
+                                        Objects.requireNonNull(task.getException()).getMessage();
+//                                    showSnack(getString(R.string.failed_to_post_text));
+//                                    isSubmitSuccessful = false;
+//                                goToMain(getResources().getString(R.string.failed_to_post_text)
+//                                        + ": " + errorMessage);
                             }
-                        });
 
-            }
+                        }
+                    });
+
+//                return isSubmitSuccessful;
 
         }
     }
 
+    private void handlePostWithImage() {
+        Log.d(TAG, "handlePostWithImage: ");
+        //generate randomString name for image based on firebase timestamp
+        final String randomName = UUID.randomUUID().toString();
+        //define path to upload image
+        StorageReference filePath =
+                coMeth.getStorageRef().child("post_images").child(randomName + ".jpg");
+        //upload the image
+        filePath.putFile(postImageUri).addOnCompleteListener(
+                new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+
+                        //get download url
+                        downloadUri = task.getResult().getDownloadUrl().toString();
+                        //handle results after attempting to upload
+                        if (task.isSuccessful()) {
+                            //upload complete
+                            Log.d(TAG, "upload successful");
+                            File newImageFile = new File(postImageUri.getPath());
+
+                            try {
+                                compressedImageFile = new Compressor(CreatePostActivity.this)
+                                        .setMaxWidth(100)
+                                        .setMaxHeight(100)
+                                        .setQuality(3)
+                                        .compressToBitmap(newImageFile);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            //handle Bitmap
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                            byte[] thumbData = baos.toByteArray();
+                            //uploading the thumbnail
+                            UploadTask uploadTask = coMeth.getStorageRef().child("post_images/thumbs")
+                                    .child(randomName + ".jpg")
+                                    .putBytes(thumbData);
+
+                            //on success listener
+                            uploadTask.addOnSuccessListener(
+                                    new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                            //get downloadUri for thumbnail
+                                            downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
+                                            //on success
+                                            Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
+                                            //upload
+                                            //check if its update or new post
+                                            if (!isEditPost()) {
+
+                                                //is new post
+                                                createNewPost(postMap);
+                                            } else {
+
+                                                //is edit post
+                                                updatePostDetails(postMap);
+                                            }
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    //upload failed
+                                    Log.d(TAG, "Db Update failed: " + e.getMessage());
+//                                showSnack(getString(R.string.failed_to_upload_image_text));
+//                                isSubmitSuccessful = false;
+//                            goToMain(getResources().getString(R.string.failed_to_post_text) +
+//                                    ": " + e.getMessage());
+                                }
+                            });
+
+                        } else {
+
+                            //post failed
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+//                        showSnack(getString(R.string.failed_to_upload_image_text));
+//                        isSubmitSuccessful = false;
+//                    goToMain(getResources().getString(R.string.failed_to_post_text)
+//                            + ": " + Objects.requireNonNull(task.getException()).getMessage());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Update the post details when editing a post
+     *
+     * @param postMap a Map with all the post details
+     */
+    private void updatePostDetails(Map<String, Object> postMap) {
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .update(postMap)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                        //check the result
+                        if (task.isSuccessful()) {
+
+                            //db update successful
+                            Log.d(TAG, "Db Update successful");
+//                                                        goToMain();
+                            //update post submit status
+                            isSubmitSuccessful = true;
+                            //notify users subscribed to cats
+                            notifyNewPostCatsUpdates(catsStringsArray);
+                            Log.d(TAG, "onComplete: about to upload " +
+                                    "\ncategories are: " + catsStringsArray);
+                            //subscribe current user to post comments
+                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                        } else {
+
+                            //upload failed
+                            Log.d(TAG, "Db Update failed: " +
+                                    Objects.requireNonNull(task.getException()).getMessage());
+//                          showSnack(getString(R.string.failed_to_upload_image_text));
+                            //update submit status
+//                          isSubmitSuccessful = false;
+//                            goToMain(getResources().getString(R.string.failed_to_post_text) +
+//                                    ": " + task.getException().getMessage());
+
+                        }
+                    }
+                });
+    }
+
+    /**
+     * create a new post
+     *
+     * @param postMap a Map containing the details of the post
+     */
+    private void createNewPost(Map<String, Object> postMap) {
+        coMeth.getDb()
+                .collection("Posts")
+                .add(postMap)
+                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentReference> task) {
+
+                        //check the result
+                        if (task.isSuccessful()) {
+
+                            Log.d(TAG, "onComplete: submit successful");
+//                                                        goToMain();
+//                                                        isSubmitSuccessful = true;
+                            //notify users subscribed to cats
+                            notifyNewPostCatsUpdates(catsStringsArray);
+                            Log.d(TAG, "onComplete: about to upload " +
+                                    "\ncategories are: " + catsStringsArray);
+                            //subscribe current user to post comments
+                            String currentPostId = task.getResult().getId();
+                            FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
+                            //update users posts list
+                            updateMyPosts(currentPostId);
+
+                        } else {
+
+                            String errorMessage =
+                                    Objects.requireNonNull(task.getException()).getMessage();
+                            Log.d(TAG, "Db Update failed: " + errorMessage);
+//                          showSnack(getString(R.string.failed_to_upload_image_text));
+                            //set post submit status
+//                          isSubmitSuccessful = false;
+//                            goToMain(getResources().getString(R.string.failed_to_post_text) +
+//                                    ": " +  errorMessage);
+                        }
+                    }
+                });
+    }
+
+    private void goToMain(String message) {
+        Intent goToMainIntent = new Intent(
+                CreatePostActivity.this, MainActivity.class);
+        goToMainIntent.putExtra(getResources().getString(R.string.action_name_text),
+                getResources().getString(R.string.notify_value_text));
+        goToMainIntent.putExtra(getResources().getString(R.string.message_name_text),
+                message);
+        startActivity(goToMainIntent);
+        finish();
+    }
+
+    /**
+     * adds the current post to the list of current user's posts
+     * @param currentPostId the user Id of the current user creating a post
+     * */
     private void updateMyPosts(String currentPostId) {
         //create map with timestamp
         Map<String, Object> myPostMap = new HashMap<>();
@@ -948,8 +985,11 @@ public class CreatePostActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * sends notification to all the users subscribed to the post categories
+     * @param catsStringsArray an ArrayList<String> containing  the post categories
+     * */
     private void notifyNewPostCatsUpdates(ArrayList<String> catsStringsArray) {
-
         //send notifications to all users subscribed to cats in catStringArray
         for (int i = 0; i < catsStringsArray.size(); i++) {
 
@@ -959,6 +999,12 @@ public class CreatePostActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * creates a map of the post detials
+     * @param downloadThumbUri the download url to the post thumbnail
+     * @param downloadUri the download url to the post image
+     * @return Map a Map containing all the post details
+     * */
     @NonNull
     private Map<String, Object> handleMap(String downloadThumbUri, String downloadUri) {
 
@@ -1379,8 +1425,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             });
         }
 
-        //initiate image labling
-
+        //initiate image labeling
         FirebaseVisionLabelDetector labelDetector = FirebaseVision.getInstance()
                 .getVisionLabelDetector();
         FirebaseVisionLabelDetectorOptions options =
@@ -1419,17 +1464,15 @@ public class CreatePostActivity extends AppCompatActivity {
                                     });
 
         }
-
-
     }
 
 
-    private void goToMain() {
+    /*private void goToMain() {
 
         //go to main feed
         startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
 
-    }
+    }*/
 
     private void showProgress(String message) {
 
@@ -1460,7 +1503,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         goToLogin();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getResources().getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //cancel
@@ -1473,4 +1516,34 @@ public class CreatePostActivity extends AppCompatActivity {
     private void goToLogin() {
         startActivity(new Intent(this, LoginActivity.class));
     }
+
+
+    // you may separate this or combined to caller class.
+    /*public interface AsyncResponse {
+        void processFinish(boolean submitSuccessful);
+    }*/
+
+    public class SubmitPostTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            submitPost();
+            return null;
+        }
+
+        /*public AsyncResponse delegate;*/
+
+
+        /*public SubmitPostTask(AsyncResponse delegate){
+            this.delegate = delegate;
+        }*/
+
+
+
+        /*@Override
+        protected void onPostExecute(Boolean isSuccessful) {
+            delegate.processFinish(isSuccessful);
+        }*/
+    }
+
+
 }

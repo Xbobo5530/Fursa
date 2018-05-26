@@ -200,5 +200,6 @@
     <string name="update_value">update</string>
     <string name="on_this_update_text">On this update</string>
     <string name="yesterday_text">Yesterday</string>
+    <string name="post_will_be_available_text">Your post will be available shortly</string>
 
 </resources>

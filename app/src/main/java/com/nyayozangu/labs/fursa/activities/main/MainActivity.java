@@ -49,7 +49,7 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity/* implements CreatePostActivity.AsyncResponse */ {
 
     // TODO: 5/14/18 add a timer to record when a user has not poened the app for 2 days
 
@@ -225,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
                                     coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                             userImageDownloadUri,
                                             userProfileImage);
-
                                 } catch (NullPointerException imageNotFoundException) {
 
                                     //user image not found
@@ -233,7 +232,6 @@ public class MainActivity extends AppCompatActivity {
                                             .setImageDrawable(getResources()
                                                     .getDrawable(R.drawable.appiconshadow));
                                     Log.d(TAG, "onComplete: user has no profile image");
-
                                 }
                             } else {
 
@@ -276,18 +274,14 @@ public class MainActivity extends AppCompatActivity {
                             //start the new post activity
                             goToCreatePost();
                         } else {
-
                             //user has not verified email
                             //alert user is not verified
                             showVerEmailDialog();
-
                         }
                     } else {
 
                         String message = getString(R.string.login_to_post_text);
                         goToLogin(message);
-
-
                     }
                 } else {
 
@@ -301,11 +295,9 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     dialog.dismiss();
-
                                 }
                             })
                             .show();
-
                 }
             }
         });
@@ -410,25 +402,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    /*private String processUpdate(String updateInfo) {
-        Log.d(TAG, "processUpdate: ");
-        String processedUpdateInfo = "";
-        int breakPos = updateInfo.indexOf("#");
-        int startPos = 0;
-        while (breakPos != -1 &&
-                breakPos < updateInfo.length() &&
-                updateInfo.indexOf("#", breakPos) != -1) {
-            Log.d(TAG, "processUpdate: " +
-                    "\nbreakPos: " + breakPos +
-                    "\nstartPos is: " + startPos);
-            processedUpdateInfo = processedUpdateInfo.concat(updateInfo.substring(startPos, breakPos) + "\n");
-            startPos = breakPos + "#".length();
-            breakPos = updateInfo.indexOf("#", startPos);
-        }
-        Log.d(TAG, "processUpdate: processed update info is " + processedUpdateInfo);
-        return processedUpdateInfo;
-    }*/
 
     private void goToLogin(String message) {
         Intent goToLogin = new Intent(MainActivity.this, LoginActivity.class);
@@ -630,6 +603,16 @@ public class MainActivity extends AppCompatActivity {
             progressDialog.dismiss();
         }
     }
+
+//    @Override
+//    public void processFinish(boolean submitSuccessful) {
+//        Log.d(TAG, "processFinish: on main");
+//        if (submitSuccessful) {
+//            showSnack("Your post has been successfully posted");
+//        }else{
+//            showSnack("Failed to submit post");
+//        }
+//    }
 
     /*
     private void cleanDB() {
