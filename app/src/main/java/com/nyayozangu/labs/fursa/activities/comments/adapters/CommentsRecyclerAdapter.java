@@ -528,6 +528,5 @@ public class CommentsRecyclerAdapter extends
             commentTextView = mView.findViewById(R.id.commentTextView);
             commentTextView.setText(comment);
         }
-
     }
 }

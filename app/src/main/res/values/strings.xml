@@ -201,5 +201,8 @@
     <string name="on_this_update_text">On this update</string>
     <string name="yesterday_text">Yesterday</string>
     <string name="post_will_be_available_text">Your post will be available shortly</string>
+    <string name="enter_name_to_continue_text">Enter a name to continue</string>
+    <string name="data_retrieve_error_text">Data retrieve error :</string>
+    <string name="acc_details_update_shortly_text">Your account details will be updated shortly</string>
 
 </resources>

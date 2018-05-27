@@ -88,6 +88,7 @@ public class CoMeth {
 
     };
     private boolean hasInternet;
+    public int minVerCode = 14;
 
     public CoMeth() {
     } //empty constructor

@@ -1529,20 +1529,6 @@ public class CreatePostActivity extends AppCompatActivity {
             submitPost();
             return null;
         }
-
-        /*public AsyncResponse delegate;*/
-
-
-        /*public SubmitPostTask(AsyncResponse delegate){
-            this.delegate = delegate;
-        }*/
-
-
-
-        /*@Override
-        protected void onPostExecute(Boolean isSuccessful) {
-            delegate.processFinish(isSuccessful);
-        }*/
     }
 
 

@@ -34,6 +34,7 @@ import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.Users;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -121,9 +122,10 @@ public class AccountActivity extends AppCompatActivity {
                         //data exists
                         Log.d(TAG, "data exists");
                         //retrieve data
-                        String name = task.getResult().getString("name");
-                        String bio = task.getResult().getString("bio");
-                        String image = task.getResult().getString("image");
+                        Users user = task.getResult().toObject(Users.class);
+                        String name = user.getName();
+                        String bio = user.getBio();
+                        String image = user.getImage();
 
                         //set the data
                         userNameField.setText(name);
@@ -165,14 +167,14 @@ public class AccountActivity extends AppCompatActivity {
                     //retrieve data from db unsuccessful
                     String errorMessage = task.getException().getMessage();
                     Snackbar.make(findViewById(R.id.account_layout),
-                            "Data retrieve error : " + errorMessage, Snackbar.LENGTH_SHORT).show();
+                            getString(R.string.data_retrieve_error_text)
+                                    + errorMessage, Snackbar.LENGTH_SHORT).show();
                 }
                 //hide progress
                 coMeth.stopLoading(progressDialog);
                 saveButton.setEnabled(true);
             }
         });
-
 
         editImageFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,16 +222,28 @@ public class AccountActivity extends AppCompatActivity {
                     hideKeyBoard();
                     //show progress bar
                     showProgress(getString(R.string.loading_text));
-                    submitAccountDetails();
+                    new SubmitAccountDetailsTask().execute();
+                    coMeth.stopLoading(progressDialog);
+                    goToMain(getString(R.string.acc_details_update_shortly_text));
 
                 } else {
                     //field are empty
                     Snackbar.make(findViewById(R.id.account_layout),
-                            "Enter a name to continue", Snackbar.LENGTH_LONG).show();
-
+                            R.string.enter_name_to_continue_text, Snackbar.LENGTH_LONG).show();
                 }
             }
         });
+    }
+
+    private void goToMain(String message) {
+        Intent goToMainIntent = new Intent(
+                AccountActivity.this, MainActivity.class);
+        goToMainIntent.putExtra(getResources().getString(R.string.action_name_text),
+                getResources().getString(R.string.notify_value_text));
+        goToMainIntent.putExtra(getResources().getString(R.string.message_name_text),
+                message);
+        startActivity(goToMainIntent);
+        finish();
     }
 
     public void submitAccountDetails() {
@@ -239,7 +253,6 @@ public class AccountActivity extends AppCompatActivity {
         if (imageIsChanged) {
 
             try {
-
                 //upload the image to firebase
                 userId = coMeth.getUid();
                 StorageReference imagePath = coMeth.getStorageRef()
@@ -250,7 +263,8 @@ public class AccountActivity extends AppCompatActivity {
                 imagePath.putFile(userImageUri).addOnCompleteListener(
                         new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
-                            public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+                            public void onComplete(
+                                    @NonNull final Task<UploadTask.TaskSnapshot> task) {
 
                                 Log.d(TAG, "at onComplete");
                                 //check if is complete.
@@ -284,12 +298,9 @@ public class AccountActivity extends AppCompatActivity {
                                             new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                                 @Override
                                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
                                                     //update dB with new thumb in task snapshot
                                                     updateDb(task, taskSnapshot, userName, userBio);
-
                                                 }
-
                                             }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
@@ -297,19 +308,19 @@ public class AccountActivity extends AppCompatActivity {
                                             //upload failed
                                             String errorMessage = task.getException().getMessage();
                                             Log.d(TAG, "Db Update failed: " + errorMessage);
-                                            Snackbar.make(findViewById(R.id.account_layout),
+                                            /*Snackbar.make(findViewById(R.id.account_layout),
                                                     "Failed to upload image: " +
-                                                            errorMessage, Snackbar.LENGTH_SHORT).show();
+                                                            errorMessage, Snackbar.LENGTH_SHORT).show();*/
                                         }
                                     });
                                 } else {
 
                                     //upload failed
-                                    Log.d(TAG, "upload failed");
+                                    Log.d(TAG, "upload failed" + task.getException());
                                     String errorMessage = task.getException().getMessage();
 
-                                    Snackbar.make(findViewById(R.id.account_layout),
-                                            "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();
+                                    /*Snackbar.make(findViewById(R.id.account_layout),
+                                            "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();*/
                                 }
                             }
                         });
@@ -347,7 +358,6 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         //create map for users
-
         Map<String, String> usersMap = new HashMap<>();
         usersMap.put("name", userName);
 
@@ -356,11 +366,7 @@ public class AccountActivity extends AppCompatActivity {
             usersMap.put("image", downloadUri.toString());
             usersMap.put("thumb", downloadThumbUri.toString());
         } catch (NullPointerException dbUpdateNull) {
-
             Log.e(TAG, "updateDb: ", dbUpdateNull);
-            // TODO: 4/29/18 check the login intent issue
-            processLoginIntent();
-
         }
 
 
@@ -406,7 +412,8 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
@@ -425,7 +432,7 @@ public class AccountActivity extends AppCompatActivity {
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 //handle errors
-                Exception error = result.getError();
+                Log.d(TAG, "onActivityResult: error " + result.getError().getMessage());
             }
         }
     }
@@ -440,46 +447,6 @@ public class AccountActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
-    private void processLoginIntent() {
-        //login was successful
-        if (getIntent() == null) {
-            goToMain();
-        } else {
-
-            Intent sourceIntent = getIntent();
-            if (sourceIntent.getStringExtra("source") != null) {
-
-                switch (sourceIntent.getStringExtra("source")) {
-
-                    case "comments":
-
-                        Intent commentsIntent = new Intent(AccountActivity.this, AccountActivity.class);
-                        commentsIntent.putExtra("postId", sourceIntent.getStringExtra("postId"));
-                        startActivity(commentsIntent);
-                        finish();
-                        break;
-
-                    case "categories":
-
-                        Intent catsIntent = new Intent(AccountActivity.this, AccountActivity.class);
-                        catsIntent.putExtra("category", sourceIntent.getStringExtra("category"));
-                        startActivity(catsIntent);
-                        finish();
-                        break;
-
-                    default:
-                        goToMain();
-
-                }
-            } else {
-
-                goToMain();
-
-            }
-
-        }
-    }
-
     private void hideKeyBoard() {
 
         Log.d(TAG, "hideKeyBoard: ");
@@ -491,7 +458,6 @@ public class AccountActivity extends AppCompatActivity {
         }
 
     }
-
     public class SubmitAccountDetailsTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
@@ -499,6 +465,4 @@ public class AccountActivity extends AppCompatActivity {
             return null;
         }
     }
-
-
 }

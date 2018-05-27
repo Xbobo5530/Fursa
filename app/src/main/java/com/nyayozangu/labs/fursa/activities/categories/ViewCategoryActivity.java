@@ -135,7 +135,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         .setLink(Uri.parse(catUrl))
                         .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
                         .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                                .setMinimumVersion(13)
+                                .setMinimumVersion(coMeth.minVerCode)
                                 .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
                                 .build())
                         .setSocialMetaTagParameters(
