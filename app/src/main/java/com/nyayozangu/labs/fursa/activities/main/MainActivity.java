@@ -142,9 +142,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
             showSnack(getString(R.string.failed_to_connect_text));
         }
 
-        //set the homeFragment when home the main activity is loaded
-        setFragment(homeFragment);
-
         //set onclick Listener for when the navigation items are selected
         mainBottomNav.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -320,13 +317,16 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
                     case "notify":
 
-                        // TODO: 5/1/18 check on deleting post notify message comes as error post not found
+                        //set the homeFragment when home the main activity is loaded
+                        setFragment(homeFragment);
                         String notifyMessage = getActionIntent.getStringExtra("message");
                         showSnack(notifyMessage);
                         Log.d(TAG, "notifyMessage is: " + notifyMessage);
                         break;
 
                     case "update":
+                        //set the homeFragment when home the main activity is loaded
+                        setFragment(homeFragment);
                         showUpdateDialog();
                         break;
 
@@ -344,14 +344,20 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                                 break;
 
                             default:
-
+                                //set the homeFragment when home the main activity is loaded
+                                setFragment(homeFragment);
                                 Log.d(TAG, "onCreate: at default");
 
                         }
                     default:
+                        //set the homeFragment when home the main activity is loaded
+                        setFragment(homeFragment);
                         Log.d(TAG, "onCreate: at default");
                 }
             }
+        } else {
+            //set the homeFragment when home the main activity is loaded
+            setFragment(homeFragment);
         }
 
     }

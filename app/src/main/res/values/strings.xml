@@ -16,7 +16,7 @@
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://fursa.nyayozangu.com\",\n  }\n}]</string>
     <string name="finish_tut_text" translatable="false">Finish</string>
     <string name="back_tut_text" translatable="false">Back</string>
-    <string name="next_tut_text" translatable="false">Next</string>
+    <string name="next_text" translatable="false">Next</string>
     <string name="title_activity_view_category" translatable="false">View category</string>
     <string name="posted_by_text" translatable="false">Posted by:</string>
     <string name="search_hint" translatable="false">Search</string>
@@ -204,5 +204,8 @@
     <string name="enter_name_to_continue_text">Enter a name to continue</string>
     <string name="data_retrieve_error_text">Data retrieve error :</string>
     <string name="acc_details_update_shortly_text">Your account details will be updated shortly</string>
+    <string name="has_accepted_terms">hasAcceptedTerms</string>
+    <string name="view_terms_text">View terms</string>
+    <string name="true_text">true</string>
 
 </resources>

@@ -39,7 +39,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:background="@android:color/transparent"
-        android:text="@string/next_tut_text"
+        android:text="@string/next_text"
         android:textColor="@color/colorWhite"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
