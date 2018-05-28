@@ -207,5 +207,6 @@
     <string name="has_accepted_terms">hasAcceptedTerms</string>
     <string name="view_terms_text">View terms</string>
     <string name="true_text">true</string>
+    <string name="view_image_intent_name">imageUrl</string>
 
 </resources>

@@ -98,7 +98,8 @@ public class ViewImageActivity extends AppCompatActivity {
         if (getIntent() != null) {
 
             Log.d(TAG, "handleIntent: intent is now null");
-            String downloadImageUrl = getIntent().getStringExtra("imageUrl");
+            String downloadImageUrl = getIntent().getStringExtra(
+                    getResources().getString(R.string.view_image_intent_name));
             setImage(downloadImageUrl);
         }
 

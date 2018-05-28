@@ -52,6 +52,7 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
@@ -437,8 +438,6 @@ public class CreatePostActivity extends AppCompatActivity {
                     }
                 }, YEAR, MONTH, DAY);
                 eventDatePickerDialog.show();
-
-
             }
         });
 
@@ -609,6 +608,22 @@ public class CreatePostActivity extends AppCompatActivity {
                         .start(CreatePostActivity.this);
             }
         });
+
+        //set click listener to image view
+        createPostImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (postImageUri != null) {
+                    String imageUrl = postImageUri.toString();
+                    Intent openImageIntent = new Intent(
+                            CreatePostActivity.this, ViewImageActivity.class);
+                    openImageIntent.putExtra(
+                            getResources().getString(R.string.view_image_intent_name), imageUrl);
+                    startActivity(openImageIntent);
+                }
+            }
+        });
+
     }
 
     /**
