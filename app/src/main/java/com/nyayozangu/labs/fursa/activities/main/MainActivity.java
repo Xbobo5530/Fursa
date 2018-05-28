@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                 "Bug Fixes:\\n\n" +
                 "- Faster loading speeds\\n\n" +
                 "- Fixed the no pots alert on the Categories Page\n"));*/
-        
+
         //subscribe to app updates
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
         Log.d(TAG, "user subscribed to topic UPDATES");
@@ -117,15 +117,17 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         mainBottomNav = findViewById(R.id.mainBottomNav);
         fursaTitle = findViewById(R.id.fursaTitleTextView);
 
+
+        //get the sent intent
+        handleIntent();
+
         //search
         //search icon is clicked
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Log.d(TAG, "onClick: search icon is clicked");
                 openSearch();
-
             }
         });
         //fursa title is clicked
@@ -145,29 +147,28 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         //set onclick Listener for when the navigation items are selected
         mainBottomNav.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                switch (item.getItemId()) {
-                    case R.id.bottomNavHomeItem:
-                        setFragment(homeFragment);
-                        return true;
-                    case R.id.bottomNavCatItem:
-                        setFragment(categoriesFragment);
-                        return true;
-                    case R.id.bottomNavSavedItem:
-                        if (coMeth.isLoggedIn()) {
-                            setFragment(savedFragment);
-                        } else {
-                            setFragment(alertFragment);
+                        switch (item.getItemId()) {
+                            case R.id.bottomNavHomeItem:
+                                setFragment(homeFragment);
+                                return true;
+                            case R.id.bottomNavCatItem:
+                                setFragment(categoriesFragment);
+                                return true;
+                            case R.id.bottomNavSavedItem:
+                                if (coMeth.isLoggedIn()) {
+                                    setFragment(savedFragment);
+                                } else {
+                                    setFragment(alertFragment);
+                                }
+                                return true;
+                            default:
+                                return false;
                         }
-                        return true;
-                    default:
-                        return false;
-                }
-
-            }
-        });
+                    }
+                });
 
         // TODO: 5/23/18 handle reselect bottom nav items
         //handle bottom nav item re-selected
@@ -216,7 +217,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                             if (task.isSuccessful()) {
                                 //task is successful
                                 try {
-
                                     String userImageDownloadUri = task.getResult().get("image").toString();
                                     //set image
                                     coMeth.setImage(R.drawable.ic_action_person_placeholder,
@@ -307,10 +307,12 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                 new ComponentName(this, SearchableActivity.class)));
         mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
 
+    }
 
-        //get the sent intent
+    private void handleIntent() {
+        Log.d(TAG, "handleIntent: at main");
         if (getIntent() != null) {
-
+            Log.d(TAG, "handleIntent: intent is not null");
             Intent getActionIntent = getIntent();
             if (getActionIntent.getStringExtra("action") != null) {
                 switch (getActionIntent.getStringExtra("action")) {
@@ -318,6 +320,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                     case "notify":
 
                         //set the homeFragment when home the main activity is loaded
+                        mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
                         String notifyMessage = getActionIntent.getStringExtra("message");
                         showSnack(notifyMessage);
@@ -326,8 +329,10 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
                     case "update":
                         //set the homeFragment when home the main activity is loaded
+                        mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
                         showUpdateDialog();
+                        Log.d(TAG, "handleIntent: action is update");
                         break;
 
                     case "goto":
@@ -335,31 +340,34 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         switch (getActionIntent.getStringExtra("destination")) {
 
                             case "saved":
-
                                 mainBottomNav.setSelectedItemId(R.id.bottomNavSavedItem);
+                                setFragment(savedFragment);
                                 break;
-
                             case "categories":
                                 mainBottomNav.setSelectedItemId(R.id.bottomNavCatItem);
+                                setFragment(categoriesFragment);
                                 break;
-
                             default:
                                 //set the homeFragment when home the main activity is loaded
+                                mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                                 setFragment(homeFragment);
-                                Log.d(TAG, "onCreate: at default");
-
+                                Log.d(TAG, "onCreate: at goto default");
                         }
+                        break;
                     default:
                         //set the homeFragment when home the main activity is loaded
+                        mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
-                        Log.d(TAG, "onCreate: at default");
+                        Log.d(TAG, "onCreate: at action default\naction is: " +
+                                getActionIntent.getStringExtra("action"));
                 }
             }
         } else {
             //set the homeFragment when home the main activity is loaded
+            Log.d(TAG, "handleIntent: intent is null");
+            mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
             setFragment(homeFragment);
         }
-
     }
 
     private void showUpdateDialog() {
