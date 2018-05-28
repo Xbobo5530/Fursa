@@ -306,7 +306,18 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(
                 new ComponentName(this, SearchableActivity.class)));
         mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handleIntent();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent();
     }
 
     private void handleIntent() {
@@ -358,9 +369,14 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
-                        Log.d(TAG, "onCreate: at action default\naction is: " +
+                        Log.d(TAG, "onCreate: at action default" +
                                 getActionIntent.getStringExtra("action"));
                 }
+            } else {
+                //set the homeFragment when home the main activity is loaded
+                mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
+                setFragment(homeFragment);
+                Log.d(TAG, "onCreate: intent is not action: " + getIntent().toString());
             }
         } else {
             //set the homeFragment when home the main activity is loaded
