@@ -123,9 +123,9 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/title_view_post_text"
+                android:textIsSelectable="true"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -176,6 +176,7 @@
                     android:autoLink="all"
                     android:autoText="false"
                     android:textColor="#666666"
+                    android:textIsSelectable="true"
                     android:textSize="16sp" />
 
                 <ImageButton
@@ -245,6 +246,7 @@
                 android:layout_marginTop="8dp"
                 android:autoLink="all"
                 android:text="@string/contact_view_post_text"
+                android:textIsSelectable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/viewPostContactImageView"
@@ -281,6 +283,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/location_view_post_text"
                 android:textColor="@color/colorAccent"
+                android:textIsSelectable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/viewPostLocationImageView"
@@ -349,6 +352,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/price_view_post_text"
+                android:textIsSelectable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/viewPostPriceImageView"
