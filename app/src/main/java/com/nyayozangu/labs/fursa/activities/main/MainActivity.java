@@ -333,7 +333,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
-                        String notifyMessage = getActionIntent.getStringExtra("message");
+                        String notifyMessage = getActionIntent.getStringExtra(
+                                getResources().getString(R.string.message_name_text));
                         showSnack(notifyMessage);
                         Log.d(TAG, "notifyMessage is: " + notifyMessage);
                         break;
@@ -415,8 +416,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         if (documentSnapshot.get("info") != null) {
             if (documentSnapshot.get("info") != null) {
                 String updateInfo = documentSnapshot.get("info").toString();
-//                String processedUpdateInfo = processUpdate(updateInfo);
-                AlertDialog.Builder updatesBuilder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder updatesBuilder =
+                        new AlertDialog.Builder(MainActivity.this);
                 updatesBuilder.setTitle(getResources().getString(R.string.on_this_update_text))
                         .setIcon(getResources().getDrawable(R.drawable.ic_action_updates))
                         .setMessage(updateInfo)
@@ -470,7 +471,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
                     }
                 })
-                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel_text),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -492,11 +494,14 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                             //inform user email is sent
                             //close the
                             dialog.dismiss();
-                            AlertDialog.Builder logoutConfirmEmailBuilder = new AlertDialog.Builder(MainActivity.this);
+                            AlertDialog.Builder logoutConfirmEmailBuilder =
+                                    new AlertDialog.Builder(MainActivity.this);
                             logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
                                     .setIcon(R.drawable.ic_action_info_grey)
-                                    .setMessage("A verification email has been sent to your email address.\nLogin after verifying your email to create posts.")
-                                    .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                                    .setMessage("A verification email has been sent to your email address." +
+                                            "\nLogin after verifying your email to create posts.")
+                                    .setPositiveButton(getString(R.string.ok_text),
+                                            new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
 

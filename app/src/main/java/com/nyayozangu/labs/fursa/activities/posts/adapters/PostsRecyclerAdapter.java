@@ -427,7 +427,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
         //set animation
-        setAnimation(holder.itemView, position);
+//        setAnimation(holder.itemView, position);
 
     }
 
