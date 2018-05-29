@@ -324,9 +324,6 @@ public class AccountActivity extends AppCompatActivity {
                                     //upload failed
                                     Log.d(TAG, "upload failed" + task.getException());
                                     String errorMessage = task.getException().getMessage();
-
-                                    /*Snackbar.make(findViewById(R.id.account_layout),
-                                            "Upload failed: " + errorMessage, Snackbar.LENGTH_LONG).show();*/
                                 }
                             }
                         });

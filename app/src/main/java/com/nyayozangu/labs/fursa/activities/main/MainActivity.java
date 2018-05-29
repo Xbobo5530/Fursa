@@ -53,8 +53,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity/* implements CreatePostActivity.AsyncResponse */ {
 
-    // TODO: 5/14/18 add a timer to record when a user has not opened the app for 2 days
-
     private static final String TAG = "Sean";
 
     //common methods
@@ -362,11 +360,12 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         createPostButton.setVisibility(View.GONE);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        handleIntent();
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+////        handleIntent();
+//
+//    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -379,24 +378,25 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         if (getIntent() != null) {
             Log.d(TAG, "handleIntent: intent is not null");
             Intent intent = getIntent();
-            if (intent.getStringExtra("action") != null) {
-                switch (intent.getStringExtra("action")) {
+            if (intent.getStringExtra(getResources().getString(R.string.ACTION_NAME)) != null) {
+                switch (intent.getStringExtra(getResources().getString(R.string.ACTION_NAME))) {
 
                     case "notify":
 
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
-                        setFragment(homeFragment);
+//                        setFragment(homeFragment);
                         String notifyMessage = intent.getStringExtra(
                                 getResources().getString(R.string.MESSAGE_NAME));
                         showSnack(notifyMessage);
                         Log.d(TAG, "notifyMessage is: " + notifyMessage);
+
                         break;
 
                     case "update":
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
-                        setFragment(homeFragment);
+//                        setFragment(homeFragment);
                         showUpdateDialog();
                         Log.d(TAG, "handleIntent: action is update");
                         break;
@@ -426,19 +426,19 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                     default:
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
-                        setFragment(homeFragment);
+//                        setFragment(homeFragment);
                         Log.d(TAG, "onCreate: at action default" +
                                 intent.getStringExtra("action"));
                 }
             } else {
                 //set the homeFragment when home the main activity is loaded
-                mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
+//                mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                 setFragment(homeFragment);
             }
         } else {
             //set the homeFragment when home the main activity is loaded
             Log.d(TAG, "handleIntent: intent is null");
-            mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
+//            mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
             setFragment(homeFragment);
         }
     }

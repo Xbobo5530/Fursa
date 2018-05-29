@@ -507,7 +507,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 });
     }
 
-
     //handle result for twitter sign in
     private void handleTwitterSession(TwitterSession session) {
         Log.d(TAG, "handleTwitterSession:" + session);
@@ -515,6 +514,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         AuthCredential credential = TwitterAuthProvider.getCredential(
                 session.getAuthToken().token,
                 session.getAuthToken().secret);
+        //get twitter profile photo
+//        long userId = session.getUserId();
+//        final String photoUrl = "http://twitter.com/api/users/profile_image/" + userId + "?size=normal";
+//        Log.d(TAG, "handleTwitterSession: photoUrl is: " + photoUrl);
 
         coMeth.getAuth()
                 .signInWithCredential(credential)
@@ -558,13 +561,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                             Log.d(TAG, "signInWithCredential:success");
                             //go to acc settings
-                            Intent goToAccSettings = new Intent(
-                                    LoginActivity.this, AccountActivity.class);
-                            if (photoUrl != null) {
-                                goToAccSettings.putExtra("photoUrl", photoUrl);
-                            }
-                            startActivity(goToAccSettings);
-                            finish();
+                            goToAccSettings(photoUrl);
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -572,9 +569,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             Snackbar.make(findViewById(R.id.login_activity_layout),
                                     "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
                         }
-
                     }
                 });
+    }
+
+    private void goToAccSettings(String photoUrl) {
+        Intent goToAccSettings = new Intent(
+                LoginActivity.this, AccountActivity.class);
+        if (photoUrl != null) {
+            goToAccSettings.putExtra("photoUrl", photoUrl);
+        }
+        startActivity(goToAccSettings);
+        finish();
     }
 
 
