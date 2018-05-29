@@ -69,6 +69,7 @@ public class AccountActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private String userName;
     private String userBio;
+    private String imageUrl;
 
 
     @Override
@@ -77,7 +78,6 @@ public class AccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_account);
 
         //initiate elements
-
         setupImage = findViewById(R.id.setupImageCircleImageView);
         userNameField = findViewById(R.id.accNameEditText);
         saveButton = findViewById(R.id.accSaveButton);
@@ -158,11 +158,21 @@ public class AccountActivity extends AppCompatActivity {
                             }
                         }
                         //set default user Image
-                        setupImage.setImageDrawable(
-                                getResources().getDrawable(R.drawable.appiconshadow));
-
+                        if (getIntent() != null &&
+                                getIntent().getStringExtra("photoUrl") != null) {
+                            String photoUrl = getIntent().getStringExtra("photoUrl");
+                            //update the imageUrl
+                            imageUrl = photoUrl;
+                            try {
+                                coMeth.setImage(R.drawable.appiconshadow, photoUrl, setupImage);
+                            } catch (Exception e) {
+                                Log.d(TAG, "onComplete: failed to set photo from login\n" +
+                                        "error is: " + e.getMessage());
+                            }
+                        } else
+                            setupImage.setImageDrawable(
+                                    getResources().getDrawable(R.drawable.appiconshadow));
                     }
-
                 } else {
                     //retrieve data from db unsuccessful
                     String errorMessage = task.getException().getMessage();
@@ -192,8 +202,6 @@ public class AccountActivity extends AppCompatActivity {
                         ActivityCompat.requestPermissions(
                                 AccountActivity.this,
                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-
-
                     } else {
                         //permission already granted
                         pickImage();
@@ -308,9 +316,7 @@ public class AccountActivity extends AppCompatActivity {
                                             //upload failed
                                             String errorMessage = task.getException().getMessage();
                                             Log.d(TAG, "Db Update failed: " + errorMessage);
-                                            /*Snackbar.make(findViewById(R.id.account_layout),
-                                                    "Failed to upload image: " +
-                                                            errorMessage, Snackbar.LENGTH_SHORT).show();*/
+
                                         }
                                     });
                                 } else {
@@ -361,9 +367,13 @@ public class AccountActivity extends AppCompatActivity {
         Map<String, String> usersMap = new HashMap<>();
         usersMap.put("name", userName);
 
+        if (imageUrl == null) {
+            imageUrl = downloadUri.toString();
+        }
+
         try {
             usersMap.put("bio", userBio);
-            usersMap.put("image", downloadUri.toString());
+            usersMap.put("image", imageUrl);
             usersMap.put("thumb", downloadThumbUri.toString());
         } catch (NullPointerException dbUpdateNull) {
             Log.e(TAG, "updateDb: ", dbUpdateNull);

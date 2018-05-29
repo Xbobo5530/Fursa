@@ -45,7 +45,6 @@ import javax.annotation.Nullable;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-
     private static final String TAG = "Sean";
     private static final String CHANNEL_ID = "UPDATES";
     private CoMeth coMeth = new CoMeth();
@@ -241,10 +240,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } else {
 
             //notif and extra are null
-
             Intent noExtraNotifIntent = new Intent(this, MainActivity.class);
-            noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, noExtraNotifIntent,
+            noExtraNotifIntent.addFlags(
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            pendingIntent = PendingIntent.getActivity(
+                    this, 0 /* Request code */, noExtraNotifIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             buildNotif(title, messageBody, null);
         }

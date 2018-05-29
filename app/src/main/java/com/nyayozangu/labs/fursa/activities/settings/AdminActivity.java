@@ -35,6 +35,7 @@ import javax.annotation.Nullable;
 
 public class AdminActivity extends AppCompatActivity implements View.OnClickListener {
 
+    // TODO: 5/29/18 hide admin on launch
 
     private static final String TAG = "Sean";
     //common methods
@@ -46,8 +47,6 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     private ArrayList<DocumentChange> reportedCommentsList;
     private ArrayList<String> reportedComments;
     private String[] reportedCommentsListItems;
-    private String[] reportedCommentsImageUrlsListItems;
-    private String[] reportedCommentsUsernamesListItems;
     private ProgressDialog progressDialog;
     private ArrayList<String> reportedPostsTitle;
     private String[] reportedPostsTitleListItems;
@@ -73,10 +72,6 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         reportedCommentsPostIdArray = new ArrayList<>();
         reportedCommentsIds = new ArrayList<>();
 
-        /*reportedCommentsListItems = new String[]{};
-        reportedCommentsImageUrlsListItems = new String[]{};
-        reportedCommentsUsernamesListItems = new String[]{};*/
-
         //handle toolbar
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Admin");
@@ -87,11 +82,9 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                 finish();
             }
         });
-
         //handle clicks
         reportPostsButton.setOnClickListener(this);
         reportCommentsButton.setOnClickListener(this);
-
     }
 
     @Override
@@ -161,7 +154,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void getPostDetails(String postId) {
+    private void getPostDetails(final String postId) {
         coMeth.getDb()
                 .collection("Posts")
                 .document(postId)
@@ -178,6 +171,13 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                             Log.d(TAG, "onSuccess: " +
                                     "\ntitle is: " + title +
                                     "\nreportedPostsTitle: " + reportedPostsTitle);
+                        } else {
+                            //post does not exist
+                            coMeth.getDb()
+                                    .collection("Flags/posts/Posts")
+                                    .document(postId)
+                                    .delete();
+
                         }
                     }
                 })
@@ -228,7 +228,6 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
                             //stop loading
                             coMeth.stopLoading(progressDialog);
-                            /*catsListItems = catSubsArray.toArray((new String[catSubsArray.size()]));*/
                             reportedCommentsListItems = reportedComments
                                     .toArray(new String[reportedComments.size()]);
                             //create a simple adapter

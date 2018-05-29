@@ -4,9 +4,12 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -16,6 +19,7 @@ import android.widget.SimpleAdapter;
 
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.ArrayList;
@@ -81,7 +85,7 @@ public class CategoriesFragment extends Fragment {
 
         SimpleAdapter simpleAdapter =
                 new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.cat_grid_item_layout, from, to);
-        GridView catGridView = view.findViewById(R.id.catsGridView);
+        final GridView catGridView = view.findViewById(R.id.catsGridView);
 
         View gridCell = inflater.inflate(R.layout.cat_grid_item_layout, null);
         int cellWidth = measureCellWidth(getContext(), gridCell);
@@ -110,9 +114,22 @@ public class CategoriesFragment extends Fragment {
             }
         });
 
+        ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
+                new BottomNavigationView.OnNavigationItemReselectedListener() {
+                    @Override
+                    public void onNavigationItemReselected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.bottomNavCatItem:
+                                catGridView.smoothScrollToPosition(0);
+                                break;
+                            default:
+                                Log.d(TAG, "onNavigationItemReselected: " +
+                                        "at default cat fragment on reselect");
+                        }
+                    }
+                });
 
         return view;
-
     }
 
 

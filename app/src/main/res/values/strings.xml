@@ -216,5 +216,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="accept_the_terms_text">I accept the terms of agreement</string>
     <string name="TERMS_VAL">terms</string>
+    <string name="enter_password_hint">Enter your login password</string>
+    <string name="enter_login_details_hint">Enter your login details to login</string>
 
 </resources>

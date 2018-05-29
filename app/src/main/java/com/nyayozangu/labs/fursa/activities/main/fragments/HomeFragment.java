@@ -4,11 +4,13 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,7 +18,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -24,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
@@ -99,7 +101,6 @@ public class HomeFragment extends Fragment {
         // TODO: 5/21/18 check if user is firs time loading
         // TODO: 5/21/18 check if there is cached data
 
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         //loading
         showProgress(getString(R.string.loading_text));
@@ -142,6 +143,22 @@ public class HomeFragment extends Fragment {
                 loadPosts(firstQuery);
             }
         });
+
+
+        ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
+                new BottomNavigationView.OnNavigationItemReselectedListener() {
+                    @Override
+                    public void onNavigationItemReselected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.bottomNavHomeItem:
+                                homeFeedView.smoothScrollToPosition(0);
+                                break;
+                            default:
+                                Log.d(TAG, "onNavigationItemReselected: at default");
+                        }
+                    }
+                });
+
 
         // Inflate the layout for this fragment
         return view;

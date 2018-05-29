@@ -202,7 +202,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 dialog.dismiss();
 
                             }
@@ -233,15 +232,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                             //check if login was successful
                                             if (task.isSuccessful()) {
-
-                                                processLoginIntent();
-
+                                                goToAccSettings();
                                             } else {
-
                                                 //login was not successful
                                                 String errorMessage = task.getException().getMessage();
-                                                showSnack(R.id.login_activity_layout, "Error: " + errorMessage);
-
+                                                showSnack(R.id.login_activity_layout,
+                                                        "Error: " + errorMessage);
                                             }
                                             //hide progress
                                             coMeth.stopLoading(progressDialog);
@@ -249,23 +245,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                     });
 
                                 } else if (TextUtils.isEmpty(email)) {
-
-                                    showSnack(R.id.login_activity_layout, "Enter your email address");
-
+                                    showSnack(R.id.login_activity_layout,
+                                            getResources().getString(R.string.enter_email_hint));
                                 } else if (TextUtils.isEmpty(password)) {
-
-                                    showSnack(R.id.login_activity_layout, "Enter your login password");
-
+                                    showSnack(R.id.login_activity_layout,
+                                            getResources().getString(R.string.enter_password_hint));
                                 } else {
-
-                                    showSnack(R.id.login_activity_layout, "Enter your login details to login");
-
+                                    showSnack(R.id.login_activity_layout,
+                                            getResources().getString(R.string.enter_login_details_hint));
                                 }
-
                             }
                         })
                         .show();
-
             }
         });
         loginRegistrationButton.setOnClickListener(new View.OnClickListener() {
@@ -438,46 +429,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     }
 
-    private void processLoginIntent() {
-        //login was successful
-        if (getIntent() == null) {
-            goToAccSettings();
-        } else {
-
-            Intent sourceIntent = getIntent();
-            if (sourceIntent.getStringExtra("source") != null) {
-
-                switch (sourceIntent.getStringExtra("source")) {
-
-                    case "comments":
-
-                        Intent commentsIntent = new Intent(LoginActivity.this, AccountActivity.class);
-                        commentsIntent.putExtra("postId", sourceIntent.getStringExtra("postId"));
-                        startActivity(commentsIntent);
-                        finish();
-                        break;
-
-                    case "categories":
-
-                        Intent catsIntent = new Intent(LoginActivity.this, AccountActivity.class);
-                        catsIntent.putExtra("category", sourceIntent.getStringExtra("category"));
-                        startActivity(catsIntent);
-                        finish();
-                        break;
-
-                    default:
-                        goToAccSettings();
-
-                }
-            } else {
-
-                goToAccSettings();
-
-            }
-
-        }
-    }
-
     private void showSnack(int id, String message) {
         Snackbar.make(findViewById(id),
                 message, Snackbar.LENGTH_LONG).show();
@@ -509,7 +460,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
+                String photoUrl = account.getPhotoUrl().toString();
+
+                firebaseAuthWithGoogle(account, photoUrl);
             } else {
                 // Google Sign In failed
                 Log.e(TAG, "Google Sign In failed.");
@@ -591,7 +544,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         finish();
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct, final String photoUrl) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -605,7 +558,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                             Log.d(TAG, "signInWithCredential:success");
                             //go to acc settings
-                            goToAccSettings();
+                            Intent goToAccSettings = new Intent(
+                                    LoginActivity.this, AccountActivity.class);
+                            if (photoUrl != null) {
+                                goToAccSettings.putExtra("photoUrl", photoUrl);
+                            }
+                            startActivity(goToAccSettings);
+                            finish();
 
                         } else {
                             // If sign in fails, display a message to the user.

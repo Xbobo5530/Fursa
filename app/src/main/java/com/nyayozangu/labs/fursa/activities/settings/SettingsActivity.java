@@ -15,12 +15,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
@@ -179,7 +177,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         privacyPolicyButton.setOnClickListener(this);
         editProfileButton.setOnClickListener(this);
 
-        privacyPolicyButton.setOnLongClickListener(new View.OnLongClickListener() {
+        //disable access to admin to release version
+        /*privacyPolicyButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 Toast.makeText(SettingsActivity.this, "Checking for admin access",
@@ -200,7 +199,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 }
                 return true;
             }
-        });
+        });*/
     }
 
     private void checkAdminAcc(String userEmail) {
