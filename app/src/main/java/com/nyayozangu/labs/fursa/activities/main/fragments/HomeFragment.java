@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -81,25 +80,6 @@ public class HomeFragment extends Fragment {
 
         coMeth.handlePostsView(getContext(), getActivity(), homeFeedView);
         homeFeedView.setAdapter(postsRecyclerAdapter);
-        //animation
-        /*RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-        homeFeedView.setItemAnimator(itemAnimator);*/
-
-        //attempts to fix images on recycler view issue
-        /*homeFeedView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
-            @Override
-            public void onChildViewAttachedToWindow(View view) {
-
-            }
-
-            @Override
-            public void onChildViewDetachedFromWindow(View view) {
-                Log.d(TAG, "onChildViewDetachedFromWindow: destroying cache");
-                view.destroyDrawingCache();
-
-            }
-        });*/
-
 
         // TODO: 5/23/18 finish handle result for bottom nav item re-selected
         //fetch data from activity

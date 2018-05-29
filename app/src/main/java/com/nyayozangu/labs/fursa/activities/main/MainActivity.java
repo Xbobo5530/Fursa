@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -40,6 +41,7 @@ import com.nyayozangu.labs.fursa.activities.main.fragments.AlertFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
+import com.nyayozangu.labs.fursa.activities.main.fragments.TermsFragment;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     //users
     private FloatingActionButton createPostButton;
-    private BottomNavigationView mainBottomNav;
+    public BottomNavigationView mainBottomNav;
     private TextView titleBarTextView;
 
     //instances of fragments
@@ -68,6 +70,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     private CategoriesFragment categoriesFragment;
     private SavedFragment savedFragment;
     private AlertFragment alertFragment;
+    private TermsFragment termsFragment;
+
     private boolean doubleBackToExitPressedOnce = false;
 
     private CircleImageView userProfileImage;
@@ -80,6 +84,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     private List<String> lastSearches;
     private ProgressDialog progressDialog;
 
+    private String hasAcceptedTermsStatus;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
 
@@ -89,15 +95,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         setContentView(R.layout.activity_main);
 
 //        cleanDB();
-
-        /*Log.d(TAG, "onCreate: testing process update info \nprocessed info is: " + processUpdate("Thank you for updating your Fursa app, here is what we have been working on:\\n\n" +
-                "New Features:\\n\n" +
-                "- Tag your posts by simply adding ‘#’ to words in your post title or post description\\n\n" +
-                "- Increased stability\\n\\n\n" +
-                "Bug Fixes:\\n\n" +
-                "- Faster loading speeds\\n\n" +
-                "- Fixed the no pots alert on the Categories Page\n"));*/
-
         //subscribe to app updates
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
         Log.d(TAG, "user subscribed to topic UPDATES");
@@ -107,6 +104,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         categoriesFragment = new CategoriesFragment();
         savedFragment = new SavedFragment();
         alertFragment = new AlertFragment();
+        termsFragment = new TermsFragment();
 
         //initiate elements
         mainSearchView = findViewById(R.id.mainSearchView);
@@ -117,9 +115,13 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         mainBottomNav = findViewById(R.id.mainBottomNav);
         fursaTitle = findViewById(R.id.fursaTitleTextView);
 
+        hasAcceptedTermsStatus = getResources().getString(R.string.false_value);
 
         //get the sent intent
         handleIntent();
+
+        //check if already accepted terms
+        checkHasAcceptedTerms();
 
         //search
         //search icon is clicked
@@ -308,6 +310,56 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
     }
 
+    private void checkHasAcceptedTerms() {
+
+        //default value for has accepted terms
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        String hasAcceptedTerms = sharedPref.
+                getString(getResources().getString(R.string.has_accepted_terms),
+                        hasAcceptedTermsStatus);
+        Log.d(TAG, "onCreate: \nhasAcceptedTerms: " + hasAcceptedTerms);
+
+        if (hasAcceptedTerms.equals(getResources().getString(R.string.false_value))) {
+            handleTerms();
+        }
+    }
+
+    private void handleTerms() {
+        Log.d(TAG, "handleTerms: ");
+        android.app.AlertDialog.Builder termBuilder = new
+                android.app.AlertDialog.Builder(MainActivity.this);
+        termBuilder.setTitle("Terms and Conditions")
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_book))
+                .setMessage("By proceeding you accept to abide by our terms and conditions.")
+                .setPositiveButton("Agree", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString(getString(R.string.has_accepted_terms),
+                                getString(R.string.true_value));
+                        editor.apply();
+
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(R.string.view_terms_text, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        goToTerms();
+                    }
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void goToTerms() {
+        setFragment(termsFragment);
+        //disable the hide bottom nav
+        mainBottomNav.setVisibility(View.GONE);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -324,16 +376,16 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         Log.d(TAG, "handleIntent: at main");
         if (getIntent() != null) {
             Log.d(TAG, "handleIntent: intent is not null");
-            Intent getActionIntent = getIntent();
-            if (getActionIntent.getStringExtra("action") != null) {
-                switch (getActionIntent.getStringExtra("action")) {
+            Intent intent = getIntent();
+            if (intent.getStringExtra("action") != null) {
+                switch (intent.getStringExtra("action")) {
 
                     case "notify":
 
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
-                        String notifyMessage = getActionIntent.getStringExtra(
+                        String notifyMessage = intent.getStringExtra(
                                 getResources().getString(R.string.message_name_text));
                         showSnack(notifyMessage);
                         Log.d(TAG, "notifyMessage is: " + notifyMessage);
@@ -349,7 +401,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
                     case "goto":
 
-                        switch (getActionIntent.getStringExtra("destination")) {
+                        switch (intent.getStringExtra("destination")) {
 
                             case "saved":
                                 mainBottomNav.setSelectedItemId(R.id.bottomNavSavedItem);
@@ -371,13 +423,12 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
                         Log.d(TAG, "onCreate: at action default" +
-                                getActionIntent.getStringExtra("action"));
+                                intent.getStringExtra("action"));
                 }
             } else {
                 //set the homeFragment when home the main activity is loaded
                 mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                 setFragment(homeFragment);
-                Log.d(TAG, "onCreate: intent is not action: " + getIntent().toString());
             }
         } else {
             //set the homeFragment when home the main activity is loaded
@@ -508,7 +559,9 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                                             //log use out
                                             //take user to login screen
                                             coMeth.signOut();
-                                            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                                            startActivity(new Intent(
+                                                    MainActivity.this,
+                                                    LoginActivity.class));
                                             finish();
 
                                         }
@@ -520,10 +573,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     }
 
     private void openSearch() {
-
         //show the search view
         showSearchView();
-
     }
 
     private void showSearchView() {

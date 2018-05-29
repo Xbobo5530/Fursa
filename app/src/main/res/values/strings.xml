@@ -206,7 +206,14 @@
     <string name="acc_details_update_shortly_text">Your account details will be updated shortly</string>
     <string name="has_accepted_terms">hasAcceptedTerms</string>
     <string name="view_terms_text">View terms</string>
-    <string name="true_text">true</string>
+    <string name="true_value">true</string>
     <string name="view_image_intent_name">imageUrl</string>
+    <string name="source_name">source</string>
+    <string name="term_status_name">termsStatus</string>
+    <string name="false_value">false</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="accept_the_terms_text">I accept the terms of agreement</string>
 
 </resources>

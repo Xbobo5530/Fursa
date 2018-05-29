@@ -48,14 +48,8 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
         showProgress(getResources().getString(R.string.loading_text));
 
         if (coMeth.isConnected()) {
-
-            webview.loadUrl(getString(R.string.privacy_policy_url));
-            if (webview.getProgress() > 50) {
-                coMeth.stopLoading(progressDialog);
-            }
-
+            loadWebView();
         } else {
-
             webview.setVisibility(View.GONE);
             showSnack(getString(R.string.failed_to_connect_text));
             coMeth.stopLoading(progressDialog);
@@ -69,25 +63,39 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                SharedPreferences sharedPref =
-                        PrivacyPolicyActivity.this.getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString(getString(R.string.has_accepted_terms),
-                        getString(R.string.true_text));
+                        getString(R.string.true_value));
                 editor.apply();
-
-                startActivity(new Intent(
-                        PrivacyPolicyActivity.this, MainActivity.class));
+                //go to main
+                Intent goToMainIntent = new Intent(
+                        PrivacyPolicyActivity.this, MainActivity.class);
+                goToMainIntent.putExtra(getResources().getString(R.string.term_status_name),
+                        getResources().getString(R.string.true_value));
+                startActivity(goToMainIntent);
+                finish();
             }
         });
     }
 
+    private void loadWebView() {
+        Log.d(TAG, "loadWebView: ");
+        webview.loadUrl(getString(R.string.privacy_policy_url));
+        if (webview.getProgress() == 100) {
+            coMeth.stopLoading(progressDialog);
+        }
+    }
+
     private void handleIntent() {
+        Log.d(TAG, "handleIntent: ");
         Intent intent = getIntent();
         if (intent.getStringExtra("source") != null) {
             String source = intent.getStringExtra("source");
             if (source.equals("tut")) {
                 acceptTermsButton.setVisibility(View.VISIBLE);
+                showProgress(getResources().getString(R.string.loading_text));
+                loadWebView();
                 //hide the back button
                 getSupportActionBar().hide();
             }

@@ -1007,6 +1007,19 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });
 
+        // TODO: 5/28/18 implement swipe image to close activity
+        /*//handle swipe image to close
+        viewPostImage.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    finish();
+                    return true;
+                }
+                return false;
+            }
+        });*/
+
 
     }
 

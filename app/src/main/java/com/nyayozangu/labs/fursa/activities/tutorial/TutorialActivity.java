@@ -1,12 +1,8 @@
 package com.nyayozangu.labs.fursa.activities.tutorial;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -71,10 +67,9 @@ public class TutorialActivity extends AppCompatActivity {
                     public void onClick(View view) {
 
                         //show loading
-//                        showProgress(getString(R.string.loading_text));
+                        showProgress(getString(R.string.loading_text));
                         //start the main activity when finish is clicked
-
-                        SharedPreferences sharedPref =
+                        /*SharedPreferences sharedPref =
                                 TutorialActivity.this.getPreferences(Context.MODE_PRIVATE);
                         String hasAcceptedTerms = sharedPref
                                 .getString(getString(R.string.has_accepted_terms),
@@ -86,11 +81,10 @@ public class TutorialActivity extends AppCompatActivity {
                         } else {
                             Log.d(TAG, "onClick: has not accepted terms");
                             handleTerms();
-                        }
-
-//                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-//                        coMeth.stopLoading(progressDialog);
-//                        finish();
+                        }*/
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        coMeth.stopLoading(progressDialog);
+                        finish();
 
                     }
                 });
@@ -120,7 +114,7 @@ public class TutorialActivity extends AppCompatActivity {
     /**
      * asks user to accept terms and condition of the licence agreement
      */
-    private void handleTerms() {
+    /*private void handleTerms() {
         Log.d(TAG, "handleTerms: ");
         AlertDialog.Builder termBuilder = new AlertDialog.Builder(TutorialActivity.this);
         termBuilder.setTitle("Terms and Conditions")
@@ -130,13 +124,11 @@ public class TutorialActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        SharedPreferences sharedPref =
-                                TutorialActivity.this.getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString(getString(R.string.has_accepted_terms),
-                                getString(R.string.true_text));
+                                getString(R.string.true_value));
                         editor.apply();
-
                         goToMain();
                     }
                 })
@@ -148,7 +140,7 @@ public class TutorialActivity extends AppCompatActivity {
                 })
                 .setCancelable(false)
                 .show();
-    }
+    }*/
 
     private void goToMain() {
         startActivity(new Intent(TutorialActivity.this, MainActivity.class));
@@ -215,6 +207,16 @@ public class TutorialActivity extends AppCompatActivity {
         if (mDots.length > 0) {
             mDots[position].setTextColor(getResources().getColor(R.color.colorWhite));
         }
+    }
+
+    private void showProgress(String message) {
+
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+
     }
 
 }

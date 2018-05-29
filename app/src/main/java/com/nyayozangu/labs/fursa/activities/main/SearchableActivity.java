@@ -194,8 +194,6 @@ public class SearchableActivity extends AppCompatActivity {
                         }
                     }
                 }
-
-
                 // TODO: 5/2/18 handle no posts found notif
                 /*if (postsList.isEmpty()) {
 
