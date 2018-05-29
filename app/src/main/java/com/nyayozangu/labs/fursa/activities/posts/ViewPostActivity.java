@@ -342,8 +342,8 @@ public class ViewPostActivity extends AppCompatActivity {
                         coMeth.stopLoading(progressDialog, null);
                         Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
                         delResultIntent.putExtra(
-                                getResources().getString(R.string.action_name_text), getResources().getString(R.string.notify_value_text));
-                        delResultIntent.putExtra(getResources().getString(R.string.message_name_text), getString(R.string.del_success_text));
+                                getResources().getString(R.string.ACTION_NAME), getResources().getString(R.string.notify_value_text));
+                        delResultIntent.putExtra(getResources().getString(R.string.MESSAGE_NAME), getString(R.string.del_success_text));
                         if (hasAdminAccess()) {
                             //go back to admin page
                             startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
@@ -1194,9 +1194,9 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private void goToMain(String message) {
         Intent goToMainIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-        goToMainIntent.putExtra(getString(R.string.action_name_text),
+        goToMainIntent.putExtra(getString(R.string.ACTION_NAME),
                 getString(R.string.notify_value_text));
-        goToMainIntent.putExtra(getString(R.string.message_name_text), message);
+        goToMainIntent.putExtra(getString(R.string.MESSAGE_NAME), message);
         startActivity(goToMainIntent);
         finish();
     }
@@ -1244,9 +1244,9 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         Intent goToSavedIntent = new Intent(
                                 ViewPostActivity.this, MainActivity.class);
-                        goToSavedIntent.putExtra(getString(R.string.action_name_text),
-                                getString(R.string.goto_value_text));
-                        goToSavedIntent.putExtra(getString(R.string.destionation_name_text),
+                        goToSavedIntent.putExtra(getString(R.string.ACTION_NAME),
+                                getString(R.string.GOTO_VAL));
+                        goToSavedIntent.putExtra(getString(R.string.DESTINATION_NAME),
                                 getString(R.string.saved_value_text));
                         startActivity(goToSavedIntent);
                         finish();
@@ -1257,7 +1257,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private void goToLogin(String message) {
         Intent loginIntent = new Intent(ViewPostActivity.this, LoginActivity.class);
-        loginIntent.putExtra(getString(R.string.message_name_text), message);
+        loginIntent.putExtra(getString(R.string.MESSAGE_NAME), message);
         startActivity(loginIntent);
 
     }

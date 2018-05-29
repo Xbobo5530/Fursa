@@ -53,7 +53,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity/* implements CreatePostActivity.AsyncResponse */ {
 
-    // TODO: 5/14/18 add a timer to record when a user has not poened the app for 2 days
+    // TODO: 5/14/18 add a timer to record when a user has not opened the app for 2 days
 
     private static final String TAG = "Sean";
 
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     private CoMeth coMeth = new CoMeth();
 
     //users
-    private FloatingActionButton createPostButton;
+    public FloatingActionButton createPostButton;
     public BottomNavigationView mainBottomNav;
     private TextView titleBarTextView;
 
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     private List<String> lastSearches;
     private ProgressDialog progressDialog;
 
-    private String hasAcceptedTermsStatus;
+    public String hasAcceptedTermsStatus;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -356,8 +356,10 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     private void goToTerms() {
         setFragment(termsFragment);
-        //disable the hide bottom nav
+        //hide the hide bottom nav
+        //hide create post fab
         mainBottomNav.setVisibility(View.GONE);
+        createPostButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -386,7 +388,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
                         String notifyMessage = intent.getStringExtra(
-                                getResources().getString(R.string.message_name_text));
+                                getResources().getString(R.string.MESSAGE_NAME));
                         showSnack(notifyMessage);
                         Log.d(TAG, "notifyMessage is: " + notifyMessage);
                         break;
@@ -410,6 +412,9 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                             case "categories":
                                 mainBottomNav.setSelectedItemId(R.id.bottomNavCatItem);
                                 setFragment(categoriesFragment);
+                                break;
+                            case "terms":
+                                setFragment(termsFragment);
                                 break;
                             default:
                                 //set the homeFragment when home the main activity is loaded

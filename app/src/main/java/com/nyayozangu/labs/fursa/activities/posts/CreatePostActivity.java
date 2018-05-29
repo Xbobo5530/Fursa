@@ -198,8 +198,8 @@ public class CreatePostActivity extends AppCompatActivity {
             //user is not logged in
             Intent homeIntent = new Intent(
                     CreatePostActivity.this, MainActivity.class);
-            homeIntent.putExtra(getString(R.string.action_name_text), getString(R.string.notify_value_text));
-            homeIntent.putExtra(getString(R.string.message_name_text), getString(R.string.not_logged_in_text));
+            homeIntent.putExtra(getString(R.string.ACTION_NAME), getString(R.string.notify_value_text));
+            homeIntent.putExtra(getString(R.string.MESSAGE_NAME), getString(R.string.not_logged_in_text));
             startActivity(homeIntent);
             finish();
 
@@ -963,9 +963,9 @@ public class CreatePostActivity extends AppCompatActivity {
     private void goToMain(String message) {
         Intent goToMainIntent = new Intent(
                 CreatePostActivity.this, MainActivity.class);
-        goToMainIntent.putExtra(getResources().getString(R.string.action_name_text),
+        goToMainIntent.putExtra(getResources().getString(R.string.ACTION_NAME),
                 getResources().getString(R.string.notify_value_text));
-        goToMainIntent.putExtra(getResources().getString(R.string.message_name_text),
+        goToMainIntent.putExtra(getResources().getString(R.string.MESSAGE_NAME),
                 message);
         startActivity(goToMainIntent);
         finish();

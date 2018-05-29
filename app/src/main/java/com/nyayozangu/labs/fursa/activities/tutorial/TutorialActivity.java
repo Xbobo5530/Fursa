@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
-import com.nyayozangu.labs.fursa.activities.settings.PrivacyPolicyActivity;
 import com.nyayozangu.labs.fursa.activities.tutorial.adapters.SlideAdapter;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
@@ -69,19 +68,6 @@ public class TutorialActivity extends AppCompatActivity {
                         //show loading
                         showProgress(getString(R.string.loading_text));
                         //start the main activity when finish is clicked
-                        /*SharedPreferences sharedPref =
-                                TutorialActivity.this.getPreferences(Context.MODE_PRIVATE);
-                        String hasAcceptedTerms = sharedPref
-                                .getString(getString(R.string.has_accepted_terms),
-                                        getResources().getString(R.string.has_accepted_terms));
-                        Log.d(TAG, "onClick: has accepted terms " + hasAcceptedTerms);
-                        if (hasAcceptedTerms.equals("true")) {
-                            Log.d(TAG, "onClick: has accepted terms is true");
-                            goToMain();
-                        } else {
-                            Log.d(TAG, "onClick: has not accepted terms");
-                            handleTerms();
-                        }*/
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                         coMeth.stopLoading(progressDialog);
                         finish();
@@ -111,51 +97,6 @@ public class TutorialActivity extends AppCompatActivity {
         }
     };
 
-    /**
-     * asks user to accept terms and condition of the licence agreement
-     */
-    /*private void handleTerms() {
-        Log.d(TAG, "handleTerms: ");
-        AlertDialog.Builder termBuilder = new AlertDialog.Builder(TutorialActivity.this);
-        termBuilder.setTitle("Terms and Conditions")
-                .setIcon(getResources().getDrawable(R.drawable.ic_action_book))
-                .setMessage("By proceeding you accept to abide by our terms and conditions.")
-                .setPositiveButton("Agree", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString(getString(R.string.has_accepted_terms),
-                                getString(R.string.true_value));
-                        editor.apply();
-                        goToMain();
-                    }
-                })
-                .setNegativeButton(R.string.view_terms_text, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        goToTerms();
-                    }
-                })
-                .setCancelable(false)
-                .show();
-    }*/
-
-    private void goToMain() {
-        startActivity(new Intent(TutorialActivity.this, MainActivity.class));
-        finish();
-    }
-
-    private void goToTerms() {
-        Log.d(TAG, "goToTerms: ");
-        Intent goToTermsIntent =
-                new Intent(TutorialActivity.this, PrivacyPolicyActivity.class);
-        goToTermsIntent.putExtra("source", "tut");
-        startActivity(goToTermsIntent);
-        finish();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -168,15 +109,11 @@ public class TutorialActivity extends AppCompatActivity {
 
         sliderAdapter = new SlideAdapter(this);
         mSlideViewPager.setAdapter(sliderAdapter);
-
         addDotsIndicator(0);
-
         mSlideViewPager.addOnPageChangeListener(viewListener);
-
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 mSlideViewPager.setCurrentItem(mCurrentPage + 1);
             }
         });
@@ -210,13 +147,11 @@ public class TutorialActivity extends AppCompatActivity {
     }
 
     private void showProgress(String message) {
-
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
         progressDialog.show();
-
     }
 
 }

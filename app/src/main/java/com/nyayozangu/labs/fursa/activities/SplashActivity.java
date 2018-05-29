@@ -67,7 +67,7 @@ public class SplashActivity extends AppCompatActivity {
             Intent infoUpdateIntent = new Intent(
                     SplashActivity.this, MainActivity.class);
             infoUpdateIntent.putExtra(
-                    getResources().getString(R.string.action_name_text),
+                    getResources().getString(R.string.ACTION_NAME),
                     getResources().getString(R.string.update_value));
             startActivity(infoUpdateIntent);
             finish();

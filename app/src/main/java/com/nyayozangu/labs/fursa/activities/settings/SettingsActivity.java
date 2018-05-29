@@ -271,13 +271,18 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private void goToLogin(String message) {
         Intent goToLoginIntent = new Intent(this, LoginActivity.class);
-        goToLoginIntent.putExtra("message", message);
+        goToLoginIntent.putExtra(getResources().getString(R.string.MESSAGE_NAME), message);
         startActivity(goToLoginIntent);
         finish();
     }
 
     private void goToPrivacyPolicy() {
-        startActivity(new Intent(this, PrivacyPolicyActivity.class));
+        Intent goToTerms = new Intent(this, MainActivity.class);
+        goToTerms.putExtra(getResources().getString(R.string.ACTION_NAME),
+                getResources().getString(R.string.GOTO_VAL));
+        goToTerms.putExtra(getResources().getString(R.string.DESTINATION_NAME),
+                getResources().getString(R.string.TERMS_VAL));
+        startActivity(goToTerms);
     }
 
     private void goToFeedback() {

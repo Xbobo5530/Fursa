@@ -238,9 +238,9 @@ public class AccountActivity extends AppCompatActivity {
     private void goToMain(String message) {
         Intent goToMainIntent = new Intent(
                 AccountActivity.this, MainActivity.class);
-        goToMainIntent.putExtra(getResources().getString(R.string.action_name_text),
+        goToMainIntent.putExtra(getResources().getString(R.string.ACTION_NAME),
                 getResources().getString(R.string.notify_value_text));
-        goToMainIntent.putExtra(getResources().getString(R.string.message_name_text),
+        goToMainIntent.putExtra(getResources().getString(R.string.MESSAGE_NAME),
                 message);
         startActivity(goToMainIntent);
         finish();
