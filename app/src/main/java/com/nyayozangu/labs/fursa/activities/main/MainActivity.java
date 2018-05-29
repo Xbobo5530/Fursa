@@ -360,15 +360,10 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         createPostButton.setVisibility(View.GONE);
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-////        handleIntent();
-//
-//    }
 
     @Override
     protected void onNewIntent(Intent intent) {
+        Log.d(TAG, "onNewIntent: ");
         super.onNewIntent(intent);
         handleIntent();
     }
