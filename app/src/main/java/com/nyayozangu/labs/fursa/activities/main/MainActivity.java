@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
-//                        setFragment(homeFragment);
+                        setFragment(homeFragment);
                         String notifyMessage = intent.getStringExtra(
                                 getResources().getString(R.string.MESSAGE_NAME));
                         showSnack(notifyMessage);
@@ -391,7 +391,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                     case "update":
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
-//                        setFragment(homeFragment);
+                        setFragment(homeFragment);
                         showUpdateDialog();
                         Log.d(TAG, "handleIntent: action is update");
                         break;

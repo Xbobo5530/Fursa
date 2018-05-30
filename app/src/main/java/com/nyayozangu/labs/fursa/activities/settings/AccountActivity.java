@@ -368,14 +368,16 @@ public class AccountActivity extends AppCompatActivity {
             imageUrl = downloadUri.toString();
         }
 
-        try {
-            usersMap.put("bio", userBio);
-            usersMap.put("image", imageUrl);
-            usersMap.put("thumb", downloadThumbUri.toString());
-        } catch (NullPointerException dbUpdateNull) {
-            Log.e(TAG, "updateDb: ", dbUpdateNull);
-        }
 
+        if (userBio != null && userBio.isEmpty()) {
+            usersMap.put("bio", userBio);
+        }
+        if (imageUrl != null) {
+            usersMap.put("image", imageUrl);
+        }
+        if (downloadThumbUri != null) {
+            usersMap.put("thumb", downloadThumbUri.toString());
+        }
 
         //store data to db
         coMeth.getDb()

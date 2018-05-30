@@ -380,7 +380,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sign with google
                 signIn();
             }
         });
@@ -510,7 +509,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     //handle result for twitter sign in
     private void handleTwitterSession(TwitterSession session) {
         Log.d(TAG, "handleTwitterSession:" + session);
-
         AuthCredential credential = TwitterAuthProvider.getCredential(
                 session.getAuthToken().token,
                 session.getAuthToken().secret);
@@ -519,6 +517,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 //        final String photoUrl = "http://twitter.com/api/users/profile_image/" + userId + "?size=normal";
 //        Log.d(TAG, "handleTwitterSession: photoUrl is: " + photoUrl);
 
+        //show progress
+        showProgress(getResources().getString(R.string.loading_text));
         coMeth.getAuth()
                 .signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -527,6 +527,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
+                            //stop loading
+                            coMeth.stopLoading(progressDialog);
                             //take user to acc settings after
                             goToAccSettings();
                         } else {
@@ -548,8 +550,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct, final String photoUrl) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
+        //show progress
+        showProgress(getResources().getString(R.string.loading_text));
+        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         coMeth.getAuth()
                 .signInWithCredential(credential)
@@ -560,12 +564,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             // Sign in success, update UI with the signed-in user's information
 
                             Log.d(TAG, "signInWithCredential:success");
+                            //stop loading
+                            coMeth.stopLoading(progressDialog);
                             //go to acc settings
                             goToAccSettings(photoUrl);
 
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            //stop loading
+                            coMeth.stopLoading(progressDialog);
                             Snackbar.make(findViewById(R.id.login_activity_layout),
                                     "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
                         }
@@ -589,6 +597,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         //construct the dialog box
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
         progressDialog.show();
     }
 
