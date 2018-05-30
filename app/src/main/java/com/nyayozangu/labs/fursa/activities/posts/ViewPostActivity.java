@@ -57,6 +57,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ViewPostActivity extends AppCompatActivity {
 
     // TODO: 5/7/18 reorganize code on click listeners
+    // TODO: 5/30/18 handle posts with multiple images
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();

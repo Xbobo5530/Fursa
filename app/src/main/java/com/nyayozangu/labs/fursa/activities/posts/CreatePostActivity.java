@@ -77,6 +77,9 @@ import id.zelory.compressor.Compressor;
 
 public class CreatePostActivity extends AppCompatActivity {
 
+    // TODO: 5/30/18 allow posts with multiple images
+    // TODO: 5/30/18 share post after submitting
+
     private static final String TAG = "Sean";
 
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;

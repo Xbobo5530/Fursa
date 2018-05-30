@@ -49,11 +49,12 @@ public class CategoriesFragment extends Fragment {
         final String[] catTitle = new String[]{
 
 //                getResources().getString(R.string.cat_featured),
-                getResources().getString(R.string.cat_popular), getResources().getString(R.string.cat_jobs),
-                getResources().getString(R.string.cat_buysell), getResources().getString(R.string.cat_business),
-                getResources().getString(R.string.cat_upcoming), getResources().getString(R.string.cat_events),
-                getResources().getString(R.string.cat_places), getResources().getString(R.string.cat_services),
-                getResources().getString(R.string.cat_education), getString(R.string.cat_qna_text)
+                getResources().getString(R.string.cat_popular), getResources().getString(R.string.cat_exhibitions),
+                getResources().getString(R.string.cat_jobs), getResources().getString(R.string.cat_buysell),
+                getResources().getString(R.string.cat_business), getResources().getString(R.string.cat_upcoming),
+                getResources().getString(R.string.cat_events), getResources().getString(R.string.cat_places),
+                getResources().getString(R.string.cat_services), getResources().getString(R.string.cat_education),
+                getString(R.string.cat_qna_text)
 
         };
 
@@ -61,14 +62,13 @@ public class CategoriesFragment extends Fragment {
         int catImages[] = {
 
 //                R.drawable.featured,
-                R.drawable.popular, R.drawable.jobs,
-                R.drawable.buysell, R.drawable.business,
-                R.drawable.upcoming, R.drawable.events,
-                R.drawable.places, R.drawable.services,
-                R.drawable.school, R.drawable.help
+                R.drawable.popular, R.drawable.featured,
+                R.drawable.jobs, R.drawable.buysell,
+                R.drawable.business, R.drawable.upcoming,
+                R.drawable.events, R.drawable.places,
+                R.drawable.services, R.drawable.school, R.drawable.help
 
         };
-
 
         //create a simple adapter
         List<HashMap<String, String>> aList = new ArrayList<>();
@@ -91,7 +91,6 @@ public class CategoriesFragment extends Fragment {
         int cellWidth = measureCellWidth(getContext(), gridCell);
         catGridView.setColumnWidth(cellWidth);
         catGridView.setAdapter(simpleAdapter);
-
         catGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -106,7 +105,8 @@ public class CategoriesFragment extends Fragment {
                 "Buy and sell",
                 "Education",
                 "Jobs",
-                "Queries"*/
+                "Queries",
+                "Exhibitions"*/
 
                 Log.d(TAG, "onItemClick: ");
                 openCat(coMeth.getCatKey(coMeth.catTitle[position]));
@@ -114,6 +114,9 @@ public class CategoriesFragment extends Fragment {
             }
         });
 
+        /**
+         * handle the re-selcting the categories tab on the main bottom navigation on MainActivity
+         * */
         ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
                 new BottomNavigationView.OnNavigationItemReselectedListener() {
                     @Override
@@ -132,13 +135,23 @@ public class CategoriesFragment extends Fragment {
         return view;
     }
 
-
+    /**
+     * open the view category page
+     *
+     * @param catKey the category key to be passed to the view category page
+     */
     private void openCat(String catKey) {
         Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);
         openCatIntent.putExtra("category", catKey);
         startActivity(openCatIntent);
     }
 
+    /**
+     * calculate the width of the device to determine the number of rows
+     * @param context the context containing the view
+     * @param cell the view of the grid view
+     * @return the number of rows to display
+     * */
     public int measureCellWidth(Context context, View cell) {
 
         // We need a fake parent

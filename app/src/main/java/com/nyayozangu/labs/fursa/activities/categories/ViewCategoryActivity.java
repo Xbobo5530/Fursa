@@ -46,6 +46,8 @@ import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +57,8 @@ import javax.annotation.Nullable;
 
 public class
 ViewCategoryActivity extends AppCompatActivity {
+
+    // TODO: 5/30/18 sort events based on event dates
 
     private static final String TAG = "Sean";
 
@@ -105,8 +109,8 @@ ViewCategoryActivity extends AppCompatActivity {
 
     private void goToMain() {
         Intent goToMainIntent = new Intent(ViewCategoryActivity.this, MainActivity.class);
-        goToMainIntent.putExtra("action", "goto");
-        goToMainIntent.putExtra("destination", "categories");
+        goToMainIntent.putExtra(getResources().getString(R.string.ACTION_NAME), getResources().getString(R.string.GOTO_VAL));
+        goToMainIntent.putExtra(getResources().getString(R.string.DESTINATION_NAME), getResources().getString(R.string.CATEGORIES_VAL));
         startActivity(goToMainIntent);
         finish();
     }
@@ -348,12 +352,10 @@ ViewCategoryActivity extends AppCompatActivity {
                 usersList.clear();
                 loadPosts(firstQuery);
 
-
             }
         });
 
     }
-
 
     /**
      * handles incoming intents
@@ -372,6 +374,12 @@ ViewCategoryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * handle the deepLink intent
+     *
+     * @param intent the deepLink intents
+     * @return String the category from a deepLink
+     */
     private String handleDeepLink(Intent intent) {
 
         // handle app links
@@ -389,6 +397,11 @@ ViewCategoryActivity extends AppCompatActivity {
         return currentCat;
     }
 
+
+    /**
+     * set the selected category
+     * @param category the selected category
+     * */
     private void setCurrentCat(String category) {
         if (category != null) {
             Log.d(TAG, "cat is: " + category);
@@ -404,7 +417,8 @@ ViewCategoryActivity extends AppCompatActivity {
         "Buy and sell",
         "Education",
         "Jobs",
-        "Queries"*/
+        "Queries"
+        "Exhibitions"*/
 
             //set the category name ot toolbar
             switch (category) {
@@ -412,54 +426,50 @@ ViewCategoryActivity extends AppCompatActivity {
                 case "featured":
                     getSupportActionBar().setTitle(getString(R.string.cat_featured));
                     break;
-
                 case "popular":
                     getSupportActionBar().setTitle(getString(R.string.cat_popular));
                     break;
-
                 case "upcoming":
                     getSupportActionBar().setTitle(getString(R.string.cat_upcoming));
                     break;
-
                 case "events":
                     getSupportActionBar().setTitle(getString(R.string.cat_events));
                     break;
-
                 case "places":
                     getSupportActionBar().setTitle(getString(R.string.cat_places));
                     break;
-
                 case "services":
                     getSupportActionBar().setTitle(getString(R.string.cat_services));
                     break;
-
                 case "business":
                     getSupportActionBar().setTitle(getString(R.string.cat_business));
                     break;
-
                 case "buysell":
                     getSupportActionBar().setTitle(getString(R.string.cat_buysell));
                     break;
-
                 case "education":
                     getSupportActionBar().setTitle(getString(R.string.cat_education));
                     break;
-
                 case "jobs":
                     getSupportActionBar().setTitle(getString(R.string.cat_jobs));
                     break;
-
                 case "queries":
                     getSupportActionBar().setTitle(getString(R.string.cat_qna_text));
                     break;
-
+                case "exhibitions":
+                    getSupportActionBar().setTitle(getString(R.string.cat_exhibitions));
+                    break;
                 default:
                     Log.d(TAG, "onCreate: default is selected");
             }
-
         }
     }
 
+
+    /**
+     * load posts from the database
+     * @param firstQuery the first query when the page is first loaded
+     * */
     private void loadPosts(Query firstQuery) {
         firstQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
@@ -495,19 +505,19 @@ ViewCategoryActivity extends AppCompatActivity {
 
                     }
                 }
-
                 //the first page has already loaded
                 isFirstPageFirstLoad = false;
                 coMeth.stopLoading(progressDialog, swipeRefresh);
-
             }
         });
     }
 
+    /**
+     * handle the subscribed fab on the view categories page
+     * */
     private void setFab() {
 
         Log.d(TAG, "setFab: called");
-
         userId = coMeth.getUid();
         //check if user is subscribed
         coMeth.getDb()
@@ -515,30 +525,32 @@ ViewCategoryActivity extends AppCompatActivity {
                 .document("categories")
                 .collection("Categories").document(currentCat)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                    @Override
+                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                //check if user exists
-                if (documentSnapshot.exists()) {
+                        //check if user exists
+                        if (documentSnapshot.exists()) {
 
-                    //user is already subscribed
-                    //set fab image
-                    subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
+                            //user is already subscribed
+                            //set fab image
+                            subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
 
-                } else {
+                        } else {
 
-                    //user is already subscribed
-                    //set fab image
-                    subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
+                            //user is already subscribed
+                            //set fab image
+                            subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
 
-                }
-
-            }
-        });
-
+                        }
+                    }
+                });
     }
 
-
+    /**
+     * process the received category
+     * @param doc the document from the database
+     * @param postId the postId of the post in the doc
+     * */
     private void processCategories(DocumentChange doc, String postId) {
 
         Log.d(TAG, "processCategories: ");
@@ -558,58 +570,56 @@ ViewCategoryActivity extends AppCompatActivity {
             "Buy and sell",
             "Education",
             "Jobs",
-            "Queries"*/
+            "Queries"
+            "Exhibitions"*/
 
             case "featured":
                 filterCat(doc, postId, "featured");
                 break;
-
             case "popular":
                 filterCat(doc, postId, "popular");
                 break;
-
             case "upcoming":
                 filterCat(doc, postId, "upcoming");
                 break;
-
             case "events":
                 filterCat(doc, postId, "events");
                 break;
-
             case "places":
                 filterCat(doc, postId, "places");
                 break;
-
             case "services":
                 filterCat(doc, postId, "services");
                 break;
-
             case "business":
                 filterCat(doc, postId, "business");
                 break;
-
             case "buysell":
                 filterCat(doc, postId, "buysell");
                 break;
-
             case "education":
                 filterCat(doc, postId, "education");
                 break;
-
             case "jobs":
                 filterCat(doc, postId, "jobs");
                 break;
-
             case "queries":
                 filterCat(doc, postId, "queries");
                 break;
-
+            case "exhibitions":
+                filterCat(doc, postId, "exhibitions");
+                break;
             default:
                 Log.d(TAG, "onEvent: default");
-
         }
     }
 
+    /**
+     * filter categories
+     * @param category the category selected to filter posts for
+     * @param postId the postId of the post to check for categories
+     * @param doc the DocumentChange for the posts
+     * */
     private void filterCat(final DocumentChange doc, final String postId, final String category) {
 
         Log.d(TAG, "filterCat: at filter cat\ncat is: " + category);
@@ -632,8 +642,8 @@ ViewCategoryActivity extends AppCompatActivity {
 
                 Calendar endCal = Calendar.getInstance();
                 Log.d(TAG, "filterCat: event cal is " + endCal);
-                endCal.add(Calendar.MONTH, 6);
-                Log.d(TAG, "filterCat: event cal after 6 months is " + endCal);
+                endCal.add(Calendar.MONTH, 2);
+                Log.d(TAG, "filterCat: event cal after 2 months is " + endCal);
 
                 Calendar eventCal = Calendar.getInstance();
                 eventCal.set(eventDate.getYear(),
@@ -647,15 +657,41 @@ ViewCategoryActivity extends AppCompatActivity {
                     postsList.clear();
                     usersList.clear();
                     getFilteredPosts(post);
+                    Collections.sort(postsList, new Comparator<Posts>() {
+                        @Override
+                        public int compare(Posts o1, Posts o2) {
+                            Log.d(TAG, "compare: ");
+                            if (o1.getEvent_date() == null || o2.getEvent_date() == null) {
+                                return o1.getEvent_date().compareTo(o2.getEvent_date());
+                            } else {
+                                return 0;
+                            }
+                        }
+                    });
 
                 }
-
             }
 
         } else if (category.equals("featured")) {
 
             //cat is featured
             Log.d(TAG, "filterCat: cat is " + category);
+
+        } else if (category.equals("events")) {
+            Log.d(TAG, "filterCat: cat is " + category);
+            getFilteredPosts(post);
+
+            Collections.sort(postsList, new Comparator<Posts>() {
+                @Override
+                public int compare(Posts o1, Posts o2) {
+                    Log.d(TAG, "compare: ");
+                    if (o1.getEvent_date() == null || o2.getEvent_date() == null) {
+                        return o1.getEvent_date().compareTo(o2.getEvent_date());
+                    } else {
+                        return 0;
+                    }
+                }
+            });
 
         } else if (category.equals("popular")) {
 
@@ -666,7 +702,6 @@ ViewCategoryActivity extends AppCompatActivity {
             processCounts(postId, post, "Likes");
             processCounts(postId, post, "Saves");
             processCounts(postId, post, "Comments");
-
 
         } else {
 
@@ -680,14 +715,19 @@ ViewCategoryActivity extends AppCompatActivity {
 
                 } else {
 
-                    //posts dont have current cat
+                    //posts don't have current cat
                     coMeth.stopLoading(progressDialog, swipeRefresh);
-
                 }
             }
         }
     }
 
+    /**
+     * process the number of posts
+     * @param postId the post to check for likes, comments and saves
+     * @param collectionName the name of the collection to check for document counts
+     * @param post the post to check for likes, comments and saves
+     * */
     private void processCounts(String postId, final Posts post, final String collectionName) {
 
         Log.d(TAG, "processCounts: ");
@@ -735,6 +775,10 @@ ViewCategoryActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * get the filtered posts
+     * @param post the post to process
+     * */
     private void getFilteredPosts(final Posts post) {
         String postUserId = post.getUser_id();
         coMeth.getDb()
@@ -743,61 +787,59 @@ ViewCategoryActivity extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(
                         ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                        if (task.isSuccessful()) {
+                                if (task.isSuccessful()) {
 
-                            //check if user exists
-                            if (task.getResult().exists()) {
+                                    //check if user exists
+                                    if (task.getResult().exists()) {
 
-                                String userId = task.getResult().getId();
-                                Users user = task.getResult().toObject(Users.class).withId(userId);
-                                //add new post to the local postsList
-                                if (isFirstPageFirstLoad) {
+                                        String userId = task.getResult().getId();
+                                        Users user = task.getResult().toObject(Users.class).withId(userId);
+                                        //add new post to the local postsList
+                                        if (isFirstPageFirstLoad) {
 
-                                    //add the post at position 0 of the postsList
-                                    if (!postsList.contains(post)) {
-                                        postsList.add(0, post);
-                                        usersList.add(0, user);
+                                            //add the post at position 0 of the postsList
+                                            if (!postsList.contains(post)) {
+                                                postsList.add(0, post);
+                                                usersList.add(0, user);
+                                            }
+
+                                        } else {
+
+                                            //if the first page is loaded the add new post normally
+                                            if (!postsList.contains(post)) {
+                                                postsList.add(post);
+                                                usersList.add(user);
+                                            }
+                                        }
+                                        //notify the recycler adapter of the set change
+                                        categoryRecyclerAdapter.notifyDataSetChanged();
+                                        //stop loading after first post is visible
+                                        coMeth.onResultStopLoading(postsList, progressDialog, swipeRefresh);
+
+                                    } else {
+
+                                        //cat has no posts
+                                        coMeth.stopLoading(progressDialog, swipeRefresh);
+                                        Log.d(TAG, "onComplete: cat has no posts");
                                     }
-
 
                                 } else {
 
-                                    //if the first page is loaded the add new post normally
-                                    if (!postsList.contains(post)) {
-                                        postsList.add(post);
-                                        usersList.add(user);
-                                    }
-
+                                    //task has failed
+                                    Log.d(TAG, "onComplete: task has failed: " + task.getException());
                                 }
-                                //notify the recycler adapter of the set change
-                                categoryRecyclerAdapter.notifyDataSetChanged();
-                                //stop loading after first post is visible
-                                coMeth.onResultStopLoading(postsList, progressDialog, swipeRefresh);
-
-                            } else {
-
-                                //cat has no posts
-                                coMeth.stopLoading(progressDialog, swipeRefresh);
-                                Log.d(TAG, "onComplete: cat has no posts");
-
                             }
-
-                        } else {
-
-                            //task has failed
-                            Log.d(TAG, "onComplete: task has failed: " + task.getException());
-
-                        }
-
-                    }
-                });
+                        });
     }
 
-
     //for loading more posts
+
+    /**
+     * load more posts
+     * */
     public void loadMorePosts() {
 
         Log.d(TAG, "loadMorePosts: ");
@@ -829,10 +871,8 @@ ViewCategoryActivity extends AppCompatActivity {
                                 //a new item/ post is added
                                 String postId = doc.getDocument().getId();
                                 processCategories(doc, postId);
-
                             }
                         }
-
                     }
                 } catch (NullPointerException nullException) {
                     //the Query is null
@@ -844,6 +884,11 @@ ViewCategoryActivity extends AppCompatActivity {
 
 
     //show snack
+
+    /**
+     * show snackBar to notify user
+     * @param message the message to notify the user
+     * */
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.viewCatLayout),
                 message, Snackbar.LENGTH_LONG)
@@ -859,11 +904,17 @@ ViewCategoryActivity extends AppCompatActivity {
                 .show();
     }
 
+    // TODO: 5/30/18 move mySubscriptions to userPostPage
     private void goToMySubscriptions() {
-        startActivity(new Intent(ViewCategoryActivity.this, MySubscriptionsActivity.class));
+        startActivity(new Intent(
+                ViewCategoryActivity.this, MySubscriptionsActivity.class));
 
     }
 
+    /**
+     * go to the login page with a message for the user
+     * @param message the message to display to the user on the login page
+     * */
     private void goToLogin(String message) {
         Intent goToLoginIntent = new Intent(this, LoginActivity.class);
         goToLoginIntent.putExtra("message", message);
@@ -881,6 +932,10 @@ ViewCategoryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * show the progress dialog
+     * @param message the message to display while showing progress
+     * */
     private void showProgress(String message) {
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
@@ -888,5 +943,4 @@ ViewCategoryActivity extends AppCompatActivity {
         progressDialog.setMessage(message);
         progressDialog.show();
     }
-
 }

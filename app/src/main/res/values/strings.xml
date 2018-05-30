@@ -225,5 +225,7 @@
         \nHope you enjoy your experience with Fursa!
     </string>
     <string name="close_text">Close</string>
+    <string name="cat_exhibitions">Exhibitions</string>
+    <string name="CATEGORIES_VAL">categories</string>
 
 </resources>

@@ -39,20 +39,22 @@ interface CheckConnectionInterface {
 
 public class CoMeth {
 
-
     private static final String TAG = "Sean";
     public final String[] catTitle = new String[]{
 
-            getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getResources().getString(R.string.cat_jobs),
+            getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getString(R.string.cat_exhibitions),
+            getApplicationContext().getResources().getString(R.string.cat_jobs),
             getApplicationContext().getResources().getString(R.string.cat_buysell), getApplicationContext().getResources().getString(R.string.cat_business),
             getApplicationContext().getResources().getString(R.string.cat_upcoming), getApplicationContext().getResources().getString(R.string.cat_events),
             getApplicationContext().getResources().getString(R.string.cat_places), getApplicationContext().getResources().getString(R.string.cat_services),
             getApplicationContext().getResources().getString(R.string.cat_education), getApplicationContext().getResources().getString(R.string.cat_queries)
 
+
     };
     public final String[] categories = new String[]{
 
             getApplicationContext().getString(R.string.cat_business),
+            getApplicationContext().getString(R.string.cat_exhibitions),
             getApplicationContext().getString(R.string.cat_events),
             getApplicationContext().getString(R.string.cat_buysell),
             getApplicationContext().getString(R.string.cat_education),
@@ -66,6 +68,7 @@ public class CoMeth {
     public final String[] catKeys = new String[]{
 
             "business",
+            "exhibitions",
             "events",
             "buysell",
             "education",
@@ -222,6 +225,8 @@ public class CoMeth {
                 return "jobs";
             case "Queries":
                 return "queries";
+            case "Exhibitions":
+                return "exhibitions";
 
             //handle swahili items
             case "Spesheli":
@@ -246,6 +251,8 @@ public class CoMeth {
                 return "jobs";
             case "Maswali na majibu":
                 return "queries";
+            case "Maonyesho ya biashara":
+                return "exhibitions";
             default:
                 return null;
         }
@@ -265,7 +272,8 @@ public class CoMeth {
             "Buy and sell",
             "Education",
             "Jobs",
-            "Queries"*/
+            "Queries"
+            "Exhibitions"*/
 
 
         //return value for key
@@ -303,6 +311,9 @@ public class CoMeth {
 
             case "queries":
                 return getApplicationContext().getString(R.string.cat_queries);
+
+            case "exhibitions":
+                return getApplicationContext().getString(R.string.cat_exhibitions);
 
             default:
                 Log.d(TAG, "getCatValue: default");
@@ -415,11 +426,8 @@ public class CoMeth {
 
         Log.d(TAG, "onResultStopLoading: ");
         if (postList.size() > 0) {
-
             this.stopLoading(progressDialog, swipeRefreshLayout);
-
         }
-
     }
 
     public void onResultStopLoading(List<Posts> postList,
@@ -427,11 +435,8 @@ public class CoMeth {
 
         Log.d(TAG, "onResultStopLoading: ");
         if (postList.size() > 0) {
-
             this.stopLoading(progressDialog);
-
         }
-
     }
 
     /**

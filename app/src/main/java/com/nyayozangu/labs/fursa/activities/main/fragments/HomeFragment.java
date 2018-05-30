@@ -113,7 +113,6 @@ public class HomeFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 Boolean reachedBottom = !homeFeedView.canScrollVertically(1);
                 if (reachedBottom) {
-
                     //clear post list
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     loadMorePosts();
@@ -126,10 +125,8 @@ public class HomeFragment extends Fragment {
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(10);
-        // TODO: 5/21/18 remove limit before clean tags
         //get all posts from the database
         loadPosts(firstQuery);
-
 
         //handle refresh
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -269,6 +266,7 @@ public class HomeFragment extends Fragment {
     //for loading more posts
     public void loadMorePosts() {
 
+        Log.d(TAG, "loadMorePosts: ");
         Query nextQuery = coMeth.getDb()
                 .collection("Posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -287,7 +285,7 @@ public class HomeFragment extends Fragment {
                         if (doc.getType() == DocumentChange.Type.ADDED) {
                             String postId = doc.getDocument().getId();
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-                            String postUserId = doc.getDocument().getString("user_id");
+                            String postUserId = post.getUser_id();
                             coMeth.getDb()
                                     .collection("Users")
                                     .document(postUserId)

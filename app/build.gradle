@@ -80,9 +80,7 @@ dependencies {
     // Include all the Twitter APIs
     compile 'com.twitter.sdk.android:twitter:3.1.1'
     // (Optional) Monetize using mopub
-    compile 'com.twitter.sdk.android:twitter-mopub:3.1.1'
-    //zooming
-    compile 'com.commit451:PhotoView:1.2.4'
+//    compile 'com.twitter.sdk.android:twitter-mopub:3.1.1'
     //expandable text view
     compile 'com.ms-square:expandableTextView:0.1.4'
     //mlkit
