@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa.activities.settings;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.nyayozangu.labs.fursa.BuildConfig;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
@@ -35,10 +37,11 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private CircleImageView userImage;
     private TextView usernameTextView, userBioTextView;
     private Button logoutButton, editProfileButton, myPostsButton, mySubsButton,
-            shareAppButton, feedbackButton, contactUsButton, privacyPolicyButton,
+            shareAppButton, aboutButton, contactUsButton, privacyPolicyButton,
             adminButton;
     private android.support.v7.widget.Toolbar toolbar;
     private ImageView editProfileIcon;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +50,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         toolbar = findViewById(R.id.settingsToolbar);
 
-        userImage = findViewById(R.id.settingsUserCirleImageView);
+        userImage = findViewById(R.id.settingsUserCircleImageView);
         usernameTextView = findViewById(R.id.settingsUsernameTextView);
         userBioTextView = findViewById(R.id.settingsUserBioTextView);
         logoutButton = findViewById(R.id.settingsLogoutButton);
@@ -58,7 +61,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         mySubsButton = findViewById(R.id.settingsSubsButton);
 
         shareAppButton = findViewById(R.id.settingsShareAppButton);
-        feedbackButton = findViewById(R.id.settingsFeedbackButton);
+        aboutButton = findViewById(R.id.settingsAboutButton);
         contactUsButton = findViewById(R.id.settingsContactButton);
         privacyPolicyButton = findViewById(R.id.settingsPolicyButton);
 
@@ -172,7 +175,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         myPostsButton.setOnClickListener(this);
         mySubsButton.setOnClickListener(this);
         shareAppButton.setOnClickListener(this);
-        feedbackButton.setOnClickListener(this);
+        aboutButton.setOnClickListener(this);
         contactUsButton.setOnClickListener(this);
         privacyPolicyButton.setOnClickListener(this);
         editProfileButton.setOnClickListener(this);
@@ -283,11 +286,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 getResources().getString(R.string.TERMS_VAL));
         startActivity(goToTerms);
     }
-
-    private void goToFeedback() {
-        startActivity(new Intent(this, FeedbackActivity.class));
-    }
-
     private void goToAccSet() {
         startActivity(new Intent(this, AccountActivity.class));
         finish();
@@ -325,10 +323,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
 
     private void goToMySubs() {
-
         //open mySubs Page
         startActivity(new Intent(SettingsActivity.this, MySubscriptionsActivity.class));
-
     }
 
     private void goToMyPosts() {
@@ -392,12 +388,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             case R.id.settingsShareAppButton:
                 shareApp();
                 break;
-            case R.id.settingsFeedbackButton:
-                if (coMeth.isLoggedIn()) {
-                    goToFeedback();
-                } else {
-                    goToLogin(getString(R.string.login_to_feedback));
-                }
+            case R.id.settingsAboutButton:
+                showVersionInfo();
                 break;
             case R.id.settingsContactButton:
                 sendEmail();
@@ -411,6 +403,25 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             default:
                 Log.d(TAG, "onClick: settings onclick at default");
         }
+    }
+
+    private void showVersionInfo() {
+        Log.d(TAG, "showVersionInfo: ");
+        AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(this);
+        Log.d(TAG, "showVersionInfo: aboutBuilder " + aboutBuilder.toString());
+        String versionName = BuildConfig.VERSION_NAME;
+        Log.d(TAG, "showVersionInfo: versionName " + versionName);
+        aboutBuilder.setTitle(getResources().getString(R.string.app_name) + " " + versionName)
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_info_grey))
+                .setMessage(getResources().getString(R.string.UPDATE_INFO))
+                .setPositiveButton(getResources().getString(R.string.close_text),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                .show();
     }
 
     private void shareApp() {
@@ -430,5 +441,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
                 "mailto", getString(R.string.family_email), null));
         startActivity(Intent.createChooser(emailIntent, "Contact us"));
+    }
+
+    private void showProgress(String message) {
+
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+
     }
 }

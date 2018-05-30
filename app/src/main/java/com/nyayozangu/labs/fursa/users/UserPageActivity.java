@@ -25,6 +25,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserPageActivity extends AppCompatActivity implements View.OnClickListener {
 
+    // TODO: 5/30/18 add suer posts
+    // TODO: 5/30/18 delete user posts page
+    // TODO: 5/30/18 add curr user subs
+    // TODO: 5/30/18 delte my subs activity
+
     private static final String TAG = "Sean";
     private TextView usernameField, userBioField, userPostsCountField;
     private CircleImageView userImageView;

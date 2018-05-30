@@ -28,8 +28,6 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -440,49 +438,21 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     private void showUpdateDialog() {
         Log.d(TAG, "showUpdateDialog: ");
-        String currentVersionCode = String.valueOf(BuildConfig.VERSION_CODE);
-        Log.d(TAG, "showUpdateDialog: \ncurrentVersionCode: " + currentVersionCode);
-        coMeth.getDb()
-                .collection("Updates")
-                .document(currentVersionCode)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            handleUpdatesDialog(documentSnapshot);
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to get update info: " + e.getMessage());
-                    }
-                });
-    }
-
-    private void handleUpdatesDialog(DocumentSnapshot documentSnapshot) {
-        Log.d(TAG, "handleUpdatesDialog: ");
-        if (documentSnapshot.get("info") != null) {
-            if (documentSnapshot.get("info") != null) {
-                String updateInfo = documentSnapshot.get("info").toString();
-                AlertDialog.Builder updatesBuilder =
-                        new AlertDialog.Builder(MainActivity.this);
-                updatesBuilder.setTitle(getResources().getString(R.string.on_this_update_text))
-                        .setIcon(getResources().getDrawable(R.drawable.ic_action_updates))
-                        .setMessage(updateInfo)
-                        .setPositiveButton(getResources().getString(R.string.ok_text),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                })
-                        .setCancelable(false)
-                        .show();
-            }
-        }
+        AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(this);
+        Log.d(TAG, "showVersionInfo: aboutBuilder " + aboutBuilder.toString());
+        String versionName = BuildConfig.VERSION_NAME;
+        Log.d(TAG, "showVersionInfo: versionName " + versionName);
+        aboutBuilder.setTitle(getResources().getString(R.string.app_name) + " " + versionName)
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_info_grey))
+                .setMessage(getResources().getString(R.string.UPDATE_INFO))
+                .setPositiveButton(getResources().getString(R.string.close_text),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                .show();
     }
 
     private void goToLogin(String message) {
@@ -625,7 +595,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     }
 
     private void showSnack(String message) {
-        Snackbar.make(findViewById(R.id.main_activity_layout),
+        Snackbar.make(findViewById(R.id.mainSnack),
                 message, Snackbar.LENGTH_LONG).show();
     }
 

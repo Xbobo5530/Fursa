@@ -50,8 +50,8 @@ import id.zelory.compressor.Compressor;
 
 public class AccountActivity extends AppCompatActivity {
 
+    // TODO: 5/30/18 bio does not save
 
-    // TODO: 4/29/18 user image place holder does not load
     private static final String TAG = "Sean";
     Bitmap compressedImageFile;
     private CoMeth coMeth = new CoMeth();

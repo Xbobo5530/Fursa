@@ -212,11 +212,18 @@
     <string name="term_status_name">termsStatus</string>
     <string name="false_value">false</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="accept_the_terms_text">I accept the terms of agreement</string>
     <string name="TERMS_VAL">terms</string>
     <string name="enter_password_hint">Enter your login password</string>
     <string name="enter_login_details_hint">Enter your login details to login</string>
+    <string name="about_text">About</string>
+    <string name="UPDATE_INFO">
+        Thank you for updating.
+        \nNew in this version:
+        \n- Scroll to top by tapping the navigation bar icons.
+        \n- Added about section under settings
+        \nHope you enjoy your experience with Fursa!
+    </string>
+    <string name="close_text">Close</string>
 
 </resources>
