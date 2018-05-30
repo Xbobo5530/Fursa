@@ -18,29 +18,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.nyayozangu.labs.fursa.BuildConfig;
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.ViewImageActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
-import com.nyayozangu.labs.fursa.users.Users;
-
-import de.hdodenhof.circleimageview.CircleImageView;
+import com.nyayozangu.labs.fursa.users.UserPageActivity;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    private CircleImageView userImage;
+    private ImageView userImage;
     private TextView usernameTextView, userBioTextView;
-    private Button logoutButton, editProfileButton, myPostsButton, mySubsButton,
+    private Button logoutButton, myProfileButton,
             shareAppButton, aboutButton, contactUsButton, privacyPolicyButton,
             adminButton;
     private android.support.v7.widget.Toolbar toolbar;
-    private ImageView editProfileIcon;
+    private ImageView myProfileIcon;
     private ProgressDialog progressDialog;
 
     @Override
@@ -50,16 +46,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         toolbar = findViewById(R.id.settingsToolbar);
 
-        userImage = findViewById(R.id.settingsUserCircleImageView);
-        usernameTextView = findViewById(R.id.settingsUsernameTextView);
-        userBioTextView = findViewById(R.id.settingsUserBioTextView);
-        logoutButton = findViewById(R.id.settingsLogoutButton);
-        editProfileButton = findViewById(R.id.settingsEditProfileButton);
-        editProfileIcon = findViewById(R.id.settingsEditImageView);
-
-        myPostsButton = findViewById(R.id.settingsPostsButton);
-        mySubsButton = findViewById(R.id.settingsSubsButton);
-
+        userImage = findViewById(R.id.settingsImageView);
+        myProfileIcon = findViewById(R.id.settingsMyProfileImageView);
+        myProfileButton = findViewById(R.id.settingsMyProfileButton);
         shareAppButton = findViewById(R.id.settingsShareAppButton);
         aboutButton = findViewById(R.id.settingsAboutButton);
         contactUsButton = findViewById(R.id.settingsContactButton);
@@ -78,107 +67,24 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-        //handle logout
-        if (coMeth.isLoggedIn()) {
-
-            logoutButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Log.d(TAG, "onClick: at onclick login");
-                    //confirm sign out
-                    confirmSignOut();
-                }
-            });
-        } else {
-            //user is signed out
-            logoutButton.setText(getString(R.string.login_text));
-            logoutButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //go to log in page
-                    goToLogin(getString(R.string.login_text));
-                }
-            });
-        }
-
         //set user details
         //check is user is logged in
         if (coMeth.isLoggedIn()) {
             //get current user is
-            final String userId = coMeth.getUid();
-            coMeth.getDb()
-                    .collection("Users")
-                    .document(userId)
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                //get object
-                                Users user = documentSnapshot.toObject(Users.class);
-                                //set name
-                                String username = user.getName();
-                                usernameTextView.setText(username);
-                                //set bio
-                                String bio = user.getBio();
-                                if (bio != null) {
-                                    userBioTextView.setText(bio);
-                                } else {
-                                    Log.d(TAG, "error: no bio");
-                                    userBioTextView.setVisibility(View.GONE);
-                                }
-                                //set image
-                                try {
-                                    final String userProfileImageDownloadUrl = user.getImage();
-
-                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                            userProfileImageDownloadUrl,
-                                            userImage);
-
-                                    //open profile image
-                                    userImage.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-
-                                            Intent userImageIntent = new Intent(
-                                                    SettingsActivity.this, ViewImageActivity.class);
-                                            userImageIntent.putExtra("imageUrl", userProfileImageDownloadUrl);
-                                            startActivity(userImageIntent);
-
-                                        }
-                                    });
-
-                                } catch (NullPointerException userImageException) {
-                                    //user image is null
-                                    Log.e(TAG, "onEvent: ", userImageException);
-                                }
-
-                            } else {
-                                Log.d(TAG, "user does not exist");
-                                // TODO: 5/21/18 code review
-                                userImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
-                            }
-                        }
-                    });
+            String userId = coMeth.getUid();
+            //show view profile button
+            myProfileButton.setText(getResources().getString(R.string.my_prifile_text));
         } else {
-
             //user is not logged in
-            usernameTextView.setVisibility(View.GONE);
-            userBioTextView.setText(getString(R.string.not_logged_in_text));
-            userImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
-            editProfileButton.setVisibility(View.INVISIBLE); //hide the edit profile button
-            editProfileIcon.setVisibility(View.GONE); //hide the edit profile icon
+            myProfileButton.setText(getResources().getString(R.string.login_text));
         }
 
         //handle other button clicks
-        myPostsButton.setOnClickListener(this);
-        mySubsButton.setOnClickListener(this);
         shareAppButton.setOnClickListener(this);
         aboutButton.setOnClickListener(this);
         contactUsButton.setOnClickListener(this);
         privacyPolicyButton.setOnClickListener(this);
-        editProfileButton.setOnClickListener(this);
+        myProfileButton.setOnClickListener(this);
 
         //disable access to admin to release version
         /*privacyPolicyButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -286,8 +192,11 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 getResources().getString(R.string.TERMS_VAL));
         startActivity(goToTerms);
     }
-    private void goToAccSet() {
-        startActivity(new Intent(this, AccountActivity.class));
+
+    private void goToUserPage() {
+        Intent goToUserPageIntent = new Intent(this, UserPageActivity.class);
+        goToUserPageIntent.putExtra("userId", coMeth.getUid());
+        startActivity(goToUserPageIntent);
         finish();
     }
 
@@ -321,46 +230,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         finish();
     }
 
-
-    private void goToMySubs() {
-        //open mySubs Page
-        startActivity(new Intent(SettingsActivity.this, MySubscriptionsActivity.class));
-    }
-
-    private void goToMyPosts() {
-        //open the my posts page
-        Intent goToMyPostsIntent = new Intent(SettingsActivity.this, UserPostsActivity.class);
-        goToMyPostsIntent.putExtra("userId", coMeth.getUid());
-        startActivity(goToMyPostsIntent);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-
-        //handle logout
-        if (coMeth.isLoggedIn()) {
-            logoutButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    confirmSignOut();
-                }
-            });
-        } else {
-            //user is signed out
-            logoutButton.setText(getString(R.string.login_text));
-            logoutButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //go to log in page
-                    goToLogin(getString(R.string.login_text));
-                }
-            });
-        }
-
-    }
-
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.settingsLayout),
                 message, Snackbar.LENGTH_LONG).show();
@@ -371,20 +240,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         switch (v.getId()) {
 
-            case R.id.settingsPostsButton:
-                if (coMeth.isLoggedIn()) {
-                    goToMyPosts();
-                } else {
-                    goToLogin(getString(R.string.login_to_view_post_text));
-                }
-                break;
-            case R.id.settingsSubsButton:
-                if (coMeth.isLoggedIn()) {
-                    goToMySubs();
-                } else {
-                    goToLogin(getString(R.string.login_to_view_subs_text));
-                }
-                break;
             case R.id.settingsShareAppButton:
                 shareApp();
                 break;
@@ -397,8 +252,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             case R.id.settingsPolicyButton:
                 goToPrivacyPolicy();
                 break;
-            case R.id.settingsEditProfileButton:
-                goToAccSet();
+            case R.id.settingsMyProfileButton:
+                if (coMeth.isLoggedIn()) {
+                    goToUserPage();
+                } else {
+                    goToLogin(getResources().getString(R.string.login_text));
+                }
                 break;
             default:
                 Log.d(TAG, "onClick: settings onclick at default");
@@ -414,13 +273,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         aboutBuilder.setTitle(getResources().getString(R.string.app_name) + " " + versionName)
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_info_grey))
                 .setMessage(getResources().getString(R.string.UPDATE_INFO))
-                .setPositiveButton(getResources().getString(R.string.close_text),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
                 .show();
     }
 

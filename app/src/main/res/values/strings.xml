@@ -227,5 +227,9 @@
     <string name="close_text">Close</string>
     <string name="cat_exhibitions">Exhibitions</string>
     <string name="CATEGORIES_VAL">categories</string>
+    <string name="sub_cats_text">Subscribed categories</string>
+    <string name="NOTIFY_VAL">notify</string>
+    <string name="logged_out_text">You are now logged out</string>
+    <string name="my_prifile_text">My profile</string>
 
 </resources>

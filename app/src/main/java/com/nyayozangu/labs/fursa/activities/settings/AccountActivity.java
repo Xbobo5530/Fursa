@@ -368,10 +368,9 @@ public class AccountActivity extends AppCompatActivity {
             imageUrl = downloadUri.toString();
         }
 
+        //update user bio
+        usersMap.put("bio", userBio);
 
-        if (userBio != null && userBio.isEmpty()) {
-            usersMap.put("bio", userBio);
-        }
         if (imageUrl != null) {
             usersMap.put("image", imageUrl);
         }

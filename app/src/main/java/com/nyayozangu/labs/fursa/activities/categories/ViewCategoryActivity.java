@@ -668,7 +668,6 @@ ViewCategoryActivity extends AppCompatActivity {
                             }
                         }
                     });
-
                 }
             }
 

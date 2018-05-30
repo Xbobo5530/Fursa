@@ -37,65 +37,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/settingsUserBioTextView"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp"
+                <ImageView
+                    android:id="@+id/settingsImageView"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:hint="@string/user_bio_sett_textview_hint"
-                    android:textAlignment="viewStart"
-                    android:textSize="14sp"
-                    app:layout_constraintBottom_toTopOf="@+id/settingsLogoutButton"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/settingsUserCircleImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/settingsUsernameTextView" />
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/settingsUserCircleImageView"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/appiconshadow" />
 
-                <TextView
-                    android:id="@+id/settingsUsernameTextView"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
-                    android:hint="@string/username_sett_textview_hint"
-                    android:textAlignment="viewStart"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/settingsUserCircleImageView"
-                    app:layout_constraintTop_toTopOf="parent" />
-
                 <Button
-                    android:id="@+id/settingsLogoutButton"
-                    style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@android:color/transparent"
-                    android:text="@string/logout_sett_button"
-                    android:textAlignment="viewStart"
-                    android:textAllCaps="false"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/settingsUserCircleImageView" />
-
-                <Button
-                    android:id="@+id/settingsEditProfileButton"
+                    android:id="@+id/settingsMyProfileButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -108,99 +63,25 @@
                     android:textAllCaps="false"
                     android:textColor="@color/colorAccent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/settingsLogoutButton"
-                    app:layout_constraintStart_toEndOf="@+id/settingsEditImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/settingsUserCircleImageView" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/settingsMyProfileImageView"
+                    app:layout_constraintTop_toBottomOf="@+id/settingsImageView"
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:text="My profile" />
 
                 <ImageView
-                    android:id="@+id/settingsEditImageView"
+                    android:id="@+id/settingsMyProfileImageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/settingsUserCircleImageView"
-                    app:srcCompat="@drawable/ic_action_edit_dark" />
-            </android.support.constraint.ConstraintLayout>
-
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/settingsOtherSettings"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settingsAccountCard">
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/settingsSubsButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@android:color/transparent"
-                    android:text="@string/my_subscriptions_sett_button"
-                    android:textAlignment="viewStart"
-                    android:textAllCaps="false"
-                    android:textColor="@color/colorAccent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageView4"
-                    app:layout_constraintTop_toBottomOf="@+id/settingsPostsButton" />
-
-                <Button
-                    android:id="@+id/settingsPostsButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:background="@android:color/transparent"
-                    android:text="@string/my_posts_sett_button"
-                    android:textAlignment="viewStart"
-                    android:textAllCaps="false"
-                    android:textColor="@color/colorAccent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageView3"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:id="@+id/imageView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/settingsPostsButton"
+                    app:layout_constraintBottom_toBottomOf="@+id/settingsMyProfileButton"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_action_posts" />
-
-                <ImageView
-                    android:id="@+id/imageView4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/settingsSubsButton"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/settingsPostsButton"
-                    app:srcCompat="@drawable/ic_action_subscriptions" />
-
+                    app:layout_constraintTop_toTopOf="@+id/settingsMyProfileButton"
+                    app:srcCompat="@drawable/ic_action_person_placeholder" />
             </android.support.constraint.ConstraintLayout>
+
 
         </android.support.v7.widget.CardView>
 
@@ -211,11 +92,11 @@
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             app:layout_constraintBottom_toTopOf="@+id/adminButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settingsOtherSettings">
+            app:layout_constraintTop_toBottomOf="@+id/settingsAccountCard">
 
 
             <android.support.constraint.ConstraintLayout
@@ -226,7 +107,7 @@
                     android:id="@+id/settingsContactButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:background="@android:color/transparent"
                     android:text="@string/contact_us_sett_button"
@@ -241,7 +122,7 @@
                     android:id="@+id/settingsPolicyButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:background="@android:color/transparent"
                     android:text="@string/privacy_policy_sett_button"
@@ -257,7 +138,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:background="@android:color/transparent"
                     android:text="@string/about_text"
@@ -273,11 +154,11 @@
                     android:id="@+id/settingsShareAppButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:background="@android:color/transparent"
-                    android:text="Share with friends"
+                    android:text="@string/share_with_friends_text"
                     android:textAlignment="textStart"
                     android:textAllCaps="false"
                     android:textColor="@color/colorAccent"
@@ -290,7 +171,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintBottom_toBottomOf="@+id/settingsShareAppButton"
                     app:layout_constraintStart_toStartOf="parent"
@@ -302,7 +183,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintBottom_toBottomOf="@+id/settingsPolicyButton"
                     app:layout_constraintStart_toStartOf="parent"
@@ -314,7 +195,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintBottom_toTopOf="@+id/settingsPolicyButton"
                     app:layout_constraintStart_toStartOf="parent"
@@ -326,7 +207,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
                     app:layout_constraintBottom_toBottomOf="@+id/settingsAboutButton"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/settingsAboutButton"
