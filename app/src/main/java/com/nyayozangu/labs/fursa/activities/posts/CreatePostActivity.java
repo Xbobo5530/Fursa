@@ -1078,7 +1078,7 @@ public class CreatePostActivity extends AppCompatActivity {
             postMap.put("categories", catsStringsArray);
         }
         //create tags
-        String titleDesc = title + " " + desc;
+        String titleDesc = (title + " " + desc).replaceAll("\\s+", " ");
         if (titleDesc.contains("#")) {
             Log.d(TAG, "handleMap: has #");
             int hashPos = titleDesc.indexOf("#");
