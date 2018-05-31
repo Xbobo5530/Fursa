@@ -98,6 +98,8 @@ public class ViewPostActivity extends AppCompatActivity {
 
         MenuItem editPost = menu.findItem(R.id.editMenuItem);
         MenuItem deletePost = menu.findItem(R.id.deleteMenuItem);
+        MenuItem postStats = menu.findItem(R.id.postStatsMenuItem);
+        MenuItem promotePost = menu.findItem(R.id.promoteMenuItem);
 
         if (coMeth.isConnected()) {
             if (coMeth.isLoggedIn()) {
@@ -108,17 +110,23 @@ public class ViewPostActivity extends AppCompatActivity {
                 if (currentUserId.equals(postUserId)) {
                     editPost.setVisible(true);
                     deletePost.setVisible(true);
-                } else if (hasAdminAccess()) {
+                    postStats.setVisible(true);
+                    promotePost.setVisible(false); // TODO: 5/31/18 remove on launch
+                } /*else if (hasAdminAccess()) {
                     editPost.setVisible(true);
                     deletePost.setVisible(true);
-                } else {
+                }*/ else {
                     editPost.setVisible(false);
                     deletePost.setVisible(false);
+                    postStats.setVisible(false);
+                    promotePost.setVisible(false); // TODO: 5/31/18 remove on launch
                 }
             }
         } else {
             editPost.setVisible(false);
             deletePost.setVisible(false);
+            postStats.setVisible(false);
+            promotePost.setVisible(false); // TODO: 5/31/18 remove on launch
         }
         return true;
     }
@@ -163,22 +171,33 @@ public class ViewPostActivity extends AppCompatActivity {
                     goToLogin(getString(R.string.login_to_report));
                 }
                 break;
-
+            case R.id.postStatsMenuItem:
+                showPostStats();
+                break;
+            case R.id.promoteMenuItem:
+                goToPromote();
+                break;
             case R.id.editMenuItem:
                 //open edit post
                 goToEdit();
                 break;
-
             case R.id.deleteMenuItem:
                 //handle delete post
                 deletePost(postId);
                 break;
-
             default:
                 break;
         }
 
         return true;
+    }
+
+    private void goToPromote() {
+        // TODO: 5/31/18 go to promote page
+    }
+
+    private void showPostStats() {
+        // TODO: 5/31/18 show stats for current post
     }
 
     private void showReportDialog() {
