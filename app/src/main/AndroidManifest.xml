@@ -163,7 +163,6 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_my_posts"
             android:theme="@style/AppTheme" />
-        <activity android:name=".activities.settings.MySubscriptionsActivity" />
 
         <service android:name=".notifications.MyFirebaseMessagingService">
             <intent-filter>

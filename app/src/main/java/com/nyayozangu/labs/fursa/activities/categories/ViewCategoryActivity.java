@@ -40,8 +40,8 @@ import com.nyayozangu.labs.fursa.activities.main.SearchableActivity;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
-import com.nyayozangu.labs.fursa.activities.settings.MySubscriptionsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
@@ -175,7 +175,7 @@ ViewCategoryActivity extends AppCompatActivity {
                                             "\ncreating short link task failed\n" +
                                             task.getException());
                                     coMeth.stopLoading(progressDialog);
-                                    showSnack(getString(R.string.failed_to_share_text));
+                                    showNoActionSnack(getString(R.string.failed_to_share_text));
                                 }
                             }
                         });
@@ -230,7 +230,7 @@ ViewCategoryActivity extends AppCompatActivity {
         } else {
 
             //user is not connected to internet
-            showSnack(getString(R.string.failed_to_connect_text));
+            showNoActionSnack(getString(R.string.failed_to_connect_text));
 
         }
 
@@ -280,7 +280,8 @@ ViewCategoryActivity extends AppCompatActivity {
                                             FirebaseMessaging.getInstance().subscribeToTopic(currentCat);
                                             Log.d(TAG, "user subscribed to topic {CURRENT CAT}");
                                             //notify user
-                                            showSnack("Subscribed to " + getSupportActionBar().getTitle());
+                                            showSnack(getString(R.string.sub_to_text) +
+                                                    getSupportActionBar().getTitle());
 
                                         } else {
 
@@ -311,7 +312,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 } else {
 
                     //user is not connected to internet
-                    showSnack(getString(R.string.failed_to_connect_text));
+                    showNoActionSnack(getString(R.string.failed_to_connect_text));
 
                 }
 
@@ -355,6 +356,15 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    /**
+     * show a snackBar without the action button
+     */
+    private void showNoActionSnack(String message) {
+        Snackbar.make(findViewById(R.id.viewCatLayout),
+                message, Snackbar.LENGTH_LONG)
+                .show();
     }
 
     /**
@@ -895,18 +905,24 @@ ViewCategoryActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        //go to my subscriptions
-                        goToMySubscriptions();
+                        //go to userPage to view subscriptions
+                        goToUserPage();
 
                     }
                 })
                 .show();
     }
 
-    // TODO: 5/30/18 move mySubscriptions to userPostPage
-    private void goToMySubscriptions() {
-        startActivity(new Intent(
-                ViewCategoryActivity.this, MySubscriptionsActivity.class));
+    /**
+     * open the user page for current user
+     */
+    private void goToUserPage() {
+        Intent goToUserPageIntent =
+                new Intent(ViewCategoryActivity.this, UserPageActivity.class);
+        goToUserPageIntent.putExtra(
+                getResources().getString(R.string.USER_ID_NAME), coMeth.getUid());
+        startActivity(goToUserPageIntent);
+        finish();
 
     }
 
