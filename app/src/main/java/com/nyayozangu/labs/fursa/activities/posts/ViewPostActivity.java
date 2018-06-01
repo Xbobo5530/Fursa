@@ -92,8 +92,9 @@ public class ViewPostActivity extends AppCompatActivity {
     private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags;
 
     private boolean isAdmin = false;
-    private int likesCount;
-    private int comments;
+    private int likes = 0;
+    private int comments = 0;
+    private int views = 0;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -143,8 +144,9 @@ public class ViewPostActivity extends AppCompatActivity {
     private boolean isAdmin() {
         // TODO: 6/1/18 use string resources 
         if (getIntent() != null &&
-                getIntent().getStringExtra("permission") != null) {
-            if (getIntent().getStringExtra("permission").equals("admin")) {
+                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME)) != null) {
+            if (getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME))
+                    .equals(getResources().getString(R.string.ADMIN_VAL))) {
                 isAdmin = true;
             }
         }
@@ -200,7 +202,24 @@ public class ViewPostActivity extends AppCompatActivity {
     }
 
     private void showPostStats() {
-        // TODO: 5/31/18 show stats for current post
+        Log.d(TAG, "showPostStats: ");
+        AlertDialog.Builder statsBuilder = new AlertDialog.Builder(this);
+        statsBuilder.setTitle(R.string.post_stats_text)
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_stats))
+                .setMessage(
+                        getResources().getString(R.string.likes_text) + ": " + likes + "\n" +
+                                getResources().getString(R.string.comments_text) + ": " + comments + "\n" +
+                                getResources().getString(R.string.views_text) + ": " + views
+                )
+                .setPositiveButton(getResources().getString(R.string.ok_text),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                .show();
+
     }
 
     private void showReportDialog() {
@@ -392,15 +411,16 @@ public class ViewPostActivity extends AppCompatActivity {
 
     private boolean hasAdminAccess() {
         return getIntent() != null &&
-                getIntent().getStringExtra("permission") != null &&
-                getIntent().getStringExtra("permission").equals("admin") &&
+                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME)) != null &&
+                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME))
+                        .equals(getResources().getString(R.string.ADMIN_VAL)) &&
                 isAdmin();
     }
 
     private void goToEdit() {
 
         Intent editIntent = new Intent(ViewPostActivity.this, CreatePostActivity.class);
-        editIntent.putExtra("editPost", postId);
+        editIntent.putExtra(getResources().getString(R.string.EDIT_POST_NAME), postId);
         startActivity(editIntent);
         finish();
     }
@@ -510,9 +530,9 @@ public class ViewPostActivity extends AppCompatActivity {
                             Log.d(TAG, "post has" + likes + " likes");
                             //set likes to likesTextView
                             likesCountText.setText(Integer.toString(likes));
-                            likesCount = likes;
+                            ViewPostActivity.this.likes = likes;
                             //update post likes
-                            updatePostLikes(likesCount);
+                            updatePostLikes(ViewPostActivity.this.likes);
                         }
                     }
                 });
@@ -1051,6 +1071,11 @@ public class ViewPostActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * update the number of comments on a post
+     *
+     * @param comments the number of comments in post
+     */
     private void updatePostComments(int comments) {
         Log.d(TAG, "updatePostComments: ");
         //create a comments map
@@ -1075,11 +1100,16 @@ public class ViewPostActivity extends AppCompatActivity {
                 });
     }
 
-    private void updatePostLikes(int likesCount) {
+    /**
+     * update the number of likes of post
+     *
+     * @param likes the number of likes of post
+     */
+    private void updatePostLikes(int likes) {
         Log.d(TAG, "updatePostLikes: ");
         //create a Map
         Map<String, Object> likesMap = new HashMap<>();
-        likesMap.put("likes", likesCount);
+        likesMap.put("likes", likes);
         coMeth.getDb()
                 .collection("Posts")
                 .document(postId)
@@ -1099,6 +1129,10 @@ public class ViewPostActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * save current post to current user
+     * @param currentUserId the postId of post to be saved
+     * */
     private void savePost(String currentUserId) {
         Map<String, Object> savesMap = new HashMap<>();
         savesMap.put("timestamp", FieldValue.serverTimestamp());
@@ -1248,6 +1282,9 @@ public class ViewPostActivity extends AppCompatActivity {
                             postTitle = post.getTitle();
                             Log.d(TAG, "onSuccess: post title is " + postTitle);
 
+                            //update views
+                            updateViews(post);
+
                         } else {
 
                             //post does not exist
@@ -1260,11 +1297,81 @@ public class ViewPostActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to get post");
+                        Log.d(TAG, "onFailure: failed to get post\n" + e.getMessage());
                     }
                 });
         Log.d(TAG, "getPostTitle: post title is " + postTitle);
         return postTitle;
+
+    }
+
+    private void updateViews(Posts post) {
+        Log.d(TAG, "updateViews: ");
+        views = post.getViews() + 1;
+        //update views
+        Map<String, Object> viewsMap = new HashMap<>();
+        viewsMap.put("views", views);
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .update(viewsMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: views updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
+                    }
+                });
+
+        /*if (post.getViews() != 0){
+            views = post.getViews() + 1;
+            //update views
+            Map<String, Object> viewsMap = new HashMap<>();
+            viewsMap.put("views", views);
+            coMeth.getDb()
+                    .collection("Posts")
+                    .document(postId)
+                    .update(viewsMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "onSuccess: views updated");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
+                        }
+                    });
+        }else{
+            //post has no views
+            //set views to 1
+            views = 1;
+            Map<String, Object> viewsMap = new HashMap<>();
+            viewsMap.put("views", views);
+            coMeth.getDb()
+                    .collection("Posts")
+                    .document(postId)
+                    .update(viewsMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "onSuccess: views updated");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
+                        }
+                    });
+        }*/
 
     }
 

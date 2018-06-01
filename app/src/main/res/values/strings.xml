@@ -234,5 +234,11 @@
     <string name="sub_to_text">Subscribed to</string>
     <string name="USER_ID_NAME">userId</string>
     <string name="verification_email_message_text">A verification email has been sent to your email address. Login after verifying your email to create posts.</string>
+    <string name="post_stats_text">Post stats</string>
+    <string name="likes_text">Likes</string>
+    <string name="views_text">Views</string>
+    <string name="PERMISSION_NAME">permission</string>
+    <string name="ADMIN_VAL">admin</string>
+    <string name="EDIT_POST_NAME">editPost</string>
 
 </resources>
