@@ -19,6 +19,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.nyayozangu.labs.fursa.BuildConfig;
 import com.nyayozangu.labs.fursa.R;
@@ -278,15 +281,55 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private void shareApp() {
         Log.d(TAG, "Sharing app");
-        //create post url
+
+        //show loading
+        showProgress(getResources().getString(R.string.loading_text));
+        //create app url
         String appUrl = getResources().getString(R.string.app_download_url);
-        String fullShareMsg = "Download the Fursa app " +
-                "to view and share experiences and opportunities with friends\n" + appUrl;
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
-        startActivity(Intent.createChooser(shareIntent, "Share with"));
+        final String fullShareMsg = "Download the Fursa app and get to share experiences and opportunities with family and friends.\n" +
+                "Pakua app ya Fursa upate taarifa kuhusu Fursa mbalimbali kutoka kwa ndugu,jamaa na marafiki.";
+
+        Task<ShortDynamicLink> shortLinkTask =
+                FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse(appUrl))
+                        .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
+                        .setSocialMetaTagParameters(
+                                new DynamicLink.SocialMetaTagParameters.Builder()
+                                        .setTitle(getString(R.string.app_name))
+                                        .setDescription(fullShareMsg)
+                                        .setImageUrl(Uri.parse(getString(R.string.app_icon_url)))
+                                        .build())
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                if (task.isSuccessful()) {
+                                    Uri shortLink = task.getResult().getShortLink();
+                                    Uri flowchartLink = task.getResult().getPreviewLink();
+                                    Log.d(TAG, "onComplete: short link is: " + shortLink);
+
+                                    //show share dialog
+                                    String shareText = fullShareMsg + "\n" + shortLink;
+                                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                    shareIntent.setType("text/plain");
+                                    shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                                            getResources().getString(R.string.app_name));
+                                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+                                    coMeth.stopLoading(progressDialog);
+                                    startActivity(Intent.createChooser(
+                                            shareIntent, getString(R.string.share_with_text)));
+                                } else {
+                                    Log.d(TAG, "onComplete: " +
+                                            "\ncreating short link task failed\n" +
+                                            task.getException());
+                                    coMeth.stopLoading(progressDialog);
+                                    showSnack(getString(R.string.failed_to_share_text));
+                                }
+                            }
+                        });
+
+
+
     }
 
     private void sendEmail() {
