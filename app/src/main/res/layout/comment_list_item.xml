@@ -25,6 +25,7 @@
         android:layout_marginStart="8dp"
         android:autoLink="all"
         android:text="@string/comment_text"
+        android:textIsSelectable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/commentUserImage"
