@@ -14,8 +14,7 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
     public String user_id, image_url, thumb_url, desc, title, price, image_text, image_labels;
     public ArrayList<String> location, contact_details, categories, tags;
     public Date timestamp, event_date;
-
-
+    public int likes, comments;
 
     //empty constructor
     public Posts() {
@@ -26,7 +25,7 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
                  String image_text, String desc, String title, String price,
                  Date timestamp, Date event_date,
                  ArrayList<String> categories, ArrayList<String> contact_details,
-                 ArrayList<String> location, ArrayList<String> tags) {
+                 ArrayList<String> location, ArrayList<String> tags, int likes, int comments) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
@@ -42,6 +41,8 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
         this.timestamp = timestamp;
         this.contact_details = contact_details;
         this.tags = tags;
+        this.likes = likes;
+        this.comments = comments;
 
     }
 

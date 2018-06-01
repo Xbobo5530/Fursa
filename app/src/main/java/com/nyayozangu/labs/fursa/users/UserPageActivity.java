@@ -101,7 +101,6 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         catSubsIcon.setOnClickListener(this);
         logoutCard.setOnClickListener(this);
         logoutButton.setOnClickListener(this);
-
     }
 
     private void handleIntent() {
@@ -293,9 +292,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 break;
             default:
                 Log.d(TAG, "onClick: at user page click listener default");
-
         }
-
     }
 
     private void showCatsDialog() {

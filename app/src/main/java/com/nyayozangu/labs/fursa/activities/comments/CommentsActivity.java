@@ -44,7 +44,6 @@ import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
-import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
 import com.nyayozangu.labs.fursa.users.UserPageActivity;
@@ -702,10 +701,11 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                             //inform user email is sent
                             //close the
                             dialog.dismiss();
-                            AlertDialog.Builder logoutConfirmEmailBuilder = new AlertDialog.Builder(CommentsActivity.this);
+                            AlertDialog.Builder logoutConfirmEmailBuilder =
+                                    new AlertDialog.Builder(CommentsActivity.this);
                             logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
                                     .setIcon(R.drawable.ic_action_info_grey)
-                                    .setMessage("A verification email has been sent to your email address.\nLogin after verifying your email to create posts.")
+                                    .setMessage(R.string.verification_email_message_text)
                                     .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
@@ -713,7 +713,9 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                             //log use out
                                             //take user to login screen
                                             coMeth.signOut();
-                                            startActivity(new Intent(CommentsActivity.this, LoginActivity.class));
+                                            startActivity(
+                                                    new Intent(CommentsActivity.this,
+                                                            LoginActivity.class));
                                             finish();
 
                                         }
@@ -737,11 +739,20 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.commentsCurrentUserImageView:
                 //go to current user profile
-                startActivity(new Intent(CommentsActivity.this, SettingsActivity.class));
+                if (coMeth.isLoggedIn()) {
+                    goToUserPage(coMeth.getUid());
+                } else {
+                    goToLogin();
+                }
                 break;
             default:
                 Log.d(TAG, "onClick: at default");
         }
+    }
+
+    private void goToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 
     private void goToUserPage(String userId) {

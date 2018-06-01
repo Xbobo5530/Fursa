@@ -92,6 +92,8 @@ public class ViewPostActivity extends AppCompatActivity {
     private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags;
 
     private boolean isAdmin = false;
+    private int likesCount;
+    private int comments;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -139,6 +141,7 @@ public class ViewPostActivity extends AppCompatActivity {
      * false if current user is not admin
      */
     private boolean isAdmin() {
+        // TODO: 6/1/18 use string resources 
         if (getIntent() != null &&
                 getIntent().getStringExtra("permission") != null) {
             if (getIntent().getStringExtra("permission").equals("admin")) {
@@ -464,7 +467,7 @@ public class ViewPostActivity extends AppCompatActivity {
         catTextView = findViewById(R.id.viewPostCatTextView);
         catArray = new ArrayList<>();
         catKeys = new ArrayList<>();
-        flagsArray = new ArrayList();
+        flagsArray = new ArrayList<>();
         reportedItems = new ArrayList<String>();
         reportDetailsString = "";
         tags = new ArrayList<>();
@@ -507,6 +510,9 @@ public class ViewPostActivity extends AppCompatActivity {
                             Log.d(TAG, "post has" + likes + " likes");
                             //set likes to likesTextView
                             likesCountText.setText(Integer.toString(likes));
+                            likesCount = likes;
+                            //update post likes
+                            updatePostLikes(likesCount);
                         }
                     }
                 });
@@ -524,6 +530,8 @@ public class ViewPostActivity extends AppCompatActivity {
                             //post has likes
                             int numberOfComments = queryDocumentSnapshots.size();
                             commentsCountText.setText(Integer.toString(numberOfComments));
+                            comments = numberOfComments;
+                            updatePostComments(comments);
                         }
                     }
                 });
@@ -1041,6 +1049,54 @@ public class ViewPostActivity extends AppCompatActivity {
         });*/
 
 
+    }
+
+    private void updatePostComments(int comments) {
+        Log.d(TAG, "updatePostComments: ");
+        //create a comments map
+        Map<String, Object> commentsMap = new HashMap<>();
+        commentsMap.put("comments", comments);
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .update(commentsMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: post comments updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update post comments\n" +
+                                e.getMessage());
+                    }
+                });
+    }
+
+    private void updatePostLikes(int likesCount) {
+        Log.d(TAG, "updatePostLikes: ");
+        //create a Map
+        Map<String, Object> likesMap = new HashMap<>();
+        likesMap.put("likes", likesCount);
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .update(likesMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: likes updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update post likes\n" +
+                                e.getMessage());
+                    }
+                });
     }
 
     private void savePost(String currentUserId) {

@@ -233,5 +233,6 @@
     <string name="my_prifile_text">My profile</string>
     <string name="sub_to_text">Subscribed to</string>
     <string name="USER_ID_NAME">userId</string>
+    <string name="verification_email_message_text">A verification email has been sent to your email address. Login after verifying your email to create posts.</string>
 
 </resources>

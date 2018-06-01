@@ -1077,6 +1077,8 @@ public class CreatePostActivity extends AppCompatActivity {
         if (!catsStringsArray.isEmpty()) {
             postMap.put("categories", catsStringsArray);
         }
+
+        // TODO: 6/1/18 account for then # is in word (not begging or end)
         //create tags
         String titleDesc = (title + " " + desc).replaceAll("\\s+", " ");
         if (titleDesc.contains("#")) {
