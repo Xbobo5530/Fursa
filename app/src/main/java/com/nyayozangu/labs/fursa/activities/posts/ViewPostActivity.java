@@ -1302,9 +1302,13 @@ public class ViewPostActivity extends AppCompatActivity {
                 });
         Log.d(TAG, "getPostTitle: post title is " + postTitle);
         return postTitle;
-
     }
 
+    /**
+     * update the number of times a post is viewed
+     *
+     * @param post the Posts post that is being viewed
+     */
     private void updateViews(Posts post) {
         Log.d(TAG, "updateViews: ");
         views = post.getViews() + 1;
@@ -1327,52 +1331,6 @@ public class ViewPostActivity extends AppCompatActivity {
                         Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
                     }
                 });
-
-        /*if (post.getViews() != 0){
-            views = post.getViews() + 1;
-            //update views
-            Map<String, Object> viewsMap = new HashMap<>();
-            viewsMap.put("views", views);
-            coMeth.getDb()
-                    .collection("Posts")
-                    .document(postId)
-                    .update(viewsMap)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "onSuccess: views updated");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
-                        }
-                    });
-        }else{
-            //post has no views
-            //set views to 1
-            views = 1;
-            Map<String, Object> viewsMap = new HashMap<>();
-            viewsMap.put("views", views);
-            coMeth.getDb()
-                    .collection("Posts")
-                    .document(postId)
-                    .update(viewsMap)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "onSuccess: views updated");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
-                        }
-                    });
-        }*/
-
     }
 
     private void goToMain(String message) {

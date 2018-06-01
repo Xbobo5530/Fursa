@@ -706,11 +706,11 @@ ViewCategoryActivity extends AppCompatActivity {
 
             ///cat is popular
             Log.d(TAG, "filterCat: cat is " + category);
-            //open db and get post likes
-
-            processCounts(postId, post, "Likes");
-            processCounts(postId, post, "Saves");
-            processCounts(postId, post, "Comments");
+            //get post views
+            int views = post.getViews();
+            if (views >= 10) {
+                getFilteredPosts(post);
+            }
 
         } else {
 
