@@ -660,7 +660,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void showVerEmailDialog() {
-        android.app.AlertDialog.Builder emailVerBuilder = new android.app.AlertDialog.Builder(CommentsActivity.this);
+        android.app.AlertDialog.Builder emailVerBuilder =
+                new android.app.AlertDialog.Builder(CommentsActivity.this);
         emailVerBuilder.setTitle(R.string.email_ver_text)
                 .setIcon(R.drawable.ic_action_info_grey)
                 .setMessage(R.string.verify_to_comment_text)

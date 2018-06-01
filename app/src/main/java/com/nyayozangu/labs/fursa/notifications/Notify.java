@@ -124,8 +124,6 @@ public class Notify extends AsyncTask<String, String, Void> {
         }
 
         //create diff conditions for diff types of notifications
-
-
         switch (notifType) {
             case "COMMENTS":
                 info.put("title", "New Comments");   // Notification title

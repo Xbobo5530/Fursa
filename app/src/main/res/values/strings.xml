@@ -240,5 +240,6 @@
     <string name="PERMISSION_NAME">permission</string>
     <string name="ADMIN_VAL">admin</string>
     <string name="EDIT_POST_NAME">editPost</string>
+    <string name="reply_label">Reply</string>
 
 </resources>
