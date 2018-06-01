@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -116,6 +117,11 @@ public class Notify extends AsyncTask<String, String, Void> {
                                   String notifType,
                                   String extraInfo) throws JSONException, IOException {
         JSONObject info = new JSONObject();
+        //pass the currentUserIt
+        CoMeth coMeth = new CoMeth();
+        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+            info.put("userId", coMeth.getUid());
+        }
 
         //create diff conditions for diff types of notifications
 

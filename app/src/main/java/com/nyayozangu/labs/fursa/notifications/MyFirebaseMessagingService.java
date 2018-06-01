@@ -57,6 +57,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private String message;
     private String notifType;
     private String extraInfo;
+    private String userId;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -76,13 +77,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (data.get("extra") != null) {
                 extraInfo = data.get("extra").trim();
             }
+            if (data.get("userId") != null) {
+                userId = data.get("userId");
+            }
             Log.d(TAG, "onMessageReceived: Message Received: \n" +
                     "Title: " + title + "\n" +
                     "Message: " + message + "\n" +
                     "Notification type: " + notifType + "\n" +
                     "extraInfo: " + extraInfo);
 
-            if (!extraInfo.isEmpty()) {
+            if (!extraInfo.isEmpty() && !userId.equals(coMeth.getUid())) {
                 sendNotification(title, message, notifType, extraInfo);
             } else {
                 sendNotification(title, message, null, null);
@@ -114,7 +118,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     /**
      * sends the notification
-     *
      * @param title       the title of the notification
      * @param messageBody the message of the notification
      * @param extraInfo   the url to open when the notification is opened

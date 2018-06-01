@@ -48,7 +48,6 @@ import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -832,7 +831,8 @@ public class ViewPostActivity extends AppCompatActivity {
                             Log.d(TAG, "onEvent: glide exception " +
                                     glideException.getMessage());
                             //set placeholder image
-                            viewPostImage.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
+                            viewPostImage.setImageDrawable(
+                                    getResources().getDrawable(R.drawable.appiconshadow));
                         }
                         Log.d(TAG, "onEvent: image set");
                     } else {
@@ -888,7 +888,8 @@ public class ViewPostActivity extends AppCompatActivity {
                                         } else {
                                             //user has no image or thumb
                                             userImage.setImageDrawable(
-                                                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                                                    getResources().getDrawable(
+                                                            R.drawable.ic_action_person_placeholder));
                                             Log.d(TAG, "onEvent: placeholder user image set");
                                         }
                                         //set name
@@ -923,11 +924,9 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         ArrayList<String> categories = new ArrayList<>();
                         for (int i = 0; i < catKeys.size(); i++) {
-
                             //go through catKeys and get values
                             String catValue = coMeth.getCatValue(catKeys.get(i));
                             categories.add(catValue);
-
                         }
 
                         Log.d(TAG, "onEvent: categories are " + categories);
@@ -939,7 +938,6 @@ public class ViewPostActivity extends AppCompatActivity {
                             catArray.add(String.valueOf(categories.get(i)));
 
                         }
-                        Log.d(TAG, "onEvent: catArray is " + catArray);
                         catTextView.setText(catString.trim());
 
                     } else {
@@ -948,7 +946,6 @@ public class ViewPostActivity extends AppCompatActivity {
                     }
 
                     coMeth.stopLoading(progressDialog);
-
 
                 } else {
                     //post does not exist
@@ -995,11 +992,6 @@ public class ViewPostActivity extends AppCompatActivity {
         catLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Log.d(TAG, "onClick: " +
-                        "\ncatArray: " + catArray +
-                        "\ncatArray string array: " +
-                        Arrays.toString(catArray.toArray(new String[0])));
                 //open alert dialog
                 AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
                 catDialogBuilder.setTitle(getResources().getString(R.string.categories_text))
