@@ -197,7 +197,7 @@ public class CommentsRecyclerAdapter extends
         });
 
         //set animation
-        setAnimation(holder.itemView, position);
+//        setAnimation(holder.itemView, position);
 
     }
 
@@ -205,7 +205,7 @@ public class CommentsRecyclerAdapter extends
         // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition) {
 //            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
-            Animation animation = AnimationUtils.loadAnimation(context, R.anim.fall_down);
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.abc_fade_in);
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         }

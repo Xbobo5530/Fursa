@@ -3,7 +3,6 @@ package com.nyayozangu.labs.fursa.notifications;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
@@ -169,8 +168,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                     Log.d(TAG, "sendNotification: at default");
                     Intent noExtraNotifIntent = new Intent(this, MainActivity.class);
-                    noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    pendingIntent = PendingIntent.getActivity(this, notifId /* Request code */, noExtraNotifIntent,
+                    noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    pendingIntent = PendingIntent.getActivity(
+                            this, notifId /* Request code */, noExtraNotifIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     buildNotif(title, messageBody, null, notifId);
 
@@ -310,11 +311,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             int notifId) {
         Log.d(TAG, "buildNotif: ");
         defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        // TODO: 6/2/18 show notifications in a group
+        /*NotificationCompat.Builder groupBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_stat_notification)
+                        .setContentTitle(title)
+                        .setContentText(messageBody)
+                        .setGroupSummary(true)
+                        .setGroup(GROUP_KEY_FURSA)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
+                        .setContentIntent(pendingIntent);*/
+
+
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_notification)
                 .setContentTitle(title)
                 .setContentText(messageBody)
                 .setGroup(GROUP_KEY_FURSA)
+                .setGroupSummary(true)
                 .setColor(getResources().getColor(R.color.colorPrimaryDark))
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
@@ -322,8 +337,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setLargeIcon(BitmapFactory.decodeResource(
                         getResources(), R.mipmap.ic_launcher))
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(messageBody));
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -338,28 +352,33 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
 
-            if (notificationManager != null) {
 
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
 
-                NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+            // notificationId is a unique int for each notification that you must define
+            notificationManagerCompat.notify(notifId, notificationBuilder.build());
 
-                // notificationId is a unique int for each notification that you must define
-                notificationManagerCompat.notify(notifId /* ID of notification */, notificationBuilder.build());
-
-                Log.d(TAG, "buildNotif: notifying");
+            Log.d(TAG, "buildNotif: notifying");
 //                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
-            }
+
 
         } else {
 
-            notificationManager =
+
+            NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+//            manager.notify(createNotifId(), groupBuilder.build());
+            manager.notify(notifId, notificationBuilder.build());
+
+
+
+            /*notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
             if (notificationManager != null) {
 
                 Log.d(TAG, "buildNotif: notifying");
-                notificationManager.notify(notifId /* ID of notification */, notificationBuilder.build());
-            }
+                notificationManager.notify(notifId, notificationBuilder.build());
+            }*/
 
         }
     }

@@ -264,13 +264,28 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                     .document("comments")
                                     .collection("Comments")
                                     .document(postId)
-                                    .set(commentsMap);
-                            //subscribe user to topic
-                            Log.d(TAG, "onComplete: subscribing user to post");
-                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                            //notify subscribers
-                            Log.d(TAG, "onComplete: notifying user");
-                            new Notify().execute("comment_updates", postId);
+                                    .set(commentsMap)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            //comment has been posted
+                                            Log.d(TAG, "onComplete: subscribing user to post");
+                                            //subscribe user to topic
+                                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                                            //notify subscribers
+                                            Log.d(TAG, "onComplete: notifying user");
+                                            new Notify().execute("comment_updates", postId);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(TAG, "onFailure: failed to post comment\n" +
+                                                    e.getMessage());
+                                        }
+                                    });
+
+
 
                         } else {
 
