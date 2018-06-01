@@ -46,8 +46,6 @@ import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -696,7 +694,7 @@ ViewCategoryActivity extends AppCompatActivity {
             Log.d(TAG, "filterCat: cat is " + category);
             getFilteredPosts(post);
 
-            Collections.sort(postsList, new Comparator<Posts>() {
+            /*Collections.sort(postsList, new Comparator<Posts>() {
                 @Override
                 public int compare(Posts o1, Posts o2) {
                     Log.d(TAG, "compare: ");
@@ -706,7 +704,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         return 0;
                     }
                 }
-            });
+            });*/
 
         } else if (category.equals("popular")) {
 

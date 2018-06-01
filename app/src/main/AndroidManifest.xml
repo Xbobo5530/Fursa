@@ -93,6 +93,8 @@
             android:name=".activities.posts.ViewPostActivity"
             android:label="@string/view_post_text"
             android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -109,7 +111,9 @@
         <activity
             android:name=".activities.posts.CreatePostActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -145,6 +149,8 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_view_category"
             android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

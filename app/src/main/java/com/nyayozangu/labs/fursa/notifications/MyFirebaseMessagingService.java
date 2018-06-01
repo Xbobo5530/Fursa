@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,7 +33,10 @@ import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -102,8 +106,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (title != null && message != null) {
                 sendNotification(title, message, null, null);
             } else {
-                title = "Nyayo Zangu Store";
-                message = "Sharing experiences and opportunities";
+                title = getResources().getString(R.string.app_name);
+                message = getResources().getString(R.string.sharing_opp_text);
                 sendNotification(title, message, null, null);
             }
         } else {
@@ -118,9 +122,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     /**
      * sends the notification
-     * @param title       the title of the notification
+     * @param title the title of the notification
      * @param messageBody the message of the notification
-     * @param extraInfo   the url to open when the notification is opened
+     * @param extraInfo the url to open when the notification is opened
      */
     private void sendNotification(final String title,
                                   final String messageBody,
@@ -135,13 +139,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                     Intent commentsNotifIntent = new Intent(this, CommentsActivity.class);
                     commentsNotifIntent.putExtra("postId", extraInfo);
-                    commentsNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, commentsNotifIntent,
+                    commentsNotifIntent.addFlags(
+                            Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                    Intent.FLAG_ACTIVITY_NEW_TASK);
+                    pendingIntent = PendingIntent.getActivity(this,
+                            createNotifId() /* Request code */, commentsNotifIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
 
                     final ArrayList<Comments> commentsList = new ArrayList<>();
 
                     //pass comment details
+                    // TODO: 6/1/18 find better way of rerieveing the latest comment
                     coMeth.getDb()
                             .collection("Posts")
                             .document(extraInfo)
@@ -149,17 +158,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             .orderBy("timestamp", Query.Direction.DESCENDING)
                             .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                 @Override
-                                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-
+                                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                                    @Nullable FirebaseFirestoreException e) {
                                     if (!queryDocumentSnapshots.isEmpty()) {
-
                                         for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-
                                             if (doc.getType() == DocumentChange.Type.ADDED) {
-
                                                 Comments comment = doc.getDocument().toObject(Comments.class);
                                                 commentsList.add(comment);
-
                                             }
 
                                         }
@@ -215,7 +220,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Intent catsNotifIntent = new Intent(this, ViewCategoryActivity.class);
                     catsNotifIntent.putExtra("category", extraInfo);
                     catsNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, catsNotifIntent,
+                    pendingIntent = PendingIntent.getActivity(this, createNotifId() /* Request code */, catsNotifIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     buildNotif(title, messageBody, null);
                     break;
@@ -225,7 +230,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Intent likesNotifIntent = new Intent(this, ViewPostActivity.class);
                     likesNotifIntent.putExtra("postId", extraInfo);
                     likesNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, likesNotifIntent,
+                    pendingIntent = PendingIntent.getActivity(this, createNotifId() /* Request code */, likesNotifIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     buildNotif(title, messageBody, null);
                     break;
@@ -235,7 +240,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Log.d(TAG, "sendNotification: at default");
                     Intent noExtraNotifIntent = new Intent(this, MainActivity.class);
                     noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, noExtraNotifIntent,
+                    pendingIntent = PendingIntent.getActivity(this, createNotifId() /* Request code */, noExtraNotifIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     buildNotif(title, messageBody, null);
 
@@ -247,11 +252,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             noExtraNotifIntent.addFlags(
                     Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(
-                    this, 0 /* Request code */, noExtraNotifIntent,
+                    this, createNotifId() /* Request code */, noExtraNotifIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             buildNotif(title, messageBody, null);
         }
 
+    }
+
+    private int createNotifId() {
+        Log.d(TAG, "createNotifId: ");
+        Date date = new Date();
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss", Locale.US).format(date));
+        Log.d(TAG, "createNotifId: \nid is: " + id);
+        return id;
     }
 
     // TODO: 5/6/18 handle images on notifications
@@ -288,8 +301,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             if (notificationManager != null) {
 
+
+                NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+
+                // notificationId is a unique int for each notification that you must define
+                notificationManagerCompat.notify(createNotifId() /* ID of notification */, notificationBuilder.build());
+
                 Log.d(TAG, "buildNotif: notifying");
-                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+//                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
             }
 
         } else {
@@ -300,7 +319,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (notificationManager != null) {
 
                 Log.d(TAG, "buildNotif: notifying");
-                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+                notificationManager.notify(createNotifId() /* ID of notification */, notificationBuilder.build());
             }
 
         }
