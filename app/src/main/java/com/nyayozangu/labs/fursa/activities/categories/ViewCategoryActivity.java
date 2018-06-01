@@ -338,10 +338,13 @@ ViewCategoryActivity extends AppCompatActivity {
 
         final Query firstQuery = coMeth.getDb().
                 collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING);
+                .orderBy("event_date", Query.Direction.ASCENDING)
+                .limit(20);
         postsList.clear();
         usersList.clear();
         loadPosts(firstQuery);
+        //if post list after loading posts is empty, load more posts
+
 
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -481,7 +484,7 @@ ViewCategoryActivity extends AppCompatActivity {
      * @param firstQuery the first query when the page is first loaded
      * */
     private void loadPosts(Query firstQuery) {
-        firstQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+        firstQuery.addSnapshotListener(ViewCategoryActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
@@ -501,9 +504,7 @@ ViewCategoryActivity extends AppCompatActivity {
                     } catch (Exception exception) {
                         Log.d(TAG, "error: " + exception.getMessage());
                     }
-
                 }
-
                 //create a for loop to check for document changes
                 for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                     //check if an item is added
@@ -520,6 +521,10 @@ ViewCategoryActivity extends AppCompatActivity {
                 coMeth.stopLoading(progressDialog, swipeRefresh);
             }
         });
+
+//        if (postsList.isEmpty()){
+//            loadMorePosts();
+//        }
     }
 
     /**
@@ -662,12 +667,13 @@ ViewCategoryActivity extends AppCompatActivity {
                 Log.d(TAG, "filterCat: eventCal is " + eventCal);
 
 
-                if (eventDate.after(new Date()) && eventCal.before(endCal)) {
+                if (eventDate.after(new Date())/* && eventCal.before(endCal)*/) {
 
                     postsList.clear();
                     usersList.clear();
                     getFilteredPosts(post);
-                    Collections.sort(postsList, new Comparator<Posts>() {
+                    // TODO: 6/1/18 find a better way to sort posts
+                    /*Collections.sort(postsList, new Comparator<Posts>() {
                         @Override
                         public int compare(Posts o1, Posts o2) {
                             Log.d(TAG, "compare: ");
@@ -677,7 +683,7 @@ ViewCategoryActivity extends AppCompatActivity {
                                 return 0;
                             }
                         }
-                    });
+                    });*/
                 }
             }
 
@@ -854,12 +860,12 @@ ViewCategoryActivity extends AppCompatActivity {
         Log.d(TAG, "loadMorePosts: ");
         Query nextQuery = coMeth.getDb()
                 .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .orderBy("event_date", Query.Direction.ASCENDING)
                 .startAfter(lastVisiblePost)
                 .limit(20);
 
         //get all posts from the database
-        nextQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+        nextQuery.addSnapshotListener(ViewCategoryActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 

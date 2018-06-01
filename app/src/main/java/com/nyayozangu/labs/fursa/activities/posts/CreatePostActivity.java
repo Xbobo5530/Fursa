@@ -1250,13 +1250,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         } catch (Exception e) {
                             Log.d(TAG, "onComplete: failed to set create image");
                         }
-                        /*RequestOptions placeHolderOptions = new RequestOptions();
-                        placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
-                        Glide.with(getApplicationContext())
-                                .applyDefaultRequestOptions(placeHolderOptions)
-                                .load(imageUrl)
-                                .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
-                                .into(createPostImageView);*/
+
                         //update the imageUrl
                         downloadUri = imageUrl;
                         downloadThumbUri = thumbUrl;
@@ -1270,9 +1264,8 @@ public class CreatePostActivity extends AppCompatActivity {
                         Log.d(TAG, "onComplete: \n catsArray on edit is: " + catsArray);
                         String catsString = "";
                         for (int i = 0; i < catsArray.size(); i++) {
-
-                            catsString = catsString.concat(coMeth.getCatValue(catsArray.get(i).toString()) + "\n");
-
+                            catsString = catsString.concat(
+                                    coMeth.getCatValue(catsArray.get(i).toString()) + "\n");
                         }
 
                         //set cat string

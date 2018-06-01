@@ -48,6 +48,7 @@ import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,10 +75,10 @@ public class ViewPostActivity extends AppCompatActivity {
             saveText;
 
     private CircleImageView userImage; //image of user who posted post
-    private ConstraintLayout viewPostTitleLayout, viewPostDescLayout,
-            viewPostLocationLayout, viewPostPriceLayout, viewPostTimeLayout,
-            eventDateLayout, viewPostContactLayout, viewPostUserLayout,
-            viewPostCatLayout, tagsLayout, actionsLayout;
+    private ConstraintLayout titleLayout, descLayout,
+            locationLayout, priceLayout, timeLayout,
+            eventDateLayout, contactLayout, userLayout,
+            catLayout, tagsLayout, actionsLayout;
 
     private String postUserId, currentUserId, contactDetails,
             desc, postId, postTitle,
@@ -469,21 +470,21 @@ public class ViewPostActivity extends AppCompatActivity {
         contactTextView = findViewById(R.id.viewPostContactTextView);
         userImage = findViewById(R.id.viewPostUserImageView);
 
-        viewPostTitleLayout = findViewById(R.id.viewPostTitleLayout);
-        viewPostDescLayout = findViewById(R.id.viewPostDescLayout);
-        viewPostLocationLayout = findViewById(R.id.viewPostLocationLayout);
-        viewPostPriceLayout = findViewById(R.id.viewPostPriceLayout);
-        viewPostTimeLayout = findViewById(R.id.viewPostTimeLayout);
+        titleLayout = findViewById(R.id.viewPostTitleLayout);
+        descLayout = findViewById(R.id.viewPostDescLayout);
+        locationLayout = findViewById(R.id.viewPostLocationLayout);
+        priceLayout = findViewById(R.id.viewPostPriceLayout);
+        timeLayout = findViewById(R.id.viewPostTimeLayout);
         eventDateLayout = findViewById(R.id.viewPostEventDateLayout);
-        viewPostContactLayout = findViewById(R.id.viewPostContactLayout);
+        contactLayout = findViewById(R.id.viewPostContactLayout);
 
         tagsTextView = findViewById(R.id.viewPostTagsTextView);
         tagsLayout = findViewById(R.id.viewPostTagsLayout);
 
         userTextView = findViewById(R.id.viewPostUserTextView);
-        viewPostUserLayout = findViewById(R.id.viewPostUserLayout);
+        userLayout = findViewById(R.id.viewPostUserLayout);
 
-        viewPostCatLayout = findViewById(R.id.viewPostCatLayout);
+        catLayout = findViewById(R.id.viewPostCatLayout);
         catTextView = findViewById(R.id.viewPostCatTextView);
         catArray = new ArrayList<>();
         catKeys = new ArrayList<>();
@@ -764,7 +765,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     } else {
 
                         //hide contact details field
-                        viewPostContactLayout.setVisibility(View.GONE);
+                        contactLayout.setVisibility(View.GONE);
                         Log.d(TAG, "onEvent: has no contact details");
 
                     }
@@ -784,7 +785,7 @@ public class ViewPostActivity extends AppCompatActivity {
                         }
                         locationTextView.setText(locationString.trim());
                     } else {
-                        viewPostLocationLayout.setVisibility(View.GONE);
+                        locationLayout.setVisibility(View.GONE);
                     }
 
                     //set price
@@ -792,7 +793,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     if (price != null && !price.isEmpty()) {
                         priceTextView.setText(price);
                     } else {
-                        viewPostPriceLayout.setVisibility(View.GONE);
+                        priceLayout.setVisibility(View.GONE);
                     }
 
                     //set event date
@@ -842,7 +843,7 @@ public class ViewPostActivity extends AppCompatActivity {
                     //get user id for the post
                     postUserId = post.getUser_id();
                     //set the post user layout click
-                    viewPostUserLayout.setOnClickListener(new View.OnClickListener() {
+                    userLayout.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
 
@@ -899,20 +900,17 @@ public class ViewPostActivity extends AppCompatActivity {
 
                                         } else {
                                             //use name is null, hide the user layout
-                                            viewPostUserLayout.setVisibility(View.GONE);
+                                            userLayout.setVisibility(View.GONE);
 
                                         }
                                     } else {
                                         //user does not exist
                                         userImage.setImageDrawable(
-                                                getResources().getDrawable(R.drawable.ic_action_person_placeholder));
-
+                                                getResources().getDrawable(
+                                                        R.drawable.ic_action_person_placeholder));
                                     }
-
-
                                 }
                             });
-
 
                     //get categories
                     if (post.getCategories() != null) {
@@ -933,18 +931,19 @@ public class ViewPostActivity extends AppCompatActivity {
                         }
 
                         Log.d(TAG, "onEvent: categories are " + categories);
+                        catArray.clear();
                         for (int i = 0; i < categories.size(); i++) {
 
-                            //is last cat
                             catString = catString.concat(String.valueOf(categories.get(i)) + "\n");
                             //update the catArrayList
                             catArray.add(String.valueOf(categories.get(i)));
 
                         }
+                        Log.d(TAG, "onEvent: catArray is " + catArray);
                         catTextView.setText(catString.trim());
 
                     } else {
-                        viewPostCatLayout.setVisibility(View.GONE);
+                        catLayout.setVisibility(View.GONE);
                         Log.d(TAG, "onEvent: post has no cats");
                     }
 
@@ -984,7 +983,8 @@ public class ViewPostActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //open image in full screen
-                Intent openImageIntent = new Intent(ViewPostActivity.this, ViewImageActivity.class);
+                Intent openImageIntent = new Intent(
+                        ViewPostActivity.this, ViewImageActivity.class);
                 openImageIntent.putExtra("imageUrl", postImageUri);
                 startActivity(openImageIntent);
 
@@ -992,13 +992,17 @@ public class ViewPostActivity extends AppCompatActivity {
         });
 
         //category layout click
-        viewPostCatLayout.setOnClickListener(new View.OnClickListener() {
+        catLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                Log.d(TAG, "onClick: " +
+                        "\ncatArray: " + catArray +
+                        "\ncatArray string array: " +
+                        Arrays.toString(catArray.toArray(new String[0])));
                 //open alert dialog
                 AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
-                catDialogBuilder.setTitle("Categories")
+                catDialogBuilder.setTitle(getResources().getString(R.string.categories_text))
                         .setIcon(getResources().getDrawable(R.drawable.ic_action_categories))
                         .setItems(catArray.toArray(new String[0]), new DialogInterface.OnClickListener() {
                             @Override
@@ -1021,7 +1025,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
 
         //location layout click
-        viewPostLocationLayout.setOnClickListener(new View.OnClickListener() {
+        locationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //launch google maps and serch for location
