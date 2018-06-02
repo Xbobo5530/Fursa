@@ -176,7 +176,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         Log.d(TAG, "handlePostsCount: ");
         coMeth.getDb()
                 .collection("Users/" + userId + "/Subscriptions/my_posts/MyPosts")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
                                         @Nullable FirebaseFirestoreException e) {
@@ -230,7 +230,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         Log.d(TAG, "handleCatsCount: ");
         coMeth.getDb()
                 .collection("Users/" + userId + "/Subscriptions/categories/Categories")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
                                         @Nullable FirebaseFirestoreException e) {
