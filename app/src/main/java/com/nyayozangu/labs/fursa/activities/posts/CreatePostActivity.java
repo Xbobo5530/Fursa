@@ -970,6 +970,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 getResources().getString(R.string.notify_value_text));
         goToMainIntent.putExtra(getResources().getString(R.string.MESSAGE_NAME),
                 message);
+        goToMainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(goToMainIntent);
         finish();
     }
@@ -1313,7 +1314,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         Log.d(TAG, "onEvent: \nebentDateString: " + eventDateString);
                         eventDateTextView.setText(eventDateString);
                     }
-
                     //set price
                     if (post.getPrice() != null) {
 
@@ -1321,7 +1321,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         priceTextView.setText(price);
 
                     }
-
                     coMeth.stopLoading(progressDialog, null);
 
                 } else {
@@ -1543,6 +1542,4 @@ public class CreatePostActivity extends AppCompatActivity {
             return null;
         }
     }
-
-
 }
