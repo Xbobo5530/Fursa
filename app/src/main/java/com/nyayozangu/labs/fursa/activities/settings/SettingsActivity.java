@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.activities.settings;
 
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -276,7 +277,26 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         aboutBuilder.setTitle(getResources().getString(R.string.app_name) + " " + versionName)
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_info_grey))
                 .setMessage(getResources().getString(R.string.UPDATE_INFO))
+                .setPositiveButton(getResources().getString(R.string.rate_text) + " " +
+                                getResources().getString(R.string.app_name),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                launchMarket();
+                            }
+                        })
                 .show();
+    }
+
+    private void launchMarket() {
+        Log.d(TAG, "launchMarket: ");
+        Uri uri = Uri.parse("market://details?id=" + getPackageName());
+        Intent myAppLinkToMarket = new Intent(Intent.ACTION_VIEW, uri);
+        try {
+            startActivity(myAppLinkToMarket);
+        } catch (ActivityNotFoundException e) {
+            showSnack(getResources().getString(R.string.unable_to_find_playstore_text));
+        }
     }
 
     private void shareApp() {

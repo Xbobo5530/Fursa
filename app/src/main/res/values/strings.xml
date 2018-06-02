@@ -242,5 +242,7 @@
     <string name="ADMIN_VAL">admin</string>
     <string name="EDIT_POST_NAME">editPost</string>
     <string name="reply_label">Reply</string>
+    <string name="unable_to_find_playstore_text">Unable to find the Google Playstore app</string>
+    <string name="rate_text">Rate</string>
 
 </resources>
