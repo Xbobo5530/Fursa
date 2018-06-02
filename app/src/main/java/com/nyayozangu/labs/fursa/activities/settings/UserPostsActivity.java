@@ -23,7 +23,6 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
@@ -36,6 +35,8 @@ import com.nyayozangu.labs.fursa.users.Users;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 public class UserPostsActivity extends AppCompatActivity implements View.OnClickListener {
 
     // TODO: 4/17/18 add delete post feature
@@ -45,7 +46,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
     private FloatingActionButton newPostFab;
     private SwipeRefreshLayout swipeRefresh;
-    private RecyclerView myPostsFeed;
+    private RecyclerView userPostsFeed;
 
     //retrieve posts
     private List<Posts> postsList;
@@ -76,7 +77,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         getSupportActionBar().setTitle("User Posts");
 
         //initiate items
-        myPostsFeed = findViewById(R.id.userPostsRecyclerView);
+        userPostsFeed = findViewById(R.id.userPostsRecyclerView);
         swipeRefresh = findViewById(R.id.userPostsSwipeRefresh);
 
         //initiate an arrayList to hold all the posts
@@ -87,8 +88,8 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         String className = "UserPostsActivity";
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         coMeth.handlePostsView(
-                UserPostsActivity.this, UserPostsActivity.this, myPostsFeed);
-        myPostsFeed.setAdapter(postsRecyclerAdapter);
+                UserPostsActivity.this, UserPostsActivity.this, userPostsFeed);
+        userPostsFeed.setAdapter(postsRecyclerAdapter);
 
         //initialize items
         newPostFab = findViewById(R.id.userPostsNewPostFab);
@@ -105,11 +106,11 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         showProgress(getString(R.string.loading_text));
 
         //listen for scrolling on the homeFeedView
-        myPostsFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        /*userPostsFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                Boolean reachedBottom = !myPostsFeed.canScrollVertically(1);
+                Boolean reachedBottom = !userPostsFeed.canScrollVertically(1);
                 if (reachedBottom) {
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
                     if (getIntent() != null && getIntent().getStringExtra("userId") != null) {
@@ -118,7 +119,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
             }
-        });
+        });*/
     }
 
     private void handleIntent() {
@@ -129,21 +130,22 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
             //set title
             setPageTitle();
             //proceed to processing
-            final Query firstQuery = coMeth.getDb()
-                    .collection("Posts")
-                    .orderBy("timestamp", Query.Direction.DESCENDING)
-                    .limit(10);
-            loadPosts(firstQuery, userId);
+            /*final Query firstQuery = coMeth.getDb()
+                    .collection("Posts");
+//                    .orderBy("timestamp", Query.Direction.DESCENDING);
+            loadPosts(firstQuery, userId);*/
+
+            loadPosts(userId);
 
             //handle swipe refresh
             swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
 
-                    myPostsFeed.getRecycledViewPool().clear();
+                    userPostsFeed.getRecycledViewPool().clear();
                     postsList.clear();
                     usersList.clear();
-                    loadPosts(firstQuery, userId);
+                    loadPosts(userId);
 
                 }
             });
@@ -152,6 +154,119 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
             Log.d(TAG, "handleIntent: intent has no userId");
             goToMainOnException(getString(R.string.something_went_wrong_text));
         }
+    }
+
+    private void loadPosts(final String userId) {
+        coMeth.getDb()
+                .collection("Users/" + userId + "/Subscriptions")
+                .document("my_posts")
+                .collection("MyPosts")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            //create a for loop to check for document changes
+                            for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                //check if an item is added
+                                if (doc.getType() == DocumentChange.Type.ADDED) {
+
+                                    final String postId = doc.getDocument().getId();
+                                    //retrieve post from database
+                                    retrievePost(postId, userId);
+
+                                }
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void retrievePost(final String postId, final String userId) {
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //post exists
+                            final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                            //get the user details
+                            getTheUserDetails(post, userId);
+
+                        } else {
+                            //post does not exist
+                            //update my posts
+                            //delete my post entry
+                            updateMyPosts(userId, postId);
+
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: faied to fetch post\n" +
+                                e.getMessage());
+                    }
+                });
+    }
+
+    private void getTheUserDetails(final Posts post, final String userId) {
+        coMeth.getDb()
+                .collection("Users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //user exists
+                            //convert user to object
+                            Users user = documentSnapshot.toObject(Users.class).withId(userId);
+                            postsList.add(post);
+                            usersList.add(user);
+                            postsRecyclerAdapter.notifyDataSetChanged();
+                            coMeth.stopLoading(progressDialog, swipeRefresh);
+                            Log.d(TAG, "onSuccess: added post and user");
+                        } else {
+                            //user does not exist
+                            //notify user
+//                                                                           showSnack("User does not exist");
+                            Log.d(TAG, "onSuccess: user does not exist");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get get user details\n" +
+                                e.getMessage());
+                    }
+                });
+    }
+
+    private void updateMyPosts(String userId, String postId) {
+        Log.d(TAG, "updateMyPosts: ");
+        coMeth.getDb()
+                .collection("Users/" + userId + "/Subscriptions/my_posts/MyPosts")
+                .document(postId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: updated my posts list");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update my posts\n" +
+                                e.getMessage());
+                    }
+                });
     }
 
     private void processShowingFab() {
@@ -201,7 +316,6 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
     /**
      * open the main activity on exception
-     *
      * @param message a message to show to the user on the main activity
      */
     private void goToMainOnException(String message) {
@@ -211,140 +325,6 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         goToMainIntent.putExtra("message", message);
         startActivity(goToMainIntent);
         finish();
-    }
-
-    /**
-     * begin the loading posts process
-     *
-     * @param firstQuery a query to fetch data from db
-     */
-    private void loadPosts(Query firstQuery, final String userId) {
-        firstQuery.addSnapshotListener(UserPostsActivity.this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
-                if (!queryDocumentSnapshots.isEmpty()) {
-
-                    if (isFirstPageFirstLoad) {
-
-                        //get the last visible post
-                        lastVisiblePost = queryDocumentSnapshots.getDocuments()
-                                .get(queryDocumentSnapshots.size() - 1);
-                        postsList.clear();
-                        usersList.clear();
-
-                    }
-
-                    //create a for loop to check for document changes
-                    for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                        //check if an item is added
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
-
-                            String postId = doc.getDocument().getId();
-                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-                            filterPosts(post, userId);
-                        }
-                    }
-
-                    //the first page has already loaded
-                    isFirstPageFirstLoad = false;
-
-                }
-
-            }
-        });
-    }
-
-    private void filterPosts(final Posts post, String userId) {
-
-        //get current user id
-        String postUserId = post.getUser_id();
-        //check if is current user's post
-        if (postUserId.equals(userId)) {
-
-            //get user_id for post
-            coMeth.getDb()
-                    .collection("Users")
-                    .document(postUserId)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                            //check if task is successful
-                            if (task.isSuccessful()) {
-
-                                String postUserId = task.getResult().getId();
-                                Users user = task.getResult().toObject(Users.class).withId(postUserId);
-                                //add new post to the local postsList
-                                if (isFirstPageFirstLoad) {
-                                    postsList.add(0, post);
-                                    usersList.add(0, user);
-                                } else {
-                                    usersList.add(user);
-                                    postsList.add(post);
-                                }
-                                postsRecyclerAdapter.notifyDataSetChanged();
-                                coMeth.onResultStopLoading(postsList, progressDialog, swipeRefresh);
-                            } else {
-
-                                //task failed
-                                Log.d(TAG, "onComplete: getting users task failed");
-                                coMeth.stopLoading(progressDialog, swipeRefresh);
-                            }
-
-                        }
-                    });
-
-        } else {
-
-            //user has no posts
-            coMeth.stopLoading(progressDialog);
-            // TODO: 5/1/18 set no posts view
-
-        }
-
-
-    }
-
-    //for loading more posts
-    public void loadMorePosts(final String userId) {
-
-        Query nextQuery = coMeth.getDb()
-                .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .startAfter(lastVisiblePost)
-                .limit(20);
-
-
-        //get all posts from the database
-        //use snapshotListener to get all the data real time
-        nextQuery.addSnapshotListener(UserPostsActivity.this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
-                //check if there area more posts
-                if (!queryDocumentSnapshots.isEmpty()) {
-
-                    //get the last visible post
-                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
-                            .get(queryDocumentSnapshots.size() - 1);
-                    //create a for loop to check for document changes
-                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                        //check if an item is added
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
-
-                            String postId = doc.getDocument().getId();
-                            Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-                            filterPosts(post, userId);
-
-                        }
-                    }
-
-                }
-            }
-        });
-
     }
 
     private void showProgress(String message) {

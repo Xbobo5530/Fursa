@@ -497,561 +497,563 @@ public class ViewPostActivity extends AppCompatActivity {
         handleIntent();
 
         //get post title on create
-        postTitle = getPostTitle(postId);
-
-        //handle action clicks
-        //handle comments click
-        commentsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //open comments page
-                openComments();
-
-            }
-        });
-        commentsCountText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openComments();
-            }
-        });
-
-        //set likes
-        coMeth.getDb()
-                .collection("Posts/" + postId + "/Likes")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-                        //check if exits
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            //post has likes
-                            int likes = queryDocumentSnapshots.getDocuments().size();
-                            Log.d(TAG, "post has" + likes + " likes");
-                            //set likes to likesTextView
-                            likesCountText.setText(Integer.toString(likes));
-                            ViewPostActivity.this.likes = likes;
-                            //update post likes
-                            updatePostLikes(ViewPostActivity.this.likes);
-                        }
-                    }
-                });
-
-        //set comments
-        coMeth.getDb()
-                .collection("Posts/" + postId + "/Comments")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-
-                        Log.d(TAG, "at onEvent, when likes change");
-                        if (!queryDocumentSnapshots.isEmpty()) {
-
-                            //post has likes
-                            int numberOfComments = queryDocumentSnapshots.size();
-                            commentsCountText.setText(Integer.toString(numberOfComments));
-                            comments = numberOfComments;
-                            updatePostComments(comments);
-                        }
-                    }
-                });
+        if (coMeth.isConnected()) {
+            postTitle = getPostTitle(postId);
 
 
-        //set likes and saves
-        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
-            //get likes
-            //determine likes by current user
+            //handle action clicks
+            //handle comments click
+            commentsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-            final String currentUserId = coMeth.getUid();
+                    //open comments page
+                    openComments();
 
-            //handle like button
+                }
+            });
+            commentsCountText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openComments();
+                }
+            });
+
+            //set likes
             coMeth.getDb()
                     .collection("Posts/" + postId + "/Likes")
-                    .document(currentUserId)
-                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                            //check if exits
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                //post has likes
+                                int likes = queryDocumentSnapshots.getDocuments().size();
+                                Log.d(TAG, "post has" + likes + " likes");
+                                //set likes to likesTextView
+                                likesCountText.setText(Integer.toString(likes));
+                                ViewPostActivity.this.likes = likes;
+                                //update post likes
+                                updatePostLikes(ViewPostActivity.this.likes);
+                            }
+                        }
+                    });
+
+            //set comments
+            coMeth.getDb()
+                    .collection("Posts/" + postId + "/Comments")
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+
+                            Log.d(TAG, "at onEvent, when likes change");
+                            if (!queryDocumentSnapshots.isEmpty()) {
+
+                                //post has likes
+                                int numberOfComments = queryDocumentSnapshots.size();
+                                commentsCountText.setText(Integer.toString(numberOfComments));
+                                comments = numberOfComments;
+                                updatePostComments(comments);
+                            }
+                        }
+                    });
+
+
+            //set likes and saves
+            if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+                //get likes
+                //determine likes by current user
+
+                final String currentUserId = coMeth.getUid();
+
+                //handle like button
+                coMeth.getDb()
+                        .collection("Posts/" + postId + "/Likes")
+                        .document(currentUserId)
+                        .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                            @Override
+                            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                                //update the like button real time
+                                if (documentSnapshot.exists()) {
+
+                                    Log.d(TAG, "at get likes, updating likes real time");
+                                    //user has liked
+                                    likeButton.setImageDrawable(
+                                            getResources().getDrawable(R.drawable.ic_action_liked));
+
+                                    //handle click like to remove like
+                                    likeButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            //remove save
+                                            unlikePost(currentUserId);
+                                        }
+                                    });
+                                    likesCountText.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            unlikePost(currentUserId);
+                                        }
+                                    });
+
+                                } else {
+
+                                    //current user has not liked the post
+                                    likeButton.setImageDrawable(
+                                            getResources().getDrawable(R.drawable.ic_action_like_unclicked));
+
+                                    likeButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            //add save
+                                            likePost(currentUserId);
+                                        }
+                                    });
+                                    likesCountText.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            likePost(currentUserId);
+                                        }
+                                    });
+                                }
+                            }
+                        });
+
+                //handle save button
+                coMeth.getDb()
+                        .collection("Posts/" + postId + "/Saves")
+                        .document(currentUserId)
+                        .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                            @Override
+                            public void onEvent(
+                                    DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                                //update the save button real time
+                                if (documentSnapshot.exists()) {
+
+                                    Log.d(TAG, "at get saves, updating saves realtime");
+                                    //user has saved post
+                                    saveButton.setImageDrawable(
+                                            getResources().getDrawable(R.drawable.ic_action_bookmarked));
+                                    //handle save button click
+                                    saveButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            //remove saved on click
+                                            unsavePost(currentUserId);
+                                        }
+                                    });
+                                    saveText.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            unsavePost(currentUserId);
+                                        }
+                                    });
+
+                                } else {
+
+                                    //user has not liked post
+                                    saveButton.setImageDrawable(
+                                            getResources().getDrawable(R.drawable.ic_action_bookmark_outline));
+                                    //handle save button click
+                                    saveButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            //save post
+                                            savePost(currentUserId);
+                                        }
+                                    });
+                                    saveText.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            savePost(currentUserId);
+                                        }
+                                    });
+
+                                }
+                            }
+                        });
+
+            } else {
+                if (!coMeth.isConnected()) {
+                    //save button
+                    saveButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            goToMain(getResources().getString(R.string.failed_to_connect_text));
+                        }
+                    });
+                    likeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            goToMain(getResources().getString(R.string.failed_to_connect_text));
+                        }
+                    });
+                }
+                if (!coMeth.isLoggedIn()) {
+                    saveButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            goToLogin(getResources().getString(R.string.login_to_save_text));
+                        }
+                    });
+                    likeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            goToLogin(getResources().getString(R.string.login_to_like));
+                        }
+                    });
+                }
+            }
+
+            //set contents
+            coMeth.getDb()
+                    .collection("Posts")
+                    .document(postId).addSnapshotListener(
+                    ViewPostActivity.this, new EventListener<DocumentSnapshot>() {
                         @Override
                         public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
-                            //update the like button real time
+                            Log.d(TAG, "at view post query");
+                            //show progress
+                            showProgress("Loading...");
+
+                            //check if post exists
                             if (documentSnapshot.exists()) {
 
-                                Log.d(TAG, "at get likes, updating likes real time");
-                                //user has liked
-                                likeButton.setImageDrawable(
-                                        getResources().getDrawable(R.drawable.ic_action_liked));
+                                Log.d(TAG, "Post  exist");
+                                final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                                //set items
+                                //set title
+                                String title = post.getTitle();
+                                titleTextView.setText(title);
+                                getSupportActionBar().setTitle(title);
 
-                                //handle click like to remove like
-                                likeButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        //remove save
-                                        unlikePost(currentUserId);
+                                //set the description
+                                desc = post.getDesc();
+                                descTextView.setText(desc);
+                                Log.d(TAG, "onEvent: desc set");
+
+                                //set tags
+                                tags = post.getTags();
+                                if (tags != null && !tags.isEmpty()) {
+                                    String tagsString = "";
+                                    for (int i = 0; i < tags.size(); i++) {
+                                        tagsString = tagsString.concat("#" + tags.get(i) + " ");
                                     }
-                                });
-                                likesCountText.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        unlikePost(currentUserId);
-                                    }
-                                });
-
-                            } else {
-
-                                //current user has not liked the post
-                                likeButton.setImageDrawable(
-                                        getResources().getDrawable(R.drawable.ic_action_like_unclicked));
-
-                                likeButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        //add save
-                                        likePost(currentUserId);
-                                    }
-                                });
-                                likesCountText.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        likePost(currentUserId);
-                                    }
-                                });
-                            }
-                        }
-                    });
-
-            //handle save button
-            coMeth.getDb()
-                    .collection("Posts/" + postId + "/Saves")
-                    .document(currentUserId)
-                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(
-                                DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-
-                            //update the save button real time
-                            if (documentSnapshot.exists()) {
-
-                                Log.d(TAG, "at get saves, updating saves realtime");
-                                //user has saved post
-                                saveButton.setImageDrawable(
-                                        getResources().getDrawable(R.drawable.ic_action_bookmarked));
-                                //handle save button click
-                                saveButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        //remove saved on click
-                                        unsavePost(currentUserId);
-                                    }
-                                });
-                                saveText.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        unsavePost(currentUserId);
-                                    }
-                                });
-
-                            } else {
-
-                                //user has not liked post
-                                saveButton.setImageDrawable(
-                                        getResources().getDrawable(R.drawable.ic_action_bookmark_outline));
-                                //handle save button click
-                                saveButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        //save post
-                                        savePost(currentUserId);
-                                    }
-                                });
-                                saveText.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        savePost(currentUserId);
-                                    }
-                                });
-
-                            }
-                        }
-                    });
-
-        } else {
-            if (!coMeth.isConnected()) {
-                //save button
-                saveButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        goToMain(getResources().getString(R.string.failed_to_connect_text));
-                    }
-                });
-                likeButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        goToMain(getResources().getString(R.string.failed_to_connect_text));
-                    }
-                });
-            }
-            if (!coMeth.isLoggedIn()) {
-                saveButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        goToLogin(getResources().getString(R.string.login_to_save_text));
-                    }
-                });
-                likeButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        goToLogin(getResources().getString(R.string.login_to_like));
-                    }
-                });
-            }
-        }
-
-        //set contents
-        coMeth.getDb()
-                .collection("Posts")
-                .document(postId).addSnapshotListener(
-                ViewPostActivity.this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-
-                Log.d(TAG, "at view post query");
-                //show progress
-                showProgress("Loading...");
-
-                //check if post exists
-                if (documentSnapshot.exists()) {
-
-                    Log.d(TAG, "Post  exist");
-                    final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
-                    //set items
-                    //set title
-                    String title = post.getTitle();
-                    titleTextView.setText(title);
-                    getSupportActionBar().setTitle(title);
-
-                    //set the description
-                    desc = post.getDesc();
-                    descTextView.setText(desc);
-                    Log.d(TAG, "onEvent: desc set");
-
-                    //set tags
-                    tags = post.getTags();
-                    if (tags != null && !tags.isEmpty()) {
-                        String tagsString = "";
-                        for (int i = 0; i < tags.size(); i++) {
-                            tagsString = tagsString.concat("#" + tags.get(i) + " ");
-                        }
-                        tagsTextView.setText(tagsString.trim());
-                    } else {
-                        tagsLayout.setVisibility(View.GONE);
-                    }
-
-                    //set the contact info
-                    ArrayList<String> contactArray = post.getContact_details();
-                    if (contactArray != null) {
-
-                        Log.d(TAG, "onEvent: has contact details");
-                        String contactString = "";
-                        for (int i = 0; i < contactArray.size(); i++) {
-
-                            //set the first item
-                            contactString = contactString.concat(contactArray.get(i).toString() + "\n");
-
-                        }
-                        //set contactString
-                        contactTextView.setText(contactString.trim());
-                        Log.d(TAG, "onEvent: contact details set");
-
-                    } else {
-
-                        //hide contact details field
-                        contactLayout.setVisibility(View.GONE);
-                        Log.d(TAG, "onEvent: has no contact details");
-
-                    }
-
-                    //set location
-                    ArrayList<String> locationArray = post.getLocation();
-                    String locationString = "";
-
-                    if (locationArray != null) {
-
-                        Log.d(TAG, "onEvent: has location");
-                        Log.d(TAG, "onEvent: location is " + locationArray);
-
-                        for (int i = 0; i < locationArray.size(); i++) {
-                            locationString = locationString.concat(
-                                    locationArray.get(i).toString() + "\n");
-                        }
-                        locationTextView.setText(locationString.trim());
-                    } else {
-                        locationLayout.setVisibility(View.GONE);
-                    }
-
-                    //set price
-                    String price = post.getPrice();
-                    if (price != null && !price.isEmpty()) {
-                        priceTextView.setText(price);
-                    } else {
-                        priceLayout.setVisibility(View.GONE);
-                    }
-
-                    //set event date
-                    if (post.getEvent_date() != null) {
-                        long eventDate = post.getEvent_date().getTime();
-                        Log.d(TAG, String.valueOf(eventDate));
-                        String eventDateString = DateFormat.format("EEE, MMM d, 20yy",
-                                new Date(eventDate)).toString();
-                        Log.d(TAG, "onEvent: \neventDateString: " + eventDateString);
-                        eventDateTextView.setText(eventDateString);
-                    }else{
-                        eventDateLayout.setVisibility(View.GONE);
-                    }
-
-                    //set the time
-                    if (post.getTimestamp() != null) {
-                        long millis = post.getTimestamp().getTime();
-                        String dateString = coMeth.processPostDate(millis);
-                        String date = getString(R.string.posted_text) + ":\n" + dateString;
-                        timeTextView.setText(date);
-                    }
-
-                    //set post image
-                    //add the placeholder image
-                    postImageUri = post.getImage_url();
-                    postThumbUrl = post.getThumb_url();
-
-                    if (postImageUri != null && postThumbUrl != null) {
-
-                        try {
-                            coMeth.setImage(R.drawable.appiconshadow,
-                                    postImageUri,
-                                    postThumbUrl,
-                                    viewPostImage);
-                        } catch (Exception glideException) {
-                            Log.d(TAG, "onEvent: glide exception " +
-                                    glideException.getMessage());
-                            //set placeholder image
-                            viewPostImage.setImageDrawable(
-                                    getResources().getDrawable(R.drawable.appiconshadow));
-                        }
-                        Log.d(TAG, "onEvent: image set");
-                    } else {
-                        //post has no image, hide the image view
-                        viewPostImage.setVisibility(View.GONE);
-                    }
-
-                    //get user id for the post
-                    postUserId = post.getUser_id();
-                    //set the post user layout click
-                    userLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            Intent goToUserPageIntent = new Intent(
-                                    ViewPostActivity.this, UserPageActivity.class);
-                            goToUserPageIntent.putExtra("userId", postUserId);
-                            startActivity(goToUserPageIntent);
-
-                        }
-                    });
-                    //check db for user
-                    coMeth.getDb()
-                            .collection("Users")
-                            .document(postUserId)
-                            .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                @Override
-                                public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-
-                                    //check if user exists
-                                    if (documentSnapshot.exists()) {
-
-                                        //make user object
-                                        Users user = documentSnapshot.toObject(Users.class);
-
-                                        //user exists
-                                        if (user.getThumb() != null) {
-                                            //user has thumb
-                                            String userThumbDwnUrl = user.getThumb();
-                                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                                    userThumbDwnUrl,
-                                                    userImage);
-                                            Log.d(TAG, "onEvent: user thumb set");
-
-                                        } else if (user.getImage() != null) {
-                                            //use has no thumb but has image
-                                            String userImageDwnUrl = user.getImage();
-                                            coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                                    userImageDwnUrl,
-                                                    userImage);
-                                            Log.d(TAG, "onEvent: user thumb set");
-
-                                        } else {
-                                            //user has no image or thumb
-                                            userImage.setImageDrawable(
-                                                    getResources().getDrawable(
-                                                            R.drawable.ic_action_person_placeholder));
-                                            Log.d(TAG, "onEvent: placeholder user image set");
-                                        }
-                                        //set name
-                                        //get user name
-                                        if (user.getName() != null) {
-                                            String username = user.getName();
-                                            String userNameMessage = getString(R.string.posted_by_text) + "\n" + username;
-                                            userTextView.setText(userNameMessage);
-
-                                        } else {
-                                            //use name is null, hide the user layout
-                                            userLayout.setVisibility(View.GONE);
-
-                                        }
-                                    } else {
-                                        //user does not exist
-                                        userImage.setImageDrawable(
-                                                getResources().getDrawable(
-                                                        R.drawable.ic_action_person_placeholder));
-                                    }
+                                    tagsTextView.setText(tagsString.trim());
+                                } else {
+                                    tagsLayout.setVisibility(View.GONE);
                                 }
-                            });
 
-                    //get categories
-                    if (post.getCategories() != null) {
+                                //set the contact info
+                                ArrayList<String> contactArray = post.getContact_details();
+                                if (contactArray != null) {
 
-                        Log.d(TAG, "onEvent: post has cats");
-                        String catString = "";
+                                    Log.d(TAG, "onEvent: has contact details");
+                                    String contactString = "";
+                                    for (int i = 0; i < contactArray.size(); i++) {
 
-                        //post has categories
-                        catKeys = post.getCategories();
+                                        //set the first item
+                                        contactString = contactString.concat(contactArray.get(i).toString() + "\n");
 
-                        ArrayList<String> categories = new ArrayList<>();
-                        for (int i = 0; i < catKeys.size(); i++) {
-                            //go through catKeys and get values
-                            String catValue = coMeth.getCatValue(catKeys.get(i));
-                            categories.add(catValue);
+                                    }
+                                    //set contactString
+                                    contactTextView.setText(contactString.trim());
+                                    Log.d(TAG, "onEvent: contact details set");
+
+                                } else {
+
+                                    //hide contact details field
+                                    contactLayout.setVisibility(View.GONE);
+                                    Log.d(TAG, "onEvent: has no contact details");
+
+                                }
+
+                                //set location
+                                ArrayList<String> locationArray = post.getLocation();
+                                String locationString = "";
+
+                                if (locationArray != null) {
+
+                                    Log.d(TAG, "onEvent: has location");
+                                    Log.d(TAG, "onEvent: location is " + locationArray);
+
+                                    for (int i = 0; i < locationArray.size(); i++) {
+                                        locationString = locationString.concat(
+                                                locationArray.get(i).toString() + "\n");
+                                    }
+                                    locationTextView.setText(locationString.trim());
+                                } else {
+                                    locationLayout.setVisibility(View.GONE);
+                                }
+
+                                //set price
+                                String price = post.getPrice();
+                                if (price != null && !price.isEmpty()) {
+                                    priceTextView.setText(price);
+                                } else {
+                                    priceLayout.setVisibility(View.GONE);
+                                }
+
+                                //set event date
+                                if (post.getEvent_date() != null) {
+                                    long eventDate = post.getEvent_date().getTime();
+                                    Log.d(TAG, String.valueOf(eventDate));
+                                    String eventDateString = DateFormat.format("EEE, MMM d, 20yy",
+                                            new Date(eventDate)).toString();
+                                    Log.d(TAG, "onEvent: \neventDateString: " + eventDateString);
+                                    eventDateTextView.setText(eventDateString);
+                                } else {
+                                    eventDateLayout.setVisibility(View.GONE);
+                                }
+
+                                //set the time
+                                if (post.getTimestamp() != null) {
+                                    long millis = post.getTimestamp().getTime();
+                                    String dateString = coMeth.processPostDate(millis);
+                                    String date = getString(R.string.posted_text) + ":\n" + dateString;
+                                    timeTextView.setText(date);
+                                }
+
+                                //set post image
+                                //add the placeholder image
+                                postImageUri = post.getImage_url();
+                                postThumbUrl = post.getThumb_url();
+
+                                if (postImageUri != null && postThumbUrl != null) {
+
+                                    try {
+                                        coMeth.setImage(R.drawable.appiconshadow,
+                                                postImageUri,
+                                                postThumbUrl,
+                                                viewPostImage);
+                                    } catch (Exception glideException) {
+                                        Log.d(TAG, "onEvent: glide exception " +
+                                                glideException.getMessage());
+                                        //set placeholder image
+                                        viewPostImage.setImageDrawable(
+                                                getResources().getDrawable(R.drawable.appiconshadow));
+                                    }
+                                    Log.d(TAG, "onEvent: image set");
+                                } else {
+                                    //post has no image, hide the image view
+                                    viewPostImage.setVisibility(View.GONE);
+                                }
+
+                                //get user id for the post
+                                postUserId = post.getUser_id();
+                                //set the post user layout click
+                                userLayout.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+                                        Intent goToUserPageIntent = new Intent(
+                                                ViewPostActivity.this, UserPageActivity.class);
+                                        goToUserPageIntent.putExtra("userId", postUserId);
+                                        startActivity(goToUserPageIntent);
+
+                                    }
+                                });
+                                //check db for user
+                                coMeth.getDb()
+                                        .collection("Users")
+                                        .document(postUserId)
+                                        .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+
+                                                //check if user exists
+                                                if (documentSnapshot.exists()) {
+
+                                                    //make user object
+                                                    Users user = documentSnapshot.toObject(Users.class);
+
+                                                    //user exists
+                                                    if (user.getThumb() != null) {
+                                                        //user has thumb
+                                                        String userThumbDwnUrl = user.getThumb();
+                                                        coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                                                userThumbDwnUrl,
+                                                                userImage);
+                                                        Log.d(TAG, "onEvent: user thumb set");
+
+                                                    } else if (user.getImage() != null) {
+                                                        //use has no thumb but has image
+                                                        String userImageDwnUrl = user.getImage();
+                                                        coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                                                userImageDwnUrl,
+                                                                userImage);
+                                                        Log.d(TAG, "onEvent: user thumb set");
+
+                                                    } else {
+                                                        //user has no image or thumb
+                                                        userImage.setImageDrawable(
+                                                                getResources().getDrawable(
+                                                                        R.drawable.ic_action_person_placeholder));
+                                                        Log.d(TAG, "onEvent: placeholder user image set");
+                                                    }
+                                                    //set name
+                                                    //get user name
+                                                    if (user.getName() != null) {
+                                                        String username = user.getName();
+                                                        String userNameMessage = getString(R.string.posted_by_text) + "\n" + username;
+                                                        userTextView.setText(userNameMessage);
+
+                                                    } else {
+                                                        //use name is null, hide the user layout
+                                                        userLayout.setVisibility(View.GONE);
+
+                                                    }
+                                                } else {
+                                                    //user does not exist
+                                                    userImage.setImageDrawable(
+                                                            getResources().getDrawable(
+                                                                    R.drawable.ic_action_person_placeholder));
+                                                }
+                                            }
+                                        });
+
+                                //get categories
+                                if (post.getCategories() != null) {
+
+                                    Log.d(TAG, "onEvent: post has cats");
+                                    String catString = "";
+
+                                    //post has categories
+                                    catKeys = post.getCategories();
+
+                                    ArrayList<String> categories = new ArrayList<>();
+                                    for (int i = 0; i < catKeys.size(); i++) {
+                                        //go through catKeys and get values
+                                        String catValue = coMeth.getCatValue(catKeys.get(i));
+                                        categories.add(catValue);
+                                    }
+
+                                    Log.d(TAG, "onEvent: categories are " + categories);
+                                    catArray.clear();
+                                    for (int i = 0; i < categories.size(); i++) {
+
+                                        catString = catString.concat(String.valueOf(categories.get(i)) + "\n");
+                                        //update the catArrayList
+                                        catArray.add(String.valueOf(categories.get(i)));
+
+                                    }
+                                    catTextView.setText(catString.trim());
+
+                                } else {
+                                    catLayout.setVisibility(View.GONE);
+                                    Log.d(TAG, "onEvent: post has no cats");
+                                }
+
+                                coMeth.stopLoading(progressDialog);
+
+                            } else {
+                                //post does not exist
+                                coMeth.stopLoading(progressDialog);
+                                Log.d(TAG, "Error: post does not exist");
+                                //save error and notify in main
+                                goToMain(getString(R.string.post_not_found_text));
+                            }
+
+                            coMeth.stopLoading(progressDialog);
+
                         }
+                    });
 
-                        Log.d(TAG, "onEvent: categories are " + categories);
-                        catArray.clear();
-                        for (int i = 0; i < categories.size(); i++) {
+            //handle clicks
+            //handle share click
+            shareButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                            catString = catString.concat(String.valueOf(categories.get(i)) + "\n");
-                            //update the catArrayList
-                            catArray.add(String.valueOf(categories.get(i)));
-
-                        }
-                        catTextView.setText(catString.trim());
-
-                    } else {
-                        catLayout.setVisibility(View.GONE);
-                        Log.d(TAG, "onEvent: post has no cats");
-                    }
-
-                    coMeth.stopLoading(progressDialog);
-
-                } else {
-                    //post does not exist
-                    coMeth.stopLoading(progressDialog);
-                    Log.d(TAG, "Error: post does not exist");
-                    //save error and notify in main
-                    goToMain(getString(R.string.post_not_found_text));
+                    Log.d(TAG, "Sharing post");
+                    //get post url
+                    showProgress(getString(R.string.loading_text));
+                    String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
+                    shareDynamicLink(postUrl);
                 }
+            });
 
-                coMeth.stopLoading(progressDialog);
+            //post image click
+            viewPostImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-            }
-        });
+                    //open image in full screen
+                    Intent openImageIntent = new Intent(
+                            ViewPostActivity.this, ViewImageActivity.class);
+                    openImageIntent.putExtra("imageUrl", postImageUri);
+                    startActivity(openImageIntent);
 
-        //handle clicks
-        //handle share click
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                }
+            });
 
-                Log.d(TAG, "Sharing post");
-                //get post url
-                showProgress(getString(R.string.loading_text));
-                String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
-                shareDynamicLink(postUrl);
-            }
-        });
+            //category layout click
+            catLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //open alert dialog
+                    AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
+                    catDialogBuilder.setTitle(getResources().getString(R.string.categories_text))
+                            .setIcon(getResources().getDrawable(R.drawable.ic_action_categories))
+                            .setItems(catArray.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-        //post image click
-        viewPostImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                                    //open view cat activity
+                                    Intent catIntent = new Intent(
+                                            ViewPostActivity.this, ViewCategoryActivity.class);
+                                    catIntent.putExtra("category", catKeys.get(which));
+                                    startActivity(catIntent);
+                                    finish();
 
-                //open image in full screen
-                Intent openImageIntent = new Intent(
-                        ViewPostActivity.this, ViewImageActivity.class);
-                openImageIntent.putExtra("imageUrl", postImageUri);
-                startActivity(openImageIntent);
+                                    Log.d(TAG, "onClick: \nuser selected cat is: " + catKeys.get(which));
+                                }
+                            })
+                            .show();
 
-            }
-        });
-
-        //category layout click
-        catLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //open alert dialog
-                AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
-                catDialogBuilder.setTitle(getResources().getString(R.string.categories_text))
-                        .setIcon(getResources().getDrawable(R.drawable.ic_action_categories))
-                        .setItems(catArray.toArray(new String[0]), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                //open view cat activity
-                                Intent catIntent = new Intent(
-                                        ViewPostActivity.this, ViewCategoryActivity.class);
-                                catIntent.putExtra("category", catKeys.get(which));
-                                startActivity(catIntent);
-                                finish();
-
-                                Log.d(TAG, "onClick: \nuser selected cat is: " + catKeys.get(which));
-                            }
-                        })
-                        .show();
-
-            }
-        });
+                }
+            });
 
 
-        //location layout click
-        locationLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //launch google maps and serch for location
-                String location = locationTextView.getText().toString();
-                Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + location);
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-            }
-        });
+            //location layout click
+            locationLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //launch google maps and serch for location
+                    String location = locationTextView.getText().toString();
+                    Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + location);
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    startActivity(mapIntent);
+                }
+            });
 
-        //tags layout click
-        tagsLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: tags are: " + tags);
-                AlertDialog.Builder tagsBuilder =
-                        new AlertDialog.Builder(ViewPostActivity.this);
-                tagsBuilder.setTitle(getString(R.string.tags_text))
-                        .setIcon(getResources().getDrawable(R.drawable.ic_action_tags))
-                        .setItems(tags.toArray(new String[0]), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent searchTagIntent = new Intent(
-                                        ViewPostActivity.this, SearchableActivity.class);
-                                searchTagIntent.putExtra("tag", tags.get(which));
-                                startActivity(searchTagIntent);
-                            }
-                        })
-                        .show();
-            }
-        });
+            //tags layout click
+            tagsLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "onClick: tags are: " + tags);
+                    AlertDialog.Builder tagsBuilder =
+                            new AlertDialog.Builder(ViewPostActivity.this);
+                    tagsBuilder.setTitle(getString(R.string.tags_text))
+                            .setIcon(getResources().getDrawable(R.drawable.ic_action_tags))
+                            .setItems(tags.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent searchTagIntent = new Intent(
+                                            ViewPostActivity.this, SearchableActivity.class);
+                                    searchTagIntent.putExtra("tag", tags.get(which));
+                                    startActivity(searchTagIntent);
+                                }
+                            })
+                            .show();
+                }
+            });
 
-        // TODO: 5/28/18 implement swipe image to close activity
+            // TODO: 5/28/18 implement swipe image to close activity
         /*//handle swipe image to close
         viewPostImage.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -1064,7 +1066,10 @@ public class ViewPostActivity extends AppCompatActivity {
             }
         });*/
 
-
+        } else {
+            //device is not connected
+            goToMain(getResources().getString(R.string.failed_to_connect_text));
+        }
     }
 
     /**

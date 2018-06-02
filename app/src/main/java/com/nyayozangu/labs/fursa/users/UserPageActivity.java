@@ -31,6 +31,10 @@ import com.nyayozangu.labs.fursa.activities.settings.UserPostsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -38,10 +42,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UserPageActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "Sean";
-    private TextView usernameField, userBioField;
+    private TextView usernameField, userBioField, postsCountField, catsCountField;
     private CircleImageView userImageView;
     private Button userPostsButton, editProfileButton, catSubsButton, logoutButton;
-    private ImageView editProfileIcon, catSubsIcon;
+    private ImageView editProfileIcon, catSubsIcon, postsIcon;
     private ConstraintLayout logoutCard;
     private String userId;
     private CoMeth coMeth = new CoMeth();
@@ -64,11 +68,15 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
 
         catSubsButton = findViewById(R.id.userPageCatsButton);
         catSubsIcon = findViewById(R.id.userPageCatsImageView);
+        catsCountField = findViewById(R.id.userPageCatsCountTextView);
 
         logoutCard = findViewById(R.id.userPageLogoutCard);
         logoutButton = findViewById(R.id.userPageLogoutButton);
 
         userPostsButton = findViewById(R.id.userPagePostsButton);
+        postsIcon = findViewById(R.id.userPageUserPostsImageView);
+        postsCountField = findViewById(R.id.userPagePostsCountTextView);
+
         Toolbar toolbar = findViewById(R.id.userPageToolbar);
 
         catSubsArray = new ArrayList<>();
@@ -161,7 +169,118 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
             //hide logout
             logoutCard.setVisibility(View.GONE);
         }
+    }
 
+    //get posts count
+    private void handlePostsCount(final String userId) {
+        Log.d(TAG, "handlePostsCount: ");
+        coMeth.getDb()
+                .collection("Users/" + userId + "/Subscriptions/my_posts/MyPosts")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            //user has posts
+                            int postCount = queryDocumentSnapshots.size();
+                            if (postCount == 0) {
+                                userPostsButton.setVisibility(View.GONE);
+                                postsIcon.setVisibility(View.GONE);
+                                postsCountField.setVisibility(View.GONE);
+                            } else {
+
+                                userPostsButton.setVisibility(View.VISIBLE);
+                                postsIcon.setVisibility(View.VISIBLE);
+                                postsCountField.setVisibility(View.VISIBLE);
+
+                                postsCountField.setText(String.valueOf(postCount));
+                            }
+                            updateUserPostCount(userId, postCount);
+                        } else {
+                            //user has no posts
+                            Log.d(TAG, "onEvent: user has no posts");
+                        }
+                    }
+                });
+    }
+
+    private void updateUserPostCount(String userId, int postCount) {
+        Map<String, Object> postCountMap = new HashMap<>();
+        postCountMap.put("posts", postCount);
+        coMeth.getDb()
+                .collection("Users")
+                .document(userId)
+                .update(postCountMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: posts count updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update posts count");
+                    }
+                });
+    }
+
+    //get subs count
+    private void handleCatsCount(final String userId) {
+        Log.d(TAG, "handleCatsCount: ");
+        coMeth.getDb()
+                .collection("Users/" + userId + "/Subscriptions/categories/Categories")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            //user has cats
+                            int catsCount = queryDocumentSnapshots.size();
+                            if (catsCount == 0) {
+                                catsCountField.setVisibility(View.GONE);
+                                catSubsButton.setVisibility(View.GONE);
+                                catSubsIcon.setVisibility(View.GONE);
+                            } else {
+
+                                catsCountField.setVisibility(View.VISIBLE);
+                                catSubsButton.setVisibility(View.VISIBLE);
+                                catSubsIcon.setVisibility(View.VISIBLE);
+
+                                catsCountField.setText(String.valueOf(catsCount));
+                            }
+                            udpateUserCatsCount(userId, catsCount);
+
+                        } else {
+                            //user has no cats
+                            Log.d(TAG, "onEvent: user has no cats");
+                        }
+                    }
+                });
+    }
+
+    private void udpateUserCatsCount(String userId, int catsCount) {
+        //create catsCountMap
+        Map<String, Object> catsCountMap = new HashMap<>();
+        catsCountMap.put("categories", catsCount);
+        //update the user profile
+        coMeth.getDb()
+                .collection("Users")
+                .document(userId)
+                .update(catsCountMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: update successful");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update catsCount\n" +
+                                e.getMessage());
+                    }
+                });
     }
 
     private void populatePage() {
@@ -201,6 +320,12 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                     userImageView.setImageDrawable(
                                             getResources().getDrawable(R.drawable.appiconshadow));
                                 }
+                                //set post count
+                                handlePostsCount(userId);
+
+                                //set categories
+                                handleCatsCount(userId);
+
                             } else {
                                 //user does not exist
                                 goToMain(getString(R.string.user_not_found_text));

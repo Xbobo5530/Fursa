@@ -1047,7 +1047,9 @@ public class CreatePostActivity extends AppCompatActivity {
         postMap.put("user_id", currentUserId);
 
         //get the current time
-        postMap.put("timestamp", FieldValue.serverTimestamp());
+        if (!isEditPost()) {
+            postMap.put("timestamp", FieldValue.serverTimestamp());
+        }
         //handle contact details
         if (contactDetails != null) {
             processContactDetails();
