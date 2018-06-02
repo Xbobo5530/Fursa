@@ -344,7 +344,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
         final Query firstQuery = coMeth.getDb().
                 collection("Posts")
-                .orderBy("event_date", Query.Direction.ASCENDING);
+                /*.orderBy("event_date", Query.Direction.ASCENDING)*/;
         postsList.clear();
         usersList.clear();
         loadPosts(firstQuery);
@@ -360,10 +360,8 @@ ViewCategoryActivity extends AppCompatActivity {
                 postsList.clear();
                 usersList.clear();
                 loadPosts(firstQuery);
-
             }
         });
-
     }
 
     /**
@@ -719,7 +717,6 @@ ViewCategoryActivity extends AppCompatActivity {
                 }
             }
         }
-
     }
 
     private void checkForEventDate(Posts post) {
@@ -837,7 +834,7 @@ ViewCategoryActivity extends AppCompatActivity {
     /**
      * load more posts
      * */
-    public void loadMorePosts() {
+    /*public void loadMorePosts() {
 
         Log.d(TAG, "loadMorePosts: ");
         Query nextQuery = coMeth.getDb()
@@ -877,7 +874,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 }
             }
         });
-    }
+    }*/
 
 
     //show snack

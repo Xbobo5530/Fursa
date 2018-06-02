@@ -221,8 +221,9 @@
         Thank you for updating.
         \nNew in this version:
         \n- Scroll to top by tapping the navigation bar icons.
-        \n- Reviewed terms of services and privacy policy
-        \n- Added about section under settings
+        \n- Reviewed terms of services and privacy policy.
+        \n- Added about section under settings.
+        \n- Added rate app feature under the app about section.
         \nHope you enjoy your experience with Fursa!
     </string>
     <string name="close_text">Close</string>
