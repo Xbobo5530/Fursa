@@ -105,7 +105,8 @@ ViewCategoryActivity extends AppCompatActivity {
     }
 
     private void goToMain() {
-        Intent goToMainIntent = new Intent(ViewCategoryActivity.this, MainActivity.class);
+        Intent goToMainIntent = new Intent(
+                ViewCategoryActivity.this, MainActivity.class);
         goToMainIntent.putExtra(getResources().getString(R.string.ACTION_NAME), getResources().getString(R.string.GOTO_VAL));
         goToMainIntent.putExtra(getResources().getString(R.string.DESTINATION_NAME), getResources().getString(R.string.CATEGORIES_VAL));
         startActivity(goToMainIntent);
@@ -196,6 +197,7 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         });
 
+
         //initiate items
         catFeed = findViewById(R.id.catRecyclerView);
 
@@ -207,6 +209,13 @@ ViewCategoryActivity extends AppCompatActivity {
         categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         coMeth.handlePostsView(ViewCategoryActivity.this, ViewCategoryActivity.this, catFeed);
         catFeed.setAdapter(categoryRecyclerAdapter);
+
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                catFeed.smoothScrollToPosition(0);
+            }
+        });
 
         //handle intent
         if (getIntent() != null) {
@@ -320,7 +329,7 @@ ViewCategoryActivity extends AppCompatActivity {
         showProgress(getString(R.string.loading_text));
         //handle showing posts
         //listen for scrolling on the homeFeedView
-        catFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        /*catFeed.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
@@ -331,7 +340,7 @@ ViewCategoryActivity extends AppCompatActivity {
                     loadMorePosts();
                 }
             }
-        });
+        });*/
 
         final Query firstQuery = coMeth.getDb().
                 collection("Posts")
@@ -480,27 +489,28 @@ ViewCategoryActivity extends AppCompatActivity {
      * @param firstQuery the first query when the page is first loaded
      * */
     private void loadPosts(Query firstQuery) {
-        firstQuery.addSnapshotListener(ViewCategoryActivity.this, new EventListener<QuerySnapshot>() {
+        firstQuery.addSnapshotListener(ViewCategoryActivity.this,
+                new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+            public void onEvent(QuerySnapshot queryDocumentSnapshots,
+                                FirebaseFirestoreException e) {
 
                 Log.d(TAG, "onEvent: first Query");
                 //check if the data is loaded for the first time
 
-                if (isFirstPageFirstLoad) {
+                /*if (isFirstPageFirstLoad) {
 
                     //get the last visible post
                     try {
 
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
-                        postsList.clear();
-                        usersList.clear();
+
 
                     } catch (Exception exception) {
                         Log.d(TAG, "error: " + exception.getMessage());
                     }
-                }
+                }*/
                 //create a for loop to check for document changes
                 for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                     //check if an item is added
@@ -634,8 +644,6 @@ ViewCategoryActivity extends AppCompatActivity {
         //check if current post contains business
 
         final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-        ArrayList catsArray = post.getCategories();
-        Log.d(TAG, "filterCat: \ncatsArray is: " + catsArray);
 
         if (category.equals("upcoming")) {
 
@@ -643,19 +651,7 @@ ViewCategoryActivity extends AppCompatActivity {
             //check if post has event date
             if (post.getEvent_date() != null) {
 
-                Date now = new Date();
-                long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
-                Date eventDate = new Date(post.getEvent_date().getTime() - twoThouNineHundYears);
-                Log.d(TAG, "filterCat: post has event date" +
-                        "\nevent date is: " + eventDate +
-                        "\nnow is: " + now);
-
-                if (eventDate.after(now)) {
-                    Log.d(TAG, "filterCat: cat is upcoming\nposts are after now");
-                    postsList.clear();
-                    usersList.clear();
-                    getFilteredPosts(post);
-                }
+                sortWithPostDate(post);
             }
 
         } else if (category.equals("featured")) {
@@ -663,28 +659,13 @@ ViewCategoryActivity extends AppCompatActivity {
             //cat is featured
             Log.d(TAG, "filterCat: cat is " + category);
 
-        } else if (category.equals("events")) {
-            Log.d(TAG, "filterCat: cat is " + category);
-            getFilteredPosts(post);
-
-            /*Collections.sort(postsList, new Comparator<Posts>() {
-                @Override
-                public int compare(Posts o1, Posts o2) {
-                    Log.d(TAG, "compare: ");
-                    if (o1.getEvent_date() == null || o2.getEvent_date() == null) {
-                        return o1.getEvent_date().compareTo(o2.getEvent_date());
-                    } else {
-                        return 0;
-                    }
-                }
-            });*/
-
         } else if (category.equals("popular")) {
 
             ///cat is popular
             Log.d(TAG, "filterCat: cat is " + category);
             //get post views
             int views = post.getViews();
+            Log.d(TAG, "filterCat: post view are " + views);
             if (views > 10) {
                 Log.d(TAG, "filterCat: views > 10");
                 getFilteredPosts(post);
@@ -692,20 +673,77 @@ ViewCategoryActivity extends AppCompatActivity {
 
         } else {
 
-            if (catsArray != null) {
+            if (post.getCategories() != null) {
+                ArrayList catsArray = post.getCategories();
+                Log.d(TAG, "filterCat: \ncatsArray is: " + catsArray);
 
-                Log.d(TAG, "filterCat: catsArray is not null");
-                //check if post contains cat
                 if (catsArray.contains(category)) {
+                    Log.d(TAG, "filterCat: catsArray contains + " + category);
 
-                    getFilteredPosts(post);
-
+                    switch (category) {
+                        case "jobs":
+                            checkForEventDate(post);
+                            break;
+                        case "education":
+                            checkForEventDate(post);
+                            break;
+                        case "exhibition":
+                            getFilteredPosts(post);
+                            break;
+                        case "events":
+                            checkForEventDate(post);
+                            break;
+                        case "services":
+                            getFilteredPosts(post);
+                            break;
+                        case "places":
+                            getFilteredPosts(post);
+                            break;
+                        case "queries":
+                            getFilteredPosts(post);
+                            break;
+                        case "buysell":
+                            getFilteredPosts(post);
+                            break;
+                        case "business":
+                            getFilteredPosts(post);
+                            break;
+                        default:
+                            Log.d(TAG, "filterCat: ");
+                            coMeth.stopLoading(progressDialog, swipeRefresh);
+                    }
                 } else {
-
-                    //posts don't have current cat
+                    //posts don't have cat
                     Log.d(TAG, "filterCat: ");
                     coMeth.stopLoading(progressDialog, swipeRefresh);
                 }
+            }
+        }
+
+    }
+
+    private void checkForEventDate(Posts post) {
+        if (post.getEvent_date() != null) {
+            sortWithPostDate(post);
+        } else {
+            getFilteredPosts(post);
+        }
+    }
+
+    private void sortWithPostDate(Posts post) {
+        if (post.getEvent_date() != null) {
+            Date now = new Date();
+            long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
+            Date eventDate = new Date(post.getEvent_date().getTime() - twoThouNineHundYears);
+            Log.d(TAG, "filterCat: post has event date" +
+                    "\nevent date is: " + eventDate +
+                    "\nnow is: " + now);
+
+            if (eventDate.after(now)) {
+                Log.d(TAG, "filterCat: cat is upcoming\nposts are after now");
+                postsList.clear();
+                usersList.clear();
+                getFilteredPosts(post);
             }
         }
     }
@@ -724,24 +762,30 @@ ViewCategoryActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            Date now = new Date();
-                            long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
-                            Date eventDate = new Date(post.getEvent_date().getTime() - twoThouNineHundYears);
-//                            Date postDate = post.getEvent_date();
-                            if (post.getEvent_date() != null) {
-                                Log.d(TAG, "onComplete: checking event date" +
-                                        "\nnow: " + now.toString() +
-                                        "\nevent date is: " + eventDate);
-                                if (eventDate.after(now)) {
-                                    //posts with event dates
-                                    addPost(documentSnapshot, post);
-                                }
-                            } else {
-                                //posts without event dates
-                                addPost(documentSnapshot, post);
-                            }
+
+                            //posts with event dates
+                            addPost(documentSnapshot, post);
+
+//                            Date now = new Date();
+//                            long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
+//                            Date eventDate = new Date(post.getEvent_date().getTime() - twoThouNineHundYears);
+////                            Date postDate = post.getEvent_date();
+//
+//
+//                            if (post.getEvent_date() != null) {
+//                                Log.d(TAG, "onComplete: checking event date" +
+//                                        "\nnow: " + now.toString() +
+//                                        "\nevent date is: " + eventDate);
+//                                if (eventDate.after(now)) {
+//                                    //posts with event dates
+//                                    addPost(documentSnapshot, post);
+//                                }
+//                            } else {
+//                                //posts without event dates
+//                                addPost(documentSnapshot, post);
+//                            }
                         } else {
-                            //user does now exist
+                            //user does not exist
                             coMeth.stopLoading(progressDialog, swipeRefresh);
                             Log.d(TAG, "onComplete: cat has no posts");
                         }
