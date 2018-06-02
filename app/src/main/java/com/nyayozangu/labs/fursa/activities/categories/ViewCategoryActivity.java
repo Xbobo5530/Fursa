@@ -22,6 +22,8 @@ import android.view.View;
 import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
@@ -45,13 +47,10 @@ import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 public class
 ViewCategoryActivity extends AppCompatActivity {
@@ -336,8 +335,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
         final Query firstQuery = coMeth.getDb().
                 collection("Posts")
-                .orderBy("event_date", Query.Direction.ASCENDING)
-                .limit(20);
+                .orderBy("event_date", Query.Direction.ASCENDING);
         postsList.clear();
         usersList.clear();
         loadPosts(firstQuery);
@@ -520,9 +518,6 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         });
 
-//        if (postsList.isEmpty()){
-//            loadMorePosts();
-//        }
     }
 
     /**
@@ -648,40 +643,18 @@ ViewCategoryActivity extends AppCompatActivity {
             //check if post has event date
             if (post.getEvent_date() != null) {
 
-                Date eventDate = post.getEvent_date();
-                Log.d(TAG, "filterCat: post has event date\nevent date is: " + eventDate);
-                Long eventDateMils = (eventDate.getTime());
-                Long nowMils = new Date().getTime();
+                Date now = new Date();
+                long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
+                Date eventDate = new Date(post.getEvent_date().getTime() - twoThouNineHundYears);
+                Log.d(TAG, "filterCat: post has event date" +
+                        "\nevent date is: " + eventDate +
+                        "\nnow is: " + now);
 
-                Calendar endCal = Calendar.getInstance();
-                Log.d(TAG, "filterCat: event cal is " + endCal);
-                endCal.add(Calendar.MONTH, 2);
-                Log.d(TAG, "filterCat: event cal after 2 months is " + endCal);
-
-                Calendar eventCal = Calendar.getInstance();
-                eventCal.set(eventDate.getYear(),
-                        eventDate.getMonth(),
-                        eventDate.getDay());
-                Log.d(TAG, "filterCat: eventCal is " + eventCal);
-
-
-                if (eventDate.after(new Date())/* && eventCal.before(endCal)*/) {
-
+                if (eventDate.after(now)) {
+                    Log.d(TAG, "filterCat: cat is upcoming\nposts are after now");
                     postsList.clear();
                     usersList.clear();
                     getFilteredPosts(post);
-                    // TODO: 6/1/18 find a better way to sort posts
-                    /*Collections.sort(postsList, new Comparator<Posts>() {
-                        @Override
-                        public int compare(Posts o1, Posts o2) {
-                            Log.d(TAG, "compare: ");
-                            if (o1.getEvent_date() == null || o2.getEvent_date() == null) {
-                                return o1.getEvent_date().compareTo(o2.getEvent_date());
-                            } else {
-                                return 0;
-                            }
-                        }
-                    });*/
                 }
             }
 
@@ -712,7 +685,8 @@ ViewCategoryActivity extends AppCompatActivity {
             Log.d(TAG, "filterCat: cat is " + category);
             //get post views
             int views = post.getViews();
-            if (views >= 10) {
+            if (views > 10) {
+                Log.d(TAG, "filterCat: views > 10");
                 getFilteredPosts(post);
             }
 
@@ -729,63 +703,11 @@ ViewCategoryActivity extends AppCompatActivity {
                 } else {
 
                     //posts don't have current cat
+                    Log.d(TAG, "filterCat: ");
                     coMeth.stopLoading(progressDialog, swipeRefresh);
                 }
             }
         }
-    }
-
-    /**
-     * process the number of posts
-     * @param postId the post to check for likes, comments and saves
-     * @param collectionName the name of the collection to check for document counts
-     * @param post the post to check for likes, comments and saves
-     * */
-    private void processCounts(String postId, final Posts post, final String collectionName) {
-
-        Log.d(TAG, "processCounts: ");
-        coMeth.getDb()
-                .collection("Posts")
-                .document(postId)
-                .collection(collectionName)
-                .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-
-                        if (!queryDocumentSnapshots.isEmpty()) {
-
-                            int count = queryDocumentSnapshots.size();
-                            Log.d(TAG, "onEvent: likes count inside is " + count);
-                            switch (collectionName) {
-
-                                case "Likes":
-                                    if (count > 10) {
-                                        if (!postsList.contains(post)) {
-                                            getFilteredPosts(post);
-                                        }
-                                    }
-                                    break;
-                                case "Saves":
-                                    if (count > 10) {
-                                        if (!postsList.contains(post)) {
-                                            getFilteredPosts(post);
-                                        }
-                                    }
-                                    break;
-                                case "Comments":
-                                    if (count > 10) {
-                                        if (!postsList.contains(post)) {
-                                            getFilteredPosts(post);
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    Log.d(TAG, "onEvent: on popular default");
-                            }
-                        }
-
-                    }
-                });
     }
 
     /**
@@ -798,54 +720,72 @@ ViewCategoryActivity extends AppCompatActivity {
                 .collection("Users")
                 .document(postUserId)
                 .get()
-                .addOnCompleteListener(
-                        ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                if (task.isSuccessful()) {
-
-                                    //check if user exists
-                                    if (task.getResult().exists()) {
-
-                                        String userId = task.getResult().getId();
-                                        Users user = task.getResult().toObject(Users.class).withId(userId);
-                                        //add new post to the local postsList
-                                        if (isFirstPageFirstLoad) {
-
-                                            //add the post at position 0 of the postsList
-                                            if (!postsList.contains(post)) {
-                                                postsList.add(0, post);
-                                                usersList.add(0, user);
-                                            }
-
-                                        } else {
-
-                                            //if the first page is loaded the add new post normally
-                                            if (!postsList.contains(post)) {
-                                                postsList.add(post);
-                                                usersList.add(user);
-                                            }
-                                        }
-                                        //notify the recycler adapter of the set change
-                                        categoryRecyclerAdapter.notifyDataSetChanged();
-                                        //stop loading after first post is visible
-                                        coMeth.onResultStopLoading(postsList, progressDialog, swipeRefresh);
-
-                                    } else {
-
-                                        //cat has no posts
-                                        coMeth.stopLoading(progressDialog, swipeRefresh);
-                                        Log.d(TAG, "onComplete: cat has no posts");
-                                    }
-
-                                } else {
-
-                                    //task has failed
-                                    Log.d(TAG, "onComplete: task has failed: " + task.getException());
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            Date now = new Date();
+                            long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
+                            Date eventDate = new Date(post.getEvent_date().getTime() - twoThouNineHundYears);
+//                            Date postDate = post.getEvent_date();
+                            if (post.getEvent_date() != null) {
+                                Log.d(TAG, "onComplete: checking event date" +
+                                        "\nnow: " + now.toString() +
+                                        "\nevent date is: " + eventDate);
+                                if (eventDate.after(now)) {
+                                    //posts with event dates
+                                    addPost(documentSnapshot, post);
                                 }
+                            } else {
+                                //posts without event dates
+                                addPost(documentSnapshot, post);
                             }
-                        });
+                        } else {
+                            //user does now exist
+                            coMeth.stopLoading(progressDialog, swipeRefresh);
+                            Log.d(TAG, "onComplete: cat has no posts");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get user \n" + e.getMessage());
+                    }
+                });
+    }
+
+    private void addPost(DocumentSnapshot documentSnapshot, Posts post) {
+        String userId = documentSnapshot.getId();
+        Users user = documentSnapshot.toObject(Users.class).withId(userId);
+        //add new post to the local postsList
+        if (isFirstPageFirstLoad) {
+
+            //add the post at position 0 of the postsList
+            if (!postsList.contains(post)) {
+                postsList.add(0, post);
+                usersList.add(0, user);
+//                                                coMeth.stopLoading(progressDialog, swipeRefresh);
+                Log.d(TAG, "onComplete: added post \n" + post.getTitle() +
+                        post.getViews());
+            }
+
+        } else {
+
+            //if the first page is loaded the add new post normally
+            if (!postsList.contains(post)) {
+                postsList.add(post);
+                usersList.add(user);
+//                                                coMeth.stopLoading(progressDialog, swipeRefresh);
+                Log.d(TAG, "onComplete: added post \n" + post.getTitle() +
+                        post.getViews());
+            }
+        }
+        //notify the recycler adapter of the set change
+        categoryRecyclerAdapter.notifyDataSetChanged();
+        //stop loading after first post is visible
+//                                        coMeth.onResultStopLoading(postsList, progressDialog, swipeRefresh);
+        coMeth.stopLoading(progressDialog, swipeRefresh);
     }
 
     //for loading more posts
