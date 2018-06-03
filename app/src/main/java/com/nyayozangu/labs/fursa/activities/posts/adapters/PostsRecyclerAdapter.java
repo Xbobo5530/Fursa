@@ -108,7 +108,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         postTitle = postsList.get(position).getTitle();
         holder.setTitle(postTitle);
-        String descData = postsList.get(position).getDesc();
+        final String descData = postsList.get(position).getDesc();
         holder.setDesc(descData);
 
         //set location
@@ -344,14 +344,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Sharing post");
-                sharePost(postId, postTitle, imageUrl, holder);
+                sharePost(postId, postTitle, descData, imageUrl, holder);
             }
         });
         holder.postShareText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Sharing post");
-                sharePost(postId, postTitle, imageUrl, holder);
+                sharePost(postId, postTitle, descData, imageUrl, holder);
             }
         });
 
@@ -482,11 +482,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .delete();
     }
 
-    private void sharePost(String postId, String postTitle, String imageUrl, @NonNull ViewHolder holder) {
+    private void sharePost(String postId,
+                           String postTitle,
+                           String postDesc,
+                           String imageUrl, @NonNull ViewHolder holder) {
         showProgress(context.getString(R.string.loading_text));
         //create post url
         String postUrl = context.getResources().getString(R.string.fursa_url_post_head) + postId;
-        shareDynamicLink(postUrl, postTitle, imageUrl, holder);
+        shareDynamicLink(postUrl, postTitle, postDesc, imageUrl, holder);
     }
 
     private void showProgress(String message) {
@@ -509,6 +512,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private void shareDynamicLink(String postUrl,
                                   final String postTitle,
+                                  final String postDesc,
                                   final String postImageUrl,
                                   final ViewHolder holder) {
         Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
@@ -520,8 +524,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         .build())
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
-                                .setTitle(context.getString(R.string.app_name))
-                                .setDescription(postTitle)
+                                .setTitle(postTitle)
+                                .setDescription(postDesc)
                                 .setImageUrl(Uri.parse(getImageUrl(postImageUrl)))
                                 .build())
                 .buildShortDynamicLink()
@@ -534,8 +538,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                             Log.d(TAG, "onComplete: short link is: " + shortLink);
 
                             //show share dialog
-                            String fullShareMsg = context.getString(R.string.app_name) + "\n" +
-                                    postTitle + "\n" +
+                            String fullShareMsg = postTitle + "\n" +
                                     shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");

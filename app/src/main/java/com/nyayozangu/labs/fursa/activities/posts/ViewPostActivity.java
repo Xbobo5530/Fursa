@@ -481,14 +481,11 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
         //get post title on create
         if (coMeth.isConnected()) {
-            postTitle = getPostTitle(postId);
-
             //handle action clicks
             //handle comments click
             commentsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     //open comments page
                     openComments();
 
@@ -540,7 +537,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         }
                     });
 
-            //set likes and saves
+            //set likes and save status
             if (coMeth.isConnected() && coMeth.isLoggedIn()) {
                 //get likes
                 //determine likes by current user
@@ -553,7 +550,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         .document(currentUserId)
                         .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                             @Override
-                            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                            public void onEvent(DocumentSnapshot documentSnapshot,
+                                                FirebaseFirestoreException e) {
 
                                 //update the like button real time
                                 if (documentSnapshot.exists()) {
@@ -834,6 +832,14 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                         postImage.setImageDrawable(
                                                 getResources().getDrawable(R.drawable.appiconshadow));
                                     }
+
+                                    postImage.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            openImage();
+                                        }
+                                    });
+
                                     Log.d(TAG, "onEvent: image set");
                                 } else {
                                     //post has no image, hide the image view
@@ -966,7 +972,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             //views click
             viewsButton.setOnClickListener(this);
             viewsCountField.setOnClickListener(this);
-            postImage.setOnClickListener(this);
+//            postImage.setOnClickListener(this);
             tagsLayout.setOnClickListener(this);
             locationLayout.setOnClickListener(this);
             shareButton.setOnClickListener(this);
@@ -1013,6 +1019,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void openImage() {
+        Log.d(TAG, "openImage: ");
         //open image in full screen
         Intent openImageIntent = new Intent(
                 ViewPostActivity.this, ViewImageActivity.class);
@@ -1134,8 +1141,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         .build())
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
-                                .setTitle(getString(R.string.app_name))
-                                .setDescription(getPostTitle(postId))
+                                .setTitle(titleTextView.getText().toString())
+                                .setDescription(descTextView.getText().toString())
                                 .setImageUrl(Uri.parse(getPostImageUrl()))
                                 .build())
                 .buildShortDynamicLink()
@@ -1148,9 +1155,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             Log.d(TAG, "onComplete: short link is: " + shortLink);
 
                             //show share dialog
-                            String postTitle = getPostTitle(postId);
-                            String fullShareMsg = getString(R.string.app_name) + "\n" +
-                                    postTitle + "\n" +
+                            String postTitle = titleTextView.getText().toString();
+                            String fullShareMsg = postTitle + "\n" +
                                     shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");
@@ -1210,47 +1216,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    //retrieve the post title
-    private String getPostTitle(String postId) {
 
-        //get data from db
-        coMeth.getDb()
-                .collection("Posts")
-                .document(postId)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-                        //check if exists
-                        if (documentSnapshot.exists()) {
-
-                            //post exists
-                            Posts post = documentSnapshot.toObject(Posts.class);
-                            postTitle = post.getTitle();
-                            Log.d(TAG, "onSuccess: post title is " + postTitle);
-
-                            //update views
-                            updateViews(post);
-
-                        } else {
-
-                            //post does not exist
-                            goToMain(getString(R.string.post_not_found_text));
-
-                        }
-
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to get post\n" + e.getMessage());
-                    }
-                });
-        Log.d(TAG, "getPostTitle: post title is " + postTitle);
-        return postTitle;
-    }
 
     /**
      * update the number of times a post is viewed
@@ -1379,7 +1345,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             case R.id.postShareTextTextView:
                 sharePost();
                 break;
-            case R.id.postImageView:
+            case R.id.viewPostImageView:
                 openImage();
                 break;
             case R.id.viewPostTagsLayout:
