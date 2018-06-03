@@ -91,12 +91,17 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
 
         catSubsArray = new ArrayList<>();
 
-        //handle intent
-        if (getIntent() != null) {
-            handleIntent();
+        if (coMeth.isConnected()) {
+            //handle intent
+            if (getIntent() != null) {
+                handleIntent();
+            } else {
+                //close the page if the intent is null
+                goToMain(getResources().getString(R.string.something_went_wrong_text));
+            }
         } else {
-            //close the page if the intent is null
-            goToMain(getResources().getString(R.string.something_went_wrong_text));
+            //device is not connected
+            showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
 
         //handle toolbar
@@ -110,6 +115,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 finish();
             }
         });
+
 
         //handle clicks
         userPostsButton.setOnClickListener(this);
@@ -435,7 +441,11 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         switch (v.getId()) {
 
             case R.id.userPagePostsButton:
-                goToUserPosts();
+                if (coMeth.isConnected()) {
+                    goToUserPosts();
+                } else {
+                    showSnack(getResources().getString(R.string.failed_to_connect_text));
+                }
                 break;
             case R.id.userPageLogoutCard:
                 coMeth.signOut();
@@ -446,19 +456,44 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 goToMain(getString(R.string.logged_out_text));
                 break;
             case R.id.userPageEditProfileButton:
-                goToAccSettings();
+                if (coMeth.isConnected()) {
+                    goToAccSettings();
+                } else {
+                    showSnack(getResources().getString(R.string.failed_to_connect_text));
+                }
                 break;
             case R.id.userPageEditProfileImageView:
-                goToAccSettings();
+                if (coMeth.isConnected()) {
+                    goToAccSettings();
+                } else {
+                    showSnack(getResources().getString(R.string.failed_to_connect_text));
+                }
                 break;
             case R.id.userPageCatsButton:
-                showCatsDialog();
+                if (coMeth.isConnected()) {
+                    showCatsDialog();
+                } else {
+                    showSnack(getResources().getString(R.string.failed_to_connect_text));
+                }
                 break;
             case R.id.userPageCatsImageView:
-                showCatsDialog();
+                if (coMeth.isConnected()) {
+                    showCatsDialog();
+                } else {
+                    showSnack(getResources().getString(R.string.failed_to_connect_text));
+                }
                 break;
             case R.id.userPageShareProfileButton:
-                shareProfile();
+                if (coMeth.isConnected()) {
+                    shareProfile();
+                } else {
+                    if (coMeth.isConnected()) {
+                        showCatsDialog();
+                    } else {
+                        showSnack(getResources().getString(R.string.failed_to_connect_text));
+                    }
+                    break;
+                }
                 break;
             default:
                 Log.d(TAG, "onClick: at user page click listener default");
@@ -547,7 +582,8 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 .collection("Users/" + userId + "/Subscriptions/categories/Categories")
                 .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots,
+                                        FirebaseFirestoreException e) {
 
                         //check if query is empty
                         if (!queryDocumentSnapshots.isEmpty()) {

@@ -63,14 +63,13 @@ public class ViewPostActivity extends AppCompatActivity {
     private CoMeth coMeth = new CoMeth();
 
     private MenuItem editPost, deletePost;
-    private ImageView viewPostImage;
     private FloatingActionButton viewPostActionsFAB;
     //    private TextView descTextView;
     private ExpandableTextView descTextView;
     private TextView timeTextView, priceTextView, locationTextView,
             titleTextView, eventDateTextView, contactTextView,
             userTextView, catTextView, tagsTextView,
-            commentsCountText, likesCountText, shareText,
+            commentsCountText, likesCountText, viewsCountField, shareText,
             saveText;
 
     private CircleImageView userImage; //image of user who posted post
@@ -83,8 +82,7 @@ public class ViewPostActivity extends AppCompatActivity {
             desc, postId, postTitle,
             reportDetailsString,
             postImageUri, postThumbUrl;
-    private ImageView likeButton;
-    private ImageView commentsButton, shareButton, saveButton;
+    private ImageView postImage, commentsButton, shareButton, saveButton, likeButton, viewsButton;
     private android.support.v7.widget.Toolbar toolbar;
     //progress
     private ProgressDialog progressDialog;
@@ -233,15 +231,11 @@ public class ViewPostActivity extends AppCompatActivity {
 
                         //what happens when an item is checked
                         if (isChecked) {
-
                             // If the user checked the item, add it to the selected items
                             reportedItems.add(coMeth.reportListKey[which]);
-
                         } else if (reportedItems.contains(coMeth.reportListKey[which])) {
-
                             // Else, if the item is already in the array, remove it
                             reportedItems.remove(coMeth.reportListKey[which]);
-
                         }
 
                     }
@@ -288,9 +282,7 @@ public class ViewPostActivity extends AppCompatActivity {
                                                 flagsArray.add(coMeth.getUid() + "\n" + reportDetailsString);
                                                 reportMap.put("flags", flagsArray);
                                                 submitReport(reportMap);
-
                                             } else {
-
                                                 if (!task.isSuccessful()) {
                                                     showSnack(getResources().getString(
                                                             R.string.something_went_wrong_text));
@@ -301,20 +293,14 @@ public class ViewPostActivity extends AppCompatActivity {
                                                     reportMap.put("flags", flagsArray);
                                                     submitReport(reportMap);
                                                 }
-
                                             }
-
                                         }
                                     });
-
                         } else {
-
                             //alert user is not connected
                             dialog.dismiss();
                             showSnack(getString(R.string.failed_to_connect_text));
-
                         }
-
                     }
                 })
                 .setCancelable(false)
@@ -333,13 +319,11 @@ public class ViewPostActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
 
                         if (task.isSuccessful()) {
-
                             coMeth.stopLoading(progressDialog);
                             //alert user
                             showConfirmReport();
 
                         } else {
-
                             coMeth.stopLoading(progressDialog);
                             showSnack(getString(R.string.report_submit_failed_text));
                             Log.d(TAG, "onComplete: " + task.getException());
@@ -360,9 +344,7 @@ public class ViewPostActivity extends AppCompatActivity {
                 .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         dialog.dismiss();
-
                     }
                 }).show();
     }
@@ -382,7 +364,8 @@ public class ViewPostActivity extends AppCompatActivity {
                         showProgress("Deleting...");
                         coMeth.getDb().collection("Posts").document(postId).delete();
                         coMeth.stopLoading(progressDialog, null);
-                        Intent delResultIntent = new Intent(ViewPostActivity.this, MainActivity.class);
+                        Intent delResultIntent =
+                                new Intent(ViewPostActivity.this, MainActivity.class);
                         delResultIntent.putExtra(
                                 getResources().getString(R.string.ACTION_NAME), getResources().getString(R.string.notify_value_text));
                         delResultIntent.putExtra(getResources().getString(R.string.MESSAGE_NAME), getString(R.string.del_success_text));
@@ -390,7 +373,6 @@ public class ViewPostActivity extends AppCompatActivity {
                             //go back to admin page
                             startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
                             finish();
-
                         } else {
                             startActivity(delResultIntent);
                             finish();
@@ -401,9 +383,7 @@ public class ViewPostActivity extends AppCompatActivity {
                 .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         dialog.dismiss();
-
                     }
                 })
                 .show();
@@ -459,13 +439,16 @@ public class ViewPostActivity extends AppCompatActivity {
         shareButton = findViewById(R.id.viewPostShareImageView);
         shareText = findViewById(R.id.viewPostShareTextView);
 
+        viewsCountField = findViewById(R.id.viewPostViewsCountTextView);
+        viewsButton = findViewById(R.id.viewPostViewsImageView);
+
         titleTextView = findViewById(R.id.viewPostTitleTextView);
         descTextView = findViewById(R.id.viewPostDescTextView);
         eventDateTextView = findViewById(R.id.viewPostEventDateTextView);
         timeTextView = findViewById(R.id.viewPostTimeTextView);
         priceTextView = findViewById(R.id.viewPostPriceTextView);
         locationTextView = findViewById(R.id.viewPostLocationTextView);
-        viewPostImage = findViewById(R.id.viewPostImageView);
+        postImage = findViewById(R.id.viewPostImageView);
         contactTextView = findViewById(R.id.viewPostContactTextView);
         userImage = findViewById(R.id.viewPostUserImageView);
 
@@ -499,7 +482,6 @@ public class ViewPostActivity extends AppCompatActivity {
         //get post title on create
         if (coMeth.isConnected()) {
             postTitle = getPostTitle(postId);
-
 
             //handle action clicks
             //handle comments click
@@ -557,7 +539,6 @@ public class ViewPostActivity extends AppCompatActivity {
                             }
                         }
                     });
-
 
             //set likes and saves
             if (coMeth.isConnected() && coMeth.isLoggedIn()) {
@@ -735,6 +716,23 @@ public class ViewPostActivity extends AppCompatActivity {
                                 descTextView.setText(desc);
                                 Log.d(TAG, "onEvent: desc set");
 
+                                //handle views
+                                //handle views visibility
+                                if (coMeth.isLoggedIn() &&
+                                        coMeth.getUid().equals(post.getUser_id())) {
+                                    viewsCountField.setVisibility(View.VISIBLE);
+                                    viewsButton.setVisibility(View.VISIBLE);
+                                    int views = post.getViews();
+                                    viewsCountField.setText(String.valueOf(views));
+
+                                } else {
+                                    //viewer has no credentials
+                                    //hide views
+                                    viewsCountField.setVisibility(View.GONE);
+                                    viewsButton.setVisibility(View.GONE);
+                                }
+
+
                                 //set tags
                                 tags = post.getTags();
                                 if (tags != null && !tags.isEmpty()) {
@@ -828,18 +826,18 @@ public class ViewPostActivity extends AppCompatActivity {
                                         coMeth.setImage(R.drawable.appiconshadow,
                                                 postImageUri,
                                                 postThumbUrl,
-                                                viewPostImage);
+                                                postImage);
                                     } catch (Exception glideException) {
                                         Log.d(TAG, "onEvent: glide exception " +
                                                 glideException.getMessage());
                                         //set placeholder image
-                                        viewPostImage.setImageDrawable(
+                                        postImage.setImageDrawable(
                                                 getResources().getDrawable(R.drawable.appiconshadow));
                                     }
                                     Log.d(TAG, "onEvent: image set");
                                 } else {
                                     //post has no image, hide the image view
-                                    viewPostImage.setVisibility(View.GONE);
+                                    postImage.setVisibility(View.GONE);
                                 }
 
                                 //get user id for the post
@@ -955,9 +953,10 @@ public class ViewPostActivity extends AppCompatActivity {
                                 Log.d(TAG, "Error: post does not exist");
                                 //save error and notify in main
                                 goToMain(getString(R.string.post_not_found_text));
+
                             }
 
-                            coMeth.stopLoading(progressDialog);
+//                            coMeth.stopLoading(progressDialog);
 
                         }
                     });
@@ -977,7 +976,7 @@ public class ViewPostActivity extends AppCompatActivity {
             });
 
             //post image click
-            viewPostImage.setOnClickListener(new View.OnClickListener() {
+            postImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
@@ -1055,7 +1054,7 @@ public class ViewPostActivity extends AppCompatActivity {
 
             // TODO: 5/28/18 implement swipe image to close activity
         /*//handle swipe image to close
-        viewPostImage.setOnTouchListener(new View.OnTouchListener() {
+        postImage.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
@@ -1068,13 +1067,13 @@ public class ViewPostActivity extends AppCompatActivity {
 
         } else {
             //device is not connected
-            goToMain(getResources().getString(R.string.failed_to_connect_text));
+//            goToMain(getResources().getString(R.string.failed_to_connect_text));
+            showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
     }
 
     /**
      * update the number of comments on a post
-     *
      * @param comments the number of comments in post
      */
     private void updatePostComments(int comments) {
@@ -1312,26 +1311,32 @@ public class ViewPostActivity extends AppCompatActivity {
      */
     private void updateViews(Posts post) {
         Log.d(TAG, "updateViews: ");
-        views = post.getViews() + 1;
-        //update views
-        Map<String, Object> viewsMap = new HashMap<>();
-        viewsMap.put("views", views);
-        coMeth.getDb()
-                .collection("Posts")
-                .document(postId)
-                .update(viewsMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "onSuccess: views updated");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
-                    }
-                });
+
+        if (!coMeth.isLoggedIn() ||
+                (coMeth.isLoggedIn() && !coMeth.getUid().equals(post.getUser_id()))) {
+
+            //update view
+            views = post.getViews() + 1;
+            //update views
+            Map<String, Object> viewsMap = new HashMap<>();
+            viewsMap.put("views", views);
+            coMeth.getDb()
+                    .collection("Posts")
+                    .document(postId)
+                    .update(viewsMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "onSuccess: views updated");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
+                        }
+                    });
+        }
     }
 
     private void goToMain(String message) {

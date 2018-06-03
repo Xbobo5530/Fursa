@@ -10,5 +10,6 @@
     <color name="black_overlay">#66000000</color>
     <color name="black_transparent">#19000000</color>
     <color name="grey_background">#efefef</color>
+    <color name="views_color">#4f94fa</color>
 
 </resources>

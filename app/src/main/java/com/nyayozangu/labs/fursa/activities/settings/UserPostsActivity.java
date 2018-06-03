@@ -94,6 +94,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         //initialize items
         newPostFab = findViewById(R.id.userPostsNewPostFab);
 
+
         //get intent
         if (getIntent() != null) {
             handleIntent();
