@@ -10,6 +10,24 @@ import java.util.Date;
 
 public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.PostId {
 
+    // TODO: 6/3/18 To hide this warning and ensure your app does not break, you need to add the following code to your app before calling any other Cloud Firestore methods:
+    //
+    //    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    //    FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+    //        .setTimestampsInSnapshotsEnabled(true)
+    //        .build();
+    //    firestore.setFirestoreSettings(settings);
+    //
+    //    With this change, timestamps stored in Cloud Firestore will be read back as com.google.firebase.Timestamp objects instead of as system java.util.Date objects. So you will also need to update code expecting a java.util.Date to instead expect a Timestamp. For example:
+    //
+    //    // Old:
+    //    java.util.Date date = snapshot.getDate("created_at");
+    //    // New:
+    //    Timestamp timestamp = snapshot.getTimestamp("created_at");
+    //    java.util.Date date = timestamp.toDate();
+    //
+    //    Please audit all existing usages of java.util.Date when you enable the new behavior. In a future release, the behavior will be changed to the new behavior, so if you do not follow these steps, YOUR APP MAY BREAK.
+
     //get all the details from database
     public String user_id, image_url, thumb_url, desc, title, price, image_text, image_labels;
     public ArrayList<String> location, contact_details, categories, tags;
