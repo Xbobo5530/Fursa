@@ -54,7 +54,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ViewPostActivity extends AppCompatActivity {
+public class ViewPostActivity extends AppCompatActivity implements View.OnClickListener {
 
     // TODO: 5/7/18 reorganize code on click listeners
     // TODO: 5/30/18 handle posts with multiple images
@@ -205,9 +205,9 @@ public class ViewPostActivity extends AppCompatActivity {
         statsBuilder.setTitle(R.string.post_stats_text)
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_stats))
                 .setMessage(
-                        getResources().getString(R.string.likes_text) + ": " + likes + "\n" +
-                                getResources().getString(R.string.comments_text) + ": " + comments + "\n" +
-                                getResources().getString(R.string.views_text) + ": " + views
+                        getResources().getString(R.string.likes_text) + ": " + likesCountText.getText() + "\n" +
+                                getResources().getString(R.string.comments_text) + ": " + commentsCountText.getText() + "\n" +
+                                getResources().getString(R.string.views_text) + ": " + viewsCountField.getText()
                 )
                 .setPositiveButton(getResources().getString(R.string.ok_text),
                         new DialogInterface.OnClickListener() {
@@ -962,95 +962,17 @@ public class ViewPostActivity extends AppCompatActivity {
                     });
 
             //handle clicks
-            //handle share click
-            shareButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
 
-                    Log.d(TAG, "Sharing post");
-                    //get post url
-                    showProgress(getString(R.string.loading_text));
-                    String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
-                    shareDynamicLink(postUrl);
-                }
-            });
+            //views click
+            viewsButton.setOnClickListener(this);
+            viewsCountField.setOnClickListener(this);
+            postImage.setOnClickListener(this);
+            tagsLayout.setOnClickListener(this);
+            locationLayout.setOnClickListener(this);
+            shareButton.setOnClickListener(this);
+            shareText.setOnClickListener(this);
+            catLayout.setOnClickListener(this);
 
-            //post image click
-            postImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    //open image in full screen
-                    Intent openImageIntent = new Intent(
-                            ViewPostActivity.this, ViewImageActivity.class);
-                    openImageIntent.putExtra("imageUrl", postImageUri);
-                    startActivity(openImageIntent);
-
-                }
-            });
-
-            //category layout click
-            catLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //open alert dialog
-                    AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
-                    catDialogBuilder.setTitle(getResources().getString(R.string.categories_text))
-                            .setIcon(getResources().getDrawable(R.drawable.ic_action_categories))
-                            .setItems(catArray.toArray(new String[0]), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                    //open view cat activity
-                                    Intent catIntent = new Intent(
-                                            ViewPostActivity.this, ViewCategoryActivity.class);
-                                    catIntent.putExtra("category", catKeys.get(which));
-                                    startActivity(catIntent);
-                                    finish();
-
-                                    Log.d(TAG, "onClick: \nuser selected cat is: " + catKeys.get(which));
-                                }
-                            })
-                            .show();
-
-                }
-            });
-
-
-            //location layout click
-            locationLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //launch google maps and serch for location
-                    String location = locationTextView.getText().toString();
-                    Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + location);
-                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                    mapIntent.setPackage("com.google.android.apps.maps");
-                    startActivity(mapIntent);
-                }
-            });
-
-            //tags layout click
-            tagsLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "onClick: tags are: " + tags);
-                    AlertDialog.Builder tagsBuilder =
-                            new AlertDialog.Builder(ViewPostActivity.this);
-                    tagsBuilder.setTitle(getString(R.string.tags_text))
-                            .setIcon(getResources().getDrawable(R.drawable.ic_action_tags))
-                            .setItems(tags.toArray(new String[0]), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent searchTagIntent = new Intent(
-                                            ViewPostActivity.this, SearchableActivity.class);
-                                    searchTagIntent.putExtra("tag", tags.get(which));
-                                    startActivity(searchTagIntent);
-                                }
-                            })
-                            .show();
-                }
-            });
 
             // TODO: 5/28/18 implement swipe image to close activity
         /*//handle swipe image to close
@@ -1070,6 +992,32 @@ public class ViewPostActivity extends AppCompatActivity {
 //            goToMain(getResources().getString(R.string.failed_to_connect_text));
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
+    }
+
+    private void openTags() {
+        Log.d(TAG, "onClick: tags are: " + tags);
+        AlertDialog.Builder tagsBuilder =
+                new AlertDialog.Builder(ViewPostActivity.this);
+        tagsBuilder.setTitle(getString(R.string.tags_text))
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_tags))
+                .setItems(tags.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent searchTagIntent = new Intent(
+                                ViewPostActivity.this, SearchableActivity.class);
+                        searchTagIntent.putExtra("tag", tags.get(which));
+                        startActivity(searchTagIntent);
+                    }
+                })
+                .show();
+    }
+
+    private void openImage() {
+        //open image in full screen
+        Intent openImageIntent = new Intent(
+                ViewPostActivity.this, ViewImageActivity.class);
+        openImageIntent.putExtra("imageUrl", postImageUri);
+        startActivity(openImageIntent);
     }
 
     /**
@@ -1407,5 +1355,78 @@ public class ViewPostActivity extends AppCompatActivity {
         loginIntent.putExtra(getString(R.string.MESSAGE_NAME), message);
         startActivity(loginIntent);
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+
+            case R.id.viewPostViewsCountTextView:
+                showPostStats();
+                break;
+            case R.id.viewPostViewsImageView:
+                showPostStats();
+                break;
+            case R.id.viewPostLocationLayout:
+                openMap();
+                break;
+            case R.id.viewPostCatLayout:
+                showCats();
+                break;
+            case R.id.viewPostShareImageView:
+                sharePost();
+                break;
+            case R.id.postShareTextTextView:
+                sharePost();
+                break;
+            case R.id.postImageView:
+                openImage();
+                break;
+            case R.id.viewPostTagsLayout:
+                openTags();
+                break;
+            default:
+                Log.d(TAG, "onClick: on details click view post activity");
+
+        }
+    }
+
+    private void sharePost() {
+        Log.d(TAG, "Sharing post");
+        //get post url
+        showProgress(getString(R.string.loading_text));
+        String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
+        shareDynamicLink(postUrl);
+    }
+
+    private void openMap() {
+        //launch google maps and search for location
+        String location = locationTextView.getText().toString();
+        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + location);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
+    }
+
+    private void showCats() {
+        //open alert dialog
+        AlertDialog.Builder catDialogBuilder = new AlertDialog.Builder(ViewPostActivity.this);
+        catDialogBuilder.setTitle(getResources().getString(R.string.categories_text))
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_categories))
+                .setItems(catArray.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        //open view cat activity
+                        Intent catIntent = new Intent(
+                                ViewPostActivity.this, ViewCategoryActivity.class);
+                        catIntent.putExtra("category", catKeys.get(which));
+                        startActivity(catIntent);
+                        finish();
+
+                        Log.d(TAG, "onClick: \nuser selected cat is: " + catKeys.get(which));
+                    }
+                })
+                .show();
     }
 }

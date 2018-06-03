@@ -23,94 +23,6 @@
             app:layout_anchor="@id/create_post_app_bar">
 
             <ImageView
-                android:id="@+id/viewPostCommentImageView"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/viewPostLikeImageView"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_action_comment" />
-
-            <ImageView
-                android:id="@+id/viewPostSaveImageView"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/viewPostCommentImageView"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_action_bookmark_outline" />
-
-            <ImageView
-                android:id="@+id/viewPostLikeImageView"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_action_like_unclicked" />
-
-            <TextView
-                android:id="@+id/viewPostLikesCountsTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/zero_text"
-                android:textAlignment="center"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/viewPostLikeImageView"
-                app:layout_constraintStart_toStartOf="@+id/viewPostLikeImageView"
-                app:layout_constraintTop_toBottomOf="@+id/viewPostLikeImageView" />
-
-            <ImageView
-                android:id="@+id/viewPostShareImageView"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/viewPostSaveImageView"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_action_share" />
-
-            <TextView
-                android:id="@+id/viewPostCommentTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/zero_text"
-                android:textAlignment="center"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/viewPostCommentImageView"
-                app:layout_constraintStart_toStartOf="@+id/viewPostCommentImageView"
-                app:layout_constraintTop_toBottomOf="@+id/viewPostCommentImageView" />
-
-            <TextView
-                android:id="@+id/viewPostSaveTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/save_text"
-                android:textAlignment="center"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/viewPostSaveImageView"
-                app:layout_constraintStart_toStartOf="@+id/viewPostSaveImageView"
-                app:layout_constraintTop_toBottomOf="@+id/viewPostSaveImageView" />
-
-            <TextView
-                android:id="@+id/viewPostShareTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/share_text"
-                android:textAlignment="center"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/viewPostShareImageView"
-                app:layout_constraintStart_toStartOf="@+id/viewPostShareImageView"
-                app:layout_constraintTop_toBottomOf="@+id/viewPostShareImageView" />
-
-            <ImageView
                 android:id="@+id/viewPostViewsImageView"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
@@ -134,6 +46,108 @@
                 app:layout_constraintEnd_toEndOf="@+id/viewPostViewsImageView"
                 app:layout_constraintStart_toStartOf="@+id/viewPostViewsImageView"
                 app:layout_constraintTop_toBottomOf="@+id/viewPostViewsImageView" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/viewPostActionsLeftLayout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/viewPostViewsImageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/viewPostLikesCountsTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/zero_text"
+                    android:textAlignment="center"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/viewPostLikeImageView"
+                    app:layout_constraintStart_toStartOf="@+id/viewPostLikeImageView"
+                    app:layout_constraintTop_toBottomOf="@+id/viewPostLikeImageView" />
+
+                <TextView
+                    android:id="@+id/viewPostShareTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/share_text"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/viewPostShareImageView"
+                    app:layout_constraintStart_toStartOf="@+id/viewPostShareImageView"
+                    app:layout_constraintTop_toBottomOf="@+id/viewPostShareImageView" />
+
+                <TextView
+                    android:id="@+id/viewPostCommentTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/zero_text"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/viewPostCommentImageView"
+                    app:layout_constraintStart_toStartOf="@+id/viewPostCommentImageView"
+                    app:layout_constraintTop_toBottomOf="@+id/viewPostCommentImageView" />
+
+                <TextView
+                    android:id="@+id/viewPostSaveTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/save_text"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/viewPostSaveImageView"
+                    app:layout_constraintStart_toStartOf="@+id/viewPostSaveImageView"
+                    app:layout_constraintTop_toBottomOf="@+id/viewPostSaveImageView" />
+
+                <ImageView
+                    android:id="@+id/viewPostShareImageView"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/viewPostSaveImageView"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_action_share" />
+
+                <ImageView
+                    android:id="@+id/viewPostCommentImageView"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/viewPostLikeImageView"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_action_comment" />
+
+                <ImageView
+                    android:id="@+id/viewPostSaveImageView"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/viewPostCommentImageView"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_action_bookmark_outline" />
+
+                <ImageView
+                    android:id="@+id/viewPostLikeImageView"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_action_like_unclicked" />
+
+            </android.support.constraint.ConstraintLayout>
+
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout
