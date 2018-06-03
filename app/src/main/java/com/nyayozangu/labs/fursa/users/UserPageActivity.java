@@ -3,9 +3,11 @@ package com.nyayozangu.labs.fursa.users;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,8 +16,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -44,10 +51,10 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     private static final String TAG = "Sean";
     private TextView usernameField, userBioField, postsCountField, catsCountField;
     private CircleImageView userImageView;
-    private Button userPostsButton, editProfileButton, catSubsButton, logoutButton;
-    private ImageView editProfileIcon, catSubsIcon, postsIcon;
+    private Button userPostsButton, editProfileButton, catSubsButton, logoutButton, shareProfileButton;
+    private ImageView editProfileIcon, catSubsIcon, postsIcon, shareProfileIcon;
     private ConstraintLayout logoutCard;
-    private String userId;
+    private String userId, userImageUrl;
     private CoMeth coMeth = new CoMeth();
     private ProgressDialog progressDialog;
     private String[] catsListItems;
@@ -76,6 +83,9 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         userPostsButton = findViewById(R.id.userPagePostsButton);
         postsIcon = findViewById(R.id.userPageUserPostsImageView);
         postsCountField = findViewById(R.id.userPagePostsCountTextView);
+
+        shareProfileButton = findViewById(R.id.userPageShareProfileButton);
+        shareProfileIcon = findViewById(R.id.userPageShareImageView);
 
         Toolbar toolbar = findViewById(R.id.userPageToolbar);
 
@@ -109,6 +119,8 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         catSubsIcon.setOnClickListener(this);
         logoutCard.setOnClickListener(this);
         logoutButton.setOnClickListener(this);
+        shareProfileIcon.setOnClickListener(this);
+        shareProfileButton.setOnClickListener(this);
     }
 
     private void handleIntent() {
@@ -308,7 +320,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                 String bio = user.getBio();
                                 userBioField.setText(bio);
                                 //get user thumb
-                                String userImageUrl = null;
+                                userImageUrl = null;
                                 if (user.getThumb() != null) {
                                     userImageUrl = user.getThumb();
                                     setImage(userImageUrl);
@@ -415,8 +427,77 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
             case R.id.userPageCatsImageView:
                 showCatsDialog();
                 break;
+            case R.id.userPageShareProfileButton:
+                shareProfile();
+                break;
             default:
                 Log.d(TAG, "onClick: at user page click listener default");
+        }
+    }
+
+    private void shareProfile() {
+        Log.d(TAG, "shareProfile: ");
+
+        //show loading
+        showProgress(getResources().getString(R.string.loading_text));
+        //create app url
+        String profileUrl = getResources().getString(R.string.fursa_url_profile_head) + userId;
+        final String fullShareMsg = getBio();
+
+        Task<ShortDynamicLink> shortLinkTask =
+                FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse(profileUrl))
+                        .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
+                        .setSocialMetaTagParameters(
+                                new DynamicLink.SocialMetaTagParameters.Builder()
+                                        .setTitle(getString(R.string.app_name))
+                                        .setDescription(getBio())
+                                        .setImageUrl(Uri.parse(getProfileImageUrl()))
+                                        .build())
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                if (task.isSuccessful()) {
+                                    Uri shortLink = task.getResult().getShortLink();
+                                    Uri flowchartLink = task.getResult().getPreviewLink();
+                                    Log.d(TAG, "onComplete: short link is: " + shortLink);
+
+                                    //show share dialog
+                                    String shareText = fullShareMsg + "\n" + shortLink;
+                                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                    shareIntent.setType("text/plain");
+                                    shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                                            getResources().getString(R.string.app_name));
+                                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+                                    coMeth.stopLoading(progressDialog);
+                                    startActivity(Intent.createChooser(
+                                            shareIntent, getString(R.string.share_with_text)));
+                                } else {
+                                    Log.d(TAG, "onComplete: " +
+                                            "\ncreating short link task failed\n" +
+                                            task.getException());
+                                    coMeth.stopLoading(progressDialog);
+                                    showSnack(getString(R.string.failed_to_share_text) + " profile");
+                                }
+                            }
+                        });
+
+
+    }
+
+    /**
+     * get the user bio
+     *
+     * @return bio: String the bio of the user
+     */
+    private String getBio() {
+        if (userBioField.getText().toString().isEmpty()) {
+            //bio is empty
+            return getResources().getString(R.string.checkout_my_page_text);
+        } else {
+            return getResources().getString(R.string.checkout_my_page_text)
+                    + "\n" + userBioField.getText().toString();
         }
     }
 
@@ -495,5 +576,18 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         openCatIntent.putExtra("category", catKey);
         startActivity(openCatIntent);
         finish();
+    }
+
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.settingsLayout),
+                message, Snackbar.LENGTH_LONG).show();
+    }
+
+    public String getProfileImageUrl() {
+        if (userImageUrl != null) {
+            return userImageUrl;
+        } else {
+            return getResources().getString(R.string.app_icon_url);
+        }
     }
 }

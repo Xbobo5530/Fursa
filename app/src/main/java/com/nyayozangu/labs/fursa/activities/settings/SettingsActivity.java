@@ -347,9 +347,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                                 }
                             }
                         });
-
-
-
     }
 
     private void sendEmail() {
