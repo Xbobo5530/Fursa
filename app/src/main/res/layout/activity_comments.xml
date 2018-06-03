@@ -64,7 +64,7 @@
             app:layout_constraintEnd_toStartOf="@+id/commentsChatEditText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_thumb_person" />
+            app:srcCompat="@drawable/ic_action_person_placeholder" />
 
         <EditText
             android:id="@+id/commentsChatEditText"
@@ -116,7 +116,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_account_circle_black_48dp" />
+            app:srcCompat="@drawable/ic_action_person_placeholder" />
 
         <TextView
             android:id="@+id/commentsPostUsernameTextView"

@@ -62,7 +62,7 @@
                 android:id="@+id/postUsernameTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
                 android:maxLength="20"
@@ -70,7 +70,7 @@
                 android:text="@string/username_post_placeholder_text"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/postLocationTextView"
-                app:layout_constraintEnd_toStartOf="@+id/postMenuImageView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -115,14 +115,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:maxLength="50"
                 android:maxLines="3"
                 android:text="@string/location__post_placeholder_text"
                 android:textStyle="italic"
                 app:layout_constraintBottom_toBottomOf="@+id/postUserImageCircleImageView"
-                app:layout_constraintEnd_toStartOf="@+id/postMenuImageView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
                 app:layout_constraintTop_toBottomOf="@+id/postUsernameTextView" />
 
@@ -172,17 +172,6 @@
                 app:layout_constraintStart_toEndOf="@+id/postCommetnImageView"
                 app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
                 app:srcCompat="@drawable/ic_action_bookmark_outline" />
-
-            <ImageView
-                android:id="@+id/postMenuImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_action_menu_dots" />
 
             <TextView
                 android:id="@+id/postCommentCountText"

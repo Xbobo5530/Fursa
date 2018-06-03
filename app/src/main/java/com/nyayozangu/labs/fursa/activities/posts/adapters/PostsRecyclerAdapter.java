@@ -11,8 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -208,9 +206,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        /**
-                                         * when like is clicked and user has already liked, delete existing like
-                                         * */
+                                        //when like is clicked and user has already liked, delete existing like
                                         unlikePost(postId, currentUserId);
                                     }
                                 });
@@ -228,10 +224,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 holder.postLikeButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        /**
-                                         * when like button is clicked and user has not liked post,
-                                         * add like to post
-                                         * */
+
+                                        // when like button is clicked and user has not liked post,
+                                        // add like to post
                                         likePost(postId, currentUserId);
                                     }
                                 });
@@ -485,7 +480,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void sharePost(String postId,
                            String postTitle,
                            String postDesc,
-                           String imageUrl, @NonNull ViewHolder holder) {
+                           String imageUrl,
+                           @NonNull ViewHolder holder) {
         showProgress(context.getString(R.string.loading_text));
         //create post url
         String postUrl = context.getResources().getString(R.string.fursa_url_post_head) + postId;
@@ -500,7 +496,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         progressDialog.show();
     }
 
-    private void setAnimation(View viewToAnimate, int position) {
+    /*private void setAnimation(View viewToAnimate, int position) {
         // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition) {
             Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
@@ -508,8 +504,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         }
-    }
+    }*/
 
+    /**
+     * share the dynamic link
+     *
+     * @param holder       the view holder containing the post
+     * @param postTitle    the post title
+     * @param postDesc     the post description
+     * @param postImageUrl the post image url
+     */
     private void shareDynamicLink(String postUrl,
                                   final String postTitle,
                                   final String postDesc,

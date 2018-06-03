@@ -191,7 +191,7 @@ public class CoMeth {
     public void setImage(int placeholderDrawable, String imageUrl, String thumbUrl, ImageView targetImageView) {
         Log.d(TAG, "setImage: with thumb");
         RequestOptions placeHolderOptions = new RequestOptions();
-        placeHolderOptions.placeholder(R.drawable.ic_action_image_placeholder);
+        placeHolderOptions.placeholder(R.drawable.appiconshadow);
         Glide.with(getApplicationContext())
                 .applyDefaultRequestOptions(placeHolderOptions)
                 .load(imageUrl)
