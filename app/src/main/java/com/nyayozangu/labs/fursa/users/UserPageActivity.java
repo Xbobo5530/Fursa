@@ -106,6 +106,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO: 6/3/18 check if stack has content
                 finish();
             }
         });
@@ -121,6 +122,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         logoutButton.setOnClickListener(this);
         shareProfileIcon.setOnClickListener(this);
         shareProfileButton.setOnClickListener(this);
+
     }
 
     private void handleIntent() {
@@ -132,10 +134,37 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
             //handle button visibility
             handleItemVisibility(userId);
             coMeth.stopLoading(progressDialog);
+        } else if (getIntent().getAction() != null) {
+            //handle get intent
+            userId = handleDeepLink(getIntent());
+            //set page data
+            populatePage();
         } else {
             goToMain(getString(R.string.something_went_wrong_text));
         }
+
+        /*Intent appLinkIntent = getIntent();
+        String appLinkAction = appLinkIntent.getAction();
+        Uri appLinkData = appLinkIntent.getData();*/
     }
+
+    private String handleDeepLink(Intent intent) {
+
+        // handle app links
+        Log.i(TAG, "at handleDeepLinkIntent");
+        String appLinkAction = intent.getAction();
+        Uri appLinkData = intent.getData();
+
+        if (Intent.ACTION_VIEW.equals(appLinkAction) && appLinkData != null) {
+
+            String profileUrl = String.valueOf(appLinkData);
+            int endOfUrlHead = getResources().getString(R.string.fursa_url_profile_head).length();
+            userId = profileUrl.substring(endOfUrlHead);
+            Log.i(TAG, "incoming user id is " + userId);
+        }
+        return userId;
+    }
+
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -296,66 +325,67 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void populatePage() {
-        try {
-            coMeth.getDb()
-                    .collection("Users")
-                    .document(userId)
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                //convert doc to User object
-                                Users user = documentSnapshot.toObject(Users.class);
-                                //set username
-                                String username = user.getName();
-                                //set toolbar title
-                                getSupportActionBar().setTitle(username);
-                                //set username field
-                                usernameField.setText(username);
-                                //set username to posts button
-                                String postsButtonText = "View " + username + "\'s posts";
-                                userPostsButton.setText(postsButtonText);
-                                //get bio
-                                String bio = user.getBio();
-                                userBioField.setText(bio);
-                                //get user thumb
-                                userImageUrl = null;
-                                if (user.getThumb() != null) {
-                                    userImageUrl = user.getThumb();
-                                    setImage(userImageUrl);
-                                } else if (user.getImage() != null) {
-                                    userImageUrl = user.getImage();
-                                    setImage(userImageUrl);
-                                } else {
-                                    //no user image
-                                    userImageView.setImageDrawable(
-                                            getResources().getDrawable(R.drawable.appiconshadow));
-                                }
-                                //set post count
-                                handlePostsCount(userId);
 
-                                //set categories
-                                handleCatsCount(userId);
-
+        //show progress
+        showProgress(getResources().getString(R.string.loading_text));
+        coMeth.getDb()
+                .collection("Users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //convert doc to User object
+                            Users user = documentSnapshot.toObject(Users.class);
+                            //set username
+                            String username = user.getName();
+                            //set toolbar title
+                            getSupportActionBar().setTitle(username);
+                            //set username field
+                            usernameField.setText(username);
+                            //set username to posts button
+                            String postsButtonText = "View " + username + "\'s posts";
+                            userPostsButton.setText(postsButtonText);
+                            //get bio
+                            String bio = user.getBio();
+                            userBioField.setText(bio);
+                            //get user thumb
+                            userImageUrl = null;
+                            if (user.getThumb() != null) {
+                                userImageUrl = user.getThumb();
+                                setImage(userImageUrl);
+                            } else if (user.getImage() != null) {
+                                userImageUrl = user.getImage();
+                                setImage(userImageUrl);
                             } else {
-                                //user does not exist
-                                goToMain(getString(R.string.user_not_found_text));
+                                //no user image
+                                userImageView.setImageDrawable(
+                                        getResources().getDrawable(R.drawable.appiconshadow));
                             }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to get user data " + e.getMessage());
-                            goToMain(getString(R.string.something_went_wrong_text));
-                        }
-                    });
+                            //set post count
+                            handlePostsCount(userId);
+                            //set categories
+                            handleCatsCount(userId);
+                            coMeth.stopLoading(progressDialog);
 
-        } catch (Exception e) {
-            Log.d(TAG, "populatePage: exception caught" + e.getMessage());
-            goToMain(getString(R.string.something_went_wrong_text));
-        }
+                        } else {
+                            //user does not exist
+                            coMeth.stopLoading(progressDialog);
+                            goToMain(getString(R.string.user_not_found_text));
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get user data " + e.getMessage());
+                        coMeth.stopLoading(progressDialog);
+                        goToMain(getString(R.string.something_went_wrong_text));
+                    }
+                });
+        coMeth.stopLoading(progressDialog);
+
 
     }
 
@@ -435,6 +465,9 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    /**
+     * share a deep link to the profile page
+     */
     private void shareProfile() {
         Log.d(TAG, "shareProfile: ");
 

@@ -74,6 +74,7 @@
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
                 android:textColor="@color/colorAccent"
+                android:visibility="gone"
                 app:layout_constraintEnd_toStartOf="@+id/userPagePostsCountTextView"
                 app:layout_constraintStart_toEndOf="@+id/userPageUserPostsImageView"
                 app:layout_constraintTop_toBottomOf="@+id/userPageCatsButton" />
@@ -84,6 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="16dp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/userPagePostsButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:srcCompat="@drawable/ic_action_posts" />
@@ -102,6 +104,7 @@
                 android:textColor="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/userPageEditProfileImageView"
+                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/userPageUserImage" />
 
             <Button
@@ -116,6 +119,7 @@
                 android:textAlignment="viewStart"
                 android:textAllCaps="false"
                 android:textColor="@color/colorAccent"
+                android:visibility="gone"
                 app:layout_constraintEnd_toStartOf="@+id/userPageCatsCountTextView"
                 app:layout_constraintStart_toEndOf="@+id/userPageCatsImageView"
                 app:layout_constraintTop_toBottomOf="@+id/userPageEditProfileButton" />
@@ -127,6 +131,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/userPageEditProfileButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/userPageEditProfileButton"
@@ -139,6 +144,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/userPageCatsButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/userPageCatsButton"
@@ -225,6 +231,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
