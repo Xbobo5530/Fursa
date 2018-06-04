@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name="android.support.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:clickable="true"
         android:hardwareAccelerated="true"
@@ -15,7 +16,6 @@
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name="android.support.multidex.MultiDexApplication"
         android:theme="@style/AppTheme">
         <provider
             android:name=".activities.main.providers.MySuggestionProvider"
@@ -30,9 +30,11 @@
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="text|label" />
-        <!--<meta-data
+        <!--
+            <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="label" />-->
+            android:value="label" />
+        -->
 
         <activity
             android:name=".activities.main.MainActivity"
@@ -93,9 +95,9 @@
         </activity>
         <activity
             android:name=".activities.posts.ViewPostActivity"
+            android:excludeFromRecents="true"
             android:label="@string/view_post_text"
             android:launchMode="singleTop"
-            android:excludeFromRecents="true"
             android:taskAffinity=""
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -117,12 +119,16 @@
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
@@ -143,9 +149,9 @@
         <activity
             android:name=".activities.categories.ViewCategoryActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
+            android:excludeFromRecents="true"
             android:label="@string/title_activity_view_category"
             android:launchMode="singleTop"
-            android:excludeFromRecents="true"
             android:taskAffinity=""
             android:theme="@style/AppTheme">
             <intent-filter>

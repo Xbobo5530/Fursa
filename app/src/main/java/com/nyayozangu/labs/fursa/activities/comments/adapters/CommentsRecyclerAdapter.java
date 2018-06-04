@@ -496,6 +496,7 @@ public class CommentsRecyclerAdapter extends
             usernameTextView = mView.findViewById(R.id.commentUsernameTextView);
         }
 
+        // TODO: 6/4/18 hunt for error "you can not start a desctroyed activity"
         public void setImage(String imageUrl) {
 
             userImageView = mView.findViewById(R.id.commentUserImage);

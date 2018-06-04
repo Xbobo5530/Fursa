@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -54,6 +55,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     private Button userPostsButton, editProfileButton, catSubsButton, logoutButton, shareProfileButton;
     private ImageView editProfileIcon, catSubsIcon, postsIcon, shareProfileIcon;
     private ConstraintLayout logoutCard;
+    private CardView logoutCardView;
     private String userId, userImageUrl;
     private CoMeth coMeth = new CoMeth();
     private ProgressDialog progressDialog;
@@ -78,6 +80,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         catsCountField = findViewById(R.id.userPageCatsCountTextView);
 
         logoutCard = findViewById(R.id.userPageLogoutCard);
+        logoutCardView = findViewById(R.id.userPageLogoutCardView);
         logoutButton = findViewById(R.id.userPageLogoutButton);
 
         userPostsButton = findViewById(R.id.userPagePostsButton);
@@ -200,7 +203,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
             catSubsIcon.setVisibility(View.VISIBLE);
             catSubsButton.setVisibility(View.VISIBLE);
             //show logout
-            logoutCard.setVisibility(View.VISIBLE);
+            logoutCardView.setVisibility(View.VISIBLE);
             //setuser posts button to my posts
             userPostsButton.setText(getResources().getString(R.string.my_posts_text));
 
@@ -214,7 +217,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
             catSubsIcon.setVisibility(View.GONE);
             catSubsButton.setVisibility(View.GONE);
             //hide logout
-            logoutCard.setVisibility(View.GONE);
+            logoutCardView.setVisibility(View.GONE);
         }
     }
 

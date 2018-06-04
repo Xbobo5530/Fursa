@@ -1220,7 +1220,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * update the number of times a post is viewed
-     *
      * @param post the Posts post that is being viewed
      */
     private void updateViews(Posts post) {
