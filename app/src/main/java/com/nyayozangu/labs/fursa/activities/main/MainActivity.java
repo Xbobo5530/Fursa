@@ -326,8 +326,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                 android.app.AlertDialog.Builder(MainActivity.this);
         termBuilder.setTitle("Terms and Conditions")
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_book))
-                .setMessage("By proceeding you accept to abide by our terms and conditions.")
-                .setPositiveButton("Agree", new DialogInterface.OnClickListener() {
+                .setMessage(R.string.by_proceedinng_u_accept_terms_text)
+                .setPositiveButton(R.string.agree_text, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -338,12 +338,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         editor.apply();
 
                         dialog.dismiss();
-                    }
-                })
-                .setNegativeButton(R.string.view_terms_text, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        goToTerms();
                     }
                 })
                 .setCancelable(false)

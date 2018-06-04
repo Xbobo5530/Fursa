@@ -92,7 +92,12 @@ public class AccountActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+
+                if (userNameField.getText().toString().isEmpty()) {
+                    showSnack(getResources().getString(R.string.enter_username));
+                } else {
+                    finish();
+                }
             }
         });
 
@@ -472,5 +477,10 @@ public class AccountActivity extends AppCompatActivity {
             submitAccountDetails();
             return null;
         }
+    }
+
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.mainSnack),
+                message, Snackbar.LENGTH_LONG).show();
     }
 }

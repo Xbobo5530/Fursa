@@ -252,5 +252,8 @@
     <string name="share_profile_text">Share user\'s profile</string>
     <string name="checkout_my_page_text">Check out my page on Fursa</string>
     <string name="my_profile_text">My profile</string>
+    <string name="by_proceedinng_u_accept_terms_text">By proceeding you accept to abide by our terms and conditions.</string>
+    <string name="agree_text">Agree</string>
+    <string name="enter_username">Ther username field can not be empty</string>
 
 </resources>
