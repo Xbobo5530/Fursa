@@ -43,11 +43,13 @@ public class CoMeth {
     public final String[] catTitle = new String[]{
 
             getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getString(R.string.cat_exhibitions),
-            getApplicationContext().getResources().getString(R.string.cat_jobs),
-            getApplicationContext().getResources().getString(R.string.cat_buysell), getApplicationContext().getResources().getString(R.string.cat_business),
+            getApplicationContext().getResources().getString(R.string.cat_business), getApplicationContext().getResources().getString(R.string.cat_art),
+            getApplicationContext().getResources().getString(R.string.cat_jobs), getApplicationContext().getResources().getString(R.string.cat_buysell),
             getApplicationContext().getResources().getString(R.string.cat_upcoming), getApplicationContext().getResources().getString(R.string.cat_events),
             getApplicationContext().getResources().getString(R.string.cat_places), getApplicationContext().getResources().getString(R.string.cat_services),
-            getApplicationContext().getResources().getString(R.string.cat_education), getApplicationContext().getResources().getString(R.string.cat_queries)
+            getApplicationContext().getResources().getString(R.string.cat_education), getApplicationContext().getResources().getString(R.string.cat_queries),
+            getApplicationContext().getResources().getString(R.string.cat_apps), getApplicationContext().getResources().getString(R.string.cat_groups)
+
 
 
     };
@@ -55,13 +57,17 @@ public class CoMeth {
 
             getApplicationContext().getString(R.string.cat_business),
             getApplicationContext().getString(R.string.cat_exhibitions),
+            getApplicationContext().getResources().getString(R.string.cat_art),
             getApplicationContext().getString(R.string.cat_events),
             getApplicationContext().getString(R.string.cat_buysell),
             getApplicationContext().getString(R.string.cat_education),
             getApplicationContext().getString(R.string.cat_jobs),
             getApplicationContext().getString(R.string.cat_services),
             getApplicationContext().getString(R.string.cat_places),
-            getApplicationContext().getString(R.string.cat_queries)
+            getApplicationContext().getString(R.string.cat_queries),
+            getApplicationContext().getResources().getString(R.string.cat_apps),
+            getApplicationContext().getResources().getString(R.string.cat_groups)
+
 
     };
     //public methods
@@ -69,29 +75,29 @@ public class CoMeth {
 
             "business",
             "exhibitions",
+            "art",
             "events",
             "buysell",
             "education",
             "jobs",
             "services",
             "places",
-            "queries"
+            "queries",
+            "apps",
+            "groups"
+
 
     };
     public final String[] reportList = new String[]{
-
             getApplicationContext().getString(R.string.spam_text),
             getApplicationContext().getString(R.string.inapropriate_text)
-
     };
     public final String[] reportListKey = new String[]{
-
             "spam",
             "inappropriate"
-
     };
     private boolean hasInternet;
-    public int minVerCode = 14;
+    public int minVerCode = 16;
 
     public CoMeth() {
     } //empty constructor
@@ -110,7 +116,6 @@ public class CoMeth {
      * Checks for the connection status
      * if the device has a connection
      * and the connection is active
-     *
      * @return boolean true if device is connected and has internet
      * false if device can not connet to the internet
      */
@@ -153,7 +158,6 @@ public class CoMeth {
 
     /**
      * A method to get the Firestore database
-     *
      * @return a FirebaseFirestore instance
      */
     public FirebaseFirestore getDb() {
@@ -179,16 +183,22 @@ public class CoMeth {
 
     public void setImage(int placeholderDrawable, String imageUrl, ImageView targetImageView) {
         Log.d(TAG, "setImage: no thumb");
-        RequestOptions placeHolderRequest = new RequestOptions();
-        placeHolderRequest.placeholder(placeholderDrawable);
-        //loading the string for url to the image view
-        Glide.with(getApplicationContext())
-                .setDefaultRequestOptions(placeHolderRequest)
-                .load(imageUrl)
-                .into(targetImageView);
+        try {
+
+            RequestOptions placeHolderRequest = new RequestOptions();
+            placeHolderRequest.placeholder(placeholderDrawable);
+            //loading the string for url to the image view
+            Glide.with(getApplicationContext())
+                    .setDefaultRequestOptions(placeHolderRequest)
+                    .load(imageUrl)
+                    .into(targetImageView);
+        } catch (Exception e) {
+            Log.d(TAG, "setImage: error " + e.getMessage());
+        }
     }
 
-    public void setImage(int placeholderDrawable, String imageUrl, String thumbUrl, ImageView targetImageView) {
+    public void setImage(int placeholderDrawable,
+                         String imageUrl, String thumbUrl, ImageView targetImageView) {
         Log.d(TAG, "setImage: with thumb");
         RequestOptions placeHolderOptions = new RequestOptions();
         placeHolderOptions.placeholder(R.drawable.appiconshadow);
@@ -227,6 +237,12 @@ public class CoMeth {
                 return "queries";
             case "Exhibitions":
                 return "exhibitions";
+            case "Art":
+                return "art";
+            case "Apps":
+                return "apps";
+            case "Groups":
+                return "groups";
 
             //handle swahili items
             case "Spesheli":
@@ -253,6 +269,10 @@ public class CoMeth {
                 return "queries";
             case "Maonyesho ya biashara":
                 return "exhibitions";
+            case "Sanaa":
+                return "art";
+            case "Makundi":
+                return "groups";
             default:
                 return null;
         }
@@ -273,7 +293,8 @@ public class CoMeth {
             "Education",
             "Jobs",
             "Queries"
-            "Exhibitions"*/
+            "Exhibitions"
+            "groups"*/
 
 
         //return value for key
@@ -281,39 +302,34 @@ public class CoMeth {
 
             case "featured":
                 return getApplicationContext().getString(R.string.cat_featured);
-
             case "popular":
                 return getApplicationContext().getString(R.string.cat_popular);
-
             case "upcoming":
                 return getApplicationContext().getString(R.string.cat_upcoming);
-
             case "events":
                 return getApplicationContext().getString(R.string.cat_events);
-
             case "places":
                 return getApplicationContext().getString(R.string.cat_places);
-
             case "services":
                 return getApplicationContext().getString(R.string.cat_services);
-
             case "business":
                 return getApplicationContext().getString(R.string.cat_business);
-
             case "buysell":
                 return getApplicationContext().getString(R.string.cat_buysell);
-
             case "education":
                 return getApplicationContext().getString(R.string.cat_education);
-
             case "jobs":
                 return getApplicationContext().getString(R.string.cat_jobs);
-
             case "queries":
                 return getApplicationContext().getString(R.string.cat_queries);
-
             case "exhibitions":
                 return getApplicationContext().getString(R.string.cat_exhibitions);
+            case "art":
+                return getApplicationContext().getString(R.string.cat_art);
+            case "apps":
+                return getApplicationContext().getString(R.string.cat_apps);
+            case "groups":
+                return getApplicationContext().getString(R.string.cat_groups);
 
             default:
                 Log.d(TAG, "getCatValue: default");
@@ -372,7 +388,6 @@ public class CoMeth {
 
             //when more than a year has lapsed
             return DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(millis)).toString();
-
         }
     }
 
@@ -385,16 +400,13 @@ public class CoMeth {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
-
         }
         if (swipeRefreshLayout != null) {
 
             if (swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
             }
-
         }
-
     }
 
     public void stopLoading(ProgressDialog progressDialog) {
@@ -415,9 +427,7 @@ public class CoMeth {
             if (swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
             }
-
         }
-
     }
 
     public void onResultStopLoading(List<Posts> postList,
@@ -430,18 +440,8 @@ public class CoMeth {
         }
     }
 
-    public void onResultStopLoading(List<Posts> postList,
-                                    ProgressDialog progressDialog) {
-
-        Log.d(TAG, "onResultStopLoading: ");
-        if (postList.size() > 0) {
-            this.stopLoading(progressDialog);
-        }
-    }
-
     /**
      * checks if device screen is small, normal, large or large and sets posts
-     *
      * @param activity     the activity the posts are shown in
      * @param context      the context the posts are displayed
      * @param recyclerView the recycler view to alter
@@ -452,14 +452,14 @@ public class CoMeth {
         if ((context.getResources().getConfiguration().screenLayout &
                 Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
             // on a large screen device ...
-            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(
+                    2, StaggeredGridLayoutManager.VERTICAL));
 
         } else if ((context.getResources().getConfiguration().screenLayout &
                 Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE) {
             //on xlarge device
-            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
-
-
+            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(
+                    3, StaggeredGridLayoutManager.VERTICAL));
         } else {
             //on small, normal or undefined screen devices
             recyclerView.setLayoutManager(new LinearLayoutManager(activity));
@@ -474,12 +474,6 @@ public class CoMeth {
         progressDialog.setMessage(message);
         progressDialog.show();
     }
-
-//    public String[] generatePostTags(String textToProcess) {
-//        return textToProcess.split("\\W+");
-//    }
-
-
 }
 
 /*class CheckInternetTask extends AsyncTask<Void, Void, Boolean> {

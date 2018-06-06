@@ -38,6 +38,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -712,9 +715,10 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void handlePostWithoutImage() {
-        Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
+        final Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
 
         if (!isEditPost()) {
+            //create new post
             coMeth.getDb()
                     .collection("Posts")
                     .add(postMap)
@@ -735,6 +739,32 @@ public class CreatePostActivity extends AppCompatActivity {
                                 FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
                                 //update my posts
                                 updateMyPosts(currentPostId);
+
+                                // TODO: 6/6/18 add share post after post has been submitted
+                                //share post after launch
+                                //postId
+//                                final String postId = task.getResult().getId();
+//                                //open main and not
+//                                AlertDialog.Builder shareNewPost = new AlertDialog.Builder(getApplicationContext());
+//                                shareNewPost.setTitle("Share")
+//                                        .setIcon(getResources().getDrawable(R.drawable.ic_action_share))
+//                                        .setPositiveButton(getResources().getString(R.string.share_text), new DialogInterface.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(DialogInterface dialog, int which) {
+//
+//                                                String postTitle = postMap.get("title").toString();
+//                                                String postDesc = postMap.get("desc").toString();
+////                                                String postImage = postMap.get("image_url").toString();
+//                                                shareNewPost(postId, postTitle,postDesc, null);
+//                                            }
+//                                        })
+//                                        .setNegativeButton(getResources().getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(DialogInterface dialog, int which) {
+//                                                dialog.cancel();
+//                                            }
+//                                        })
+//                                        .show();
                             } else {
 
                                 //update submit post result
@@ -755,7 +785,7 @@ public class CreatePostActivity extends AppCompatActivity {
             coMeth.getDb()
                     .collection("Posts")
                     .document(postId)
-                    .set(postMap)
+                    .update(postMap)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -787,6 +817,60 @@ public class CreatePostActivity extends AppCompatActivity {
 
         }
     }
+
+    private void shareNewPost(String postId, final String postTitle, String postDesc, String postImage) {
+        String imageUrl;
+        String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
+        if (postImage != null) {
+            imageUrl = postImage;
+        } else {
+            imageUrl = getResources().getString(R.string.app_icon_url);
+        }
+
+        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse(postUrl))
+                .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
+                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
+                        .setMinimumVersion(coMeth.minVerCode)
+                        .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
+                        .build())
+                .setSocialMetaTagParameters(
+                        new DynamicLink.SocialMetaTagParameters.Builder()
+                                .setTitle(postTitle)
+                                .setDescription(postDesc)
+                                .setImageUrl(Uri.parse(imageUrl))
+                                .build())
+                .buildShortDynamicLink()
+                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                        if (task.isSuccessful()) {
+                            Uri shortLink = task.getResult().getShortLink();
+                            Uri flowchartLink = task.getResult().getPreviewLink();
+                            Log.d(TAG, "onComplete: short link is: " + shortLink);
+
+                            //show share dialog
+                            String fullShareMsg = postTitle + "\n" +
+                                    shortLink;
+                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                            shareIntent.setType("text/plain");
+                            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                                    getResources().getString(R.string.app_name));
+                            shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+                            coMeth.stopLoading(progressDialog);
+                            startActivity(Intent.createChooser(shareIntent,
+                                    getString(R.string.share_with_text)));
+                        } else {
+                            Log.d(TAG, "onComplete: " +
+                                    "\ncreating short link task failed\n" +
+                                    task.getException());
+                            coMeth.stopLoading(progressDialog);
+                            showSnack(getString(R.string.failed_to_share_text));
+                        }
+                    }
+                });
+    }
+
 
     private void handlePostWithImage() {
         Log.d(TAG, "handlePostWithImage: ");

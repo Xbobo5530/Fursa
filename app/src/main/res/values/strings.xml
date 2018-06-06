@@ -51,7 +51,7 @@
     <string name="my_subscriptions_sett_button" translatable="false">My Subscriptions</string>
     <string name="my_posts_sett_button" translatable="false">My Posts</string>
     <string name="contact_us_sett_button" translatable="false">Contact Us</string>
-    <string name="privacy_policy_sett_button" translatable="false">Privacy Policy</string>
+    <string name="privacy_policy_sett_button" translatable="false">Terms and conditions and Privacy Policy</string>
     <string name="feedback_sett_button" translatable="false">Feedback</string>
     <string name="title_activity_my_posts" translatable="false">MyPostsActivity</string>
     <string name="cancel_text" translatable="false">Cancel</string>
@@ -221,11 +221,7 @@
     <string name="UPDATE_INFO">
         Thank you for updating.
         \nNew in this version:
-        \n- Scroll to top by tapping the navigation bar icons.
-        \n- Reviewed terms of services and privacy policy.
-        \n- Added about section under settings.
-        \n- Share User pages with friends and clients.
-        \n- Added rate app feature under the app about section.
+        \n- Added new categories: Art to share all different kinds of artworks, Apps to share different local and international apps and Groups to share different social groups from WhatsApp, Telegram and Facebook.
         \nHope you enjoy your experience with Fursa!
     </string>
     <string name="close_text">Close</string>
@@ -252,8 +248,14 @@
     <string name="share_profile_text">Share user\'s profile</string>
     <string name="checkout_my_page_text">Check out my page on Fursa</string>
     <string name="my_profile_text">My profile</string>
-    <string name="by_proceedinng_u_accept_terms_text">By proceeding you accept to abide by our terms and conditions.</string>
+    <string name="by_proceedinng_u_accept_terms_text">By proceeding you accept to abide by our terms and conditions, which you may find under the settings menu.</string>
     <string name="agree_text">Agree</string>
     <string name="enter_username">Ther username field can not be empty</string>
+    <string name="cat_art">Art</string>
+    <string name="cat_apps">Apps</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="cat_groups">Groups</string>
 
 </resources>

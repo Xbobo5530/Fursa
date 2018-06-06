@@ -370,7 +370,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         delResultIntent.putExtra(getResources().getString(R.string.MESSAGE_NAME), getString(R.string.del_success_text));
                         if (hasAdminAccess()) {
                             //go back to admin page
-                            startActivity(new Intent(ViewPostActivity.this, AdminActivity.class));
+                            startActivity(new Intent(
+                                    ViewPostActivity.this, AdminActivity.class));
                             finish();
                         } else {
                             startActivity(delResultIntent);
@@ -421,7 +422,15 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                if (isTaskRoot()) {
+                    // TODO: 6/5/18 test when launching from 3rd party app
+                    Log.d(TAG, "onClick: is task toot, going to main");
+                    startActivity(new Intent(ViewPostActivity.this, MainActivity.class));
+                    finish();
+                } else {
+                    Log.d(TAG, "onClick: is not task root");
+                    finish();
+                }
             }
         });
 
@@ -1195,7 +1204,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             startActivity(Intent.createChooser(shareIntent,
                                     getString(R.string.share_with_text)));
                         } else {
-                            Log.d(TAG, "onComplete: \ncreating short link task failed\n" +
+                            Log.d(TAG, "onComplete: " +
+                                    "\ncreating short link task failed\n" +
                                     task.getException());
                             coMeth.stopLoading(progressDialog);
                             showSnack(getString(R.string.failed_to_share_text));

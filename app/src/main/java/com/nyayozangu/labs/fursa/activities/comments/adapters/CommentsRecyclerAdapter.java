@@ -501,12 +501,16 @@ public class CommentsRecyclerAdapter extends
 
             userImageView = mView.findViewById(R.id.commentUserImage);
             //add the placeholder image
-            RequestOptions placeHolderOptions = new RequestOptions();
-            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-            Glide.with(context)
-                    .applyDefaultRequestOptions(placeHolderOptions)
-                    .load(imageUrl)
-                    .into(userImageView);
+            try {
+                RequestOptions placeHolderOptions = new RequestOptions();
+                placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
+                Glide.with(context)
+                        .applyDefaultRequestOptions(placeHolderOptions)
+                        .load(imageUrl)
+                        .into(userImageView);
+            } catch (Exception e) {
+                Log.d(TAG, "setImage: error " + e.getMessage());
+            }
         }
 
         public void setUsername(String username) {

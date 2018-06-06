@@ -563,7 +563,6 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * get the user bio
-     *
      * @return bio: String the bio of the user
      */
     private String getBio() {
@@ -598,6 +597,8 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                     catSubsArray.add(cat.getValue());
                                 }
                             }
+
+
                             Log.d(TAG, "onEvent: \ncatSubArray contains: " + catSubsArray);
                             Log.d(TAG, "onClick: \ncatsListItems: " + catsListItems);
                             catsListItems = catSubsArray.toArray((new String[catSubsArray.size()]));
@@ -620,6 +621,19 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                     .show();
                             //empty the catSubsArray
                             catSubsArray.clear();
+                        } else {
+                            //user has not subd cats
+                            //go to cats
+                            Intent goToCatsIntent = new Intent(
+                                    UserPageActivity.this, MainActivity.class);
+                            goToCatsIntent.putExtra(getResources().getString(R.string.ACTION_NAME),
+                                    getResources().getString(R.string.GOTO_VAL));
+                            goToCatsIntent.putExtra(getResources().getString(R.string.DESTINATION_NAME),
+                                    getResources().getString(R.string.CATEGORIES_VAL));
+
+                            coMeth.stopLoading(progressDialog);
+                            startActivity(goToCatsIntent);
+                            finish();
                         }
                     }
                 });

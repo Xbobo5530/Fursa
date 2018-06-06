@@ -800,12 +800,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
             //add the placeholder image
-            RequestOptions placeHolderOptions = new RequestOptions();
-            placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-            Glide.with(context)
-                    .applyDefaultRequestOptions(placeHolderOptions)
-                    .load(userImageDownloadUri)
-                    .into(postUserImageCircleView);
+            try {
+                RequestOptions placeHolderOptions = new RequestOptions();
+                placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
+                Glide.with(context)
+                        .applyDefaultRequestOptions(placeHolderOptions)
+                        .load(userImageDownloadUri)
+                        .into(postUserImageCircleView);
+            } catch (Exception e) {
+                Log.d(TAG, "setUserData: error " + e.getMessage());
+            }
 
         }
     }

@@ -28,6 +28,8 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,6 +46,7 @@ import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.List;
 
@@ -208,36 +211,37 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                     .collection("Users")
                     .document(userId)
                     .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            //check if successful
-                            if (task.isSuccessful()) {
-                                //task is successful
-                                try {
-                                    String userImageDownloadUri = task.getResult().get("image").toString();
-                                    //set image
-                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                            userImageDownloadUri,
-                                            userProfileImage);
-                                } catch (NullPointerException imageNotFoundException) {
-
-                                    //user image not found
-                                    userProfileImage
-                                            .setImageDrawable(getResources()
-                                                    .getDrawable(R.drawable.appiconshadow));
-                                    Log.d(TAG, "onComplete: user has no profile image");
-                                }
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            //task is successful
+                            //convert user to object
+                            Users user = documentSnapshot.toObject(Users.class);
+                            if (user.getImage() != null) {
+                                String userImageDownloadUri = user.getImage();
+                                //set image
+                                coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                        userImageDownloadUri,
+                                        userProfileImage);
                             } else {
-
-                                //task unsuccessful handle errors
-                                String errorMessage = task.getException().getMessage();
-                                Log.d(TAG, "Error: " + errorMessage);
+                                userProfileImage
+                                        .setImageDrawable(
+                                                getResources().getDrawable(R.drawable.ic_action_person_placeholder));
                             }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to load user image\n" +
+                                    e.getMessage());
+                            userProfileImage.setImageDrawable(
+                                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
                         }
                     });
         } else {
-            userProfileImage.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
+            userProfileImage.setImageDrawable(
+                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
         }
 
 

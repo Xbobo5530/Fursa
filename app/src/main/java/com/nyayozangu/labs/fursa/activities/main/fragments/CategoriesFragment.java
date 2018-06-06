@@ -49,12 +49,13 @@ public class CategoriesFragment extends Fragment {
         final String[] catTitle = new String[]{
 
 //                getResources().getString(R.string.cat_featured),
-                getResources().getString(R.string.cat_popular), getResources().getString(R.string.cat_exhibitions),
+                getResources().getString(R.string.cat_popular), getString(R.string.cat_exhibitions),
+                getResources().getString(R.string.cat_business), getResources().getString(R.string.cat_art),
                 getResources().getString(R.string.cat_jobs), getResources().getString(R.string.cat_buysell),
-                getResources().getString(R.string.cat_business), getResources().getString(R.string.cat_upcoming),
-                getResources().getString(R.string.cat_events), getResources().getString(R.string.cat_places),
-                getResources().getString(R.string.cat_services), getResources().getString(R.string.cat_education),
-                getString(R.string.cat_qna_text)
+                getResources().getString(R.string.cat_upcoming), getResources().getString(R.string.cat_events),
+                getResources().getString(R.string.cat_places), getResources().getString(R.string.cat_services),
+                getResources().getString(R.string.cat_education), getResources().getString(R.string.cat_queries),
+                getResources().getString(R.string.cat_apps), getResources().getString(R.string.cat_groups)
 
         };
 
@@ -63,10 +64,12 @@ public class CategoriesFragment extends Fragment {
 
 //                R.drawable.featured,
                 R.drawable.popular, R.drawable.featured,
+                R.drawable.business, R.drawable.appic,
                 R.drawable.jobs, R.drawable.buysell,
-                R.drawable.business, R.drawable.upcoming,
-                R.drawable.events, R.drawable.places,
-                R.drawable.services, R.drawable.school, R.drawable.help
+                R.drawable.upcoming, R.drawable.events,
+                R.drawable.places, R.drawable.services,
+                R.drawable.school, R.drawable.help,
+                R.drawable.appic, R.drawable.appic
 
         };
 

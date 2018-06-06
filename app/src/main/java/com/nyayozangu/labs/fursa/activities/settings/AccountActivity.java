@@ -93,6 +93,7 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                hideKeyBoard();
                 if (userNameField.getText().toString().isEmpty()) {
                     showSnack(getResources().getString(R.string.enter_username));
                 } else {
@@ -369,7 +370,7 @@ public class AccountActivity extends AppCompatActivity {
         Map<String, String> usersMap = new HashMap<>();
         usersMap.put("name", userName);
 
-        if (imageUrl == null) {
+        if (imageUrl == null && downloadUri != null) {
             imageUrl = downloadUri.toString();
         }
 
@@ -480,7 +481,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void showSnack(String message) {
-        Snackbar.make(findViewById(R.id.mainSnack),
+        Snackbar.make(findViewById(R.id.account_layout),
                 message, Snackbar.LENGTH_LONG).show();
     }
 }

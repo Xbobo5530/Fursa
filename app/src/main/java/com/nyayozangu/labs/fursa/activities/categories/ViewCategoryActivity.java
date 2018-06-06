@@ -107,7 +107,8 @@ ViewCategoryActivity extends AppCompatActivity {
     private void goToMain() {
         Intent goToMainIntent = new Intent(
                 ViewCategoryActivity.this, MainActivity.class);
-        goToMainIntent.putExtra(getResources().getString(R.string.ACTION_NAME), getResources().getString(R.string.GOTO_VAL));
+        goToMainIntent.putExtra(getResources().getString(R.string.ACTION_NAME),
+                getResources().getString(R.string.GOTO_VAL));
         goToMainIntent.putExtra(getResources().getString(R.string.DESTINATION_NAME), getResources().getString(R.string.CATEGORIES_VAL));
         startActivity(goToMainIntent);
         finish();
@@ -207,7 +208,8 @@ ViewCategoryActivity extends AppCompatActivity {
 
         String className = "ViewCategoryActivity";
         categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
-        coMeth.handlePostsView(ViewCategoryActivity.this, ViewCategoryActivity.this, catFeed);
+        coMeth.handlePostsView(
+                ViewCategoryActivity.this, ViewCategoryActivity.this, catFeed);
         catFeed.setAdapter(categoryRecyclerAdapter);
 
         toolbar.setOnClickListener(new View.OnClickListener() {
@@ -475,6 +477,15 @@ ViewCategoryActivity extends AppCompatActivity {
                 case "exhibitions":
                     getSupportActionBar().setTitle(getString(R.string.cat_exhibitions));
                     break;
+                case "art":
+                    getSupportActionBar().setTitle(getString(R.string.cat_art));
+                    break;
+                case "apps":
+                    getSupportActionBar().setTitle(getString(R.string.cat_apps));
+                    break;
+                case "groups":
+                    getSupportActionBar().setTitle(getString(R.string.cat_groups));
+                    break;
                 default:
                     Log.d(TAG, "onCreate: default is selected");
             }
@@ -587,7 +598,9 @@ ViewCategoryActivity extends AppCompatActivity {
             "Education",
             "Jobs",
             "Queries"
-            "Exhibitions"*/
+            "Exhibitions"
+            "art"
+            "apps"*/
 
             case "featured":
                 filterCat(doc, postId, "featured");
@@ -624,6 +637,15 @@ ViewCategoryActivity extends AppCompatActivity {
                 break;
             case "exhibitions":
                 filterCat(doc, postId, "exhibitions");
+                break;
+            case "art":
+                filterCat(doc, postId, "art");
+                break;
+            case "apps":
+                filterCat(doc, postId, "apps");
+                break;
+            case "groups":
+                filterCat(doc, postId, "groups");
                 break;
             default:
                 Log.d(TAG, "onEvent: default");
@@ -704,6 +726,15 @@ ViewCategoryActivity extends AppCompatActivity {
                             getFilteredPosts(post);
                             break;
                         case "business":
+                            getFilteredPosts(post);
+                            break;
+                        case "art":
+                            getFilteredPosts(post);
+                            break;
+                        case "apps":
+                            getFilteredPosts(post);
+                            break;
+                        case "groups":
                             getFilteredPosts(post);
                             break;
                         default:
