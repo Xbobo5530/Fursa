@@ -15,8 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -32,9 +30,7 @@ import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -183,7 +179,7 @@ public class HomeFragment extends Fragment {
                         //check if an item is added
                         if (doc.getType() == DocumentChange.Type.ADDED) {
 
-                            String postId = doc.getDocument().getId();
+                            final String postId = doc.getDocument().getId();
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                             final String postUserId = post.getUser_id();
                             Log.d(TAG, "onEvent: user_id is " + postUserId);
@@ -191,6 +187,8 @@ public class HomeFragment extends Fragment {
                             // TODO: 5/21/18 clean tags code
 //                            cleanTags(doc, postId);
 
+                            // TODO: 6/7/18 organise tags
+//                            populateTags(postId, post);
                             //get user_id for post
                             coMeth.getDb()
                                     .collection("Users")
@@ -236,32 +234,117 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void cleanTags(DocumentChange doc, String postId) {
-        Log.d(TAG, "cleanTags: ");
-        if (doc.getDocument().get("tags") != null) {
+//    private void populateTags(final String postId, Posts post) {
+//        Log.d(TAG, "populateTags: ");
+//        if (post.getTags() != null) {
+//            final ArrayList tagsArray = post.getTags();
+//            Log.d(TAG, "populateTags: tags array " + tagsArray);
+//            for (int i = 0; i < tagsArray.size(); i++) {
+//                if (!tagsArray.get(i).toString().isEmpty()) {
+//                    final String tag = tagsArray.get(i).toString();
+//                    Log.d(TAG, "populateTags: tag is " + tag);
+//                    final Map<String, Object> tagsMap = new HashMap<>();
+//                    tagsMap.put("title", tag);
+//                    coMeth.getDb()
+//                            .collection("Tags")
+//                            .document(tag)
+//                            .update(tagsMap)
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    Log.d(TAG, "onSuccess: process; tags updated");
+//                                    //add the post id doc to the tag
+//                                    Map<String, Object> postTagMap = new HashMap<>();
+//
+//                                    coMeth.getDb()
+//                                            .collection("Tags/" + tag + "/Posts")
+//                                            .document(postId)
+//                                            .set(postTagMap)
+//                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                @Override
+//                                                public void onSuccess(Void aVoid) {
+//                                                    Log.d(TAG, "onSuccess: post added to tag");
+//                                                }
+//                                            })
+//                                            .addOnFailureListener(new OnFailureListener() {
+//                                                @Override
+//                                                public void onFailure(@NonNull Exception e) {
+//                                                    Log.d(TAG, "onFailure: failed to add post to tag\n" +
+//                                                            e.getMessage());
+//                                                }
+//                                            });
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.d(TAG, "onFailure: process; error failed to update tags\n" + e.getMessage());
+//                                    coMeth.getDb()
+//                                            .collection("Tags")
+//                                            .document(tag)
+//                                            .set(tagsMap)
+//                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                @Override
+//                                                public void onSuccess(Void aVoid) {
+//
+//                                                    //add post to tag
+//                                                    //add the post id doc to the tag
+//                                                    Map<String, Object> postTagMap = new HashMap<>();
+//
+//                                                    coMeth.getDb()
+//                                                            .collection("Tags/" + tag + "/Posts")
+//                                                            .document(postId)
+//                                                            .set(postTagMap)
+//                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                                @Override
+//                                                                public void onSuccess(Void aVoid) {
+//                                                                    Log.d(TAG, "onSuccess: post added to tag");
+//                                                                }
+//                                                            })
+//                                                            .addOnFailureListener(new OnFailureListener() {
+//                                                                @Override
+//                                                                public void onFailure(@NonNull Exception e) {
+//                                                                    Log.d(TAG, "onFailure: failed to add post to tag\n" +
+//                                                                            e.getMessage());
+//                                                                }
+//                                                            });
+//
+//                                                }
+//                                            });
+//
+//                                }
+//                            });
+//                }
+//            }
+//        }
+//    }
 
-            ArrayList oldTags = (ArrayList) doc.getDocument().get("tags");
-            if (oldTags.size() > 10) {
-
-                Map<String, Object> tagsMap = new HashMap<>();
-                coMeth.getDb()
-                        .collection("Posts")
-                        .document(postId)
-                        .update(tagsMap)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "onSuccess: tags cleanup successful");
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to clean tags");
-                    }
-                });
-            }
-        }
-    }
+//    private void cleanTags(DocumentChange doc, String postId) {
+//        Log.d(TAG, "cleanTags: ");
+//        if (doc.getDocument().get("tags") != null) {
+//
+//            ArrayList oldTags = (ArrayList) doc.getDocument().get("tags");
+//            if (oldTags.size() > 10) {
+//
+//                Map<String, Object> tagsMap = new HashMap<>();
+//                coMeth.getDb()
+//                        .collection("Posts")
+//                        .document(postId)
+//                        .update(tagsMap)
+//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Log.d(TAG, "onSuccess: tags cleanup successful");
+//                            }
+//                        }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.d(TAG, "onFailure: failed to clean tags");
+//                    }
+//                });
+//            }
+//        }
+//    }
 
     //for loading more posts
     public void loadMorePosts() {

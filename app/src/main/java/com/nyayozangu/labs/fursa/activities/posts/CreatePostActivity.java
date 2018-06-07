@@ -28,6 +28,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -43,7 +44,10 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
@@ -70,11 +74,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import id.zelory.compressor.Compressor;
 
@@ -513,10 +520,70 @@ public class CreatePostActivity extends AppCompatActivity {
 
                             //is new post
                             Log.d(TAG, "onClick: is new post");
-                            new SubmitPostTask().execute();
-//                            submitPost();
-                            coMeth.stopLoading(progressDialog);
-                            goToMain(getString(R.string.post_will_be_available_text));
+
+                            // today
+                            Calendar date = new GregorianCalendar();
+                            // reset hour, minutes, seconds and millis
+                            date.set(Calendar.HOUR_OF_DAY, 0);
+                            date.set(Calendar.MINUTE, 0);
+                            date.set(Calendar.SECOND, 0);
+                            date.set(Calendar.MILLISECOND, 0);
+                            Log.d(TAG, "onClick: date is " + date + "\ndate in millis is: " +
+                                    date.getTimeInMillis());
+
+                            //check user post daily quota
+                            coMeth.getDb()
+                                    .collection("Users/" +
+                                            currentUserId +
+                                            "/Subscriptions/my_posts/MyPosts")
+                                    .whereGreaterThan("timestamp", date.getTime())
+                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onEvent(
+                                                @Nullable QuerySnapshot queryDocumentSnapshots,
+                                                @Nullable FirebaseFirestoreException e) {
+                                            if (!queryDocumentSnapshots.isEmpty()) {
+                                                //user has posted today
+                                                int todayPostCount = queryDocumentSnapshots.size();
+                                                Log.d(TAG, "onEvent: user has posted " + todayPostCount + " post(s) today");
+
+                                                coMeth.stopLoading(progressDialog);
+                                                if (todayPostCount > 1) {
+                                                    AlertDialog.Builder quotaAlertBuilder =
+                                                            new AlertDialog.Builder(CreatePostActivity.this);
+                                                    quotaAlertBuilder.setTitle("Daily post limit reached")
+                                                            .setIcon(getResources().getDrawable(R.drawable.ic_action_quota))
+                                                            .setMessage("You have reached you daily posting limit. " +
+                                                                    "\nWould you like pay for more posts?")
+                                                            .setPositiveButton(getResources().getString(R.string.yes_text), new DialogInterface.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(DialogInterface dialog, int which) {
+                                                                    //go to payments
+                                                                    Toast.makeText(CreatePostActivity.this, "going payments", Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            })
+                                                            .show();
+
+
+                                                } else {
+                                                    //has not reached cap
+                                                    new SubmitPostTask().execute();
+//                                                  submitPost();
+                                                    coMeth.stopLoading(progressDialog);
+                                                    goToMain(getString(R.string.post_will_be_available_text));
+
+                                                }
+
+                                            } else {
+                                                //if user has no posts, then has not reached daily post quota
+                                                new SubmitPostTask().execute();
+//                                                  submitPost();
+                                                coMeth.stopLoading(progressDialog);
+                                                goToMain(getString(R.string.post_will_be_available_text));
+                                            }
+
+                                        }
+                                    });
 
                         } else {
 
@@ -745,7 +812,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                 Log.d(TAG, "onComplete: new post id " + newPostId);
                                 //update tags on DB
                                 updateTagsOnDB(newPostId, postMap);
-
 
                                 // TODO: 6/6/18 add share post after post has been submitted
                                 //share post after launch

@@ -632,7 +632,9 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     public void promptExit() {
 
-        Snackbar.make(findViewById(R.id.main_activity_layout), getString(R.string.confirm_ext_text), Snackbar.LENGTH_LONG)
+        Snackbar.make(findViewById(R.id.mainSnack),
+                getString(R.string.confirm_ext_text),
+                Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.exit_text), new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
