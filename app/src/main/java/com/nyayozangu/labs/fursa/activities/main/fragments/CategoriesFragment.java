@@ -1,30 +1,17 @@
 package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.GridView;
-import android.widget.SimpleAdapter;
+import android.widget.Button;
 
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity;
-import com.nyayozangu.labs.fursa.activities.main.MainActivity;
+import com.nyayozangu.labs.fursa.activities.tags.TagsTabFragment;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 
 /**
@@ -34,7 +21,13 @@ public class CategoriesFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    //cat texts Array
+
+
+    private Button catsTabButton, tagsTabButton;
+
+    //Fragments
+    private CatsTabFragment catsTabFragment;
+    private TagsTabFragment tagsTabFragment;
 
     public CategoriesFragment() {
         // Required empty public constructor
@@ -46,7 +39,35 @@ public class CategoriesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
-        final String[] catTitle = new String[]{
+
+        //initiate tab fragments
+        tagsTabFragment = new TagsTabFragment();
+        catsTabFragment = new CatsTabFragment();
+
+        //initiate items
+        catsTabButton = view.findViewById(R.id.catsTabButton);
+        tagsTabButton = view.findViewById(R.id.tagsTabButton);
+
+        //set cats tab
+        setFragment(catsTabFragment);
+
+        //handle cats click
+        catsTabButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFragment(catsTabFragment);
+            }
+        });
+
+        tagsTabButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFragment(tagsTabFragment);
+            }
+        });
+
+
+        /*final String[] catTitle = new String[]{
 
 //                getResources().getString(R.string.cat_featured),
                 getResources().getString(R.string.cat_popular), getString(R.string.cat_exhibitions),
@@ -98,7 +119,7 @@ public class CategoriesFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                /*
+                *//*
                 "Featured",
                 "Popular",
                 "UpComing",
@@ -109,7 +130,7 @@ public class CategoriesFragment extends Fragment {
                 "Education",
                 "Jobs",
                 "Queries",
-                "Exhibitions"*/
+                "Exhibitions"*//*
 
                 Log.d(TAG, "onItemClick: ");
                 openCat(coMeth.getCatKey(coMeth.catTitle[position]));
@@ -117,9 +138,9 @@ public class CategoriesFragment extends Fragment {
             }
         });
 
-        /**
+        *//**
          * handle the re-selcting the categories tab on the main bottom navigation on MainActivity
-         * */
+         * *//*
         ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
                 new BottomNavigationView.OnNavigationItemReselectedListener() {
                     @Override
@@ -133,42 +154,16 @@ public class CategoriesFragment extends Fragment {
                                         "at default cat fragment on reselect");
                         }
                     }
-                });
+                });*/
 
         return view;
     }
 
-    /**
-     * open the view category page
-     *
-     * @param catKey the category key to be passed to the view category page
-     */
-    private void openCat(String catKey) {
-        Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);
-        openCatIntent.putExtra("category", catKey);
-        startActivity(openCatIntent);
+    private void setFragment(Fragment fragment) {
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.catsFrame, fragment);
+        fragmentTransaction.commit();
     }
 
-    /**
-     * calculate the width of the device to determine the number of rows
-     * @param context the context containing the view
-     * @param cell the view of the grid view
-     * @return the number of rows to display
-     * */
-    public int measureCellWidth(Context context, View cell) {
-
-        // We need a fake parent
-        FrameLayout buffer = new FrameLayout(context);
-        android.widget.AbsListView.LayoutParams layoutParams =
-                new android.widget.AbsListView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-        buffer.addView(cell, layoutParams);
-        cell.forceLayout();
-        cell.measure(1000, 1000);
-        int width = cell.getMeasuredWidth();
-        buffer.removeAllViews();
-
-        return width;
-    }
 
 }

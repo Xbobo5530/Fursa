@@ -1,0 +1,100 @@
+package com.nyayozangu.labs.fursa.activities.tags.adapter;
+
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.tags.Tags;
+import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+
+import java.util.List;
+
+
+public class TagsRecyclerAdapter extends
+        RecyclerView.Adapter<TagsRecyclerAdapter.ViewHolder> {
+
+    private static final String TAG = "Sean";
+    public List<Tags> tagsList;
+    public String tagId;
+    public Context context;
+    //common methods
+    private CoMeth coMeth = new CoMeth();
+
+    public TagsRecyclerAdapter(List<Tags> tagsList, String tagId) {
+
+        //store received posts
+        this.tagsList = tagsList;
+        this.tagId = tagId;
+
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        //inflate the viewHolder
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.tags_tab_list_item, parent, false);
+        context = parent.getContext();
+
+        return new TagsRecyclerAdapter.ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+        Log.d(TAG, "onBindViewHolder: ");
+        //get tags
+        String title = tagsList.get(position).getTitle();
+        int postCount = tagsList.get(position).getPost_count();
+        holder.setTitle(title);
+        holder.setPostCount(postCount);
+
+        //set click listners
+        holder.tagsItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: 6/7/18 open tag in view cat
+            }
+        });
+
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return tagsList.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        //initiate view
+        private View mView;
+
+        private ConstraintLayout tagsItemView;
+        private TextView tagTitleView, postCountView;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            mView = itemView;
+            tagsItemView = mView.findViewById(R.id.tagsTabItemView);
+            postCountView = mView.findViewById(R.id.tagsCountTextView);
+        }
+
+        public void setTitle(String title) {
+            tagTitleView.setText(title);
+        }
+
+        public void setPostCount(int count) {
+            String postCountText = count + " " + context.getString(R.string.posts_text);
+            postCountView.setText(postCountText);
+        }
+    }
+}

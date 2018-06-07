@@ -718,6 +718,7 @@ public class CreatePostActivity extends AppCompatActivity {
         final Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
 
         if (!isEditPost()) {
+            // TODO: 6/7/18 check why use add not set
             //create new post
             coMeth.getDb()
                     .collection("Posts")
@@ -739,6 +740,12 @@ public class CreatePostActivity extends AppCompatActivity {
                                 FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
                                 //update my posts
                                 updateMyPosts(currentPostId);
+                                //get postId
+                                final String newPostId = task.getResult().getId();
+                                Log.d(TAG, "onComplete: new post id " + newPostId);
+                                //update tags on DB
+                                updateTagsOnDB(newPostId, postMap);
+
 
                                 // TODO: 6/6/18 add share post after post has been submitted
                                 //share post after launch
@@ -793,13 +800,15 @@ public class CreatePostActivity extends AppCompatActivity {
                             //check if posting is successful
                             if (task.isSuccessful()) {
                                 //update post result
-                                isSubmitSuccessful = true;
+//                                isSubmitSuccessful = true;
 //                                goToMain();
                                 //notify users subscribed to cats
                                 notifyNewPostCatsUpdates(catsStringsArray);
                                 Log.d(TAG, "onComplete: posted post without image");
                                 //subscribe current user to post comments
                                 FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                                //update tags on db
+                                updateTagsOnDB(postId, postMap);
                             } else {
                                 //posting failed
                                 String errorMessage =
@@ -816,6 +825,97 @@ public class CreatePostActivity extends AppCompatActivity {
 //                return isSubmitSuccessful;
 
         }
+    }
+
+    private void updateTagsOnDB(final String newPostId, Map<String, Object> postMap) {
+        //update tags on db
+        //check if post has tags
+        if (postMap.get("tags") != null) {
+            //cycle through the tags and add them to the tags list
+            for (int i = 0; i < tags.size(); i++) {
+                final String title = tags.get(i);
+                //create tagsMap
+                final Map<String, Object> tagsMap = new HashMap<>();
+                tagsMap.put("title", title);
+                coMeth.getDb()
+                        .collection("Tags")
+                        .document(title)
+                        .update(tagsMap)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "onSuccess: tags updated");
+                                updatePostsOnTags(title, newPostId);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "onFailure: failed to add new post to Tags collection\n" +
+                                        e.getMessage());
+                                coMeth.getDb()
+                                        .collection("Tags")
+                                        .document(title)
+                                        .set(tagsMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "onSuccess: created new tag on DB");
+                                                updatePostsOnTags(title, newPostId);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(TAG, "onFailure: failed to create new tag on DB\n" +
+                                                        e.getMessage());
+                                            }
+                                        });
+                            }
+                        });
+
+            }
+        }
+    }
+
+    private void updatePostsOnTags(final String title, final String newPostId) {
+        final Map<String, Object> tagsPostMap = new HashMap<>();
+        tagsPostMap.put("timestamp", FieldValue.serverTimestamp());
+        coMeth.getDb()
+                .collection("Tags/" + title + "/Posts/")
+                .document(newPostId)
+                .update(tagsPostMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: tags fully updated on DB");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update tags posts on DB\n" +
+                                e.getMessage());
+                        coMeth.getDb()
+                                .collection("Tags/" + title + "/Posts/")
+                                .document(newPostId)
+                                .set(tagsPostMap)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "onSuccess: tags fully updated on DB");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG, "onFailure: final check, " +
+                                                "failed to update posts on tags\n" +
+                                                e.getMessage());
+                                    }
+                                });
+                    }
+                });
     }
 
     private void shareNewPost(String postId, final String postTitle, String postDesc, String postImage) {
@@ -925,14 +1025,13 @@ public class CreatePostActivity extends AppCompatActivity {
                                             //upload
                                             //check if its update or new post
                                             if (!isEditPost()) {
-
                                                 //is new post
                                                 createNewPost(postMap);
                                             } else {
-
                                                 //is edit post
                                                 updatePostDetails(postMap);
                                             }
+
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -964,7 +1063,7 @@ public class CreatePostActivity extends AppCompatActivity {
      *
      * @param postMap a Map with all the post details
      */
-    private void updatePostDetails(Map<String, Object> postMap) {
+    private void updatePostDetails(final Map<String, Object> postMap) {
         coMeth.getDb()
                 .collection("Posts")
                 .document(postId)
@@ -987,6 +1086,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                     "\ncategories are: " + catsStringsArray);
                             //subscribe current user to post comments
                             FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                            //update tags on DB
+                            updateTagsOnDB(postId, postMap);
+
                         } else {
 
                             //upload failed
@@ -1008,7 +1110,7 @@ public class CreatePostActivity extends AppCompatActivity {
      *
      * @param postMap a Map containing the details of the post
      */
-    private void createNewPost(Map<String, Object> postMap) {
+    private void createNewPost(final Map<String, Object> postMap) {
         coMeth.getDb()
                 .collection("Posts")
                 .add(postMap)
@@ -1031,6 +1133,8 @@ public class CreatePostActivity extends AppCompatActivity {
                             FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
                             //update users posts list
                             updateMyPosts(currentPostId);
+                            String newPostId = task.getResult().getId();
+                            updateTagsOnDB(newPostId, postMap);
 
                         } else {
 

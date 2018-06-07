@@ -1,4 +1,4 @@
-package com.nyayozangu.labs.fursa.activities.main.fragments;
+package com.nyayozangu.labs.fursa.activities.tags;
 
 
 import android.os.Bundle;

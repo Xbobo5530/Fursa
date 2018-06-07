@@ -13,10 +13,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.models.Comments;
@@ -45,8 +43,7 @@ public class CommentsRecyclerAdapter extends
     //common methods
     private CoMeth coMeth = new CoMeth();
     //firebase auth
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+
 
     //reorts users
     private ArrayList flags;
@@ -78,9 +75,6 @@ public class CommentsRecyclerAdapter extends
                 .inflate(R.layout.comment_list_item, parent, false);
         context = parent.getContext();
 
-        //initialize Firebase
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
         flags = new ArrayList<String>();
         reportedItemsString = "";
 
@@ -151,7 +145,8 @@ public class CommentsRecyclerAdapter extends
 
         //set name
         String userId = commentsList.get(position).getUser_id();
-        db.collection("Users").document(userId).addSnapshotListener(
+        coMeth.getDb()
+                .collection("Users").document(userId).addSnapshotListener(
                 new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {

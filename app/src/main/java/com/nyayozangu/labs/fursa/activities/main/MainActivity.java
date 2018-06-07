@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                     });
         } else {
             userProfileImage.setImageDrawable(
-                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                    getResources().getDrawable(R.drawable.appiconshadow));
         }
 
 

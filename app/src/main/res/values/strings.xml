@@ -250,12 +250,9 @@
     <string name="my_profile_text">My profile</string>
     <string name="by_proceedinng_u_accept_terms_text">By proceeding you accept to abide by our terms and conditions, which you may find under the settings menu.</string>
     <string name="agree_text">Agree</string>
-    <string name="enter_username">Ther username field can not be empty</string>
+    <string name="enter_username">The username field can not be empty</string>
     <string name="cat_art">Art</string>
     <string name="cat_apps">Apps</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="cat_groups">Groups</string>
 
 </resources>
