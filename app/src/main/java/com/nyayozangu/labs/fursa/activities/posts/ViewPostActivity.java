@@ -58,6 +58,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     // TODO: 5/7/18 reorganize code on click listeners
     // TODO: 5/30/18 handle posts with multiple images
+    // TODO: 6/7/18 when deleting a post with an image, delete the image as well
+    // TODO: 6/7/18 run an algorythim to delete all post photos that have no posts
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();

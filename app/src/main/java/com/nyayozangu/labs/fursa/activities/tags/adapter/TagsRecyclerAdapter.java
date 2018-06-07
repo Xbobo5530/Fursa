@@ -22,22 +22,22 @@ public class TagsRecyclerAdapter extends
 
     private static final String TAG = "Sean";
     public List<Tags> tagsList;
-    public String tagId;
     public Context context;
     //common methods
     private CoMeth coMeth = new CoMeth();
 
-    public TagsRecyclerAdapter(List<Tags> tagsList, String tagId) {
+    public TagsRecyclerAdapter(List<Tags> tagsList) {
 
         //store received posts
         this.tagsList = tagsList;
-        this.tagId = tagId;
+//        this.tagId = tagId;
 
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Log.d(TAG, "onCreateViewHolder: ");
 
         //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext())
@@ -50,21 +50,21 @@ public class TagsRecyclerAdapter extends
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        Log.d(TAG, "onBindViewHolder: ");
+
+        Log.d(TAG, "onBindViewHolder: tags recycler adapter");
         //get tags
         String title = tagsList.get(position).getTitle();
         int postCount = tagsList.get(position).getPost_count();
         holder.setTitle(title);
         holder.setPostCount(postCount);
 
-        //set click listners
+        //set click listeners
         holder.tagsItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO: 6/7/18 open tag in view cat
             }
         });
-
 
     }
 
@@ -85,7 +85,8 @@ public class TagsRecyclerAdapter extends
             super(itemView);
             mView = itemView;
             tagsItemView = mView.findViewById(R.id.tagsTabItemView);
-            postCountView = mView.findViewById(R.id.tagsCountTextView);
+            tagTitleView = mView.findViewById(R.id.tagTitleTextView);
+            postCountView = mView.findViewById(R.id.postCountTextView);
         }
 
         public void setTitle(String title) {
