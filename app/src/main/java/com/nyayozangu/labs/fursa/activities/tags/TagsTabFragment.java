@@ -111,6 +111,14 @@ public class TagsTabFragment extends Fragment {
                                                                                 e.getMessage());
                                                                     }
                                                                 });
+                                                    } else {
+                                                        //Tag has no content
+                                                        //delete tag
+                                                        coMeth.getDb()
+                                                                .collection("Tags")
+                                                                .document(tag)
+                                                                .delete();
+                                                        Log.d(TAG, "onEvent: deleted empty tag document");
                                                     }
                                                 }
                                             });
@@ -121,6 +129,7 @@ public class TagsTabFragment extends Fragment {
                 });
 
 
+        // TODO: 6/7/18 account for posts cont ==0
         coMeth.getDb()
                 .collection("Tags")
                 .orderBy("post_count", Query.Direction.DESCENDING)

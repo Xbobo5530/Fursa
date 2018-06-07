@@ -254,5 +254,7 @@
     <string name="cat_art">Art</string>
     <string name="cat_apps">Apps</string>
     <string name="cat_groups">Groups</string>
+    <string name="TAG_NAME">tag</string>
+    <string name="post_text">post</string>
 
 </resources>

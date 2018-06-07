@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.activities.tags.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.SearchableActivity;
 import com.nyayozangu.labs.fursa.activities.tags.Tags;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
@@ -53,7 +55,7 @@ public class TagsRecyclerAdapter extends
 
         Log.d(TAG, "onBindViewHolder: tags recycler adapter");
         //get tags
-        String title = tagsList.get(position).getTitle();
+        final String title = tagsList.get(position).getTitle();
         int postCount = tagsList.get(position).getPost_count();
         holder.setTitle(title);
         holder.setPostCount(postCount);
@@ -62,7 +64,10 @@ public class TagsRecyclerAdapter extends
         holder.tagsItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: 6/7/18 open tag in view cat
+
+                Intent goSearchTagIntent = new Intent(context, SearchableActivity.class);
+                goSearchTagIntent.putExtra(context.getResources().getString(R.string.TAG_NAME), title);
+                context.startActivity(goSearchTagIntent);
             }
         });
 
@@ -94,7 +99,12 @@ public class TagsRecyclerAdapter extends
         }
 
         public void setPostCount(int count) {
-            String postCountText = count + " " + context.getString(R.string.posts_text);
+            String postCountText;
+            if (count == 1) {
+                postCountText = count + " " + context.getResources().getString(R.string.post_text);
+            } else {
+                postCountText = count + " " + context.getResources().getString(R.string.posts_text);
+            }
             postCountView.setText(postCountText);
         }
     }

@@ -20,6 +20,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -37,6 +39,8 @@ import com.nyayozangu.labs.fursa.users.Users;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 
 /**
@@ -139,9 +143,61 @@ public class SearchableActivity extends AppCompatActivity {
             doMySearch(searchQuery);
 
         } else if (getIntent() != null &&
-                getIntent().getStringExtra("tag") != null) {
-            String searchQuery = getIntent().getStringExtra("tag");
-            doMySearch(searchQuery);
+                getIntent().getStringExtra(getResources().getString(R.string.TAG_NAME)) != null) {
+            final String searchTag = getIntent().getStringExtra(
+                    getResources().getString(R.string.TAG_NAME));
+            //update the toolbar title
+            getSupportActionBar().setTitle("#" + searchTag);
+            //get posts with tags
+            coMeth.getDb()
+                    .collection("Tags/" + searchTag + "/Posts/")
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                            @Nullable FirebaseFirestoreException e) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                    if (doc.getType() == DocumentChange.Type.ADDED) {
+                                        //get the post from db
+                                        final String postId = doc.getDocument().getId();
+                                        coMeth.getDb()
+                                                .collection("Posts")
+                                                .document(postId)
+                                                .get()
+                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        if (documentSnapshot.exists()) {
+                                                            //post exists
+                                                            Log.d(TAG, "onSuccess: post exists");
+                                                            //create a post object
+                                                            Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                                                            getFilteredPosts(post);
+                                                        } else {
+                                                            //post does not exist
+                                                            Log.d(TAG, "onSuccess: post does not exist");
+                                                            //update tags info
+                                                            coMeth.getDb()
+                                                                    .collection("Tags/" + searchTag + "/Posts")
+                                                                    .document(postId)
+                                                                    .delete();
+                                                            Log.d(TAG, "onSuccess: deleting post entry from search tag " +
+                                                                    "because post does not exist");
+                                                        }
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.d(TAG, "onFailure: failed to get post with search tag from posts db\n" +
+                                                                e.getMessage());
+                                                    }
+                                                });
+                                    }
+                                }
+                            }
+                        }
+                    });
         }
 
         hideKeyBoard();
