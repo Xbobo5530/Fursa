@@ -4,11 +4,13 @@ package com.nyayozangu.labs.fursa.activities.tags;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -20,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
+import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.tags.adapter.TagsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 
@@ -129,7 +132,7 @@ public class TagsTabFragment extends Fragment {
                 });
 
 
-        // TODO: 6/7/18 account for posts cont ==0
+        // TODO: 6/7/18 account for posts cont == 0
         coMeth.getDb()
                 .collection("Tags")
                 .orderBy("post_count", Query.Direction.DESCENDING)
@@ -154,6 +157,26 @@ public class TagsTabFragment extends Fragment {
                         }
                     }
                 });
+
+
+        //handle reselect tab
+        try {
+            ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
+                    new BottomNavigationView.OnNavigationItemReselectedListener() {
+                        @Override
+                        public void onNavigationItemReselected(@NonNull MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.bottomNavCatItem:
+                                    tagsRecyclerView.smoothScrollToPosition(0);
+                                    break;
+                                default:
+                                    Log.d(TAG, "onNavigationItemReselected: at default");
+                            }
+                        }
+                    });
+        } catch (NullPointerException nullE) {
+            Log.d(TAG, "onCreateView: null on reselect\n" + nullE.getMessage());
+        }
 
         return view;
     }

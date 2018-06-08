@@ -118,23 +118,26 @@ public class CatsTabFragment extends Fragment {
             }
         });
 
-        /**
-         * handle the re-selcting the categories tab on the main bottom navigation on MainActivity
-         * */
-        ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
-                new BottomNavigationView.OnNavigationItemReselectedListener() {
-                    @Override
-                    public void onNavigationItemReselected(@NonNull MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.bottomNavCatItem:
-                                catGridView.smoothScrollToPosition(0);
-                                break;
-                            default:
-                                Log.d(TAG, "onNavigationItemReselected: " +
-                                        "at default cat fragment on reselect");
+
+        // handle the re-selecting the categories tab on the main bottom navigation on MainActivity
+        try {
+            ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
+                    new BottomNavigationView.OnNavigationItemReselectedListener() {
+                        @Override
+                        public void onNavigationItemReselected(@NonNull MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.bottomNavCatItem:
+                                    catGridView.smoothScrollToPosition(0);
+                                    break;
+                                default:
+                                    Log.d(TAG, "onNavigationItemReselected: " +
+                                            "at default cat fragment on reselect");
+                            }
                         }
-                    }
-                });
+                    });
+        } catch (NullPointerException nullE) {
+            Log.d(TAG, "onCreateView: null on reselect cats tab\n" + nullE.getMessage());
+        }
 
 
         return view;

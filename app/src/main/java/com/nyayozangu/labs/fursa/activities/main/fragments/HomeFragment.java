@@ -138,20 +138,23 @@ public class HomeFragment extends Fragment {
         });
 
 
-        ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
-                new BottomNavigationView.OnNavigationItemReselectedListener() {
-                    @Override
-                    public void onNavigationItemReselected(@NonNull MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.bottomNavHomeItem:
-                                homeFeedView.smoothScrollToPosition(0);
-                                break;
-                            default:
-                                Log.d(TAG, "onNavigationItemReselected: at default");
+        try {
+            ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
+                    new BottomNavigationView.OnNavigationItemReselectedListener() {
+                        @Override
+                        public void onNavigationItemReselected(@NonNull MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.bottomNavHomeItem:
+                                    homeFeedView.smoothScrollToPosition(0);
+                                    break;
+                                default:
+                                    Log.d(TAG, "onNavigationItemReselected: at default");
+                            }
                         }
-                    }
-                });
-
+                    });
+        } catch (NullPointerException nullE) {
+            Log.d(TAG, "onCreateView: null on home reselect\n" + nullE.getMessage());
+        }
 
         // Inflate the layout for this fragment
         return view;

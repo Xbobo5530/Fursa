@@ -102,12 +102,19 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
         //initiate an arrayList to hold all the posts
         commentsList = new ArrayList<>();
-        commentsRecyclerAdapter = new CommentsRecyclerAdapter(commentsList, getPostIdFromIntent(getIntent()));
+
+        //get post id
+        if (getIntent() != null &&
+                getPostIdFromIntent(getIntent()) != null) {
+            postId = getPostIdFromIntent(getIntent());
+        }
+
+        commentsRecyclerAdapter = new CommentsRecyclerAdapter(commentsList, postId);
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         commentsRecyclerView.setHasFixedSize(true);
         commentsRecyclerView.setAdapter(commentsRecyclerAdapter);
 
-        //handle tooolbar
+        //handle toolbar
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(getString(R.string.comments_text));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -120,6 +127,9 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
         //get the sent intent
         handleIntent();
+
+        //add register view
+        updateViews(postId);
 
         //handle clicks
         postDetailsLayout.setOnClickListener(this);
@@ -169,6 +179,70 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    private void updateViews(final String postId) {
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //post exists
+                            //create post object
+                            Posts post = documentSnapshot.toObject(Posts.class);
+                            int views = post.getViews();
+                            String postUserId = post.getUser_id();
+                            if (!coMeth.isLoggedIn() ||
+                                    (coMeth.isLoggedIn() && !coMeth.getUid().equals(postUserId))) {
+                                //current viewer is either not logged in or not current logged in user
+                                //create Map
+                                addNewView(views, postId);
+                            }
+                        } else {
+                            //post does not exist
+                            goToMain(getResources().getString(R.string.post_not_found_text));
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to access db to get views for comments view\n" +
+                                e.getMessage());
+                    }
+                });
+    }
+
+    private void addNewView(int views, String postId) {
+        Map<String, Object> viewsMap = new HashMap<>();
+        viewsMap.put("views", views++);
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .update(viewsMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: views from comments updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update views from comments\n" +
+                                e.getMessage());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get views from db for comments view\n" +
+                                e.getMessage());
+                    }
+                });
+    }
+
 
     private void handleIntent() {
         if (getIntent() != null) {
@@ -177,12 +251,18 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
             Log.d(TAG, "postId is: " + postId);
         } else {
             //intent is empty
-            finish();
+            //go to main with waring
+            goToMain(getResources().getString(R.string.something_went_wrong_text));
         }
     }
 
     private String getPostIdFromIntent(Intent intent) {
-        return intent.getStringExtra("postId");
+        if (getIntent() != null &&
+                getIntent().getStringExtra("postId") != null) {
+            return intent.getStringExtra("postId");
+        } else {
+            return null;
+        }
     }
 
     private void goToMain(String message) {
@@ -442,19 +522,13 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                     commentsList.add(comment);
                                     commentsRecyclerAdapter.notifyDataSetChanged();
                                     commentsRecyclerView.scrollToPosition(commentsList.size() - 1);
-
                                 }
                             }
                         } else {
-
                             //there are no comments
                             Log.d(TAG, "onEvent: post has no comments");
-
-
                         }
-
                         coMeth.stopLoading(progressDialog, swipeRefreshLayout);
-
                     }
                 });
     }
@@ -468,7 +542,6 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
         } catch (Exception e) {
             Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
         }
-
     }
 
 

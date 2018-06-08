@@ -28,7 +28,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -559,7 +558,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                                                 @Override
                                                                 public void onClick(DialogInterface dialog, int which) {
                                                                     //go to payments
-                                                                    Toast.makeText(CreatePostActivity.this, "going payments", Toast.LENGTH_SHORT).show();
+//                                                                    Toast.makeText(CreatePostActivity.this, "going payments", Toast.LENGTH_SHORT).show();
                                                                 }
                                                             })
                                                             .show();
