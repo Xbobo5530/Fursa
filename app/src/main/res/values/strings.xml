@@ -258,5 +258,7 @@
     <string name="post_text">post</string>
     <string name="yes_text">Yes</string>
     <string name="error_text">Error</string>
+    <string name="dont_have_saves_text">You don\'t have any saved posts</string>
+    <string name="failed_to_get_saves">Failed to get saved posts</string>
 
 </resources>

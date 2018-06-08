@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -53,7 +54,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -292,29 +292,45 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                 hideKeyBoard();
                 //show progress
                 showProgress(getString(R.string.posting_comment_text));
-                final String comment = chatField.getText().toString();
+                final String comment = chatField.getText().toString().trim();
                 //generate randomString name for image based on firebase time stamp
-                final String randomCommentId = UUID.randomUUID().toString();
+//                final String randomCommentId = UUID.randomUUID().toString();
                 //get the user id of the user posing
+
+                //add new comment
+                final Map<String, Object> commentsMap = new HashMap<>();
+                commentsMap.put("timestamp", FieldValue.serverTimestamp());
+                commentsMap.put("comment", comment);
+                commentsMap.put("user_id", currentUserId);
                 //post a comment
                 coMeth.getDb()
                         .collection("Posts/" + postId + "/Comments")
-                        .document(randomCommentId)
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        .add(commentsMap)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            public void onSuccess(DocumentReference documentReference) {
 
-                                //add new comment
-                                final Map<String, Object> commentsMap = new HashMap<>();
-                                commentsMap.put("timestamp", FieldValue.serverTimestamp());
-                                commentsMap.put("comment", comment);
-                                commentsMap.put("user_id", currentUserId);
-
-                                //upload comment to cloud
-                                uploadComment(commentsMap, randomCommentId);
+                                //comment has been posted
+                                Log.d(TAG, "onComplete: subscribing user to post");
+                                //subscribe user to topic
+                                FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                                //notify subscribers
+                                Log.d(TAG, "onComplete: notifying user");
+                                new Notify().execute("comment_updates", postId);
+                                Log.d(TAG, "onSuccess: ");
                                 coMeth.stopLoading(progressDialog, swipeRefreshLayout);
-
+                                //get latest comments
+                                // TODO: 6/8/18 test new comments
+//                                retrieveComments();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "onFailure: failed to post comment\n" +
+                                        e.getMessage());
+                                showSnack(getResources().getString(R.string.failed_to_comment_text)
+                                        + ": " + e.getMessage());
                             }
                         });
                 //clear text field
@@ -326,58 +342,6 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
             showVerEmailDialog(); //alert user is not verified
 
         }
-    }
-
-    private void uploadComment(final Map<String, Object> commentsMap, String randomCommentId) {
-        coMeth.getDb()
-                .collection("Posts/" + postId + "/Comments")
-                .document(randomCommentId)
-                .set(commentsMap)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-
-                        //check if task is successful
-                        if (task.isSuccessful()) {
-
-                            //subscribe user to post
-                            coMeth.getDb()
-                                    .collection("Users/" + currentUserId + "/Subscriptions")
-                                    .document("comments")
-                                    .collection("Comments")
-                                    .document(postId)
-                                    .set(commentsMap)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            //comment has been posted
-                                            Log.d(TAG, "onComplete: subscribing user to post");
-                                            //subscribe user to topic
-                                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                            //notify subscribers
-                                            Log.d(TAG, "onComplete: notifying user");
-                                            new Notify().execute("comment_updates", postId);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "onFailure: failed to post comment\n" +
-                                                    e.getMessage());
-                                        }
-                                    });
-
-
-
-                        } else {
-
-                            showSnack(getString(R.string.failed_to_comment_text) + ": " +
-                                    task.getResult().toString());
-
-                        }
-
-                    }
-                });
     }
 
     private void setUserDetails() {

@@ -160,8 +160,7 @@ public class TagsTabFragment extends Fragment {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "onFailure: failed to get tags\n" + e.getMessage());
-                        showSnack(getResources().getString(R.string.error_text) + ": " +
-                                e.getMessage(), view);
+                        showSnack(getResources().getString(R.string.error_text) + ": " + e.getMessage());
                     }
                 });
 
@@ -186,9 +185,14 @@ public class TagsTabFragment extends Fragment {
         return view;
     }
 
-    private void showSnack(String message, View view) {
-        Snackbar.make(view.findViewById(R.id.settingsLayout),
-                message, Snackbar.LENGTH_LONG).show();
+    private void showSnack(String message) {
+        try {
+            Snackbar.make(getActivity().findViewById(R.id.mainSnack),
+                    message, Snackbar.LENGTH_LONG).show();
+        } catch (NullPointerException nullE) {
+            Log.d(TAG, "showSnack: null at tags frag snack\n" + nullE.getMessage());
+        }
+
     }
 
 }
