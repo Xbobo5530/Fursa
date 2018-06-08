@@ -180,6 +180,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void updateViews(final String postId) {
+        Log.d(TAG, "updateViews: ");
         coMeth.getDb()
                 .collection("Posts")
                 .document(postId)
@@ -215,8 +216,9 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void addNewView(int views, String postId) {
+        Log.d(TAG, "addNewView: ");
         Map<String, Object> viewsMap = new HashMap<>();
-        viewsMap.put("views", views++);
+        viewsMap.put("views", views + 1);
         coMeth.getDb()
                 .collection("Posts")
                 .document(postId)
