@@ -14,11 +14,11 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -37,8 +37,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 /**
  *
@@ -221,7 +219,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         final ArrayList<Comments> commentsList = new ArrayList<>();
         //pass comment details
-        // TODO: 6/1/18 find better way of rerieveing the latest comment
+        // TODO: 6/1/18 find better way of receiving the latest comment
         fetchLatestComment(title, extraInfo, notifId, commentsList);
     }
 
@@ -234,10 +232,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .document(extraInfo)
                 .collection("Comments")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-                                        @Nullable FirebaseFirestoreException e) {
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                                 if (doc.getType() == DocumentChange.Type.ADDED) {
@@ -253,7 +251,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                         }
                     }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to fetch latest comment");
+                    }
                 });
+
     }
 
     private void getCommentDetails(final String latestComment,

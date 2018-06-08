@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -55,7 +56,7 @@ public class TagsTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_tags_tab, container, false);
+        final View view = inflater.inflate(R.layout.fragment_tags_tab, container, false);
 
         tagsRecyclerView = view.findViewById(R.id.tagsRecyclerView);
         tagsList = new ArrayList<>();
@@ -131,23 +132,21 @@ public class TagsTabFragment extends Fragment {
                     }
                 });
 
-
         // TODO: 6/7/18 account for posts cont == 0
         coMeth.getDb()
                 .collection("Tags")
                 .orderBy("post_count", Query.Direction.DESCENDING)
-
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-                                        @Nullable FirebaseFirestoreException e) {
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                                 Log.d(TAG, "onEvent: adding tag to tagList");
                                 if (doc.getType() == DocumentChange.Type.ADDED) {
                                     Log.d(TAG, "onEvent: tag type is added");
                                     Tags tag = doc.getDocument().toObject(Tags.class);
-                                    Log.d(TAG, "onEvent: doc converted to tag objeect");
+                                    Log.d(TAG, "onEvent: doc converted to tag object");
                                     tagsList.add(tag);
                                     Log.d(TAG, "onEvent: tag added to tagList");
                                     tagsRecyclerAdapter.notifyDataSetChanged();
@@ -156,8 +155,15 @@ public class TagsTabFragment extends Fragment {
                             }
                         }
                     }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get tags\n" + e.getMessage());
+                        showSnack(getResources().getString(R.string.error_text) + ": " +
+                                e.getMessage(), view);
+                    }
                 });
-
 
         //handle reselect tab
         try {
@@ -177,8 +183,12 @@ public class TagsTabFragment extends Fragment {
         } catch (NullPointerException nullE) {
             Log.d(TAG, "onCreateView: null on reselect\n" + nullE.getMessage());
         }
-
         return view;
+    }
+
+    private void showSnack(String message, View view) {
+        Snackbar.make(view.findViewById(R.id.settingsLayout),
+                message, Snackbar.LENGTH_LONG).show();
     }
 
 }

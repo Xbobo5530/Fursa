@@ -43,9 +43,7 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.ml.vision.FirebaseVision;
@@ -79,8 +77,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-
-import javax.annotation.Nullable;
 
 import id.zelory.compressor.Compressor;
 
@@ -296,12 +292,12 @@ public class CreatePostActivity extends AppCompatActivity {
                         .setNegativeButton(
                                 getResources().getString(R.string.cancel_text),
                                 new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // user clicks cancel
-                                dialog.cancel();
-                            }
-                        })
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // user clicks cancel
+                                        dialog.cancel();
+                                    }
+                                })
                         .setCancelable(false);
 
                 //check if view already has parent
@@ -396,7 +392,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 try {
                     Intent intent =
                             new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                            .build(CreatePostActivity.this);
+                                    .build(CreatePostActivity.this);
                     startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
                 } catch (GooglePlayServicesRepairableException |
                         GooglePlayServicesNotAvailableException e) {
@@ -434,21 +430,21 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 final DatePickerDialog eventDatePickerDialog =
                         new DatePickerDialog(CreatePostActivity.this,
-                        new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                new DatePickerDialog.OnDateSetListener() {
+                                    @Override
+                                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
-                        // save date to eventDate
-                        eventDate = new Date(year, month, dayOfMonth);
-                        // TODO: 5/2/18 check setting event date on edit post fails
-                        Log.d(TAG, "date selected is: " + eventDate.toString());
-                        //set selected date to the eventDate textView
-                        eventDateTextView.setText(android.text.format.DateFormat
-                                .format("EEE, MMM d, 20yy", eventDate).toString());
+                                        // save date to eventDate
+                                        eventDate = new Date(year, month, dayOfMonth);
+                                        // TODO: 5/2/18 check setting event date on edit post fails
+                                        Log.d(TAG, "date selected is: " + eventDate.toString());
+                                        //set selected date to the eventDate textView
+                                        eventDateTextView.setText(android.text.format.DateFormat
+                                                .format("EEE, MMM d, 20yy", eventDate).toString());
 
 
-                    }
-                }, YEAR, MONTH, DAY);
+                                    }
+                                }, YEAR, MONTH, DAY);
                 eventDatePickerDialog.show();
             }
         });
@@ -475,19 +471,19 @@ public class CreatePostActivity extends AppCompatActivity {
                 }
                 builder.setPositiveButton(
                         getResources().getString(R.string.done_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        price = input.getText().toString().trim();
-                        priceTextView.setText(price);
-                    }
-                })
-                        .setNegativeButton(
-                                getResources().getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
+                                price = input.getText().toString().trim();
+                                priceTextView.setText(price);
                             }
                         })
+                        .setNegativeButton(
+                                getResources().getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                })
                         .setCancelable(false);
                 builder.show();
                 Log.d(TAG, "dialog created");
@@ -536,54 +532,66 @@ public class CreatePostActivity extends AppCompatActivity {
                                             currentUserId +
                                             "/Subscriptions/my_posts/MyPosts")
                                     .whereGreaterThan("timestamp", date.getTime())
-                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                    .get()
+                                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                         @Override
-                                        public void onEvent(
-                                                @Nullable QuerySnapshot queryDocumentSnapshots,
-                                                @Nullable FirebaseFirestoreException e) {
+                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                            Log.d(TAG, "onSuccess: got documents");
                                             if (!queryDocumentSnapshots.isEmpty()) {
+                                                //user has posts from today
                                                 //user has posted today
                                                 int todayPostCount = queryDocumentSnapshots.size();
                                                 Log.d(TAG, "onEvent: user has posted " + todayPostCount + " post(s) today");
 
                                                 coMeth.stopLoading(progressDialog);
-                                                if (todayPostCount > 1) {
+                                                if (todayPostCount > 10) {
                                                     AlertDialog.Builder quotaAlertBuilder =
                                                             new AlertDialog.Builder(CreatePostActivity.this);
                                                     quotaAlertBuilder.setTitle("Daily post limit reached")
                                                             .setIcon(getResources().getDrawable(R.drawable.ic_action_quota))
-                                                            .setMessage("You have reached you daily posting limit. " +
-                                                                    "\nWould you like pay for more posts?")
-                                                            .setPositiveButton(getResources().getString(R.string.yes_text), new DialogInterface.OnClickListener() {
-                                                                @Override
-                                                                public void onClick(DialogInterface dialog, int which) {
-                                                                    //go to payments
+                                                            .setMessage("You have reached you daily posting limit. "/* +
+                                                                    "\nWould you like pay for more posts?"*/)
+                                                            .setPositiveButton(getResources().getString(R.string.ok_text),
+                                                                    new DialogInterface.OnClickListener() {
+                                                                        @Override
+                                                                        public void onClick(DialogInterface dialog, int which) {
+                                                                            //go to payments
 //                                                                    Toast.makeText(CreatePostActivity.this, "going payments", Toast.LENGTH_SHORT).show();
-                                                                }
-                                                            })
+                                                                            // TODO: 6/8/18 handle opening payment page
+                                                                            //// TODO: 6/8/18 replaece replacement code
+                                                                            dialog.dismiss();
+                                                                            goToMain();
+
+                                                                        }
+                                                                    })
                                                             .show();
-
-
                                                 } else {
                                                     //has not reached cap
+                                                    Log.d(TAG, "onSuccess: user has not reached cap");
                                                     new SubmitPostTask().execute();
 //                                                  submitPost();
                                                     coMeth.stopLoading(progressDialog);
                                                     goToMain(getString(R.string.post_will_be_available_text));
 
                                                 }
-
                                             } else {
-                                                //if user has no posts, then has not reached daily post quota
+                                                //user has no posts from today
+                                                Log.d(TAG, "onSuccess: there are no documents from today");
+                                                //has not reached cap
                                                 new SubmitPostTask().execute();
 //                                                  submitPost();
                                                 coMeth.stopLoading(progressDialog);
                                                 goToMain(getString(R.string.post_will_be_available_text));
                                             }
-
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(TAG, "onFailure: failed to get user's posts from today\n" +
+                                                    e.getMessage());
                                         }
                                     });
-
                         } else {
 
                             //is edit post
@@ -626,34 +634,26 @@ public class CreatePostActivity extends AppCompatActivity {
 //                                                    submitPost();
                                                     coMeth.stopLoading(progressDialog);
                                                     goToMain(getString(R.string.post_will_be_available_text));
-
                                                 } else {
-
                                                     //post no longer exists
                                                     Log.d(TAG, "onComplete: post does not exist");
                                                     //go to main
 //                                                    goToMain(getResources().getString(R.string.post_not_found_text));
                                                 }
                                             } else {
-
                                                 //task failed
                                                 Log.d(TAG, "onComplete: task failed" + task.getException());
 //                                                showSnack(getString(R.string.failed_to_complete_text));
-
-
                                             }
                                         }
                                     });
                         }
-
                         //re-enable submit button
                         submitButton.setClickable(true);
-
                     } else {
                         //desc is empty
                         //upload failed
                         showSnack(getString(R.string.enter_post_details_text));
-
                     }
                 } else {
 
@@ -695,7 +695,14 @@ public class CreatePostActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    /**
+     * go to main activity
+     */
+    private void goToMain() {
+        startActivity(new Intent(CreatePostActivity.this, MainActivity.class));
+        finish();
     }
 
     /**
@@ -717,7 +724,9 @@ public class CreatePostActivity extends AppCompatActivity {
                     //name and phone are not empty
                     if (!contactEmail.isEmpty()) {
                         //has name, phone and email
-                        String contactDetails = contactName + "\n" + contactPhone + "\n" + contactEmail;
+                        String contactDetails = contactName + "\n" +
+                                contactPhone + "\n" +
+                                contactEmail;
                         contactTextView.setText(contactDetails);
                     } else {
                         //has name and phone
