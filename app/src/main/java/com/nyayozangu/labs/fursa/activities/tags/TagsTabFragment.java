@@ -65,6 +65,9 @@ public class TagsTabFragment extends Fragment {
         tagsRecyclerView.setHasFixedSize(true);
         tagsRecyclerView.setAdapter(tagsRecyclerAdapter);
 
+        //show loading
+        showProgress(getResources().getString(R.string.loading_text));
+        //access tags
         Log.d(TAG, "onCreateView: accessing tags");
         coMeth.getDb()
                 .collection("Tags")
@@ -81,51 +84,8 @@ public class TagsTabFragment extends Fragment {
                                     Log.d(TAG, "onEvent: getting tag id");
                                     final String tag = doc.getDocument().getId();
                                     Log.d(TAG, "onEvent: accessing posts in tag");
-                                    coMeth.getDb()
-                                            .collection("Tags")
-                                            .document(tag)
-                                            .collection("Posts")
-                                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                                                @Override
-                                                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-                                                                    @Nullable FirebaseFirestoreException e) {
-                                                    if (!queryDocumentSnapshots.isEmpty()) {
-                                                        Log.d(TAG, "onEvent: getting posts count");
-                                                        int postsCount = queryDocumentSnapshots.getDocuments().size();
-                                                        Log.d(TAG, "onEvent: post count is " + postsCount);
-                                                        Map<String, Object> postCountMap = new HashMap<>();
-                                                        postCountMap.put("post_count", postsCount);
-                                                        //setting posts count
-                                                        Log.d(TAG, "onEvent: setting posts count");
-                                                        coMeth.getDb()
-                                                                .collection("Tags")
-                                                                .document(tag)
-                                                                .update(postCountMap)
-                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                    @Override
-                                                                    public void onSuccess(Void aVoid) {
-                                                                        Log.d(TAG, "onSuccess: getting tags to display");
-
-                                                                    }
-                                                                })
-                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                        Log.d(TAG, "onFailure: failed to update post count " +
-                                                                                e.getMessage());
-                                                                    }
-                                                                });
-                                                    } else {
-                                                        //Tag has no content
-                                                        //delete tag
-                                                        coMeth.getDb()
-                                                                .collection("Tags")
-                                                                .document(tag)
-                                                                .delete();
-                                                        Log.d(TAG, "onEvent: deleted empty tag document");
-                                                    }
-                                                }
-                                            });
+                                    //getTags
+                                    getTags(tag);
                                 }
                             }
                         }
@@ -151,6 +111,7 @@ public class TagsTabFragment extends Fragment {
                                     tagsList.add(tag);
                                     Log.d(TAG, "onEvent: tag added to tagList");
                                     tagsRecyclerAdapter.notifyDataSetChanged();
+                                    coMeth.stopLoading(progressDialog);
                                     Log.d(TAG, "onEvent: added");
                                 }
                             }
@@ -186,6 +147,59 @@ public class TagsTabFragment extends Fragment {
         return view;
     }
 
+    private void getTags(final String tag) {
+        coMeth.getDb()
+                .collection("Tags")
+                .document(tag)
+                .collection("Posts")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            Log.d(TAG, "onEvent: getting posts count");
+                            int postsCount = queryDocumentSnapshots.getDocuments().size();
+                            Log.d(TAG, "onEvent: post count is " + postsCount);
+                            //updateTags
+                            updateTags(postsCount, tag);
+                        } else {
+                            //Tag has no content
+                            //delete tag
+                            coMeth.getDb()
+                                    .collection("Tags")
+                                    .document(tag)
+                                    .delete();
+                            Log.d(TAG, "onEvent: deleted empty tag document");
+                        }
+                    }
+                });
+    }
+
+    private void updateTags(int postsCount, String tag) {
+        Map<String, Object> postCountMap = new HashMap<>();
+        postCountMap.put("post_count", postsCount);
+        //setting posts count
+        Log.d(TAG, "onEvent: setting posts count");
+        coMeth.getDb()
+                .collection("Tags")
+                .document(tag)
+                .update(postCountMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: getting tags to display");
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update post count " +
+                                e.getMessage());
+                    }
+                });
+    }
+
     private void showSnack(String message) {
         try {
             Snackbar.make(getActivity().findViewById(R.id.mainSnack),
@@ -194,6 +208,15 @@ public class TagsTabFragment extends Fragment {
             Log.d(TAG, "showSnack: null at tags frag snack\n" + nullE.getMessage());
         }
 
+    }
+
+    //show progress
+    private void showProgress(String message) {
+        Log.d(TAG, "at showProgress\n message is: " + message);
+        //construct the dialog box
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(message);
+        progressDialog.show();
     }
 
 }
