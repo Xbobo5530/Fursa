@@ -707,7 +707,7 @@ ViewCategoryActivity extends AppCompatActivity {
                         case "education":
                             checkForEventDate(post);
                             break;
-                        case "exhibition":
+                        case "exhibitions":
                             getFilteredPosts(post);
                             break;
                         case "events":
