@@ -129,6 +129,8 @@ public class SearchableActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
 
+        //show progress
+        showProgress(getResources().getString(R.string.loading_text));
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
             searchQuery = intent.getStringExtra(SearchManager.QUERY).toLowerCase();
@@ -220,8 +222,6 @@ public class SearchableActivity extends AppCompatActivity {
     private void doMySearch(final String query) {
 
         Log.d(TAG, "doMySearch: \nquery is: " + query);
-        //loading
-        showProgress(getString(R.string.searching_text));
         //clear old search
         postsList.clear();
         usersList.clear();

@@ -187,7 +187,7 @@ public class CoMeth {
         try {
 
             RequestOptions placeHolderRequest = new RequestOptions();
-            placeHolderRequest.placeholder(R.color.colorWhite);            //loading the string for url to the image view
+            placeHolderRequest.placeholder(placeholderDrawable);            //loading the string for url to the image view
             Glide.with(getApplicationContext())
                     .setDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
@@ -202,7 +202,7 @@ public class CoMeth {
                          String imageUrl, String thumbUrl, ImageView targetImageView) {
         Log.d(TAG, "setImage: with thumb");
         RequestOptions placeHolderRequest = new RequestOptions();
-        placeHolderRequest.placeholder(R.color.colorWhite);
+        placeHolderRequest.placeholder(placeholderDrawable);
         Glide.with(getApplicationContext())
                 .applyDefaultRequestOptions(placeHolderRequest)
                 .load(imageUrl)
@@ -235,7 +235,7 @@ public class CoMeth {
                 return "education";
             case "Jobs":
                 return "jobs";
-            case "Queries":
+            case "Discussions":
                 return "queries";
             case "Exhibitions":
                 return "exhibitions";
@@ -267,7 +267,7 @@ public class CoMeth {
                 return "education";
             case "Nafasi za kazi":
                 return "jobs";
-            case "Maswali na majibu":
+            case "Majadiliano":
                 return "queries";
             case "Maonyesho ya biashara":
                 return "exhibitions";

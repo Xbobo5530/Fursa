@@ -472,7 +472,7 @@ ViewCategoryActivity extends AppCompatActivity {
                     getSupportActionBar().setTitle(getString(R.string.cat_jobs));
                     break;
                 case "queries":
-                    getSupportActionBar().setTitle(getString(R.string.cat_qna_text));
+                    getSupportActionBar().setTitle(getString(R.string.cat_queries));
                     break;
                 case "exhibitions":
                     getSupportActionBar().setTitle(getString(R.string.cat_exhibitions));

@@ -28,7 +28,7 @@
     <string name="cat_buysell" translatable="false">Buy and sell</string>
     <string name="cat_education" translatable="false">Education</string>
     <string name="cat_jobs" translatable="false">Jobs</string>
-    <string name="cat_queries" translatable="false">Queries</string>
+    <string name="cat_queries" translatable="false">Discussions</string>
     <string name="failed_to_connect_text" translatable="false">Failed to connect to the internet</string>
     <string name="log_to_subscribe_text" translatable="false">Log in to subscribe</string>
     <string name="subscribe_to_text" translatable="false">Subscribed to</string>
