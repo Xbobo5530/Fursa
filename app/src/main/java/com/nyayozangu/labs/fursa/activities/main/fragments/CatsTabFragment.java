@@ -64,13 +64,13 @@ public class CatsTabFragment extends Fragment {
         int catImages[] = {
 
 //                R.drawable.featured,
-                R.drawable.popular, R.drawable.featured,
-                R.drawable.business, R.drawable.appic,
+                R.drawable.hot, R.drawable.exhibitions,
+                R.drawable.business, R.drawable.art,
                 R.drawable.jobs, R.drawable.buysell,
                 R.drawable.upcoming, R.drawable.events,
                 R.drawable.places, R.drawable.services,
-                R.drawable.school, R.drawable.help,
-                R.drawable.appic, R.drawable.appic
+                R.drawable.school, R.drawable.discussions,
+                R.drawable.apps, R.drawable.groups
 
         };
 
