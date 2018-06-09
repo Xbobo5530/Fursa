@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -19,10 +18,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -68,6 +65,7 @@ public class SearchableActivity extends AppCompatActivity {
     private Boolean isFirstPageFirstLoad = true;
     private String locString = "";
     private ProgressDialog progressDialog;
+    String searchableText = "";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -100,6 +98,13 @@ public class SearchableActivity extends AppCompatActivity {
 
         //initiate items
         searchFeed = findViewById(R.id.searchRecyclerView);
+
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchFeed.smoothScrollToPosition(0);
+            }
+        });
 
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
@@ -150,7 +155,6 @@ public class SearchableActivity extends AppCompatActivity {
             //get posts with tags
             getPostsWithTags(searchTag);
         }
-
         hideKeyBoard();
     }
 
@@ -168,43 +172,47 @@ public class SearchableActivity extends AppCompatActivity {
                             for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                                 if (doc.getType() == DocumentChange.Type.ADDED) {
                                     //get the post from db
-                                    final String postId = doc.getDocument().getId();
-                                    coMeth.getDb()
-                                            .collection("Posts")
-                                            .document(postId)
-                                            .get()
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                @Override
-                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                    if (documentSnapshot.exists()) {
-                                                        //post exists
-                                                        Log.d(TAG, "onSuccess: post exists");
-                                                        //create a post object
-                                                        Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
-                                                        getFilteredPosts(post);
-                                                    } else {
-                                                        //post does not exist
-                                                        Log.d(TAG, "onSuccess: post does not exist");
-                                                        //update tags info
-                                                        coMeth.getDb()
-                                                                .collection("Tags/" + searchTag + "/Posts")
-                                                                .document(postId)
-                                                                .delete();
-                                                        Log.d(TAG, "onSuccess: deleting post entry from search tag " +
-                                                                "because post does not exist");
-                                                    }
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG, "onFailure: failed to get post with search tag from posts db\n" +
-                                                            e.getMessage());
-                                                }
-                                            });
+                                    getPostWithTag(doc, searchTag);
                                 }
                             }
                         }
+                    }
+                });
+    }
+
+    private void getPostWithTag(DocumentChange doc, final String searchTag) {
+        final String postId = doc.getDocument().getId();
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //post exists
+                            Log.d(TAG, "onSuccess: post exists");
+                            //create a post object
+                            Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                            getFilteredPosts(post);
+                        } else {
+                            //post does not exist
+                            Log.d(TAG, "onSuccess: post does not exist");
+                            //update tags info
+                            coMeth.getDb()
+                                    .collection("Tags/" + searchTag + "/Posts")
+                                    .document(postId)
+                                    .delete();
+                            Log.d(TAG, "onSuccess: deleting post entry from search tag " +
+                                    "because post does not exist");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get post with search tag from posts db\n" +
+                                e.getMessage());
                     }
                 });
     }
@@ -254,7 +262,7 @@ public class SearchableActivity extends AppCompatActivity {
                     Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                     if (doc.getType() == DocumentChange.Type.ADDED) {
                         //filter posts
-                        filterPosts(post, searchQuery);
+                        filterPosts(post, searchQuery, postId);
                     } else if (doc.getType() == DocumentChange.Type.REMOVED) {
                         // TODO: 5/25/18 test if documet is removed
                         if (postsList.contains(post)) {
@@ -262,14 +270,6 @@ public class SearchableActivity extends AppCompatActivity {
                         }
                     }
                 }
-                // TODO: 5/2/18 handle no posts found notif
-                /*if (postsList.isEmpty()) {
-
-                    //no posts
-                    showSnack("Posts not found");
-
-                }*/
-
                 //the first page has already loaded
                 isFirstPageFirstLoad = false;
 
@@ -277,26 +277,32 @@ public class SearchableActivity extends AppCompatActivity {
         });
     }
 
-
-    private void filterPosts(final Posts post, final String searchQuery) {
-
-        String searchableText = "";
+    private void filterPosts(final Posts post, final String searchQuery, final String postId) {
 
         String title = post.getTitle().toLowerCase();
         String desc = post.getDesc().toLowerCase();
+        searchableText = searchableText.concat(title + " ");
+        searchableText = searchableText.concat(desc + " ");
+
         //handle price
         if (post.getPrice() != null) {
             String price = post.getPrice().toLowerCase();
+            searchableText = searchableText.concat(price + " ");
+
         }
         //image labels
         String imageLabels = "";
         if (post.getImage_labels() != null) {
             imageLabels = post.getImage_labels().toLowerCase().trim();
+            searchableText = searchableText.concat(imageLabels + " ");
+
         }
         //image text
         String imageText = "";
         if (post.getImage_text() != null) {
             imageText = post.getImage_text().toLowerCase().trim();
+            searchableText = searchableText.concat(imageText + " ");
+
         }
 
         //handle categories
@@ -311,6 +317,8 @@ public class SearchableActivity extends AppCompatActivity {
 
             }
         }
+        searchableText = searchableText.concat(catString + " ");
+
         //handle tags
         String tagsString = "";
         if (post.getTags() != null) {
@@ -320,6 +328,8 @@ public class SearchableActivity extends AppCompatActivity {
             }
             Log.d(TAG, "filterPosts: \ntags string is: " + tagsString + "\ntags are: " + tags);
         }
+        searchableText = searchableText.concat(tagsString + " ");
+
         // handle contact
         ArrayList contactArray;
         String contactString = "";
@@ -330,6 +340,8 @@ public class SearchableActivity extends AppCompatActivity {
                         contactArray.get(i).toString().toLowerCase() + " ");
             }
         }
+        searchableText = searchableText.concat(contactString + " ");
+
         //handle location search
         locString = "";
         if (post.getLocation() != null) {
@@ -340,26 +352,39 @@ public class SearchableActivity extends AppCompatActivity {
                         locArray.get(i).toString().toLowerCase() + " ");
             }
         }
+        searchableText = searchableText.concat(locString + " ");
+
         //handle postUser
         String postUserId = post.getUser_id();
         coMeth.getDb()
                 .collection("Users")
                 .document(postUserId)
                 .get()
-                .addOnCompleteListener(this, new OnCompleteListener<DocumentSnapshot>() {
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                        if (task.isSuccessful() && task.getResult().exists()) {
-                            Users user = task.getResult().toObject(Users.class);
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //user exists
+                            Users user = documentSnapshot.toObject(Users.class);
                             String username = user.getName().toLowerCase();
                             if (username.contains(searchQuery)) getFilteredPosts(post);
                             if (user.getBio() != null) {
                                 String bio = user.getBio().toLowerCase();
-                                if (bio.contains(searchQuery)) getFilteredPosts(post);
-                            }
-                        }
+//                                if (bio.contains(searchQuery)) getFilteredPosts(post);
+                                searchableText = searchableText.concat(bio + " ");
 
+                            }
+                        } else {
+                            //user does not exist
+                            //delete post
+                            deleteUserlessPost(postId);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get user details\n" + e.getMessage());
                     }
                 });
         //handle event date
@@ -370,35 +395,35 @@ public class SearchableActivity extends AppCompatActivity {
             long eventDateMils = eventDate.getTime();
             eventDateString = DateFormat.format(
                     "EEE, MMM d, 20yy", new Date(eventDateMils)).toString().toLowerCase();
+            searchableText = searchableText.concat(eventDateString + " ");
         }
 
-        if (title.contains(searchQuery)) {
+        if (searchableText.contains(searchQuery)) {
             getFilteredPosts(post);
         }
-        if (desc.contains(searchQuery)) {
-            getFilteredPosts(post);
-        }
-        if (imageLabels.contains(searchQuery)) {
-            getFilteredPosts(post);
-        }
-        if (tagsString.contains(searchQuery)) {
-            getFilteredPosts(post);
-        }
-        if (imageText.contains(searchQuery)) {
-            getFilteredPosts(post);
-        }
-        if (locString.contains(searchQuery)) {
-            getFilteredPosts(post);
-        }
-        if (catString.contains(searchQuery)) {
-            getFilteredPosts(post);
-        }
-        if (contactString.contains(searchQuery)) {
-            getFilteredPosts(post);
-        }
-        if (eventDateString.contains(searchQuery)) {
-            getFilteredPosts(post);
-        }
+        //clear searchable text after searching through 1 post
+        searchableText = "";
+    }
+
+    private void deleteUserlessPost(String postId) {
+        Log.d(TAG, "onSuccess: user does not exist");
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: deleted post with no user");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to delete post with no user\n" +
+                                e.getMessage());
+                    }
+                });
     }
 
     private void getFilteredPosts(final Posts post) {
@@ -447,12 +472,12 @@ public class SearchableActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
-    //show snack
-    private void showSnack(String message) {
-        Snackbar.make(findViewById(R.id.searchView),
-                message, Snackbar.LENGTH_LONG)
-                .show();
-    }
+//    //show snack
+//    private void showSnack(String message) {
+//        Snackbar.make(findViewById(R.id.searchView),
+//                message, Snackbar.LENGTH_LONG)
+//                .show();
+//    }
 
     private void hideKeyBoard() {
 
