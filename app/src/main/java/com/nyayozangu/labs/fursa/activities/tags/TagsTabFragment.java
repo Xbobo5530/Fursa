@@ -136,6 +136,7 @@ public class TagsTabFragment extends Fragment {
         coMeth.getDb()
                 .collection("Tags")
                 .orderBy("post_count", Query.Direction.DESCENDING)
+                .limit(50)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override

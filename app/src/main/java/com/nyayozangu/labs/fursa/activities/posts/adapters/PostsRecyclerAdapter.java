@@ -17,8 +17,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
@@ -35,7 +33,6 @@ import com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
-import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
@@ -44,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 /**
  * Created by Sean on 4/4/18.
@@ -334,7 +333,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //share post
         //set onclick listener to the share button
-        final String postTitle = getPostTitle(postId);
+        final String postTitle = postsList.get(position).getTitle() /*getPostTitle(postId)*/;
         holder.postSharePostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -575,38 +574,38 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private String getPostTitle(String postId) {
-        //get data from db
-        coMeth.getDb()
-                .collection("Posts")
-                .document(postId)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-                        //check if exists
-                        if (documentSnapshot.exists()) {
-                            //post exists
-                            Posts post = documentSnapshot.toObject(Posts.class);
-                            postTitle = post.getTitle();
-                            Log.d(TAG, "onSuccess: post title is " + postTitle);
-                        } else {
-                            //post does not exist
-                            Log.d(TAG, "onSuccess: post does not exist");
-                        }
-
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to get post");
-                    }
-                });
-        Log.d(TAG, "getPostTitle: post title is " + postTitle);
-        return postTitle;
-    }
+//    private String getPostTitle(String postId) {
+//        //get data from db
+//        coMeth.getDb()
+//                .collection("Posts")
+//                .document(postId)
+//                .get()
+//                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//
+//                        //check if exists
+//                        if (documentSnapshot.exists()) {
+//                            //post exists
+//                            Posts post = documentSnapshot.toObject(Posts.class);
+//                            postTitle = post.getTitle();
+//                            Log.d(TAG, "onSuccess: post title is " + postTitle);
+//                        } else {
+//                            //post does not exist
+//                            Log.d(TAG, "onSuccess: post does not exist");
+//                        }
+//
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.d(TAG, "onFailure: failed to get post");
+//                    }
+//                });
+//        Log.d(TAG, "getPostTitle: post title is " + postTitle);
+//        return postTitle;
+//    }
 
     private void openPost(String postId) {
         Intent openPostIntent = new Intent(context, ViewPostActivity.class);
@@ -673,17 +672,17 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         return postsList.size();
     }
 
-    /**
-     * go to the user profile page
-     *
-     * @param postUserId the user id of the current post
-     */
-    private void goToUserProfile(String postUserId) {
-        Intent goToUserProfileIntent = new Intent(context, UserPageActivity.class);
-        goToUserProfileIntent.putExtra("userId", postUserId);
-        Log.d(TAG, "goToUserProfile: \nuserId is " + postUserId);
-        context.startActivity(goToUserProfileIntent);
-    }
+//    /**
+//     * go to the user profile page
+//     *
+//     * @param postUserId the user id of the current post
+//     */
+//    private void goToUserProfile(String postUserId) {
+//        Intent goToUserProfileIntent = new Intent(context, UserPageActivity.class);
+//        goToUserProfileIntent.putExtra("userId", postUserId);
+//        Log.d(TAG, "goToUserProfile: \nuserId is " + postUserId);
+//        context.startActivity(goToUserProfileIntent);
+//    }
 
     //implement the viewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -715,44 +714,42 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
             postSaveText = mView.findViewById(R.id.postSaveTextTextView);
             postShareText = mView.findViewById(R.id.postShareTextTextView);
+            titleTextView = mView.findViewById(R.id.postTitleTextView);
+            descTextView = mView.findViewById(R.id.postDescTextView);
 
         }
 
         //retrieve the title
         public void setTitle(String title) {
 
-            titleTextView = mView.findViewById(R.id.postTitleTextView);
+//            titleTextView = mView.findViewById(R.id.postTitleTextView);
             titleTextView.setText(title);
         }
 
         //retrieves description on post
         public void setDesc(String descText) {
 
-            descTextView = mView.findViewById(R.id.postDescTextView);
+//            descTextView = mView.findViewById(R.id.postDescTextView);
             descTextView.setText(descText);
         }
 
         //retrieve the image
         public void setPostImage(String imageDownloadUrl, String thumbDownloadUrl) {
 
-            postImageView = mView.findViewById(R.id.postImageView);
-
             if (imageDownloadUrl != null && thumbDownloadUrl != null) {
 
                 postImageView.setVisibility(View.VISIBLE);
                 RequestOptions requestOptions = new RequestOptions();
-                requestOptions.placeholder(R.drawable.appiconshadow);
+                requestOptions.placeholder(R.color.colorWhite);
                 Glide.with(context)
                         .applyDefaultRequestOptions(requestOptions)
                         .load(imageDownloadUrl)
+                        .transition(withCrossFade())
                         .thumbnail(Glide.with(context).load(thumbDownloadUrl))
                         .into(postImageView);
-
             } else {
-
                 //post has no image, hide imageView
                 postImageView.setVisibility(View.GONE);
-
             }
         }
 
