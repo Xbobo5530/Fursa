@@ -326,20 +326,14 @@ public class CreatePostActivity extends AppCompatActivity {
                                 // TODO: 5/3/18 set checked items for categories
                                 //what happens when an item is checked
                                 if (isChecked) {
-
                                     // If the user checked the item, add it to the selected items
                                     mSelectedCats.add(which);
-
                                 } else if (mSelectedCats.contains(which)) {
-
                                     // Else, if the item is already in the array, remove it
                                     mSelectedCats.remove(Integer.valueOf(which));
-
                                 }
                             }
                         })
-
-                        //set actions buttons
                         .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -556,12 +550,10 @@ public class CreatePostActivity extends AppCompatActivity {
                                                                         @Override
                                                                         public void onClick(DialogInterface dialog, int which) {
                                                                             //go to payments
-//                                                                    Toast.makeText(CreatePostActivity.this, "going payments", Toast.LENGTH_SHORT).show();
                                                                             // TODO: 6/8/18 handle opening payment page
-                                                                            //// TODO: 6/8/18 replaece replacement code
+                                                                            //// TODO: 6/8/18 replace replacement code
                                                                             dialog.dismiss();
                                                                             goToMain();
-
                                                                         }
                                                                     })
                                                             .show();
@@ -656,12 +648,10 @@ public class CreatePostActivity extends AppCompatActivity {
                         showSnack(getString(R.string.enter_post_details_text));
                     }
                 } else {
-
                     //notify user is not connected and cant post
                     showSnack(getString(R.string.failed_to_connect_text));
 
                 }
-
             }
         });
 
@@ -1502,24 +1492,20 @@ public class CreatePostActivity extends AppCompatActivity {
                     //set desc
                     String desc = task.getResult().get("desc").toString();
                     postDescTextView.setText(desc);
-                    /*//update the  original timestamp
-                    timestamp = (Date) task.getResult().get("timestamp");*/
+
                     //nullable
                     //set image
                     if (post.getImage_url() != null) {
                         String imageUrl = task.getResult().get("image_url").toString();
                         String thumbUrl = task.getResult().get("thumb_url").toString();
-
                         try {
                             coMeth.setImage(R.drawable.appiconshadow, imageUrl, thumbUrl, createPostImageView);
                         } catch (Exception e) {
                             Log.d(TAG, "onComplete: failed to set create image");
                         }
-
                         //update the imageUrl
                         downloadUri = imageUrl;
                         downloadThumbUri = thumbUrl;
-
                     }
 
                     //set categories
@@ -1631,11 +1617,13 @@ public class CreatePostActivity extends AppCompatActivity {
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(CreatePostActivity.this, data);
-                String postLocation = place.getName().toString();
+//                String palaceId =  place.getId();
                 //set the edit text to the location text
-                locationTextView.setText(postLocation + "\n" + place.getAddress());
+                String placeText = place.getName() + "\n" + place.getAddress();
+                locationTextView.setText(placeText);
                 //save the location
                 postPlace = place;
+
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
@@ -1788,17 +1776,9 @@ public class CreatePostActivity extends AppCompatActivity {
                 })
                 .show();
     }
-
     private void goToLogin() {
         startActivity(new Intent(this, LoginActivity.class));
     }
-
-
-    // you may separate this or combined to caller class.
-    /*public interface AsyncResponse {
-        void processFinish(boolean submitSuccessful);
-    }*/
-
     public class SubmitPostTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {

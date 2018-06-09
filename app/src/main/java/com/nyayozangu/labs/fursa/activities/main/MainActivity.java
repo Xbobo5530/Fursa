@@ -540,6 +540,13 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                 });
     }
 
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause: ");
+        super.onPause();
+        hideSearchView();
+    }
+
     private void openSearch() {
         //show the search view
         showSearchView();

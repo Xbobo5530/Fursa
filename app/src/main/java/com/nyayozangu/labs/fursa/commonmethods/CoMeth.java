@@ -26,6 +26,7 @@ import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import java.util.Date;
 import java.util.List;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 interface CheckConnectionInterface {
@@ -186,11 +187,11 @@ public class CoMeth {
         try {
 
             RequestOptions placeHolderRequest = new RequestOptions();
-            placeHolderRequest.placeholder(placeholderDrawable);
-            //loading the string for url to the image view
+            placeHolderRequest.placeholder(R.color.colorWhite);            //loading the string for url to the image view
             Glide.with(getApplicationContext())
                     .setDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
+                    .transition(withCrossFade())
                     .into(targetImageView);
         } catch (Exception e) {
             Log.d(TAG, "setImage: error " + e.getMessage());
@@ -200,11 +201,12 @@ public class CoMeth {
     public void setImage(int placeholderDrawable,
                          String imageUrl, String thumbUrl, ImageView targetImageView) {
         Log.d(TAG, "setImage: with thumb");
-        RequestOptions placeHolderOptions = new RequestOptions();
-        placeHolderOptions.placeholder(R.drawable.appiconshadow);
+        RequestOptions placeHolderRequest = new RequestOptions();
+        placeHolderRequest.placeholder(R.color.colorWhite);
         Glide.with(getApplicationContext())
-                .applyDefaultRequestOptions(placeHolderOptions)
+                .applyDefaultRequestOptions(placeHolderRequest)
                 .load(imageUrl)
+                .transition(withCrossFade())
                 .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
                 .into(targetImageView);
     }

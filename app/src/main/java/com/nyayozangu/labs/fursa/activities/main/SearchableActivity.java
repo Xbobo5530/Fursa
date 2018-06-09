@@ -146,61 +146,67 @@ public class SearchableActivity extends AppCompatActivity {
                 getIntent().getStringExtra(getResources().getString(R.string.TAG_NAME)) != null) {
             final String searchTag = getIntent().getStringExtra(
                     getResources().getString(R.string.TAG_NAME));
-            //update the toolbar title
-            getSupportActionBar().setTitle("#" + searchTag);
+
             //get posts with tags
-            coMeth.getDb()
-                    .collection("Tags/" + searchTag + "/Posts/")
-                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-                                            @Nullable FirebaseFirestoreException e) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                    if (doc.getType() == DocumentChange.Type.ADDED) {
-                                        //get the post from db
-                                        final String postId = doc.getDocument().getId();
-                                        coMeth.getDb()
-                                                .collection("Posts")
-                                                .document(postId)
-                                                .get()
-                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                        if (documentSnapshot.exists()) {
-                                                            //post exists
-                                                            Log.d(TAG, "onSuccess: post exists");
-                                                            //create a post object
-                                                            Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
-                                                            getFilteredPosts(post);
-                                                        } else {
-                                                            //post does not exist
-                                                            Log.d(TAG, "onSuccess: post does not exist");
-                                                            //update tags info
-                                                            coMeth.getDb()
-                                                                    .collection("Tags/" + searchTag + "/Posts")
-                                                                    .document(postId)
-                                                                    .delete();
-                                                            Log.d(TAG, "onSuccess: deleting post entry from search tag " +
-                                                                    "because post does not exist");
-                                                        }
-                                                    }
-                                                })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Log.d(TAG, "onFailure: failed to get post with search tag from posts db\n" +
-                                                                e.getMessage());
-                                                    }
-                                                });
-                                    }
-                                }
-                            }
-                        }
-                    });
+            getPostsWithTags(searchTag);
         }
 
         hideKeyBoard();
+    }
+
+    private void getPostsWithTags(final String searchTag) {
+        Log.d(TAG, "getPostsWithTags: ");
+        //update the toolbar title
+        getSupportActionBar().setTitle("#" + searchTag);
+        coMeth.getDb()
+                .collection("Tags/" + searchTag + "/Posts/")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                if (doc.getType() == DocumentChange.Type.ADDED) {
+                                    //get the post from db
+                                    final String postId = doc.getDocument().getId();
+                                    coMeth.getDb()
+                                            .collection("Posts")
+                                            .document(postId)
+                                            .get()
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                    if (documentSnapshot.exists()) {
+                                                        //post exists
+                                                        Log.d(TAG, "onSuccess: post exists");
+                                                        //create a post object
+                                                        Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                                                        getFilteredPosts(post);
+                                                    } else {
+                                                        //post does not exist
+                                                        Log.d(TAG, "onSuccess: post does not exist");
+                                                        //update tags info
+                                                        coMeth.getDb()
+                                                                .collection("Tags/" + searchTag + "/Posts")
+                                                                .document(postId)
+                                                                .delete();
+                                                        Log.d(TAG, "onSuccess: deleting post entry from search tag " +
+                                                                "because post does not exist");
+                                                    }
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG, "onFailure: failed to get post with search tag from posts db\n" +
+                                                            e.getMessage());
+                                                }
+                                            });
+                                }
+                            }
+                        }
+                    }
+                });
     }
 
     private void doMySearch(final String query) {
@@ -214,12 +220,19 @@ public class SearchableActivity extends AppCompatActivity {
         //search for new content
         final Query firstQuery = coMeth.getDb()
                 .collection("Posts");
-        //get all posts from the database
-        loadPosts(firstQuery, query);
+        if (String.valueOf(query.charAt(0)).equals("#")) {
+            Log.d(TAG, "doMySearch: searching #");
 
+            getPostsWithTags(query.substring(1));
+        } else {
+            Log.d(TAG, "doMySearch: searching query");
+            //get all posts from the database
+            loadPosts(firstQuery, query);
+        }
     }
 
     private void loadPosts(Query firstQuery, final String searchQuery) {
+        getSupportActionBar().setTitle(searchQuery);
         firstQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -227,7 +240,6 @@ public class SearchableActivity extends AppCompatActivity {
                 if (!queryDocumentSnapshots.isEmpty()) {
                     //check if the data is loaded for the first time
                     if (isFirstPageFirstLoad) {
-
                         lastVisiblePost = queryDocumentSnapshots.getDocuments()
                                 .get(queryDocumentSnapshots.size() - 1);
                         postsList.clear();
@@ -267,6 +279,8 @@ public class SearchableActivity extends AppCompatActivity {
 
 
     private void filterPosts(final Posts post, final String searchQuery) {
+
+        String searchableText = "";
 
         String title = post.getTitle().toLowerCase();
         String desc = post.getDesc().toLowerCase();
@@ -396,15 +410,12 @@ public class SearchableActivity extends AppCompatActivity {
                 .collection("Users")
                 .document(postUserId)
                 .get()
-                .addOnCompleteListener(this, new OnCompleteListener<DocumentSnapshot>() {
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                        //check if task is successful
-                        if (task.isSuccessful() && task.getResult().exists()) {
-
-                            String psotUserId = task.getResult().getId();
-                            Users user = task.getResult().toObject(Users.class).withId(postUserId);
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            String psotUserId = documentSnapshot.getId();
+                            Users user = documentSnapshot.toObject(Users.class).withId(postUserId);
                             //check if post is already added to the post list
                             if (!postsList.contains(post)) {
                                 //add new post to the local postsList
@@ -414,30 +425,18 @@ public class SearchableActivity extends AppCompatActivity {
                                 searchRecyclerAdapter.notifyDataSetChanged();
                                 Log.d(TAG, "onComplete: filtered posts are " + postsList);
                                 //stop loading when post list has items
-                                coMeth.onResultStopLoading(postsList, progressDialog, null);
+                                coMeth.stopLoading(progressDialog);
                             }
-
-
-                        } else {
-
-                            //task failed
-                            if (!task.isSuccessful()) {
-
-                                Log.d(TAG, "onComplete: getting users task failed " + task.getException());
-                                showSnack(getString(R.string.failed_to_complete_text));
-
-                            } else if (!task.getResult().exists()) {
-
-                                //user does not exist
-                                Log.d(TAG, "onComplete: user does not exist");
-
-                            }
-
                         }
-
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get search post users\n" +
+                                e.getMessage());
                     }
                 });
-
     }
 
     private void showProgress(String message) {
