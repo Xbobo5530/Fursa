@@ -59,6 +59,12 @@ public class HomeFragment extends Fragment {
     } // Required empty public constructor
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+//        outState.putString("postList", postsList);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
 

@@ -4,9 +4,11 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -14,12 +16,18 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -119,6 +127,7 @@ public class SearchableActivity extends AppCompatActivity {
         searchFeed.setAdapter(searchRecyclerAdapter);
         handleIntent(getIntent());
 
+
     }
 
     @Override
@@ -131,7 +140,17 @@ public class SearchableActivity extends AppCompatActivity {
 
         //show progress
         showProgress(getResources().getString(R.string.loading_text));
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        if (getIntent() != null &&
+                getIntent().getAction() != null &&
+                getIntent().getData() != null) {
+            //hanle deep link
+            Log.d(TAG, "handleIntent: handling deep link");
+            String searchUrl = String.valueOf(getIntent().getData());
+            int endOfUrlHead = getResources().getString(R.string.fursa_url_search_head).length();
+            searchQuery = searchUrl.substring(endOfUrlHead);
+            Log.d(TAG, "handleIntent: search query from deep link is " + searchQuery);
+            doMySearch(searchQuery);
+        } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
             searchQuery = intent.getStringExtra(SearchManager.QUERY).toLowerCase();
             Log.d(TAG, "handleIntent: \nquery is" + searchQuery);
@@ -157,6 +176,7 @@ public class SearchableActivity extends AppCompatActivity {
             //get posts with tags
             getPostsWithTags(searchTag);
         }
+
         hideKeyBoard();
     }
 
@@ -425,6 +445,88 @@ public class SearchableActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.searchShareItemMenu:
+                try {
+                    String searchQuery = getSupportActionBar().getTitle().toString();
+                    shareSearch(searchQuery);
+                } catch (NullPointerException nullE) {
+                    Log.d(TAG, "onOptionsItemSelected: " +
+                            "failed to get search query from action bar\n" +
+                            nullE.getMessage());
+                    showSnack(getResources().getString(R.string.error_text) + ": " +
+                            nullE.getMessage());
+                }
+                break;
+            default:
+                Log.d(TAG, "onOptionsItemSelected: on view search toolbar menu default");
+        }
+        return true;
+    }
+
+
+    private void shareSearch(final String searchQuery) {
+
+        Log.d(TAG, "Sharing search");
+        showProgress(getString(R.string.loading_text));
+        //create cat url
+        String searchUrl = getResources().getString(R.string.fursa_url_search_head) + searchQuery;
+        Task<ShortDynamicLink> shortLinkTask =
+                FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse(searchUrl))
+                        .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
+                        .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
+                                .setMinimumVersion(coMeth.minVerCode)
+                                .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
+                                .build())
+                        .setSocialMetaTagParameters(
+                                new DynamicLink.SocialMetaTagParameters.Builder()
+                                        .setTitle(getString(R.string.app_name))
+                                        .setDescription(searchQuery)
+                                        .setImageUrl(Uri.parse(getString(R.string.app_icon_url)))
+                                        .build())
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                if (task.isSuccessful()) {
+                                    Uri shortLink = task.getResult().getShortLink();
+                                    Uri flowchartLink = task.getResult().getPreviewLink();
+                                    Log.d(TAG, "onComplete: short link is: " + shortLink);
+
+                                    //show share dialog
+                                    String searchTitle = searchQuery;
+                                    String fullShareMsg = getString(R.string.app_name) + "\n" +
+                                            searchTitle + "\n" +
+                                            shortLink;
+                                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                    shareIntent.setType("text/plain");
+                                    shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                                            getResources().getString(R.string.app_name));
+                                    shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+                                    coMeth.stopLoading(progressDialog);
+                                    startActivity(Intent.createChooser(
+                                            shareIntent, getString(R.string.share_with_text)));
+                                } else {
+                                    Log.d(TAG, "onComplete: " +
+                                            "\ncreating short link task failed\n" +
+                                            task.getException());
+                                    coMeth.stopLoading(progressDialog);
+                                    showSnack(getString(R.string.failed_to_share_text));
+                                }
+                            }
+                        });
+    }
+
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.searchLayout),
+                message, Snackbar.LENGTH_LONG).show();
+    }
+
 
     private void getFilteredPosts(final Posts post) {
 

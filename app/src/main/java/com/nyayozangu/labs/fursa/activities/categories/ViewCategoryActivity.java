@@ -552,6 +552,7 @@ ViewCategoryActivity extends AppCompatActivity {
 //        date.set(Calendar.MINUTE, 0);
 //        date.set(Calendar.SECOND, 0);
 //        date.set(Calendar.MILLISECOND, 0);
+        date.add(Calendar.MONTH, 2);
 
         Calendar dateLimit = new GregorianCalendar();
         dateLimit.add(Calendar.MONTH, 2);
@@ -559,8 +560,8 @@ ViewCategoryActivity extends AppCompatActivity {
 
         coMeth.getDb()
                 .collection("Posts")
-                .orderBy("event_date", Query.Direction.ASCENDING)
-                .whereGreaterThan("event_date", date.getTime())
+//                .orderBy("event_date", Query.Direction.DESCENDING)
+                .whereGreaterThanOrEqualTo("event_date", date.getTime())
 //                .whereLessThan("event_date", dateLimit.getTime())
                 .limit(20)
                 .get()
@@ -579,6 +580,8 @@ ViewCategoryActivity extends AppCompatActivity {
 
                         } else {
                             //no events in that time frame
+                            coMeth.stopLoading(progressDialog, swipeRefresh);
+                            showSnack("couldn't find posts");
                             Log.d(TAG, "onSuccess: no events in given time frame");
                         }
                     }

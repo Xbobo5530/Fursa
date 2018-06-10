@@ -393,9 +393,6 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                         goToMain(getString(R.string.something_went_wrong_text));
                     }
                 });
-        coMeth.stopLoading(progressDialog);
-
-
     }
 
     /**
