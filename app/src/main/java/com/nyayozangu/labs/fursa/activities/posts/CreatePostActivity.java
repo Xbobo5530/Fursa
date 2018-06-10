@@ -38,9 +38,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.dynamiclinks.DynamicLink;
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -810,6 +807,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 Log.d(TAG, "onComplete: new post id " + newPostId);
                                 //update tags on DB
                                 updateTagsOnDB(newPostId, postMap);
+                                updateCatsOnDB(newPostId, postMap);
 
                                 // TODO: 6/6/18 add share post after post has been submitted
                                 //share post after launch
@@ -873,6 +871,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 FirebaseMessaging.getInstance().subscribeToTopic(postId);
                                 //update tags on db
                                 updateTagsOnDB(postId, postMap);
+                                updateCatsOnDB(postId, postMap);
                             } else {
                                 //posting failed
                                 String errorMessage =
@@ -943,8 +942,9 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void updatePostsOnTags(final String title, final String newPostId) {
+        Log.d(TAG, "updatePostsOnTags: ");
         final Map<String, Object> tagsPostMap = new HashMap<>();
-        tagsPostMap.put("timestamp", FieldValue.serverTimestamp());
+        tagsPostMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
         coMeth.getDb()
                 .collection("Tags/" + title + "/Posts/")
                 .document(newPostId)
@@ -982,58 +982,58 @@ public class CreatePostActivity extends AppCompatActivity {
                 });
     }
 
-    private void shareNewPost(String postId, final String postTitle, String postDesc, String postImage) {
-        String imageUrl;
-        String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
-        if (postImage != null) {
-            imageUrl = postImage;
-        } else {
-            imageUrl = getResources().getString(R.string.app_icon_url);
-        }
-
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                .setLink(Uri.parse(postUrl))
-                .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
-                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                        .setMinimumVersion(coMeth.minVerCode)
-                        .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
-                        .build())
-                .setSocialMetaTagParameters(
-                        new DynamicLink.SocialMetaTagParameters.Builder()
-                                .setTitle(postTitle)
-                                .setDescription(postDesc)
-                                .setImageUrl(Uri.parse(imageUrl))
-                                .build())
-                .buildShortDynamicLink()
-                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
-                    @Override
-                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                        if (task.isSuccessful()) {
-                            Uri shortLink = task.getResult().getShortLink();
-                            Uri flowchartLink = task.getResult().getPreviewLink();
-                            Log.d(TAG, "onComplete: short link is: " + shortLink);
-
-                            //show share dialog
-                            String fullShareMsg = postTitle + "\n" +
-                                    shortLink;
-                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                            shareIntent.setType("text/plain");
-                            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
-                                    getResources().getString(R.string.app_name));
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
-                            coMeth.stopLoading(progressDialog);
-                            startActivity(Intent.createChooser(shareIntent,
-                                    getString(R.string.share_with_text)));
-                        } else {
-                            Log.d(TAG, "onComplete: " +
-                                    "\ncreating short link task failed\n" +
-                                    task.getException());
-                            coMeth.stopLoading(progressDialog);
-                            showSnack(getString(R.string.failed_to_share_text));
-                        }
-                    }
-                });
-    }
+//    private void shareNewPost(String postId, final String postTitle, String postDesc, String postImage) {
+//        String imageUrl;
+//        String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
+//        if (postImage != null) {
+//            imageUrl = postImage;
+//        } else {
+//            imageUrl = getResources().getString(R.string.app_icon_url);
+//        }
+//
+//        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+//                .setLink(Uri.parse(postUrl))
+//                .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
+//                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
+//                        .setMinimumVersion(coMeth.minVerCode)
+//                        .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
+//                        .build())
+//                .setSocialMetaTagParameters(
+//                        new DynamicLink.SocialMetaTagParameters.Builder()
+//                                .setTitle(postTitle)
+//                                .setDescription(postDesc)
+//                                .setImageUrl(Uri.parse(imageUrl))
+//                                .build())
+//                .buildShortDynamicLink()
+//                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+//                        if (task.isSuccessful()) {
+//                            Uri shortLink = task.getResult().getShortLink();
+//                            Uri flowchartLink = task.getResult().getPreviewLink();
+//                            Log.d(TAG, "onComplete: short link is: " + shortLink);
+//
+//                            //show share dialog
+//                            String fullShareMsg = postTitle + "\n" +
+//                                    shortLink;
+//                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+//                            shareIntent.setType("text/plain");
+//                            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+//                                    getResources().getString(R.string.app_name));
+//                            shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+//                            coMeth.stopLoading(progressDialog);
+//                            startActivity(Intent.createChooser(shareIntent,
+//                                    getString(R.string.share_with_text)));
+//                        } else {
+//                            Log.d(TAG, "onComplete: " +
+//                                    "\ncreating short link task failed\n" +
+//                                    task.getException());
+//                            coMeth.stopLoading(progressDialog);
+//                            showSnack(getString(R.string.failed_to_share_text));
+//                        }
+//                    }
+//                });
+//    }
 
 
     private void handlePostWithImage() {
@@ -1152,6 +1152,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             FirebaseMessaging.getInstance().subscribeToTopic(postId);
                             //update tags on DB
                             updateTagsOnDB(postId, postMap);
+                            updateCatsOnDB(postId, postMap);
 
                         } else {
 
@@ -1199,6 +1200,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             updateMyPosts(currentPostId);
                             String newPostId = task.getResult().getId();
                             updateTagsOnDB(newPostId, postMap);
+                            updateCatsOnDB(newPostId, postMap);
 
                         } else {
 
@@ -1211,6 +1213,98 @@ public class CreatePostActivity extends AppCompatActivity {
 //                            goToMain(getResources().getString(R.string.failed_to_post_text) +
 //                                    ": " +  errorMessage);
                         }
+                    }
+                });
+    }
+
+    private void updateCatsOnDB(final String newPostId, Map<String, Object> postMap) {
+        Log.d(TAG, "updateCatsOnDB: ");
+        //check if post has cats
+        if (postMap.get(CoMeth.CATEGORIES_VAL) != null) {
+            //cycle through the cats
+            for (final String cat : catsStringsArray) {
+                //create a map
+                final Map<String, Object> catMap = new HashMap<>();
+                catMap.put("title", cat);
+                coMeth.getDb()
+                        .collection(CoMeth.CATEGORIES)
+                        .document(cat)
+                        .update(catMap)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "onSuccess: cats on db have been updated");
+                                updatePostsOnCats(cat, newPostId);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "onFailure: failed to update cats on db\n" +
+                                        e.getMessage());
+                                //try to create new cat
+                                coMeth.getDb()
+                                        .collection(CoMeth.CATEGORIES)
+                                        .document(cat)
+                                        .set(catMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "onSuccess: cats on db have been updated");
+                                                updatePostsOnCats(cat, newPostId);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(TAG, "onFailure: failed to set new cat on db\n" +
+                                                        e.getMessage());
+                                            }
+                                        });
+                            }
+                        });
+            }
+        }
+    }
+
+    private void updatePostsOnCats(final String cat, final String newPostId) {
+        Log.d(TAG, "updatePostsOnCats: ");
+        //create map
+        final Map<String, Object> catsPostMap = new HashMap<>();
+        catsPostMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
+        coMeth.getDb()
+                .collection(CoMeth.CATEGORIES + "/" + cat + "/" + CoMeth.POSTS)
+                .document(newPostId)
+                .update(catsPostMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: updated the post on cat on db");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update post on cat on db\n" +
+                                e.getMessage());
+                        //attempt to set map
+                        coMeth.getDb()
+                                .collection(CoMeth.CATEGORIES + "/" + cat + "/" + CoMeth.POSTS)
+                                .document(newPostId)
+                                .set(catsPostMap)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "onSuccess: updated the post on cat on db");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG, "onFailure: failed to set post to cat on db\n"
+                                                + e.getMessage());
+                                    }
+                                });
                     }
                 });
     }
@@ -1330,7 +1424,7 @@ public class CreatePostActivity extends AppCompatActivity {
         }
         //categories
         if (!catsStringsArray.isEmpty()) {
-            postMap.put("categories", catsStringsArray);
+            postMap.put(CoMeth.CATEGORIES_VAL, catsStringsArray);
         }
 
         // TODO: 6/1/18 account for then # is in word (not begging or end)

@@ -39,6 +39,13 @@ interface CheckConnectionInterface {
 
 public class CoMeth {
 
+    public static final String CATEGORIES_VAL = "categories";
+    public static final String CATEGORIES = "Categories";
+    public static final String TAGS = "Tags";
+    public static final String POSTS = "Posts";
+    public static final String USERS = "Users";
+    public static final String TIMESTAMP = "timestamp";
+    // TODO: 6/10/18 add all the static fields
     private static final String TAG = "Sean";
     public final String[] catTitle = new String[]{
 

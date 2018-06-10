@@ -419,8 +419,6 @@ ViewCategoryActivity extends AppCompatActivity {
         }
         return currentCat;
     }
-
-
     /**
      * set the selected category
      * @param category the selected category
@@ -496,8 +494,6 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         }
     }
-
-
     /**
      * load posts from the database
      * @param firstQuery the first query when the page is first loaded
@@ -731,8 +727,6 @@ ViewCategoryActivity extends AppCompatActivity {
             getFilteredPosts(post);
         }
     }
-
-
     /**
      * handle the subscribed fab on the view categories page
      */
@@ -763,181 +757,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 });
     }
 
-//    /**
-//     * process the received category
-//     * @param doc the document from the database
-//     * @param postId the postId of the post in the doc
-//     * */
-//    private void processCategories(DocumentChange doc, String postId) {
-//
-//        Log.d(TAG, "processCategories: ");
-//        //get received intent
-//
-//        final String category = currentCat;
-//        Log.d(TAG, "processCategories: \ncategory is: " + category);
-//
-//        switch (category) {
-//
-//            /*
-//            "Featured",
-//            "Popular",
-//            "UpComing",
-//            "Events",
-//            "Business",
-//            "Buy and sell",
-//            "Education",
-//            "Jobs",
-//            "Queries"
-//            "Exhibitions"
-//            "art"
-//            "apps"*/
-//
-//            case "featured":
-//                filterCat(doc, postId, "featured");
-//                break;
-//            case "popular":
-//                filterCat(doc, postId, "popular");
-//                break;
-//            case "upcoming":
-//                filterCat(doc, postId, "upcoming");
-//                break;
-//            case "events":
-//                filterCat(doc, postId, "events");
-//                break;
-//            case "places":
-//                filterCat(doc, postId, "places");
-//                break;
-//            case "services":
-//                filterCat(doc, postId, "services");
-//                break;
-//            case "business":
-//                filterCat(doc, postId, "business");
-//                break;
-//            case "buysell":
-//                filterCat(doc, postId, "buysell");
-//                break;
-//            case "education":
-//                filterCat(doc, postId, "education");
-//                break;
-//            case "jobs":
-//                filterCat(doc, postId, "jobs");
-//                break;
-//            case "queries":
-//                filterCat(doc, postId, "queries");
-//                break;
-//            case "exhibitions":
-//                filterCat(doc, postId, "exhibitions");
-//                break;
-//            case "art":
-//                filterCat(doc, postId, "art");
-//                break;
-//            case "apps":
-//                filterCat(doc, postId, "apps");
-//                break;
-//            case "groups":
-//                filterCat(doc, postId, "groups");
-//                break;
-//            default:
-//                Log.d(TAG, "onEvent: default");
-//        }
-//    }
 
-//    /**
-//     * filter categories
-//     * @param category the category selected to filter posts for
-//     * @param postId the postId of the post to check for categories
-//     * @param doc the DocumentChange for the posts
-//     * */
-//    private void filterCat(final DocumentChange doc, final String postId, final String category) {
-//
-//        Log.d(TAG, "filterCat: at filter cat\ncat is: " + category);
-//        //check if current post contains business
-//
-//        final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-//
-//        if (category.equals("upcoming")) {
-//
-//            Log.d(TAG, "filterCat: cat is upcoming");
-//            //check if post has event date
-//            if (post.getEvent_date() != null) {
-//                getFutureDatedPosts(post);
-//            }
-//
-//        } else if (category.equals("featured")) {
-//
-//            //cat is featured
-//            Log.d(TAG, "filterCat: cat is " + category);
-//
-//        } else if (category.equals("popular")) {
-//
-//            ///cat is popular
-//            Log.d(TAG, "filterCat: cat is " + category);
-//            //get post views
-//            int views = post.getViews();
-//            Log.d(TAG, "filterCat: post view are " + views);
-//            if (views > 10) {
-//                Log.d(TAG, "filterCat: views > 10");
-//                getFilteredPosts(post);
-//            }
-//
-//        } else {
-//
-//            if (post.getCategories() != null) {
-//                ArrayList catsArray = post.getCategories();
-//                Log.d(TAG, "filterCat: \ncatsArray is: " + catsArray);
-//
-//                if (catsArray.contains(category)) {
-//                    Log.d(TAG, "filterCat: catsArray contains + " + category);
-//
-//                    switch (category) {
-//                        case "jobs":
-//                            checkForEventDate(post);
-//                            break;
-//                        case "education":
-//                            checkForEventDate(post);
-//                            break;
-//                        case "exhibitions":
-//                            getFilteredPosts(post);
-//                            break;
-//                        case "events":
-//                            checkForEventDate(post);
-//                            break;
-//                        case "services":
-//                            getFilteredPosts(post);
-//                            break;
-//                        case "places":
-//                            getFilteredPosts(post);
-//                            break;
-//                        case "queries":
-//                            getFilteredPosts(post);
-//                            break;
-//                        case "buysell":
-//                            getFilteredPosts(post);
-//                            break;
-//                        case "business":
-//                            getFilteredPosts(post);
-//                            break;
-//                        case "art":
-//                            getFilteredPosts(post);
-//                            break;
-//                        case "apps":
-//                            getFilteredPosts(post);
-//                            break;
-//                        case "groups":
-//                            getFilteredPosts(post);
-//                            break;
-//                        default:
-//                            Log.d(TAG, "filterCat: ");
-//                            coMeth.stopLoading(progressDialog, swipeRefresh);
-//                    }
-//                } else {
-//                    //posts don't have cat
-//                    Log.d(TAG, "filterCat: ");
-//                    coMeth.stopLoading(progressDialog, swipeRefresh);
-//                }
-//            }
-//        }
-//    }
 
     private void checkForEventDate(Posts post) {
         if (post.getEvent_date() != null) {
