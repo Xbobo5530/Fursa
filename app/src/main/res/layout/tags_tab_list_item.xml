@@ -46,7 +46,6 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/tags_text"
                 android:textSize="18sp"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/hashTagTextView"
                 app:layout_constraintTop_toTopOf="parent" />

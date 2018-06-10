@@ -558,13 +558,14 @@ ViewCategoryActivity extends AppCompatActivity {
 //        date.set(Calendar.MILLISECOND, 0);
 
         Calendar dateLimit = new GregorianCalendar();
-        dateLimit.add(Calendar.MONTH, 6);
+        dateLimit.add(Calendar.MONTH, 2);
+        Log.d(TAG, "getUpcomingPosts: date is: " + date + "\ndateLimit is: " + dateLimit);
 
         coMeth.getDb()
                 .collection("Posts")
                 .orderBy("event_date", Query.Direction.ASCENDING)
                 .whereGreaterThan("event_date", date.getTime())
-                .whereLessThan("event_date", dateLimit.getTime())
+//                .whereLessThan("event_date", dateLimit.getTime())
                 .limit(20)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
