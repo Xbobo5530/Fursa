@@ -2,6 +2,7 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
 import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -97,7 +98,8 @@ public class HomeFragment extends Fragment {
                 if (reachedBottom) {
                     //clear post list
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
-                    loadMorePosts();
+//                    loadMorePosts();
+                    new LoadPostsTask().execute();
                 }
             }
         });
@@ -178,6 +180,10 @@ public class HomeFragment extends Fragment {
 
                             // TODO: 6/7/18 organise tags
 //                            populateTags(postId, post);
+
+                            // TODO: 6/10/18 populate cats
+//                            populateCats(post, postId);
+
                             //get user_id for post
                             coMeth.getDb()
                                     .collection("Users")
@@ -222,6 +228,131 @@ public class HomeFragment extends Fragment {
             }
         });
     }
+
+//    private void populateCats(Posts post, final String postId) {
+//        Log.d(TAG, "populateCats: ");
+//        if (post.getCategories() != null){
+//            //put cats in array
+//            ArrayList<String> catsList = post.getCategories();
+//            for (final String cat : catsList){
+//                if (!cat.isEmpty()){
+//                    //create map
+//                    final Map<String, Object> catMap = new HashMap<>();
+//                    Log.d(TAG, "populateCats: cat is " + cat);
+//                    catMap.put("title", cat);
+//                    coMeth.getDb()
+//                            .collection("Categories")
+//                            .document(cat)
+//                            .update(catMap)
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    Log.d(TAG, "onSuccess: updated cat");
+//                                    //add postId to cat
+//                                    addPostIdToCat(cat, postId);
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.d(TAG, "onFailure: failed to update cats\n" + e.getMessage());
+//                                    //set cat
+//                                    coMeth.getDb()
+//                                            .collection("Categories")
+//                                            .document(cat)
+//                                            .set(catMap)
+//                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                @Override
+//                                                public void onSuccess(Void aVoid) {
+//                                                    Log.d(TAG, "onSuccess: set cat");
+//                                                    addPostIdToCat(cat, postId);
+//                                                }
+//                                            })
+//                                            .addOnFailureListener(new OnFailureListener() {
+//                                                @Override
+//                                                public void onFailure(@NonNull Exception e) {
+//                                                    Log.d(TAG, "onFailure: failed to set cat\n" + e.getMessage());
+//                                                }
+//                                            });
+//                                }
+//                            });
+//                }
+//            }
+//        }
+//    }
+//
+//    private void addPostIdToCat(String cat, String postId) {
+//        Log.d(TAG, "addPostIdToCat: ");
+//        Map<String, Object> catPostMap = new HashMap<>();
+//        catPostMap.put("timestamp", FieldValue.serverTimestamp());
+//        coMeth.getDb()
+//                .collection("Categories/" + cat + "/Posts")
+//                .document(postId)
+//                .set(catPostMap)
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Log.d(TAG, "onSuccess: post id added to cat");
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.d(TAG, "onFailure: failed to add post to cat\n" + e.getMessage());
+//                    }
+//                });
+//    }
+
+//    private void populateTags(final String postId, Posts post) {
+//        Log.d(TAG, "populateTags: ");
+//        if (post.getTags() != null){
+//            //put tags in array
+//            ArrayList<String> tagsList = post.getTags();
+//            for (final String tag : tagsList){
+//                //check if tag in empty
+//                if (!tag.isEmpty()) {
+//                    //create a tagMap
+//                    Log.d(TAG, "onSuccess: tag is " + tag);
+//                    Map<String, Object> tagMap = new HashMap<>();
+//                    tagMap.put("title", tag);
+//                    coMeth.getDb()
+//                            .collection("Tags")
+//                            .document(tag)
+//                            .update(tagMap)
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    //add post id to tag collection
+//                                    Log.d(TAG, "onSuccess: updating tags");
+//                                    addPostIdToTagColl(tag, postId);
+//
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.d(TAG, "onFailure: failed to update tag\n" + e.getMessage());
+//                                    Map<String, Object> tagMap = new HashMap<>();
+//                                    tagMap.put("title", tag);
+//                                    coMeth.getDb()
+//                                            .collection("Tags")
+//                                            .document(tag)
+//                                            .set(tagMap)
+//                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                @Override
+//                                                public void onSuccess(Void aVoid) {
+//                                                    //add post id to tag collection
+//                                                    Log.d(TAG, "onSuccess: updating tag");
+//                                                    addPostIdToTagColl(tag, postId);
+//
+//                                                }
+//                                            });
+//                                }
+//                            });
+//                }
+//            }
+//        }
+//    }
 
 //    private void populateTags() {
 //        Log.d(TAG, "populateTags: ");
@@ -296,7 +427,7 @@ public class HomeFragment extends Fragment {
 //                    }
 //                });
 //    }
-//
+
 //    private void addPostIdToTagColl(String tag, String postId) {
 //        Log.d(TAG, "addPostIdToTagColl: ");
 //        //create tagPostMap
@@ -373,6 +504,8 @@ public class HomeFragment extends Fragment {
                             String postId = doc.getDocument().getId();
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                             String postUserId = post.getUser_id();
+//                            populateTags(postId, post);
+//                            populateCats(post, postId);
                             coMeth.getDb()
                                     .collection("Users")
                                     .document(postUserId)
@@ -411,6 +544,17 @@ public class HomeFragment extends Fragment {
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage(message);
         progressDialog.show();
+    }
+
+    //load post on a background thread
+    public class LoadPostsTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: ");
+            loadMorePosts();
+            return null;
+        }
     }
 
 }

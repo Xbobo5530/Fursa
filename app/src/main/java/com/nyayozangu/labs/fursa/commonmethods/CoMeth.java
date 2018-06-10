@@ -26,7 +26,6 @@ import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import java.util.Date;
 import java.util.List;
 
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 interface CheckConnectionInterface {
@@ -191,7 +190,7 @@ public class CoMeth {
             Glide.with(getApplicationContext())
                     .setDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
-                    .transition(withCrossFade())
+//                    .transition(withCrossFade())
                     .into(targetImageView);
         } catch (Exception e) {
             Log.d(TAG, "setImage: error " + e.getMessage());
@@ -206,7 +205,7 @@ public class CoMeth {
         Glide.with(getApplicationContext())
                 .applyDefaultRequestOptions(placeHolderRequest)
                 .load(imageUrl)
-                .transition(withCrossFade())
+//                .transition(withCrossFade())
                 .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
                 .into(targetImageView);
     }

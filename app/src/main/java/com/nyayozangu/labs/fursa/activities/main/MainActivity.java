@@ -216,17 +216,22 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             //task is successful
                             //convert user to object
-                            Users user = documentSnapshot.toObject(Users.class);
-                            if (user.getImage() != null) {
-                                String userImageDownloadUri = user.getImage();
-                                //set image
-                                coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                        userImageDownloadUri,
-                                        userProfileImage);
+                            if (documentSnapshot.exists()) {
+                                Users user = documentSnapshot.toObject(Users.class);
+                                if (user.getImage() != null) {
+                                    String userImageDownloadUri = user.getImage();
+                                    //set image
+                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                            userImageDownloadUri,
+                                            userProfileImage);
+                                } else {
+                                    userProfileImage
+                                            .setImageDrawable(
+                                                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                                }
                             } else {
-                                userProfileImage
-                                        .setImageDrawable(
-                                                getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                                //user does not exist
+                                Log.d(TAG, "onSuccess: user does not exist");
                             }
                         }
                     })

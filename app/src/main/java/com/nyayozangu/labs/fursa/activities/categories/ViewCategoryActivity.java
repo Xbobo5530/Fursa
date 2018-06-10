@@ -28,12 +28,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
@@ -47,7 +47,9 @@ import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +60,11 @@ ViewCategoryActivity extends AppCompatActivity {
     // TODO: 5/30/18 sort events based on event dates
 
     private static final String TAG = "Sean";
+    private static final String CATEGORIES_COLL = "Categories";
+    private static final String CATEGORIES_DOC = "categories";
+    private static final String POSTS_COLL = "Posts";
+    private static final String SUBSCRIPTIONS_COLL = "Subscriptions";
+    private static final String USERS_COLL = "Users";
 
     private RecyclerView catFeed;
     private SwipeRefreshLayout swipeRefresh;
@@ -260,9 +267,9 @@ ViewCategoryActivity extends AppCompatActivity {
                         userId = coMeth.getUid();
 
                         coMeth.getDb()
-                                .collection("Users/" + userId + "/Subscriptions")
+                                .collection(USERS_COLL + "/" + userId + "/" + SUBSCRIPTIONS_COLL)
                                 .document("categories")
-                                .collection("Categories").document(currentCat).get()
+                                .collection(CATEGORIES_COLL).document(currentCat).get()
                                 .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -308,8 +315,6 @@ ViewCategoryActivity extends AppCompatActivity {
                                     }
                                 });
 
-                        coMeth.stopLoading(progressDialog);
-
                     } else {
 
                         //prompt login
@@ -345,11 +350,11 @@ ViewCategoryActivity extends AppCompatActivity {
         });*/
 
         final Query firstQuery = coMeth.getDb().
-                collection("Posts")
+                collection("Categories/" + currentCat + "/Posts")
                 /*.orderBy("event_date", Query.Direction.ASCENDING)*/;
         postsList.clear();
         usersList.clear();
-        loadPosts(firstQuery);
+        loadPosts(firstQuery, currentCat);
         //if post list after loading posts is empty, load more posts
 
 
@@ -361,7 +366,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 catFeed.getRecycledViewPool().clear();
                 postsList.clear();
                 usersList.clear();
-                loadPosts(firstQuery);
+                loadPosts(firstQuery, currentCat);
             }
         });
     }
@@ -497,268 +502,451 @@ ViewCategoryActivity extends AppCompatActivity {
      * load posts from the database
      * @param firstQuery the first query when the page is first loaded
      * */
-    private void loadPosts(Query firstQuery) {
-        firstQuery.addSnapshotListener(ViewCategoryActivity.this,
-                new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot queryDocumentSnapshots,
-                                FirebaseFirestoreException e) {
+    private void loadPosts(Query firstQuery, String cat) {
 
-                Log.d(TAG, "onEvent: first Query");
-                //check if the data is loaded for the first time
+        if (cat.equals("popular")) {
+            getPopularPosts();
+        } else if (cat.equals("upcoming")) {
+            getUpcomingPosts();
+        } else {
 
-                /*if (isFirstPageFirstLoad) {
+            firstQuery.limit(10)
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            //handle first load
+                            if (isFirstPageFirstLoad) {
 
-                    //get the last visible post
-                    try {
+                                //get the last visible post
+                                try {
+                                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                                            .get(queryDocumentSnapshots.size() - 1);
+                                } catch (Exception exception) {
+                                    Log.d(TAG, "error: " + exception.getMessage());
+                                }
+                            }
+                            //get posts
+                            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                                //get post id
+                                String postId = document.getId();
+                                //get post details from Posts collection
+                                getPostDetails(postId);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to get post ids from cats\n" +
+                                    e.getMessage());
+                        }
+                    });
+            isFirstPageFirstLoad = false;
+        }
+    }
 
-                        lastVisiblePost = queryDocumentSnapshots.getDocuments()
-                                .get(queryDocumentSnapshots.size() - 1);
+    private void getUpcomingPosts() {
+        Log.d(TAG, "getUpcomingPosts: ");
 
+        // today
+        Calendar date = new GregorianCalendar();
+        // reset hour, minutes, seconds and millis
+//        date.set(Calendar.HOUR_OF_DAY, 0);
+//        date.set(Calendar.MINUTE, 0);
+//        date.set(Calendar.SECOND, 0);
+//        date.set(Calendar.MILLISECOND, 0);
 
-                    } catch (Exception exception) {
-                        Log.d(TAG, "error: " + exception.getMessage());
+        Calendar dateLimit = new GregorianCalendar();
+        dateLimit.add(Calendar.MONTH, 6);
+
+        coMeth.getDb()
+                .collection("Posts")
+                .orderBy("event_date", Query.Direction.ASCENDING)
+                .whereGreaterThan("event_date", date.getTime())
+                .whereLessThan("event_date", dateLimit.getTime())
+                .limit(20)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            //events are present
+                            //loop through documents
+                            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                                String postId = document.getId();
+                                //convert snapshot to post
+                                Posts post = document.toObject(Posts.class).withId(postId);
+                                getFilteredPosts(post);
+                            }
+
+                        } else {
+                            //no events in that time frame
+                            Log.d(TAG, "onSuccess: no events in given time frame");
+                        }
                     }
-                }*/
-                //create a for loop to check for document changes
-                for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                    //check if an item is added
-                    if (doc.getType() == DocumentChange.Type.ADDED) {
-
-                        //get the post id for likes feature
-                        final String postId = doc.getDocument().getId();
-                        processCategories(doc, postId);
-
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get posts for event\n" +
+                                e.getMessage());
                     }
-                }
-                //the first page has already loaded
-                isFirstPageFirstLoad = false;
-                coMeth.stopLoading(progressDialog, swipeRefresh);
-            }
-        });
+                });
 
     }
 
+    private void getPostDetails(final String postId) {
+        Log.d(TAG, "getPostDetails: ");
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //post exists
+                            //convert post to object
+                            Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                            manageCats(post, postId);
+                        } else {
+                            //post does not exist
+                            //delete post id ref from cats
+                            coMeth.getDb()
+                                    .collection(CATEGORIES_COLL + "/" + currentCat +
+                                            "/" + POSTS_COLL)
+                                    .document(postId)
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG, "onSuccess: deleted post id ref " +
+                                                    "of post that does not exist");
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(TAG, "onFailure: failed to delete post " +
+                                                    "id doc ref for post that does not exist\n" +
+                                                    e.getMessage());
+                                        }
+                                    });
+                        }
+                    }
+                });
+    }
+
+    private void manageCats(Posts post, String postId) {
+        Log.d(TAG, "manageCats: ");
+        switch (currentCat) {
+            /*case "featured":
+                break;*/
+            /*case "popular":
+                getPopularPosts();
+                break;*/
+            /*case "upcoming":
+                getFutureDatedPosts(post);
+                break;*/
+            case "events":
+                checkForEventDate(post);
+                break;
+            case "places":
+                checkPostCategories(post);
+                break;
+            case "services":
+                checkPostCategories(post);
+                break;
+            case "business":
+                checkPostCategories(post);
+                break;
+            case "buysell":
+                checkPostCategories(post);
+                break;
+            case "education":
+                checkPostCategories(post);
+                break;
+            case "jobs":
+                checkForEventDate(post);
+                break;
+            case "queries":
+                checkPostCategories(post);
+                break;
+            case "exhibitions":
+                checkForEventDate(post);
+                break;
+            case "art":
+                checkPostCategories(post);
+                break;
+            case "apps":
+                checkPostCategories(post);
+                break;
+            case "groups":
+                checkPostCategories(post);
+                break;
+            default:
+                Log.d(TAG, "onCreate: default is selected");
+        }
+    }
+
+    private void getPopularPosts() {
+        Log.d(TAG, "getPopularPosts: ");
+        coMeth.getDb()
+                .collection(POSTS_COLL)
+                .orderBy("views", Query.Direction.DESCENDING)
+                .whereGreaterThan("views", 10)
+                .limit(20)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                                //convert document to post
+                                String postId = document.getId();
+                                Posts post = document.toObject(Posts.class).withId(postId);
+                                getFilteredPosts(post);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get popular posts\n" +
+                                e.getMessage());
+                    }
+                });
+
+    }
+
+    private void checkPostCategories(Posts post) {
+        Log.d(TAG, "checkPostCategories: ");
+        if (post.getCategories() != null && post.getCategories().contains(currentCat)) {
+            //post has cats, and post cats contain current cat
+            Log.d(TAG, "checkPostCategories: " +
+                    "post has cats, and post cats contain current cat");
+            getFilteredPosts(post);
+        }
+    }
+
+
     /**
      * handle the subscribed fab on the view categories page
-     * */
+     */
     private void setFab() {
 
         Log.d(TAG, "setFab: called");
         userId = coMeth.getUid();
         //check if user is subscribed
         coMeth.getDb()
-                .collection("Users/" + userId + "/Subscriptions")
-                .document("categories")
-                .collection("Categories").document(currentCat)
+                .collection(USERS_COLL + "/" + userId + "/" + SUBSCRIPTIONS_COLL)
+                .document(CATEGORIES_DOC)
+                .collection(CATEGORIES_COLL).document(currentCat)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
                         //check if user exists
                         if (documentSnapshot.exists()) {
-
                             //user is already subscribed
                             //set fab image
                             subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
-
                         } else {
-
                             //user is already subscribed
                             //set fab image
                             subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
-
                         }
                     }
                 });
     }
 
-    /**
-     * process the received category
-     * @param doc the document from the database
-     * @param postId the postId of the post in the doc
-     * */
-    private void processCategories(DocumentChange doc, String postId) {
+//    /**
+//     * process the received category
+//     * @param doc the document from the database
+//     * @param postId the postId of the post in the doc
+//     * */
+//    private void processCategories(DocumentChange doc, String postId) {
+//
+//        Log.d(TAG, "processCategories: ");
+//        //get received intent
+//
+//        final String category = currentCat;
+//        Log.d(TAG, "processCategories: \ncategory is: " + category);
+//
+//        switch (category) {
+//
+//            /*
+//            "Featured",
+//            "Popular",
+//            "UpComing",
+//            "Events",
+//            "Business",
+//            "Buy and sell",
+//            "Education",
+//            "Jobs",
+//            "Queries"
+//            "Exhibitions"
+//            "art"
+//            "apps"*/
+//
+//            case "featured":
+//                filterCat(doc, postId, "featured");
+//                break;
+//            case "popular":
+//                filterCat(doc, postId, "popular");
+//                break;
+//            case "upcoming":
+//                filterCat(doc, postId, "upcoming");
+//                break;
+//            case "events":
+//                filterCat(doc, postId, "events");
+//                break;
+//            case "places":
+//                filterCat(doc, postId, "places");
+//                break;
+//            case "services":
+//                filterCat(doc, postId, "services");
+//                break;
+//            case "business":
+//                filterCat(doc, postId, "business");
+//                break;
+//            case "buysell":
+//                filterCat(doc, postId, "buysell");
+//                break;
+//            case "education":
+//                filterCat(doc, postId, "education");
+//                break;
+//            case "jobs":
+//                filterCat(doc, postId, "jobs");
+//                break;
+//            case "queries":
+//                filterCat(doc, postId, "queries");
+//                break;
+//            case "exhibitions":
+//                filterCat(doc, postId, "exhibitions");
+//                break;
+//            case "art":
+//                filterCat(doc, postId, "art");
+//                break;
+//            case "apps":
+//                filterCat(doc, postId, "apps");
+//                break;
+//            case "groups":
+//                filterCat(doc, postId, "groups");
+//                break;
+//            default:
+//                Log.d(TAG, "onEvent: default");
+//        }
+//    }
 
-        Log.d(TAG, "processCategories: ");
-        //get received intent
-
-        final String category = currentCat;
-        Log.d(TAG, "processCategories: \ncategory is: " + category);
-
-        switch (category) {
-
-            /*
-            "Featured",
-            "Popular",
-            "UpComing",
-            "Events",
-            "Business",
-            "Buy and sell",
-            "Education",
-            "Jobs",
-            "Queries"
-            "Exhibitions"
-            "art"
-            "apps"*/
-
-            case "featured":
-                filterCat(doc, postId, "featured");
-                break;
-            case "popular":
-                filterCat(doc, postId, "popular");
-                break;
-            case "upcoming":
-                filterCat(doc, postId, "upcoming");
-                break;
-            case "events":
-                filterCat(doc, postId, "events");
-                break;
-            case "places":
-                filterCat(doc, postId, "places");
-                break;
-            case "services":
-                filterCat(doc, postId, "services");
-                break;
-            case "business":
-                filterCat(doc, postId, "business");
-                break;
-            case "buysell":
-                filterCat(doc, postId, "buysell");
-                break;
-            case "education":
-                filterCat(doc, postId, "education");
-                break;
-            case "jobs":
-                filterCat(doc, postId, "jobs");
-                break;
-            case "queries":
-                filterCat(doc, postId, "queries");
-                break;
-            case "exhibitions":
-                filterCat(doc, postId, "exhibitions");
-                break;
-            case "art":
-                filterCat(doc, postId, "art");
-                break;
-            case "apps":
-                filterCat(doc, postId, "apps");
-                break;
-            case "groups":
-                filterCat(doc, postId, "groups");
-                break;
-            default:
-                Log.d(TAG, "onEvent: default");
-        }
-    }
-
-    /**
-     * filter categories
-     * @param category the category selected to filter posts for
-     * @param postId the postId of the post to check for categories
-     * @param doc the DocumentChange for the posts
-     * */
-    private void filterCat(final DocumentChange doc, final String postId, final String category) {
-
-        Log.d(TAG, "filterCat: at filter cat\ncat is: " + category);
-        //check if current post contains business
-
-        final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-
-        if (category.equals("upcoming")) {
-
-            Log.d(TAG, "filterCat: cat is upcoming");
-            //check if post has event date
-            if (post.getEvent_date() != null) {
-
-                sortWithPostDate(post);
-            }
-
-        } else if (category.equals("featured")) {
-
-            //cat is featured
-            Log.d(TAG, "filterCat: cat is " + category);
-
-        } else if (category.equals("popular")) {
-
-            ///cat is popular
-            Log.d(TAG, "filterCat: cat is " + category);
-            //get post views
-            int views = post.getViews();
-            Log.d(TAG, "filterCat: post view are " + views);
-            if (views > 10) {
-                Log.d(TAG, "filterCat: views > 10");
-                getFilteredPosts(post);
-            }
-
-        } else {
-
-            if (post.getCategories() != null) {
-                ArrayList catsArray = post.getCategories();
-                Log.d(TAG, "filterCat: \ncatsArray is: " + catsArray);
-
-                if (catsArray.contains(category)) {
-                    Log.d(TAG, "filterCat: catsArray contains + " + category);
-
-                    switch (category) {
-                        case "jobs":
-                            checkForEventDate(post);
-                            break;
-                        case "education":
-                            checkForEventDate(post);
-                            break;
-                        case "exhibitions":
-                            getFilteredPosts(post);
-                            break;
-                        case "events":
-                            checkForEventDate(post);
-                            break;
-                        case "services":
-                            getFilteredPosts(post);
-                            break;
-                        case "places":
-                            getFilteredPosts(post);
-                            break;
-                        case "queries":
-                            getFilteredPosts(post);
-                            break;
-                        case "buysell":
-                            getFilteredPosts(post);
-                            break;
-                        case "business":
-                            getFilteredPosts(post);
-                            break;
-                        case "art":
-                            getFilteredPosts(post);
-                            break;
-                        case "apps":
-                            getFilteredPosts(post);
-                            break;
-                        case "groups":
-                            getFilteredPosts(post);
-                            break;
-                        default:
-                            Log.d(TAG, "filterCat: ");
-                            coMeth.stopLoading(progressDialog, swipeRefresh);
-                    }
-                } else {
-                    //posts don't have cat
-                    Log.d(TAG, "filterCat: ");
-                    coMeth.stopLoading(progressDialog, swipeRefresh);
-                }
-            }
-        }
-    }
+//    /**
+//     * filter categories
+//     * @param category the category selected to filter posts for
+//     * @param postId the postId of the post to check for categories
+//     * @param doc the DocumentChange for the posts
+//     * */
+//    private void filterCat(final DocumentChange doc, final String postId, final String category) {
+//
+//        Log.d(TAG, "filterCat: at filter cat\ncat is: " + category);
+//        //check if current post contains business
+//
+//        final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
+//
+//        if (category.equals("upcoming")) {
+//
+//            Log.d(TAG, "filterCat: cat is upcoming");
+//            //check if post has event date
+//            if (post.getEvent_date() != null) {
+//                getFutureDatedPosts(post);
+//            }
+//
+//        } else if (category.equals("featured")) {
+//
+//            //cat is featured
+//            Log.d(TAG, "filterCat: cat is " + category);
+//
+//        } else if (category.equals("popular")) {
+//
+//            ///cat is popular
+//            Log.d(TAG, "filterCat: cat is " + category);
+//            //get post views
+//            int views = post.getViews();
+//            Log.d(TAG, "filterCat: post view are " + views);
+//            if (views > 10) {
+//                Log.d(TAG, "filterCat: views > 10");
+//                getFilteredPosts(post);
+//            }
+//
+//        } else {
+//
+//            if (post.getCategories() != null) {
+//                ArrayList catsArray = post.getCategories();
+//                Log.d(TAG, "filterCat: \ncatsArray is: " + catsArray);
+//
+//                if (catsArray.contains(category)) {
+//                    Log.d(TAG, "filterCat: catsArray contains + " + category);
+//
+//                    switch (category) {
+//                        case "jobs":
+//                            checkForEventDate(post);
+//                            break;
+//                        case "education":
+//                            checkForEventDate(post);
+//                            break;
+//                        case "exhibitions":
+//                            getFilteredPosts(post);
+//                            break;
+//                        case "events":
+//                            checkForEventDate(post);
+//                            break;
+//                        case "services":
+//                            getFilteredPosts(post);
+//                            break;
+//                        case "places":
+//                            getFilteredPosts(post);
+//                            break;
+//                        case "queries":
+//                            getFilteredPosts(post);
+//                            break;
+//                        case "buysell":
+//                            getFilteredPosts(post);
+//                            break;
+//                        case "business":
+//                            getFilteredPosts(post);
+//                            break;
+//                        case "art":
+//                            getFilteredPosts(post);
+//                            break;
+//                        case "apps":
+//                            getFilteredPosts(post);
+//                            break;
+//                        case "groups":
+//                            getFilteredPosts(post);
+//                            break;
+//                        default:
+//                            Log.d(TAG, "filterCat: ");
+//                            coMeth.stopLoading(progressDialog, swipeRefresh);
+//                    }
+//                } else {
+//                    //posts don't have cat
+//                    Log.d(TAG, "filterCat: ");
+//                    coMeth.stopLoading(progressDialog, swipeRefresh);
+//                }
+//            }
+//        }
+//    }
 
     private void checkForEventDate(Posts post) {
         if (post.getEvent_date() != null) {
-            sortWithPostDate(post);
+            getFutureDatedPosts(post);
         } else {
             getFilteredPosts(post);
         }
     }
 
-    private void sortWithPostDate(Posts post) {
+    private void getFutureDatedPosts(Posts post) {
         if (post.getEvent_date() != null) {
             Date now = new Date();
             long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
@@ -790,28 +978,8 @@ ViewCategoryActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-
                             //posts with event dates
                             addPost(documentSnapshot, post);
-
-//                            Date now = new Date();
-//                            long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
-//                            Date eventDate = new Date(post.getEvent_date().getTime() - twoThouNineHundYears);
-////                            Date postDate = post.getEvent_date();
-//
-//
-//                            if (post.getEvent_date() != null) {
-//                                Log.d(TAG, "onComplete: checking event date" +
-//                                        "\nnow: " + now.toString() +
-//                                        "\nevent date is: " + eventDate);
-//                                if (eventDate.after(now)) {
-//                                    //posts with event dates
-//                                    addPost(documentSnapshot, post);
-//                                }
-//                            } else {
-//                                //posts without event dates
-//                                addPost(documentSnapshot, post);
-//                            }
                         } else {
                             //user does not exist
                             coMeth.stopLoading(progressDialog, swipeRefresh);

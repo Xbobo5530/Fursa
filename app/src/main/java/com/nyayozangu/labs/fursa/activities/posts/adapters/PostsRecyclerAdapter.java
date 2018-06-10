@@ -42,8 +42,6 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-
 /**
  * Created by Sean on 4/4/18.
  * <p>
@@ -127,6 +125,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         final String imageUrl = postsList.get(position).getImage_url();
         String thumbUrl = postsList.get(position).getThumb_url();
         holder.setPostImage(imageUrl, thumbUrl);
+//        new ViewHolder.LoadPostImageTask().execute(imageUrl, thumbUrl);
 
         //receive the post id
         final String postId = postsList.get(position).PostId;
@@ -684,6 +683,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 //        context.startActivity(goToUserProfileIntent);
 //    }
 
+
     //implement the viewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -734,24 +734,77 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //retrieve the image
-        public void setPostImage(String imageDownloadUrl, String thumbDownloadUrl) {
+        public void setPostImage(final String imageDownloadUrl, final String thumbDownloadUrl) {
 
             if (imageDownloadUrl != null && thumbDownloadUrl != null) {
 
                 postImageView.setVisibility(View.VISIBLE);
+
+//                new Thread(){
+//                    @Override
+//                    public void run() {
+//                        RequestOptions requestOptions = new RequestOptions();
+//                        requestOptions.placeholder(R.color.colorWhite);
+//                        Glide.with(context)
+//                                .applyDefaultRequestOptions(requestOptions)
+//                                .load(imageDownloadUrl)
+////                        .transition(withCrossFade())
+//                                .thumbnail(Glide.with(context).load(thumbDownloadUrl))
+//                                .into(postImageView);
+//
+//                    }
+//                    }.start();
+
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions.placeholder(R.color.colorWhite);
                 Glide.with(context)
                         .applyDefaultRequestOptions(requestOptions)
                         .load(imageDownloadUrl)
-                        .transition(withCrossFade())
+//                        .transition(withCrossFade())
                         .thumbnail(Glide.with(context).load(thumbDownloadUrl))
                         .into(postImageView);
+
+//                new LoadPostImageTask().execute(imageDownloadUrl, thumbDownloadUrl);
+
             } else {
                 //post has no image, hide imageView
                 postImageView.setVisibility(View.GONE);
             }
         }
+
+//        public class LoadPostImageTask extends AsyncTask<String, String, Void>{
+//
+//            @Override
+//            protected Void doInBackground(String... strings) {
+//
+//                Log.d(TAG, "doInBackground: loading post image in background");
+//                String imageUrl = strings[0];
+//                String thumbUrl = strings[1];
+//
+////                private void populateTable() {
+////                    runOnUiThread(new Runnable(){
+////                        public void run() {
+////                            //set image
+////
+////                        }
+////                    });
+////                }
+//
+//                RequestOptions requestOptions = new RequestOptions();
+//                requestOptions.placeholder(R.color.colorWhite);
+//                Glide.with(context)
+//                        .applyDefaultRequestOptions(requestOptions)
+//                        .load(imageUrl)
+//                        .transition(withCrossFade())
+//                        .thumbnail(Glide.with(context).load(thumbUrl))
+//                        .into(postImageView);
+//
+//                return null;
+//            }
+//        }
+
+
+
 
 
         //set post location

@@ -1779,6 +1779,8 @@ public class CreatePostActivity extends AppCompatActivity {
     private void goToLogin() {
         startActivity(new Intent(this, LoginActivity.class));
     }
+
+    //submit post in background
     public class SubmitPostTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
