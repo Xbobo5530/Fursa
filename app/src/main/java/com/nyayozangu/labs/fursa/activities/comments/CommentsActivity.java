@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -29,6 +28,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -144,7 +144,6 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                 commentsRecyclerView.getRecycledViewPool().clear();
                 commentsList.clear();
                 retrieveComments();
-
             }
         });
 
@@ -286,7 +285,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                 || user.getProviders().contains("google.com")) {
 
             //get user comment
-            if (!chatField.getText().toString().isEmpty()) {
+            if (!chatField.getText().toString().trim().isEmpty()) {
 
                 //hide keyboard
                 hideKeyBoard();
@@ -319,6 +318,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                 new Notify().execute("comment_updates", postId);
                                 Log.d(TAG, "onSuccess: ");
                                 coMeth.stopLoading(progressDialog, swipeRefreshLayout);
+                                addCommentRef();
                                 //get latest comments
                                 // TODO: 6/8/18 test new comments
 //                                retrieveComments();
@@ -525,71 +525,92 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                 currentUserId = coMeth.getUid();
 
                 final MenuItem subscribeButton = menu.findItem(R.id.comSubMenuItem);
-
                 coMeth.getDb()
                         .collection("Users/" + currentUserId + "/Subscriptions")
                         .document("comments").collection("Comments")
-                        .document(postId)
-                        .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        .whereEqualTo("post_id", postId)
+                        .addSnapshotListener(new EventListener<QuerySnapshot>() {
                             @Override
-                            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-
-                                //check if user is already subscribed
-                                if (documentSnapshot.exists()) {
-
-                                    //set subscribed icon
-                                    subscribeButton.setIcon(R.drawable.ic_action_subscribed);
-
+                            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots,
+                                                @javax.annotation.Nullable FirebaseFirestoreException e) {
+                                if (e != null) {
+                                    Log.d(TAG, "onEvent: error checking sub status");
                                 } else {
 
-
-                                    //user is not subscribed
-                                    subscribeButton.setIcon(R.drawable.ic_action_subscribe);
-
-                                }
-
-                            }
-                        });
-
-                coMeth.getDb()
-                        .collection("Posts")
-                        .document(postId)
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                if (task.isSuccessful() && task.getResult().exists()) {
-
-                                    //check if postUserId equals current currentUserId
-                                    String currentUserId = coMeth.getUid();
-                                    Posts post = task.getResult().toObject(Posts.class);
-                                    String postUserId = post.getUser_id();
-                                    if (currentUserId.equals(postUserId)) {
-
-                                        //post is current user's post
+                                    if (queryDocumentSnapshots.isEmpty()) {
+                                        //user is not subscribed
+                                        subscribeButton.setIcon(R.drawable.ic_action_subscribe);
+                                    } else {
                                         //set subscribed icon
                                         subscribeButton.setIcon(R.drawable.ic_action_subscribed);
-
                                     }
-
-                                } else {
-
-                                    if (!task.isSuccessful()) {
-
-                                        Log.d(TAG, "onComplete: getting post for comments task failed");
-
-                                    }
-                                    if (!task.getResult().exists()) {
-
-                                        Log.d(TAG, "onComplete: post does not exists");
-
-                                    }
-
                                 }
-
                             }
                         });
+
+
+//                        .document(postId)
+//                        .get()
+//                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                            @Override
+//                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                                if (documentSnapshot.exists()){
+//                                    //set subscribed icon
+//                                    subscribeButton.setIcon(R.drawable.ic_action_subscribed);
+//                                }else{
+//                                    //user is not subscribed
+//                                    subscribeButton.setIcon(R.drawable.ic_action_subscribe);
+//                                }
+//                            }
+//                        })
+//                        .addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                Log.d(TAG, "onFailure: failed to get subscription status\n" +
+//                                        e.getMessage());
+//                            }
+//                        });
+                //set the sub icon to subd if current user is post user
+                // because there's no ref ..... (post users are always subd to their own posts)
+//                coMeth.getDb()
+//                        .collection("Posts")
+//                        .document(postId)
+//                        .get()
+//                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//
+//                                if (task.isSuccessful() && task.getResult().exists()) {
+//
+//                                    //check if postUserId equals current currentUserId
+//                                    String currentUserId = coMeth.getUid();
+//                                    Posts post = task.getResult().toObject(Posts.class);
+//                                    String postUserId = post.getUser_id();
+//                                    if (currentUserId.equals(postUserId)) {
+//
+//                                        //post is current user's post
+//                                        //set subscribed icon
+//                                        subscribeButton.setIcon(R.drawable.ic_action_subscribed);
+//
+//                                    }
+//
+//                                } else {
+//
+//                                    if (!task.isSuccessful()) {
+//
+//                                        Log.d(TAG, "onComplete: getting post for comments task failed");
+//
+//                                    }
+//                                    if (!task.getResult().exists()) {
+//
+//                                        Log.d(TAG, "onComplete: post does not exists");
+//
+//                                    }
+//
+//                                }
+//
+//                            }
+//                        });
 
             }
 
@@ -602,7 +623,6 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.comments_toolbar_menu, menu);
         return true;
-
     }
 
     @Override
@@ -618,7 +638,6 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
         }
         return true;
-
     }
 
     /**
@@ -634,62 +653,81 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                     .collection("Comments")
                     .document(postId)
                     .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()) {
+                                //user is already subscribed, unsubscribe
+                                //unsubscribe user
+                                CollectionReference commentsSubRef = coMeth.getDb().collection(
+                                        "Users/" + currentUserId +
+                                                "/Subscriptions/comments/Comments");
+                                commentsSubRef.document(postId).delete()
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                //change the icon
+                                                Log.d(TAG, "onSuccess: user has been unsubd");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(TAG, "onFailure: failed to unsub " +
+                                                        "user from comments\n" + e.getMessage());
+                                                //alert user
+                                                showSnack(getResources().getString(R.string.error_text)
+                                                        + ": " + e.getMessage());
+                                            }
+                                        });
 
-                            //check if task is successful
-                            if (task.isSuccessful()) {
-
-                                //check if post exists
-                                if (task.getResult().exists()) {
-
-                                    //user has already subscribed to current post
-                                    //unsubscribe user
-                                    coMeth.getDb().collection("Users/" + currentUserId + "/Subscriptions")
-                                            .document("comments")
-                                            .collection("Comments")
-                                            .document(postId)
-                                            .delete();
-                                    FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
-                                    Log.d(TAG, "user subscribed to topic {CURRENT POST}");
-
-
-                                } else {
-
-                                    //subscribe user
-                                    Map<String, Object> commentsSubMap = new HashMap<>();
-                                    commentsSubMap.put("timestamp", FieldValue.serverTimestamp());
-                                    //user is not yet subscribed
-                                    coMeth.getDb()
-                                            .collection("Users/" + currentUserId + "/Subscriptions")
-                                            .document("comments")
-                                            .collection("Comments")
-                                            .document(postId)
-                                            .set(commentsSubMap);
-                                    //subscribe to topic
-                                    FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                    Log.d(TAG, "user subscribed to topic COMMENTS");
-                                    //notify user
-                                    String message = "Subscribed to post updates";
-                                    showSnack(message);
-
-                                }
-
+                                CollectionReference commentsCollRef = coMeth.getDb().collection(
+                                        CoMeth.USERS + "/" + currentUserId + "/" +
+                                                CoMeth.SUBSCRIPTIONS)
+                                        .document("comments")
+                                        .collection("Comments");
+                                commentsCollRef.document(postId).delete();
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic(postId);
+                                Log.d(TAG, "user subscribed to topic {CURRENT POST}");
                             } else {
-
-                                Log.d(TAG, "onComplete: task failed " + task.getException().getMessage());
-
+                                //subscribe user
+                                addCommentRef();
+                                //notify user
+                                showSnack(getResources().getString(R.string.subd_to_post_text));
                             }
-
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to sub user\n" + e.getMessage());
+                            showSnack(getResources().getString(R.string.error_text)
+                                    + ": " + e.getMessage());
                         }
                     });
 
         } else {
-
             goToLogin(getString(R.string.login_to_sub_comments));
-
         }
+    }
+
+    /**
+     * add a comment refference to user comments subs
+     */
+    private void addCommentRef() {
+        Map<String, Object> commentsSubMap = new HashMap<>();
+        commentsSubMap.put("post_id", postId);
+        commentsSubMap.put("timestamp", FieldValue.serverTimestamp());
+        //user is not yet subscribed
+        coMeth.getDb()
+                .collection("Users/" + currentUserId + "/Subscriptions")
+                .document("comments")
+                .collection("Comments")
+                .document(postId)
+                .set(commentsSubMap);
+        //subscribe to topic
+        FirebaseMessaging.getInstance().subscribeToTopic(postId);
+        Log.d(TAG, "user subscribed to topic COMMENTS");
     }
 
     private void goToLogin(String message) {

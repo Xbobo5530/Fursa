@@ -559,11 +559,11 @@ ViewCategoryActivity extends AppCompatActivity {
         Log.d(TAG, "getUpcomingPosts: date is: " + date + "\ndateLimit is: " + dateLimit);
 
         coMeth.getDb()
-                .collection("Posts")
-//                .orderBy("event_date", Query.Direction.DESCENDING)
-                .whereGreaterThanOrEqualTo("event_date", date.getTime())
+                .collection(CoMeth.POSTS)
+                .orderBy("event_date", Query.Direction.DESCENDING)
+                .whereGreaterThan("event_date", date.getTime())
 //                .whereLessThan("event_date", dateLimit.getTime())
-                .limit(20)
+//                .limit(20)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -575,7 +575,9 @@ ViewCategoryActivity extends AppCompatActivity {
                                 String postId = document.getId();
                                 //convert snapshot to post
                                 Posts post = document.toObject(Posts.class).withId(postId);
-                                getFilteredPosts(post);
+//                                getFilteredPosts(post);
+                                getFutureDatedPosts(post);
+
                             }
 
                         } else {
@@ -665,7 +667,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 checkPostCategories(post);
                 break;
             case "education":
-                checkPostCategories(post);
+                checkForEventDate(post);
                 break;
             case "jobs":
                 checkForEventDate(post);

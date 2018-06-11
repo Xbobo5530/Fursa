@@ -261,5 +261,6 @@
     <string name="error_text">Error</string>
     <string name="dont_have_saves_text">You don\'t have any saved posts</string>
     <string name="failed_to_get_saves">Failed to get saved posts</string>
+    <string name="subd_to_post_text">Subscribed to post updates</string>
 
 </resources>

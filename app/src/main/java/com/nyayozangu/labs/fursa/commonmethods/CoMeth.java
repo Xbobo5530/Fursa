@@ -50,6 +50,7 @@ public class CoMeth {
     public static final String TIMESTAMP = "timestamp";
     // TODO: 6/10/18 add all the static fields
     private static final String TAG = "Sean";
+    public static final String SUBSCRIPTIONS = "Subscriptions";
     public final String[] catTitle = new String[]{
 
             getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getString(R.string.cat_exhibitions),
