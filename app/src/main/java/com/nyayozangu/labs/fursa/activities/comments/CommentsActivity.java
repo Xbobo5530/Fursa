@@ -147,6 +147,19 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+//        //retrieve comments on reach bottom
+//        commentsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                Boolean reachedBottom = !commentsRecyclerView.canScrollVertically(1);
+//                if (reachedBottom) {
+//                    //retrieve comments on reach bottom
+//                    retrieveComments();
+//                }
+//            }
+//        });
+
         //check if device is connected
         if (coMeth.isConnected()) {
             setPostDetails();
@@ -362,7 +375,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                             try {
 
                                 //set image
-                                String userProfileImageDownloadUrl = documentSnapshot.get("image").toString();
+                                String userProfileImageDownloadUrl =
+                                        documentSnapshot.get("image").toString();
                                 coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                         userProfileImageDownloadUrl,
                                         currentUserImage);
@@ -370,7 +384,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
 
                             } catch (NullPointerException noImageFoundException) {
 
-                                currentUserImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                                currentUserImage.setImageDrawable(getResources()
+                                        .getDrawable(R.drawable.ic_action_person_placeholder));
                                 Log.d(TAG, "onEvent: error: no thumb found");
 
                             }
@@ -466,6 +481,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void retrieveComments() {
+        Log.d(TAG, "retrieveComments: ");
         coMeth.getDb()
                 .collection("Posts/" + postId + "/Comments")
                 .orderBy("timestamp", Query.Direction.ASCENDING)

@@ -23,6 +23,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/setupImageCircleImageView"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/appiconshadow" />
+
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/accEditFab"
                 android:layout_width="wrap_content"
@@ -43,6 +54,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
+                android:capitalize="sentences"
                 android:ems="10"
                 android:hint="@string/acc_name_hint"
                 android:inputType="textPersonName"
@@ -51,17 +63,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imageView"
                 app:layout_constraintTop_toBottomOf="@+id/setupImageCircleImageView" />
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/setupImageCircleImageView"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/appiconshadow" />
 
             <Button
                 android:id="@+id/accSaveButton"
