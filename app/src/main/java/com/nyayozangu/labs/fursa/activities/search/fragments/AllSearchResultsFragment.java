@@ -70,7 +70,7 @@ public class AllSearchResultsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_all_search_resuslts, container, false);
 
         //initiate items
-        searchFeed = view.findViewById(R.id.searchRecyclerView);
+        searchFeed = view.findViewById(R.id.allSearchRecyclerView);
 
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
@@ -140,6 +140,9 @@ public class AllSearchResultsFragment extends Fragment {
                                 Log.d(TAG, "onComplete: filtered posts are " + postsList);
                                 //stop loading when post list has items
                                 coMeth.stopLoading(progressDialog);
+                                //update postlist on seach activity
+                                ((SearchableActivity) getActivity()).updatePostList(post, user);
+
                             }
                         }
                     }
