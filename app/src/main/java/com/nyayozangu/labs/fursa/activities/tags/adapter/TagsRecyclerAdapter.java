@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.main.SearchableActivity;
+import com.nyayozangu.labs.fursa.activities.search.SearchableActivity;
 import com.nyayozangu.labs.fursa.activities.tags.Tags;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 

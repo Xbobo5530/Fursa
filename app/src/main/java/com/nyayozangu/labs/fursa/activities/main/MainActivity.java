@@ -43,6 +43,7 @@ import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.TermsFragment;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
+import com.nyayozangu.labs.fursa.activities.search.SearchableActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;

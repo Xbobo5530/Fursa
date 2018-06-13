@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.nyayozangu.labs.fursa.BuildConfig;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 
@@ -36,18 +37,51 @@ interface CheckConnectionInterface {
  * Created by Sean on 4/29/18.
  * commonly used methods throughout the app
  */
+/*[Firestore]: The behavior for java.util.Date objects stored in Firestore is going to change AND YOUR APP MAY BREAK.
+    To hide this warning and ensure your app does not break, you need to add the following code to your app before calling any other Cloud Firestore methods:
+
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+        .setTimestampsInSnapshotsEnabled(true)
+        .build();
+    firestore.setFirestoreSettings(settings);
+
+    With this change, timestamps stored in Cloud Firestore will be read back as com.google.firebase.Timestamp objects instead of as system java.util.Date objects. So you will also need to update code expecting a java.util.Date to instead expect a Timestamp. For example:
+
+    // Old:
+    java.util.Date date = snapshot.getDate("created_at");
+    // New:
+    Timestamp timestamp = snapshot.getTimestamp("created_at");
+    java.util.Date date = timestamp.toDate();
+
+    Please audit all existing usages of java.util.Date when you enable the new behavior. In a future release, the behavior will be changed to the new behavior, so if you do not follow these steps, YOUR APP MAY BREAK.*/
+
 
 public class CoMeth {
 
-    public static final String CATEGORIES_VAL = "categories";
-    public static final String CATEGORIES_DOC = "categories";
+    //collections
     public static final String CATEGORIES = "Categories";
     public static final String TAGS = "Tags";
     public static final String POSTS = "Posts";
     public static final String USERS = "Users";
     public static final String MY_POSTS = "MyPosts";
+
+    //documents
+    public static final String CATEGORIES_DOC = "categories";
     public static final String MY_POSTS_DOC = "my_posts";
+
+
+    public static final String CATEGORIES_VAL = "categories";
+
     public static final String TIMESTAMP = "timestamp";
+
+    //intent actions and keys
+    public static final String ACTION = "action";
+    public static final String GOTO = "goto";
+    public static final String NOTIFY = "notify";
+    public static final String DESTINATION = "destination";
+    public static final String IMAGE_URL = "imageUrl";
+    public static final String POST_ID = "postId";
     // TODO: 6/10/18 add all the static fields
     private static final String TAG = "Sean";
     public static final String SUBSCRIPTIONS = "Subscriptions";
@@ -108,7 +142,7 @@ public class CoMeth {
             "inappropriate"
     };
     private boolean hasInternet;
-    public int minVerCode = 16;
+    public int minVerCode = BuildConfig.VERSION_CODE;
 
     public CoMeth() {
     } //empty constructor

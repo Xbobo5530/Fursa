@@ -70,4 +70,5 @@ public class Users extends UserId {
                 "\nuserImageUrl is: " + this.getImage() +
                 "\nuserThumbUrl is: " + this.getThumb();
     }
+
 }

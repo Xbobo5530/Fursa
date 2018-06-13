@@ -15,8 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -192,40 +192,66 @@ public class HomeFragment extends Fragment {
 
                             //get user_id for post
                             coMeth.getDb()
-                                    .collection("Users")
+                                    .collection(CoMeth.USERS)
                                     .document(postUserId)
                                     .get()
-                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                    //check if task is successful
-                                    if (task.isSuccessful()) {
-
-                                        String userId = task.getResult().getId();
-                                        Users user = task.getResult().toObject(Users.class).withId(userId);
-                                        //add new post to the local postsList
-                                        if (isFirstPageFirstLoad) {
-                                            if (!postsList.contains(post)) {
-                                                usersList.add(0, user);
-                                                postsList.add(0, post);
-                                            }
-                                        } else {
-                                            if (!postsList.contains(post)) {
-                                                usersList.add(user);
-                                                postsList.add(post);
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if (documentSnapshot.exists()) {
+                                                //user exists
+                                                String userId = documentSnapshot.getId();
+                                                try {
+                                                    Users user = documentSnapshot.toObject(Users.class).withId(userId);
+                                                    //add new post to the local postsList
+                                                    if (isFirstPageFirstLoad) {
+                                                        if (!postsList.contains(post)) {
+                                                            usersList.add(0, user);
+                                                            postsList.add(0, post);
+                                                        }
+                                                    } else {
+                                                        if (!postsList.contains(post)) {
+                                                            usersList.add(user);
+                                                            postsList.add(post);
+                                                        }
+                                                    }
+                                                    postsRecyclerAdapter.notifyDataSetChanged();
+                                                    coMeth.stopLoading(progressDialog, swipeRefresh);
+                                                } catch (NullPointerException userNull) {
+                                                    Log.d(TAG, "onSuccess: user id is null\n" +
+                                                            userNull.getMessage());
+                                                }
+                                            } else {
+                                                //user does not exist
+                                                Log.d(TAG, "onSuccess: user does not exist\n" +
+                                                        "deleting post");
+                                                //delete post
+                                                coMeth.getDb()
+                                                        .collection(CoMeth.POSTS).document(postId)
+                                                        .delete()
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Log.d(TAG, "onSuccess: post with no user successfully deleted");
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.d(TAG, "onFailure: failed to delete post with no user");
+                                                            }
+                                                        });
                                             }
                                         }
-                                        postsRecyclerAdapter.notifyDataSetChanged();
-                                    } else {
-
-                                        //no posts
-                                        Log.d(TAG, "onComplete: no posts");
-
-                                    }
-                                    coMeth.stopLoading(progressDialog, swipeRefresh);
-                                }
-                            });
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            //failed to get user details for post
+                                            Log.d(TAG, "onFailure: failed to get user details for post\n" +
+                                                    e.getMessage());
+                                        }
+                                    });
                         }
                     }
                     //the first page has already loaded
@@ -505,31 +531,60 @@ public class HomeFragment extends Fragment {
                 if (!queryDocumentSnapshots.isEmpty()) {
                     lastVisiblePost = queryDocumentSnapshots.getDocuments()
                             .get(queryDocumentSnapshots.size() - 1);
-                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                    for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                         if (doc.getType() == DocumentChange.Type.ADDED) {
-                            String postId = doc.getDocument().getId();
+                            final String postId = doc.getDocument().getId();
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
-                            String postUserId = post.getUser_id();
+                            final String postUserId = post.getUser_id();
 //                            populateTags(postId, post);
 //                            populateCats(post, postId);
                             coMeth.getDb()
                                     .collection("Users")
                                     .document(postUserId)
                                     .get()
-                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                         @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            //check if task is successful
-                                            if (task.isSuccessful()) {
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            //on success
+                                            if (documentSnapshot.exists()) {
+                                                //user exists
                                                 Log.d(TAG, "onComplete: adding posts");
-                                                Users user = task.getResult().toObject(Users.class);
+                                                Users user = documentSnapshot.toObject(Users.class).withId(postUserId);
                                                 if (!postsList.contains(post)) {
                                                     usersList.add(user);
                                                     postsList.add(post);
                                                 }
                                                 postsRecyclerAdapter.notifyDataSetChanged();
-                                            }
+                                            } else {
+                                                //user does not exist, delete post
+                                                Log.d(TAG, "onSuccess: user does not exist\n" +
+                                                        "deleting post");
+                                                coMeth.getDb()
+                                                        .collection(CoMeth.POSTS)
+                                                        .document(postId)
+                                                        .delete()
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Log.d(TAG, "onSuccess: post with no user deleted");
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.d(TAG, "onFailure: failed to delete post with no user\n" +
+                                                                        e.getMessage());
 
+                                                            }
+                                                        });
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(TAG, "onFailure: failed to get user info\n" +
+                                                    e.getMessage());
                                         }
                                     });
                         }
