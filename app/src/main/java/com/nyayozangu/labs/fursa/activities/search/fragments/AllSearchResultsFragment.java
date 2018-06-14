@@ -86,14 +86,16 @@ public class AllSearchResultsFragment extends Fragment {
         getSearchQuery();
 
         //add scroll to top on tool bar click
-        ((SearchableActivity) getActivity()).toolbar.setOnClickListener(new View.OnClickListener() {
+        ((SearchableActivity) Objects.requireNonNull(getActivity())).toolbar.setOnClickListener(
+                new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchFeed.smoothScrollToPosition(0);
             }
         });
 
-//        ((SearchableActivity) getActivity()).tabsLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+//        ((SearchableActivity) getActivity()).tabsLayout.addOnTabSelectedListener(
+//                new TabLayout.OnTabSelectedListener() {
 //            @Override
 //            public void onTabSelected(TabLayout.Tab tab) {
 //                switch (tab.getPosition()) {

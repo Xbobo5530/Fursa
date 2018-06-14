@@ -81,6 +81,47 @@ public class TagsSearchResultsFragment extends Fragment {
         Log.d(TAG, "doMySearch: ");
         //show progress
         showProgress(getResources().getString(R.string.loading_text));
+        //clear posts
+        postsList.clear();
+        tagsList.clear();
+        List<Posts> mPostList = ((SearchableActivity)
+                Objects.requireNonNull(getActivity())).getPostList();
+        for (Posts post : mPostList) {
+            if (post.getTags() != null && !post.getTags().isEmpty()) {
+                for (String tag : post.getTags()) {
+                    if (tag.toLowerCase().contains(searchQuery)) {
+                        //get tag from db
+                        coMeth.getDb()
+                                .collection(CoMeth.TAGS).document(tag).get()
+                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()) {
+                                            // tags with no posts are deleted
+                                            //convert snapshot to object
+                                            Tags tag = documentSnapshot.toObject(Tags.class);
+                                            if (!tagsList.contains(tag)) {
+                                                tagsList.add(tag);
+                                                tagsRecyclerAdapter.notifyDataSetChanged();
+                                                coMeth.stopLoading(progressDialog);
+                                            }
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG, "onFailure: failed to get tag from db\n" +
+                                                e.getMessage());
+                                    }
+                                });
+                    }
+                }
+
+            }
+        }
+
+
 
         //get post list
 
