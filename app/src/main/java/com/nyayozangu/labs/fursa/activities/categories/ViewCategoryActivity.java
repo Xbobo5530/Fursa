@@ -53,6 +53,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class
 ViewCategoryActivity extends AppCompatActivity {
@@ -326,66 +327,14 @@ ViewCategoryActivity extends AppCompatActivity {
                                                 + ": " + e.getMessage());
                                     }
                                 });
-//
-//
-//
-//                                .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
-//                                    @Override
-//                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                                        //get data from teh likes collection
-//
-//                                        //check if current user has already subscribed
-//                                        if (!task.getResult().exists()) {
-//                                            Map<String, Object> catsMap = new HashMap<>();
-//                                            catsMap.put("key", currentCat);
-//                                            catsMap.put("value", getSupportActionBar().getTitle());
-//                                            catsMap.put("desc", catDesc);
-//                                            catsMap.put("timestamp", FieldValue.serverTimestamp());
-//
-//                                            //subscribe user
-//                                            coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
-//                                                    .document("categories")
-//                                                    .collection("Categories")
-//                                                    .document(currentCat).set(catsMap);
-//                                            //set image
-//                                            subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
-//                                            //subscribe to notifications
-//                                            //subscribe to app updates
-//                                            FirebaseMessaging.getInstance().subscribeToTopic(currentCat);
-//                                            Log.d(TAG, "user subscribed to topic {CURRENT CAT}");
-//                                            //notify user
-//                                            showSnack(getString(R.string.sub_to_text) +
-//                                                    getSupportActionBar().getTitle());
-//
-//                                        } else {
-//
-//                                            //unsubscribe
-//                                            coMeth.getDb()
-//                                                    .collection("Users/" + userId + "/Subscriptions")
-//                                                    .document("categories")
-//                                                    .collection("Categories")
-//                                                    .document(currentCat).delete();
-//                                            //unsubscribe to app updates
-//                                            FirebaseMessaging.getInstance().unsubscribeFromTopic(currentCat);
-//                                            Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
-//                                            //set fab image
-//                                            subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
-//                                        }
-//                                    }
-//                                });
 
                     } else {
-
                         //prompt login
                         goToLogin(getString(R.string.log_to_subscribe_text));
-
                     }
-
                 } else {
-
                     //user is not connected to internet
                     showNoActionSnack(getString(R.string.failed_to_connect_text));
-
                 }
 
             }
@@ -409,8 +358,8 @@ ViewCategoryActivity extends AppCompatActivity {
         });*/
 
         final Query firstQuery = coMeth.getDb().
-                collection("Categories/" + currentCat + "/Posts")
-                /*.orderBy("event_date", Query.Direction.ASCENDING)*/;
+                collection(CoMeth.CATEGORIES + "/" + currentCat + "/" + CoMeth.POSTS)
+                .orderBy("timestamp", Query.Direction.ASCENDING);
         postsList.clear();
         usersList.clear();
         loadPosts(firstQuery, currentCat);
@@ -559,45 +508,49 @@ ViewCategoryActivity extends AppCompatActivity {
      * */
     private void loadPosts(Query firstQuery, String cat) {
 
-        if (cat.equals("popular")) {
-            getPopularPosts();
-        } else if (cat.equals("upcoming")) {
-            getUpcomingPosts();
-        } else {
+        switch (cat) {
+            case "popular":
+                getPopularPosts();
+                break;
+            case "upcoming":
+                getUpcomingPosts();
+                break;
+            default:
 
-            firstQuery.limit(10)
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            //handle first load
-                            if (isFirstPageFirstLoad) {
+                firstQuery/*.limit(10)*/
+                        .get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                //handle first load
+                                if (isFirstPageFirstLoad) {
 
-                                //get the last visible post
-                                try {
-                                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
-                                            .get(queryDocumentSnapshots.size() - 1);
-                                } catch (Exception exception) {
-                                    Log.d(TAG, "error: " + exception.getMessage());
+                                    //get the last visible post
+                                    try {
+                                        lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                                                .get(queryDocumentSnapshots.size() - 1);
+                                    } catch (Exception exception) {
+                                        Log.d(TAG, "error: " + exception.getMessage());
+                                    }
+                                }
+                                //get posts
+                                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                                    //get post id
+                                    String postId = document.getId();
+                                    //get post details from Posts collection
+                                    getPostDetails(postId);
                                 }
                             }
-                            //get posts
-                            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                                //get post id
-                                String postId = document.getId();
-                                //get post details from Posts collection
-                                getPostDetails(postId);
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "onFailure: failed to get post ids from cats\n" +
+                                        e.getMessage());
                             }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to get post ids from cats\n" +
-                                    e.getMessage());
-                        }
-                    });
-            isFirstPageFirstLoad = false;
+                        });
+                isFirstPageFirstLoad = false;
+                break;
         }
     }
 
@@ -606,11 +559,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
         // today
         Calendar date = new GregorianCalendar();
-        // reset hour, minutes, seconds and millis
-//        date.set(Calendar.HOUR_OF_DAY, 0);
-//        date.set(Calendar.MINUTE, 0);
-//        date.set(Calendar.SECOND, 0);
-//        date.set(Calendar.MILLISECOND, 0);
         date.add(Calendar.MONTH, 2);
 
         Calendar dateLimit = new GregorianCalendar();
@@ -669,31 +617,32 @@ ViewCategoryActivity extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             //post exists
                             //convert post to object
-                            Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                            Posts post = Objects.requireNonNull(
+                                    documentSnapshot.toObject(Posts.class)).withId(postId);
                             manageCats(post, postId);
                         } else {
                             //post does not exist
                             //delete post id ref from cats
-                            coMeth.getDb()
-                                    .collection(CATEGORIES_COLL + "/" + currentCat +
-                                            "/" + POSTS_COLL)
-                                    .document(postId)
-                                    .delete()
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG, "onSuccess: deleted post id ref " +
-                                                    "of post that does not exist");
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "onFailure: failed to delete post " +
-                                                    "id doc ref for post that does not exist\n" +
-                                                    e.getMessage());
-                                        }
-                                    });
+//                            coMeth.getDb()
+//                                    .collection(CATEGORIES_COLL + "/" + currentCat +
+//                                            "/" + POSTS_COLL)
+//                                    .document(postId)
+//                                    .delete()
+//                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                        @Override
+//                                        public void onSuccess(Void aVoid) {
+//                                            Log.d(TAG, "onSuccess: deleted post id ref " +
+//                                                    "of post that does not exist");
+//                                        }
+//                                    })
+//                                    .addOnFailureListener(new OnFailureListener() {
+//                                        @Override
+//                                        public void onFailure(@NonNull Exception e) {
+//                                            Log.d(TAG, "onFailure: failed to delete post " +
+//                                                    "id doc ref for post that does not exist\n" +
+//                                                    e.getMessage());
+//                                        }
+//                                    });
                         }
                     }
                 });
@@ -890,7 +839,7 @@ ViewCategoryActivity extends AppCompatActivity {
             if (!postsList.contains(post)) {
                 postsList.add(0, post);
                 usersList.add(0, user);
-//                                                coMeth.stopLoading(progressDialog, swipeRefresh);
+//              coMeth.stopLoading(progressDialog, swipeRefresh);
                 Log.d(TAG, "onComplete: added post \n" + post.getTitle() +
                         post.getViews());
             }
@@ -901,15 +850,14 @@ ViewCategoryActivity extends AppCompatActivity {
             if (!postsList.contains(post)) {
                 postsList.add(post);
                 usersList.add(user);
-//                                                coMeth.stopLoading(progressDialog, swipeRefresh);
+//              coMeth.stopLoading(progressDialog, swipeRefresh);
                 Log.d(TAG, "onComplete: added post \n" + post.getTitle() +
                         post.getViews());
             }
         }
         //notify the recycler adapter of the set change
         categoryRecyclerAdapter.notifyDataSetChanged();
-        //stop loading after first post is visible
-//                                        coMeth.onResultStopLoading(postsList, progressDialog, swipeRefresh);
+        //stop loading
         coMeth.stopLoading(progressDialog, swipeRefresh);
     }
 

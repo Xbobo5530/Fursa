@@ -40,7 +40,6 @@ import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import com.nyayozangu.labs.fursa.activities.search.SearchableActivity;
-import com.nyayozangu.labs.fursa.activities.settings.AdminActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.notifications.Notify;
@@ -368,23 +367,56 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     public void onClick(DialogInterface dialog, int which) {
 
                         showProgress("Deleting...");
-                        coMeth.getDb().collection("Posts").document(postId).delete();
-                        coMeth.stopLoading(progressDialog, null);
-                        Intent delResultIntent =
-                                new Intent(ViewPostActivity.this, MainActivity.class);
-                        delResultIntent.putExtra(
-                                getResources().getString(R.string.ACTION_NAME), getResources().getString(R.string.notify_value_text));
-                        delResultIntent.putExtra(getResources().getString(R.string.MESSAGE_NAME), getString(R.string.del_success_text));
-                        if (hasAdminAccess()) {
-                            //go back to admin page
-                            startActivity(new Intent(
-                                    ViewPostActivity.this, AdminActivity.class));
-                            finish();
-                        } else {
-                            startActivity(delResultIntent);
-                            finish();
-                        }
+                        coMeth.getDb().collection("Posts").document(postId).delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        //delete post reference on user subs
+                                        coMeth.getDb().collection(
+                                                CoMeth.USERS + "/" +
+                                                        currentUserId + "/" +
+                                                        CoMeth.SUBSCRIPTIONS + "/" +
+                                                        CoMeth.MY_POSTS_DOC + "/" +
+                                                        CoMeth.MY_POSTS)
+                                                .document(postId)
+                                                .delete()
+                                                .addOnSuccessListener(
+                                                        new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                //successfully deleted doc and doc ref
+                                                                Log.d(TAG, "onSuccess: deleted doc ref");
 
+                                                            }
+                                                        })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.d(TAG, "onFailure: failed to " +
+                                                                "delete doc ref on user subs\n"
+                                                                + e.getMessage());
+                                                    }
+                                                });
+
+                                        Intent delResultIntent =
+                                                new Intent(ViewPostActivity.this, MainActivity.class);
+                                        delResultIntent.putExtra(CoMeth.ACTION, CoMeth.NOTIFY);
+                                        delResultIntent.putExtra(CoMeth.MESSAGE,
+                                                getString(R.string.del_success_text));
+                                        startActivity(delResultIntent);
+                                        finish();
+
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG, "onFailure: failed to delete post\n" + e.getMessage());
+                                        coMeth.stopLoading(progressDialog);
+                                        showSnack(getResources().getString(R.string.failed_to_delete_post)
+                                                + ": " + e.getMessage());
+                                    }
+                                });
                     }
                 })
                 .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {

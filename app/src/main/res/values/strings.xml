@@ -269,5 +269,6 @@
     <string name="trending_tags_text">Trending Tags</string>
     <string name="failed_to_sub_cat">Failed to subscribe to this category</string>
     <string name="failed_to_sub">Failed to subscribe to</string>
+    <string name="failed_to_delete_post">Failed to delete post</string>
 
 </resources>

@@ -32,6 +32,7 @@ import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -185,7 +186,7 @@ public class HomeFragment extends Fragment {
 //                            cleanTags(doc, postId);
 
                             // TODO: 6/7/18 organise tags
-//                            populateTags(postId, post);
+//                            populateTags(post, postId);
 
                             // TODO: 6/10/18 populate cats
 //                            populateCats(post, postId);
@@ -202,7 +203,8 @@ public class HomeFragment extends Fragment {
                                                 //user exists
                                                 String userId = documentSnapshot.getId();
                                                 try {
-                                                    Users user = documentSnapshot.toObject(Users.class).withId(userId);
+                                                    Users user = Objects.requireNonNull(
+                                                            documentSnapshot.toObject(Users.class)).withId(userId);
                                                     //add new post to the local postsList
                                                     if (isFirstPageFirstLoad) {
                                                         if (!postsList.contains(post)) {
@@ -221,27 +223,28 @@ public class HomeFragment extends Fragment {
                                                     Log.d(TAG, "onSuccess: user id is null\n" +
                                                             userNull.getMessage());
                                                 }
-                                            } else {
-                                                //user does not exist
-                                                Log.d(TAG, "onSuccess: user does not exist\n" +
-                                                        "deleting post");
-                                                //delete post
-                                                coMeth.getDb()
-                                                        .collection(CoMeth.POSTS).document(postId)
-                                                        .delete()
-                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                Log.d(TAG, "onSuccess: post with no user successfully deleted");
-                                                            }
-                                                        })
-                                                        .addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-                                                                Log.d(TAG, "onFailure: failed to delete post with no user");
-                                                            }
-                                                        });
                                             }
+//                                            else {
+//                                                //user does not exist
+//                                                Log.d(TAG, "onSuccess: user does not exist\n" +
+//                                                        "deleting post");
+//                                                //delete post
+//                                                coMeth.getDb()
+//                                                        .collection(CoMeth.POSTS).document(postId)
+//                                                        .delete()
+//                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                            @Override
+//                                                            public void onSuccess(Void aVoid) {
+//                                                                Log.d(TAG, "onSuccess: post with no user successfully deleted");
+//                                                            }
+//                                                        })
+//                                                        .addOnFailureListener(new OnFailureListener() {
+//                                                            @Override
+//                                                            public void onFailure(@NonNull Exception e) {
+//                                                                Log.d(TAG, "onFailure: failed to delete post with no user");
+//                                                            }
+//                                                        });
+//                                            }
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
@@ -386,8 +389,56 @@ public class HomeFragment extends Fragment {
 //        }
 //    }
 
-//    private void populateTags() {
+//    private void populateTags(Posts post, final String postId) {
 //        Log.d(TAG, "populateTags: ");
+//
+//        if (post.getTags() != null){
+//            //put tags in array
+//            ArrayList<String> tagsList = post.getTags();
+//            for (final String tag : tagsList){
+//                //check if tag in empty
+//                if (!tag.isEmpty()) {
+//                    //create a tagMap
+//                    Log.d(TAG, "onSuccess: tag is " + tag);
+//                    Map<String, Object> tagMap = new HashMap<>();
+//                    tagMap.put("title", tag);
+//                    coMeth.getDb()
+//                            .collection("Tags")
+//                            .document(tag)
+//                            .update(tagMap)
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    //add post id to tag collection
+//                                    Log.d(TAG, "onSuccess: updating tags");
+//                                    addPostIdToTagColl(tag, postId);
+//
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.d(TAG, "onFailure: failed to update tag\n" + e.getMessage());
+//                                    Map<String, Object> tagMap = new HashMap<>();
+//                                    tagMap.put("title", tag);
+//                                    coMeth.getDb()
+//                                            .collection("Tags")
+//                                            .document(tag)
+//                                            .set(tagMap)
+//                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                @Override
+//                                                public void onSuccess(Void aVoid) {
+//                                                    //add post id to tag collection
+//                                                    Log.d(TAG, "onSuccess: updating tag");
+//                                                    addPostIdToTagColl(tag, postId);
+//
+//                                                }
+//                                            });
+//                                }
+//                            });
+//                }
+//            }
+//        }
 //        coMeth.getDb()
 //                .collection("Posts")
 //                .limit(3)
@@ -402,53 +453,7 @@ public class HomeFragment extends Fragment {
 //                            final String postId = document.getId();
 //                            Posts post = document.toObject(Posts.class);
 //                            //check if post has tags
-//                            if (post.getTags() != null){
-//                                //put tags in array
-//                                ArrayList<String> tagsList = post.getTags();
-//                                for (final String tag : tagsList){
-//                                    //check if tag in empty
-//                                    if (!tag.isEmpty()) {
-//                                        //create a tagMap
-//                                        Log.d(TAG, "onSuccess: tag is " + tag);
-//                                        Map<String, Object> tagMap = new HashMap<>();
-//                                        tagMap.put("title", tag);
-//                                        coMeth.getDb()
-//                                                .collection("Tags")
-//                                                .document(tag)
-//                                                .update(tagMap)
-//                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                                    @Override
-//                                                    public void onSuccess(Void aVoid) {
-//                                                        //add post id to tag collection
-//                                                        Log.d(TAG, "onSuccess: updating tags");
-//                                                        addPostIdToTagColl(tag, postId);
 //
-//                                                    }
-//                                                })
-//                                                .addOnFailureListener(new OnFailureListener() {
-//                                                    @Override
-//                                                    public void onFailure(@NonNull Exception e) {
-//                                                        Log.d(TAG, "onFailure: failed to update tag\n" + e.getMessage());
-//                                                        Map<String, Object> tagMap = new HashMap<>();
-//                                                        tagMap.put("title", tag);
-//                                                        coMeth.getDb()
-//                                                                .collection("Tags")
-//                                                                .document(tag)
-//                                                                .set(tagMap)
-//                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                                                    @Override
-//                                                                    public void onSuccess(Void aVoid) {
-//                                                                        //add post id to tag collection
-//                                                                        Log.d(TAG, "onSuccess: updating tag");
-//                                                                        addPostIdToTagColl(tag, postId);
-//
-//                                                                    }
-//                                                                });
-//                                                    }
-//                                                });
-//                                    }
-//                                }
-//                            }
 //                        }
 //                    }
 //                })
@@ -460,7 +465,7 @@ public class HomeFragment extends Fragment {
 //                });
 //    }
 
-//    private void addPostIdToTagColl(String tag, String postId) {
+//    private void addPostIdToTagColl(final String tag, String postId) {
 //        Log.d(TAG, "addPostIdToTagColl: ");
 //        //create tagPostMap
 //        Map<String, Object> tagPostMap = new HashMap<>();
@@ -473,7 +478,45 @@ public class HomeFragment extends Fragment {
 //                    @Override
 //                    public void onSuccess(Void aVoid) {
 //                        Log.d(TAG, "onSuccess: post id added to tags list");
-//                        coMeth.stopLoading(progressDialog);
+//                        //get post count on tag
+//                        coMeth.getDb().collection(CoMeth.TAGS + "/" + tag + "/" +
+//                                CoMeth.POSTS)
+//                                .get()
+//                                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                                    @Override
+//                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                                        if (!queryDocumentSnapshots.isEmpty()){
+//                                            final int tagPostsCount = queryDocumentSnapshots.size();
+//                                            Map<String, Object> tagsPostCountMap = new HashMap<>();
+//                                            tagsPostCountMap.put("post_count", tagPostsCount);
+//                                            coMeth.getDb().collection(CoMeth.TAGS)
+//                                                    .document(tag)
+//                                                    .update(tagsPostCountMap)
+//                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                        @Override
+//                                                        public void onSuccess(Void aVoid) {
+//                                                            Log.d(TAG, "onSuccess: updated tags post count\n"
+//                                                                    + tag + " has " + tagPostsCount + " posts");
+//                                                        }
+//                                                    })
+//                                                    .addOnFailureListener(new OnFailureListener() {
+//                                                        @Override
+//                                                        public void onFailure(@NonNull Exception e) {
+//                                                            Log.d(TAG, "onFailure: failed to update tags posts count\n" +
+//                                                                    e.getMessage());
+//                                                        }
+//                                                    });
+//
+//                                        }
+//                                    }
+//                                })
+//                                .addOnFailureListener(new OnFailureListener() {
+//                                    @Override
+//                                    public void onFailure(@NonNull Exception e) {
+//                                        Log.d(TAG, "onFailure: failed to add post id to tags\n" +
+//                                                e.getMessage());
+//                                    }
+//                                });
 //                    }
 //                })
 //                .addOnFailureListener(new OnFailureListener() {
@@ -481,7 +524,6 @@ public class HomeFragment extends Fragment {
 //                    public void onFailure(@NonNull Exception e) {
 //                        Log.d(TAG, "onFailure: failed to add post id to tag collection\n" +
 //                                e.getMessage());
-//                        coMeth.stopLoading(progressDialog);
 //                    }
 //                });
 //    }
@@ -536,7 +578,7 @@ public class HomeFragment extends Fragment {
                             final String postId = doc.getDocument().getId();
                             final Posts post = doc.getDocument().toObject(Posts.class).withId(postId);
                             final String postUserId = post.getUser_id();
-//                            populateTags(postId, post);
+//                            populateTags(post, postId);
 //                            populateCats(post, postId);
                             coMeth.getDb()
                                     .collection("Users")
@@ -549,34 +591,14 @@ public class HomeFragment extends Fragment {
                                             if (documentSnapshot.exists()) {
                                                 //user exists
                                                 Log.d(TAG, "onComplete: adding posts");
-                                                Users user = documentSnapshot.toObject(Users.class).withId(postUserId);
+                                                Users user = Objects.requireNonNull(
+                                                        documentSnapshot.toObject(Users.class))
+                                                        .withId(postUserId);
                                                 if (!postsList.contains(post)) {
                                                     usersList.add(user);
                                                     postsList.add(post);
                                                 }
                                                 postsRecyclerAdapter.notifyDataSetChanged();
-                                            } else {
-                                                //user does not exist, delete post
-                                                Log.d(TAG, "onSuccess: user does not exist\n" +
-                                                        "deleting post");
-                                                coMeth.getDb()
-                                                        .collection(CoMeth.POSTS)
-                                                        .document(postId)
-                                                        .delete()
-                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                Log.d(TAG, "onSuccess: post with no user deleted");
-                                                            }
-                                                        })
-                                                        .addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-                                                                Log.d(TAG, "onFailure: failed to delete post with no user\n" +
-                                                                        e.getMessage());
-
-                                                            }
-                                                        });
                                             }
                                         }
                                     })

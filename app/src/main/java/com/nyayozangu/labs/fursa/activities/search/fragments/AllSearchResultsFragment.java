@@ -322,11 +322,12 @@ public class AllSearchResultsFragment extends Fragment {
                                 searchableText = searchableText.concat(bio + " ");
 
                             }
-                        } else {
-                            //user does not exist
-                            //delete post
-                            deleteUserlessPost(postId);
                         }
+//                        else {
+//                            //user does not exist
+//                            //delete post
+////                            deleteUserlessPost(postId);
+//                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -353,26 +354,26 @@ public class AllSearchResultsFragment extends Fragment {
         searchableText = "";
     }
 
-    private void deleteUserlessPost(String postId) {
-        Log.d(TAG, "onSuccess: user does not exist");
-        coMeth.getDb()
-                .collection("Posts")
-                .document(postId)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "onSuccess: deleted post with no user");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to delete post with no user\n" +
-                                e.getMessage());
-                    }
-                });
-    }
+//    private void deleteUserlessPost(String postId) {
+//        Log.d(TAG, "onSuccess: user does not exist");
+//        coMeth.getDb()
+//                .collection("Posts")
+//                .document(postId)
+//                .delete()
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Log.d(TAG, "onSuccess: deleted post with no user");
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.d(TAG, "onFailure: failed to delete post with no user\n" +
+//                                e.getMessage());
+//                    }
+//                });
+//    }
 
     private void doMySearch(final String query) {
 
@@ -441,7 +442,8 @@ public class AllSearchResultsFragment extends Fragment {
                             Log.d(TAG, "onSuccess: post does not exist");
                             //update tags info
                             coMeth.getDb()
-                                    .collection("Tags/" + searchTag + "/Posts")
+                                    .collection(CoMeth.TAGS + "/" +
+                                            searchTag + "/" + CoMeth.POSTS)
                                     .document(postId)
                                     .delete();
                             Log.d(TAG, "onSuccess: deleting post entry from search tag " +
@@ -452,7 +454,8 @@ public class AllSearchResultsFragment extends Fragment {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to get post with search tag from posts db\n" +
+                        Log.d(TAG, "onFailure: failed to get post " +
+                                "with search tag from posts db\n" +
                                 e.getMessage());
                     }
                 });
