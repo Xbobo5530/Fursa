@@ -60,6 +60,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     // TODO: 5/30/18 handle posts with multiple images
     // TODO: 6/7/18 when deleting a post with an image, delete the image as well
     // TODO: 6/7/18 run an algorythim to delete all post photos that have no posts
+    // TODO: 6/14/18 check view post reset issue
+    // TODO: 6/14/18 for view reward  notifications use viewsRewardPostId as topic
+
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();

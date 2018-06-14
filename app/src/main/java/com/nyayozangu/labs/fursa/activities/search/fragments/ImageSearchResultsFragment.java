@@ -1,7 +1,6 @@
 package com.nyayozangu.labs.fursa.activities.search.fragments;
 
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -10,8 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
@@ -19,6 +16,7 @@ import com.nyayozangu.labs.fursa.activities.search.SearchableActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.Users;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,17 +26,12 @@ import java.util.Objects;
 public class ImageSearchResultsFragment extends Fragment {
 
     private static final String TAG = "Sean";
-    private RecyclerView imageSearchFeed;
     private CoMeth coMeth = new CoMeth();
-    private ProgressDialog progressDialog;
     //retrieve posts
     private List<Posts> postsList;
     private List<Users> usersList;
 
     private PostsRecyclerAdapter imageSearchRecyclerAdapter;
-    private String searchQuery;
-    private DocumentSnapshot lastVisiblePost;
-    private Boolean isFirstPageFirstLoad = true;
 
     public ImageSearchResultsFragment() {
         // Required empty public constructor
@@ -52,17 +45,11 @@ public class ImageSearchResultsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_image_search_results, container,
                 false);
 
-
         //initialize
-        imageSearchFeed = view.findViewById(R.id.imageSearchRecyclerView);
+        RecyclerView imageSearchFeed = view.findViewById(R.id.imageSearchRecyclerView);
 
-
-        postsList = ((SearchableActivity) getActivity()).getPostList();
-        usersList = ((SearchableActivity) getActivity()).getUserList();
-
-        Log.d(TAG, "onCreateView: " +
-                "\npost list size: " + postsList.size() +
-                "\nuser list size: " + usersList.size());
+        postsList = new ArrayList<>();
+        usersList = new ArrayList<>();
 
         String className = "SearchableActivity";
         imageSearchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
@@ -74,10 +61,10 @@ public class ImageSearchResultsFragment extends Fragment {
 
         //get search query
         if (getActivity() != null) {
-            searchQuery = ((SearchableActivity) getActivity()).getSearchQuery();
+            String searchQuery = ((SearchableActivity) getActivity()).getSearchQuery();
             Log.d(TAG, "onCreateView: search query is " + searchQuery);
             if (searchQuery != null && !searchQuery.isEmpty())
-                doMySearch(searchQuery);
+                doMySearch(searchQuery.toLowerCase());
         } else {
             //alert user when failed to get search query from activity
 
@@ -91,22 +78,39 @@ public class ImageSearchResultsFragment extends Fragment {
 
     private void doMySearch(String searchQuery) {
         Log.d(TAG, "doMySearch: ");
-
-        Query firstQuery = coMeth.getDb()
-                .collection(CoMeth.POSTS);
-//                .orderBy("timestamp");
-//                .limit(50);
         //show loading
-        showProgress(getResources().getString(R.string.loading_text));
+//        showProgress(getResources().getString(R.string.loading_text));
+        //clear old posts
+        postsList.clear();
+        usersList.clear();
+        List<Posts> mPostList = ((SearchableActivity) getActivity()).getPostList();
+        List<Users> mUserList = ((SearchableActivity) getActivity()).getUserList();
+        Log.d(TAG, "doMySearch: \nmPostlist size is " + mPostList.size() +
+                "\nmUserList is " + mUserList.size());
+        for (Posts post : mPostList) {
+            String imageMetaData = "";
+            if (post.getImage_labels() != null) {
+                imageMetaData = imageMetaData.concat(post.getImage_labels());
+                Log.d(TAG, "doMySearch: psot has image labels " + imageMetaData);
+            }
+            if (post.getImage_text() != null) {
+                imageMetaData = imageMetaData.concat(" " + post.getImage_text());
+                Log.d(TAG, "doMySearch: post has image text " + imageMetaData);
+            }
+            if (imageMetaData.toLowerCase().contains(searchQuery)) {
+                Log.d(TAG, "doMySearch: iamge meta data is " + imageMetaData);
+                if (!postsList.contains(post)) {
+                    Log.d(TAG, "doMySearch: image meta has query");
+                    postsList.add(post);
+                    usersList.add(mUserList.get(mPostList.indexOf(post)));
+                    imageSearchRecyclerAdapter.notifyDataSetChanged();
+                }
 
+            }
+        }
+//        if (postsList.isEmpty()){
+//            ((SearchableActivity)getActivity())
+//                    .showSnack(getString(R.string.could_not_find_posts));
+//        }
     }
-
-    private void showProgress(String message) {
-        Log.d(TAG, "at showProgress\n message is: " + message);
-        //construct the dialog box
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(message);
-        progressDialog.show();
-    }
-
 }

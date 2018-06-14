@@ -4,6 +4,7 @@ package com.nyayozangu.labs.fursa.activities.search.fragments;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
@@ -83,6 +84,49 @@ public class AllSearchResultsFragment extends Fragment {
         //set an adapter for the recycler view
         searchFeed.setAdapter(searchRecyclerAdapter);
 
+        getSearchQuery();
+
+        //add scroll to top on tool bar click
+        ((SearchableActivity) getActivity()).toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchFeed.smoothScrollToPosition(0);
+            }
+        });
+
+        ((SearchableActivity) getActivity()).tabsLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch (tab.getPosition()) {
+                    case 0:
+                        getSearchQuery();
+                        break;
+                    default:
+                        Log.d(TAG, "onTabSelected: at default tab selected listener");
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                switch (tab.getPosition()) {
+                    case 0:
+                        getSearchQuery();
+                        break;
+                    default:
+                        Log.d(TAG, "onTabSelected: at default tab selected listener");
+                }
+            }
+        });
+
+        return view;
+    }
+
+    private void getSearchQuery() {
         if (getActivity() != null) {
             searchQuery = ((SearchableActivity) getActivity()).getSearchQuery();
             Log.d(TAG, "onCreateView: search query is " + searchQuery);
@@ -94,16 +138,6 @@ public class AllSearchResultsFragment extends Fragment {
             ((SearchableActivity) Objects.requireNonNull(getActivity()))
                     .showSnack(getResources().getString(R.string.something_went_wrong_text));
         }
-
-        //add scroll to top on tool bar click
-        ((SearchableActivity) getActivity()).toolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchFeed.smoothScrollToPosition(0);
-            }
-        });
-
-        return view;
     }
 
     private void showProgress(String message) {
@@ -128,7 +162,6 @@ public class AllSearchResultsFragment extends Fragment {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            String psotUserId = documentSnapshot.getId();
                             Users user = documentSnapshot.toObject(Users.class).withId(postUserId);
                             //check if post is already added to the post list
                             if (!postsList.contains(post)) {
@@ -140,8 +173,9 @@ public class AllSearchResultsFragment extends Fragment {
                                 Log.d(TAG, "onComplete: filtered posts are " + postsList);
                                 //stop loading when post list has items
                                 coMeth.stopLoading(progressDialog);
-                                //update postlist on seach activity
-                                ((SearchableActivity) getActivity()).updatePostList(post, user);
+                                //update post list on search activity
+                                ((SearchableActivity) Objects.requireNonNull(getActivity()))
+                                        .updatePostList(post, user);
 
                             }
                         }
@@ -183,8 +217,7 @@ public class AllSearchResultsFragment extends Fragment {
                         }
                     }
                 }
-                //the first page has already loaded
-//                isFirstPageFirstLoad = false;
+
 
             }
         });

@@ -81,6 +81,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
     // TODO: 5/30/18 allow posts with multiple images
     // TODO: 5/30/18 share post after submitting
+    // TODO: 6/14/18 to share post, send post is ready notification after submitting
 
     private static final String TAG = "Sean";
 

@@ -59,6 +59,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentsActivity extends AppCompatActivity implements View.OnClickListener {
 
+    // TODO: 6/14/18 for view reward  notifications use viewsRewardPostId as topic
+
     private static final String TAG = "Sean";
     private ImageView sendButton;
     private EditText chatField;
