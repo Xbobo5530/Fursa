@@ -50,6 +50,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
 
+    // TODO: 6/14/18 add an impressions field for posts viewed on feed
+
     private static final String TAG = "Sean";
 
     //member variables for storing posts

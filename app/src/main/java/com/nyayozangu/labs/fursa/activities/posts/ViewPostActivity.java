@@ -62,6 +62,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     // TODO: 6/7/18 run an algorythim to delete all post photos that have no posts
     // TODO: 6/14/18 check view post reset issue
     // TODO: 6/14/18 for view reward  notifications use viewsRewardPostId as topic
+    // TODO: 6/14/18 change views section to activity: views + likes + comments
+    // TODO: 6/14/18 add multiple images
 
 
     private static final String TAG = "Sean";

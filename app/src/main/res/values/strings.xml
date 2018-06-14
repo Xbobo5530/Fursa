@@ -267,5 +267,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="could_not_find_posts">Could not find posts</string>
     <string name="trending_tags_text">Trending Tags</string>
+    <string name="failed_to_sub_cat">Failed to subscribe to this category</string>
+    <string name="failed_to_sub">Failed to subscribe to</string>
 
 </resources>

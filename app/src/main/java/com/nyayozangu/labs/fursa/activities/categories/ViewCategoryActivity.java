@@ -205,7 +205,6 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         });
 
-
         //initiate items
         catFeed = findViewById(R.id.catRecyclerView);
 
@@ -269,14 +268,29 @@ ViewCategoryActivity extends AppCompatActivity {
                         coMeth.getDb()
                                 .collection(USERS_COLL + "/" + userId + "/" + SUBSCRIPTIONS_COLL)
                                 .document("categories")
-                                .collection(CATEGORIES_COLL).document(currentCat).get()
-                                .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
+                                .collection(CATEGORIES_COLL).document(currentCat)
+                                .get()
+                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                     @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        //get data from teh likes collection
-
-                                        //check if current user has already subscribed
-                                        if (!task.getResult().exists()) {
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()) {
+                                            //user has already subd to this cat
+                                            //unsub user
+                                            //unsubscribe
+                                            coMeth.getDb()
+                                                    .collection("Users/" + userId + "/Subscriptions")
+                                                    .document("categories")
+                                                    .collection("Categories")
+                                                    .document(currentCat).delete();
+                                            //unsubscribe to app updates
+                                            FirebaseMessaging.getInstance().unsubscribeFromTopic(currentCat);
+                                            Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
+                                            //set fab image
+                                            subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
+                                            coMeth.stopLoading(progressDialog);
+                                        } else {
+                                            //user has not subd to this cat
+                                            //sub user to cur cat
                                             Map<String, Object> catsMap = new HashMap<>();
                                             catsMap.put("key", currentCat);
                                             catsMap.put("value", getSupportActionBar().getTitle());
@@ -294,26 +308,71 @@ ViewCategoryActivity extends AppCompatActivity {
                                             //subscribe to app updates
                                             FirebaseMessaging.getInstance().subscribeToTopic(currentCat);
                                             Log.d(TAG, "user subscribed to topic {CURRENT CAT}");
+                                            coMeth.stopLoading(progressDialog);
                                             //notify user
                                             showSnack(getString(R.string.sub_to_text) +
                                                     getSupportActionBar().getTitle());
-
-                                        } else {
-
-                                            //unsubscribe
-                                            coMeth.getDb()
-                                                    .collection("Users/" + userId + "/Subscriptions")
-                                                    .document("categories")
-                                                    .collection("Categories")
-                                                    .document(currentCat).delete();
-                                            //unsubscribe to app updates
-                                            FirebaseMessaging.getInstance().unsubscribeFromTopic(currentCat);
-                                            Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
-                                            //set fab image
-                                            subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
                                         }
                                     }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG, "onFailure: failed to sub user to cat\n" +
+                                                e.getMessage());
+                                        coMeth.stopLoading(progressDialog);
+                                        showSnack(getResources().getString(R.string.failed_to_sub) +
+                                                getSupportActionBar().getTitle()
+                                                + ": " + e.getMessage());
+                                    }
                                 });
+//
+//
+//
+//                                .addOnCompleteListener(ViewCategoryActivity.this, new OnCompleteListener<DocumentSnapshot>() {
+//                                    @Override
+//                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                                        //get data from teh likes collection
+//
+//                                        //check if current user has already subscribed
+//                                        if (!task.getResult().exists()) {
+//                                            Map<String, Object> catsMap = new HashMap<>();
+//                                            catsMap.put("key", currentCat);
+//                                            catsMap.put("value", getSupportActionBar().getTitle());
+//                                            catsMap.put("desc", catDesc);
+//                                            catsMap.put("timestamp", FieldValue.serverTimestamp());
+//
+//                                            //subscribe user
+//                                            coMeth.getDb().collection("Users/" + userId + "/Subscriptions")
+//                                                    .document("categories")
+//                                                    .collection("Categories")
+//                                                    .document(currentCat).set(catsMap);
+//                                            //set image
+//                                            subscribeFab.setImageResource(R.drawable.ic_action_subscribed);
+//                                            //subscribe to notifications
+//                                            //subscribe to app updates
+//                                            FirebaseMessaging.getInstance().subscribeToTopic(currentCat);
+//                                            Log.d(TAG, "user subscribed to topic {CURRENT CAT}");
+//                                            //notify user
+//                                            showSnack(getString(R.string.sub_to_text) +
+//                                                    getSupportActionBar().getTitle());
+//
+//                                        } else {
+//
+//                                            //unsubscribe
+//                                            coMeth.getDb()
+//                                                    .collection("Users/" + userId + "/Subscriptions")
+//                                                    .document("categories")
+//                                                    .collection("Categories")
+//                                                    .document(currentCat).delete();
+//                                            //unsubscribe to app updates
+//                                            FirebaseMessaging.getInstance().unsubscribeFromTopic(currentCat);
+//                                            Log.d(TAG, "user unSubscribe to topic {CURRENT CAT}");
+//                                            //set fab image
+//                                            subscribeFab.setImageResource(R.drawable.ic_action_subscribe);
+//                                        }
+//                                    }
+//                                });
 
                     } else {
 
