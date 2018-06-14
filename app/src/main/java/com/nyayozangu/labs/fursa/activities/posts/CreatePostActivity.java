@@ -811,40 +811,9 @@ public class CreatePostActivity extends AppCompatActivity {
                                 updateTagsOnDB(newPostId, postMap);
                                 updateCatsOnDB(newPostId, postMap);
 
-                                // TODO: 6/6/18 add share post after post has been submitted
-                                //share post after launch
-                                //postId
-//                                final String postId = task.getResult().getId();
-//                                //open main and not
-//                                AlertDialog.Builder shareNewPost = new AlertDialog.Builder(getApplicationContext());
-//                                shareNewPost.setTitle("Share")
-//                                        .setIcon(getResources().getDrawable(R.drawable.ic_action_share))
-//                                        .setPositiveButton(getResources().getString(R.string.share_text), new DialogInterface.OnClickListener() {
-//                                            @Override
-//                                            public void onClick(DialogInterface dialog, int which) {
-//
-//                                                String postTitle = postMap.get("title").toString();
-//                                                String postDesc = postMap.get("desc").toString();
-////                                                String postImage = postMap.get("image_url").toString();
-//                                                shareNewPost(postId, postTitle,postDesc, null);
-//                                            }
-//                                        })
-//                                        .setNegativeButton(getResources().getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-//                                            @Override
-//                                            public void onClick(DialogInterface dialog, int which) {
-//                                                dialog.cancel();
-//                                            }
-//                                        })
-//                                        .show();
                             } else {
 
-                                //update submit post result
-//                                    isSubmitSuccessful = false;
-                                //posting failed
                                 Log.d(TAG, "onComplete: " + task.getException());
-//                                    showSnack(getString(R.string.failed_to_post_text));
-//                                goToMain(getResources().getString(R.string.failed_to_post_text)
-//                                        + ": " + Objects.requireNonNull(task.getException()).getMessage());
                             }
                         }
                     });

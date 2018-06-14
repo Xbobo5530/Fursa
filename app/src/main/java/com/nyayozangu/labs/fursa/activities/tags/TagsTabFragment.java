@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -42,6 +43,7 @@ public class TagsTabFragment extends Fragment {
 
     //progress
     private ProgressDialog progressDialog;
+    private ProgressBar progressBar;
 
     public TagsTabFragment() {
         // Required empty public constructor
@@ -61,7 +63,10 @@ public class TagsTabFragment extends Fragment {
         tagsRecyclerView.setAdapter(tagsRecyclerAdapter);
 
         //show loading
-        showProgress(getResources().getString(R.string.loading_text));
+
+//        showProgress(getResources().getString(R.string.loading_text));
+        progressBar = view.findViewById(R.id.tagTabsProgressBar);
+        progressBar.setVisibility(View.VISIBLE);
         coMeth.getDb()
                 .collection("Tags")
                 .orderBy("post_count", Query.Direction.DESCENDING)
@@ -77,7 +82,8 @@ public class TagsTabFragment extends Fragment {
                                     Tags tag = doc.getDocument().toObject(Tags.class);
                                     tagsList.add(tag);
                                     tagsRecyclerAdapter.notifyDataSetChanged();
-                                    coMeth.stopLoading(progressDialog);
+//                                    coMeth.stopLoading(progressDialog);
+                                    progressBar.setVisibility(View.GONE);
                                     Log.d(TAG, "onEvent: added");
                                 }
                             }
@@ -88,6 +94,7 @@ public class TagsTabFragment extends Fragment {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "onFailure: failed to get tags\n" + e.getMessage());
+                        progressBar.setVisibility(View.GONE);
                         showSnack(getResources().getString(R.string.error_text) + ": " + e.getMessage());
                     }
                 });
