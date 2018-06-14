@@ -1,7 +1,9 @@
 package com.nyayozangu.labs.fursa.users.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.List;
@@ -53,12 +56,25 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
         } else {
             holder.setUserData(username, bio, null);
         }
-
+        //set click listener to user item view
+        final String userId = usersList.get(position).UserId;
+        holder.pageItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToUserPage(userId);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return usersList.size();
+    }
+
+    private void goToUserPage(String userId) {
+        Intent goToUserPageIntnet = new Intent(context, UserPageActivity.class);
+        goToUserPageIntnet.putExtra("userId", userId);
+        context.startActivity(goToUserPageIntnet);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -68,6 +84,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
         //initiate items on view holder
         private TextView usernameField, bioField;
         private CircleImageView userImageView;
+        private ConstraintLayout pageItemView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -75,6 +92,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
             usernameField = mView.findViewById(R.id.userListItemUsernameTextView);
             bioField = mView.findViewById(R.id.userListItemBioTextView);
             userImageView = mView.findViewById(R.id.userListItemUserImageView);
+            pageItemView = mView.findViewById(R.id.userListItemItemView);
         }
 
         public void setUserData(String username, String bio, String userImage) {
@@ -92,6 +110,5 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
                         .getDrawable(R.drawable.ic_action_person_placeholder));
             }
         }
-
     }
 }

@@ -370,7 +370,8 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                             } else {
                                 //no user image
                                 userImageView.setImageDrawable(
-                                        getResources().getDrawable(R.drawable.appiconshadow));
+                                        getResources().getDrawable(
+                                                R.drawable.ic_action_person_placeholder));
                             }
                             //set post count
                             handlePostsCount(userId);
