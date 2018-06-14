@@ -39,7 +39,7 @@ public class TagsSearchResultsFragment extends Fragment {
     private List<Posts> postsList;
     private List<Tags> tagsList;
 
-    private TagsRecyclerAdapter tagsSearchRecyclerAdapter;
+    private TagsRecyclerAdapter tagsRecyclerAdapter;
 
     public TagsSearchResultsFragment() {
         // Required empty public constructor
@@ -56,10 +56,10 @@ public class TagsSearchResultsFragment extends Fragment {
         postsList = new ArrayList<>();
         tagsList = new ArrayList<>();
 
-        tagsSearchRecyclerAdapter = new TagsRecyclerAdapter(tagsList);
+        tagsRecyclerAdapter = new TagsRecyclerAdapter(tagsList);
         tagsSearchFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         tagsSearchFeed.setHasFixedSize(true);
-        tagsSearchFeed.setAdapter(tagsSearchRecyclerAdapter);
+        tagsSearchFeed.setAdapter(tagsRecyclerAdapter);
 
         if (getActivity() != null) {
             String searchQuery = ((SearchableActivity) getActivity()).getSearchQuery();
@@ -101,7 +101,7 @@ public class TagsSearchResultsFragment extends Fragment {
                                     if (!tagsList.contains(tag)) {
                                         tagsList.add(tag);
                                     }
-                                    tagsSearchRecyclerAdapter.notifyDataSetChanged();
+                                    tagsRecyclerAdapter.notifyDataSetChanged();
                                     coMeth.stopLoading(progressDialog);
                                 }
                             }

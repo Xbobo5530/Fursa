@@ -4,7 +4,6 @@ package com.nyayozangu.labs.fursa.activities.search.fragments;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
@@ -94,34 +93,34 @@ public class AllSearchResultsFragment extends Fragment {
             }
         });
 
-        ((SearchableActivity) getActivity()).tabsLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                switch (tab.getPosition()) {
-                    case 0:
-                        getSearchQuery();
-                        break;
-                    default:
-                        Log.d(TAG, "onTabSelected: at default tab selected listener");
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                switch (tab.getPosition()) {
-                    case 0:
-                        getSearchQuery();
-                        break;
-                    default:
-                        Log.d(TAG, "onTabSelected: at default tab selected listener");
-                }
-            }
-        });
+//        ((SearchableActivity) getActivity()).tabsLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+//            @Override
+//            public void onTabSelected(TabLayout.Tab tab) {
+//                switch (tab.getPosition()) {
+//                    case 0:
+//                        getSearchQuery();
+//                        break;
+//                    default:
+//                        Log.d(TAG, "onTabSelected: at default tab selected listener");
+//                }
+//            }
+//
+//            @Override
+//            public void onTabUnselected(TabLayout.Tab tab) {
+//
+//            }
+//
+//            @Override
+//            public void onTabReselected(TabLayout.Tab tab) {
+//                switch (tab.getPosition()) {
+//                    case 0:
+//                        getSearchQuery();
+//                        break;
+//                    default:
+//                        Log.d(TAG, "onTabSelected: at default tab selected listener");
+//                }
+//            }
+//        });
 
         return view;
     }

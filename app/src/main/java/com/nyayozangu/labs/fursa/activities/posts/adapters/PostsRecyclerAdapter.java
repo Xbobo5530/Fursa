@@ -86,13 +86,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         return new ViewHolder(view);
     }
 
-    /*@Override
-    public void onViewRecycled(@NonNull ViewHolder holder) {
-
-
-
-    }*/
-
     @Override
     public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder,
                                  int position) {
@@ -494,16 +487,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         progressDialog.show();
     }
 
-    /*private void setAnimation(View viewToAnimate, int position) {
-        // If the bound view wasn't previously displayed on screen, it's animated
-        if (position > lastPosition) {
-            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
-//            Animation animation = AnimationUtils.loadAnimation(context, R.anim.fall_down);
-            viewToAnimate.startAnimation(animation);
-            lastPosition = position;
-        }
-    }*/
-
     /**
      * share the dynamic link
      *
@@ -573,39 +556,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-//    private String getPostTitle(String postId) {
-//        //get data from db
-//        coMeth.getDb()
-//                .collection("Posts")
-//                .document(postId)
-//                .get()
-//                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//
-//                        //check if exists
-//                        if (documentSnapshot.exists()) {
-//                            //post exists
-//                            Posts post = documentSnapshot.toObject(Posts.class);
-//                            postTitle = post.getTitle();
-//                            Log.d(TAG, "onSuccess: post title is " + postTitle);
-//                        } else {
-//                            //post does not exist
-//                            Log.d(TAG, "onSuccess: post does not exist");
-//                        }
-//
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.d(TAG, "onFailure: failed to get post");
-//                    }
-//                });
-//        Log.d(TAG, "getPostTitle: post title is " + postTitle);
-//        return postTitle;
-//    }
-
     private void openPost(String postId) {
         Intent openPostIntent = new Intent(context, ViewPostActivity.class);
         openPostIntent.putExtra("postId", postId);
@@ -671,18 +621,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         return postsList.size();
     }
 
-//    /**
-//     * go to the user profile page
-//     *
-//     * @param postUserId the user id of the current post
-//     */
-//    private void goToUserProfile(String postUserId) {
-//        Intent goToUserProfileIntent = new Intent(context, UserPageActivity.class);
-//        goToUserProfileIntent.putExtra("userId", postUserId);
-//        Log.d(TAG, "goToUserProfile: \nuserId is " + postUserId);
-//        context.startActivity(goToUserProfileIntent);
-//    }
-
 
     //implement the viewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -740,21 +678,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                 postImageView.setVisibility(View.VISIBLE);
 
-//                new Thread(){
-//                    @Override
-//                    public void run() {
-//                        RequestOptions requestOptions = new RequestOptions();
-//                        requestOptions.placeholder(R.color.colorWhite);
-//                        Glide.with(context)
-//                                .applyDefaultRequestOptions(requestOptions)
-//                                .load(imageDownloadUrl)
-////                        .transition(withCrossFade())
-//                                .thumbnail(Glide.with(context).load(thumbDownloadUrl))
-//                                .into(postImageView);
-//
-//                    }
-//                    }.start();
-
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions.placeholder(R.color.colorWhite);
                 Glide.with(context)
@@ -771,41 +694,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 postImageView.setVisibility(View.GONE);
             }
         }
-
-//        public class LoadPostImageTask extends AsyncTask<String, String, Void>{
-//
-//            @Override
-//            protected Void doInBackground(String... strings) {
-//
-//                Log.d(TAG, "doInBackground: loading post image in background");
-//                String imageUrl = strings[0];
-//                String thumbUrl = strings[1];
-//
-////                private void populateTable() {
-////                    runOnUiThread(new Runnable(){
-////                        public void run() {
-////                            //set image
-////
-////                        }
-////                    });
-////                }
-//
-//                RequestOptions requestOptions = new RequestOptions();
-//                requestOptions.placeholder(R.color.colorWhite);
-//                Glide.with(context)
-//                        .applyDefaultRequestOptions(requestOptions)
-//                        .load(imageUrl)
-//                        .transition(withCrossFade())
-//                        .thumbnail(Glide.with(context).load(thumbUrl))
-//                        .into(postImageView);
-//
-//                return null;
-//            }
-//        }
-
-
-
-
 
         //set post location
         public void setPostLocation(ArrayList locationArray) {

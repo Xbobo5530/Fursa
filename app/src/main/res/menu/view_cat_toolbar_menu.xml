@@ -10,8 +10,8 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/viewCatShareMenuItem"
-        android:title="@string/share_text"
         android:textAllCaps="false"
+        android:title="@string/share_text"
         app:showAsAction="always" />
     <!--<item
         android:id="@+id/viewCatDetailsMenuItem"
