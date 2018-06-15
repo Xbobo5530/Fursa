@@ -32,7 +32,7 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
     public String user_id, image_url, thumb_url, desc, title, price, image_text, image_labels;
     public ArrayList<String> location, contact_details, categories, tags;
     public Date timestamp, event_date;
-    public int likes, comments, views;
+    public int likes, comments, views, activity, feed_views;
 
     //empty constructor
     public Posts() {
@@ -43,7 +43,7 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
                  String image_text, String desc, String title, String price,
                  Date timestamp, Date event_date,
                  ArrayList<String> categories, ArrayList<String> contact_details,
-                 ArrayList<String> location, ArrayList<String> tags, int likes, int comments, int views) {
+                 ArrayList<String> location, ArrayList<String> tags, int likes, int comments, int views, int activity, int feed_views) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
@@ -62,18 +62,33 @@ public class Posts extends com.nyayozangu.labs.fursa.activities.posts.models.Pos
         this.likes = likes;
         this.comments = comments;
         this.views = views;
+        this.activity = activity;
+        this.feed_views = feed_views;
 
     }
 
-    //getters
+    public int getFeed_views() {
+        return feed_views;
+    }
 
-    //setters
+    public void setFeed_views(int feed_views) {
+        this.feed_views = feed_views;
+    }
+
     public String getUser_id() {
         return user_id;
     }
 
     public void setUser_id(String user_id) {
         this.user_id = user_id;
+    }
+
+    public int getActivity() {
+        return activity;
+    }
+
+    public void setActivity(int activity) {
+        this.activity = activity;
     }
 
     public String getImage_url() {

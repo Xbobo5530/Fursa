@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
@@ -24,6 +27,7 @@ import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
@@ -58,6 +62,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     public List<Posts> postsList;
     public List<Users> usersList;
     public Context context;
+    public static Posts post;
+
     private int lastPosition = -1;
     private String userId;
     private String className;
@@ -88,6 +94,30 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         return new ViewHolder(view);
     }
 
+    static void updateFeedViews(Posts post) {
+        Log.d(TAG, "updateFeedViews: ");
+        Map<String, Object> feedViewMap = new HashMap<>();
+        int feedViews = post.getFeed_views() + 1;
+        feedViewMap.put("feed_views", feedViews);
+        FirebaseFirestore.getInstance()
+                .collection(CoMeth.POSTS)
+                .document(post.PostId)
+                .update(feedViewMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: feed views updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update feed views\n" +
+                                e.getMessage());
+                    }
+                });
+    }
+
     @Override
     public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder,
                                  int position) {
@@ -115,6 +145,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             currentUserId = null;
             Log.d(TAG, "user is logged in\n current user_id is :" + currentUserId);
         }
+
+        //update feed_views
+        post = postsList.get(position);
+        new UpdatePostActivityTask().execute();
 
         //handle post image
         final String imageUrl = postsList.get(position).getImage_url();
@@ -753,4 +787,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         }
     }
+
+    public static class UpdatePostActivityTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: post is " + post.getTitle());
+            updateFeedViews(post);
+            return null;
+        }
+    }
+
+
 }

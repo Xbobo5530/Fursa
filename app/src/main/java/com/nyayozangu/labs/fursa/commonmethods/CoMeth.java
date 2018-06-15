@@ -98,6 +98,8 @@ public class CoMeth {
     public static final String TITLE = "title";
     public static final String EXTRA = "extra";
     public static final String NOTIF_TYPE = "notif_type";
+    public static final String PERMISSION = "permission";
+    public static final String ADMIN = "admin";
     public final String[] catTitle = new String[]{
 
             getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getString(R.string.cat_exhibitions),
@@ -231,6 +233,7 @@ public class CoMeth {
 
     public void signOut() {
         this.getAuth().signOut();
+
     }
 
     public StorageReference getStorageRef() {

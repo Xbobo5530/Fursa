@@ -69,18 +69,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private Button loginButton;
     private Button loginRegistrationButton;
     private ProgressDialog progressDialog;
-    private Toolbar toolbar;
     private TextView loginAlertTextView;
 
     //social login buttons
     private SignInButton googleSignInButton;
     private TwitterLoginButton twitterLoginButton;
-    private LoginButton facebookLoginButton;
 
     private View registerView;
     private View loginView;
-
-    private GoogleApiClient mGoogleApiClient;
 
 
     @Override
@@ -130,11 +126,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         loginButton = findViewById(R.id.loginButton);
         loginRegistrationButton = findViewById(R.id.loginRegisterButton);
         loginAlertTextView = findViewById(R.id.loginAlertTextView);
-        toolbar = findViewById(R.id.loginToolbar);
+        Toolbar toolbar = findViewById(R.id.loginToolbar);
         //social login
         googleSignInButton = findViewById(R.id.google_sign_in_button);
         twitterLoginButton = findViewById(R.id.twitter_login_button);
-        facebookLoginButton = findViewById(R.id.facebook_login_button);
+        LoginButton facebookLoginButton = findViewById(R.id.facebook_login_button);
 
         //get the sent intent
         Intent getPostIdIntent = getIntent();
@@ -367,7 +363,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .requestEmail()
                 .build();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */,
                         this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)

@@ -75,7 +75,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private TextView timeTextView, priceTextView, locationTextView,
             titleTextView, eventDateTextView, contactTextView,
             userTextView, catTextView, tagsTextView,
-            commentsCountText, likesCountText, viewsCountField, shareText,
+            commentsCountText, likesCountText, activityField, shareText,
             saveText;
 
     private CircleImageView userImage; //image of user who posted post
@@ -88,7 +88,11 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             desc, postId, postTitle,
             reportDetailsString,
             postImageUri, postThumbUrl;
-    private ImageView postImage, commentsButton, shareButton, saveButton, likeButton, viewsButton;
+    private ImageView postImage;
+    private ImageView commentsButton;
+    private ImageView saveButton;
+    private ImageView likeButton;
+    private ImageView activityButton;
     private android.support.v7.widget.Toolbar toolbar;
     //progress
     private ProgressDialog progressDialog;
@@ -96,8 +100,10 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags;
 
     private boolean isAdmin = false;
-    private int likes = 0;
-    private int comments = 0;
+    private int likes;
+    private int comments;
+
+    private Posts post;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -144,17 +150,17 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
      * true if current use if admin
      * false if current user is not admin
      */
-    private boolean isAdmin() {
-        // TODO: 6/1/18 use string resources 
-        if (getIntent() != null &&
-                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME)) != null) {
-            if (getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME))
-                    .equals(getResources().getString(R.string.ADMIN_VAL))) {
-                isAdmin = true;
-            }
-        }
-        return isAdmin;
-    }
+//    private boolean isAdmin() {
+//        // TODO: 6/1/18 use string resources
+//        if (getIntent() != null &&
+//                getIntent().getStringExtra(CoMeth.PERMISSION) != null) {
+//            if (getIntent().getStringExtra(CoMeth.PERMISSION)
+//                    .equals(CoMeth.ADMIN)) {
+//                isAdmin = true;
+//            }
+//        }
+//        return isAdmin;
+//    }
 
 
     @Override
@@ -208,11 +214,12 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         Log.d(TAG, "showPostStats: ");
         AlertDialog.Builder statsBuilder = new AlertDialog.Builder(this);
         statsBuilder.setTitle(R.string.post_stats_text)
-                .setIcon(getResources().getDrawable(R.drawable.ic_action_stats))
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_activity))
                 .setMessage(
-                        getResources().getString(R.string.likes_text) + ": " + likesCountText.getText() + "\n" +
-                                getResources().getString(R.string.comments_text) + ": " + commentsCountText.getText() + "\n" +
-                                getResources().getString(R.string.views_text) + ": " + viewsCountField.getText()
+                        getResources().getString(R.string.likes_text) + ": " + post.getLikes() + "\n" +
+                                getResources().getString(R.string.comments_text) + ": " + post.getComments() + "\n" +
+                                getResources().getString(R.string.views_text) + ": " + post.getViews() + "\n" +
+                                getString(R.string.feed_views_text) + ": " + post.getFeed_views()
                 )
                 .setPositiveButton(getResources().getString(R.string.ok_text),
                         new DialogInterface.OnClickListener() {
@@ -222,7 +229,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             }
                         })
                 .show();
-
     }
 
     private void showReportDialog() {
@@ -482,11 +488,11 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         saveButton = findViewById(R.id.viewPostSaveImageView);
         saveText = findViewById(R.id.viewPostSaveTextView);
 
-        shareButton = findViewById(R.id.viewPostShareImageView);
+        ImageView shareButton = findViewById(R.id.viewPostShareImageView);
         shareText = findViewById(R.id.viewPostShareTextView);
 
-        viewsCountField = findViewById(R.id.viewPostViewsCountTextView);
-        viewsButton = findViewById(R.id.viewPostViewsImageView);
+        activityField = findViewById(R.id.viewPostViewsCountTextView);
+        activityButton = findViewById(R.id.viewPostActivityImageView);
 
         titleTextView = findViewById(R.id.viewPostTitleTextView);
         descTextView = findViewById(R.id.viewPostDescTextView);
@@ -747,7 +753,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             if (documentSnapshot.exists()) {
                                 //post exists
                                 Log.d(TAG, "Post  exist");
-                                final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                                post = documentSnapshot.toObject(Posts.class).withId(postId);
                                 //set items
                                 //set title
                                 String title = post.getTitle();
@@ -764,16 +770,16 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 //handle views visibility
                                 if (coMeth.isLoggedIn() &&
                                         coMeth.getUid().equals(post.getUser_id())) {
-                                    viewsCountField.setVisibility(View.VISIBLE);
-                                    viewsButton.setVisibility(View.VISIBLE);
-                                    int views = post.getViews();
-                                    viewsCountField.setText(String.valueOf(views));
+                                    activityField.setVisibility(View.VISIBLE);
+                                    activityButton.setVisibility(View.VISIBLE);
+                                    int activity = post.getActivity();
+                                    activityField.setText(String.valueOf(activity));
 
                                 } else {
                                     //viewer has no credentials
                                     //hide views
-                                    viewsCountField.setVisibility(View.GONE);
-                                    viewsButton.setVisibility(View.GONE);
+                                    activityField.setVisibility(View.GONE);
+                                    activityButton.setVisibility(View.GONE);
                                 }
 
 
@@ -963,8 +969,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             //handle clicks
 
             //views click
-            viewsButton.setOnClickListener(this);
-            viewsCountField.setOnClickListener(this);
+            activityButton.setOnClickListener(this);
+            activityField.setOnClickListener(this);
 //            postImage.setOnClickListener(this);
             tagsLayout.setOnClickListener(this);
             locationLayout.setOnClickListener(this);
@@ -1276,17 +1282,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         //check if is new post
                         Log.d(TAG, "handleIntent: this is from new post created notif");
                         postId = intent.getStringExtra("postId");
-                        AlertDialog.Builder newPostBuilder = new AlertDialog.Builder(this);
-                        newPostBuilder.setTitle(getResources().getString(R.string.post_ready_text))
-                                .setMessage(getResources().getString(R.string.new_post_message_text))
-                                .setIcon(getResources().getDrawable(R.drawable.ic_action_new_post_notif))
-                                .setPositiveButton(getResources().getString(R.string.share_text), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        sharePost();
-                                    }
-                                })
-                                .show();
+                        showShareNewPostDialog();
                     } else {
                         //get the sent intent
                         postId = intent.getStringExtra("postId");
@@ -1310,6 +1306,21 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    private void showShareNewPostDialog() {
+        Log.d(TAG, "showShareNewPostDialog: ");
+        AlertDialog.Builder newPostBuilder = new AlertDialog.Builder(this);
+        newPostBuilder.setTitle(getResources().getString(R.string.post_ready_text))
+                .setMessage(getResources().getString(R.string.new_post_message_text))
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_new_post_notif))
+                .setPositiveButton(getResources().getString(R.string.share_text),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                sharePost();
+                            }
+                        })
+                .show();
+    }
 
 
     /**
@@ -1319,31 +1330,35 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private void updateViews(Posts post) {
         Log.d(TAG, "updateViews: ");
 
+        int views = post.getViews();
         if (!coMeth.isLoggedIn() ||
                 (coMeth.isLoggedIn() && !coMeth.getUid().equals(post.getUser_id()))) {
-
             //update view
-            int views = post.getViews() + 1;
-            //update views
-            Map<String, Object> viewsMap = new HashMap<>();
-            viewsMap.put("views", views);
-            coMeth.getDb()
-                    .collection("Posts")
-                    .document(postId)
-                    .update(viewsMap)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "onSuccess: views updated");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
-                        }
-                    });
+            views = post.getViews() + 1;
         }
+        //update activity
+        int activity = views + post.getLikes() + post.getComments() + post.getFeed_views();
+        //update views
+        Map<String, Object> viewsMap = new HashMap<>();
+        viewsMap.put("views", views);
+        viewsMap.put("activity", activity);
+        coMeth.getDb()
+                .collection("Posts")
+                .document(postId)
+                .update(viewsMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: views updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to update views\n" + e.getMessage());
+                    }
+                });
+
     }
 
     private void goToMain(String message) {
@@ -1423,7 +1438,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             case R.id.viewPostViewsCountTextView:
                 showPostStats();
                 break;
-            case R.id.viewPostViewsImageView:
+            case R.id.viewPostActivityImageView:
                 showPostStats();
                 break;
             case R.id.viewPostLocationLayout:

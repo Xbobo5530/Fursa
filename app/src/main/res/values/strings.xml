@@ -273,5 +273,7 @@
     <string name="failed_to_delete_post">Failed to delete post</string>
     <string name="post_ready_text">Your post is ready</string>
     <string name="new_post_message_text">You can now view, edit or share your post.</string>
+    <string name="feed_views_text">Feed views</string>
+    <string name="failed_to_signout_text">Failed to sign out</string>
 
 </resources>

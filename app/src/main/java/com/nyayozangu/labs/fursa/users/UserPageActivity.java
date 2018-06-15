@@ -17,10 +17,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
@@ -449,7 +453,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.userPageLogoutCard:
-                coMeth.signOut();
+                signOut();
                 goToMain(getString(R.string.logged_out_text));
                 break;
             case R.id.userPageLogoutButton:
@@ -498,6 +502,43 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 break;
             default:
                 Log.d(TAG, "onClick: at user page click listener default");
+        }
+    }
+
+    private void signOut() {
+        //check if user is google user
+        FirebaseUser user = coMeth.getAuth().getCurrentUser();
+        if (user == null &&
+                user.getProviders() != null &&
+                user.getProviders().contains("google.com")) {
+
+            // Configure Google Sign In
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+
+            GoogleSignInClient mGoogleSignInClient = mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+            mGoogleSignInClient.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    //sign user out from google and from
+                    Log.d(TAG, "onSuccess: signed out from google");
+                    coMeth.signOut();
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to signout from google\n" +
+                                    e.getMessage());
+                            showSnack(getString(R.string.failed_to_signout_text) + ": " +
+                                    e.getMessage());
+                        }
+                    });
+        } else {
+            //sign out regular non-google user
+            coMeth.signOut();
         }
     }
 
