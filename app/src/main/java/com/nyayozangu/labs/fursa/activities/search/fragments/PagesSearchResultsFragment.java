@@ -1,7 +1,6 @@
 package com.nyayozangu.labs.fursa.activities.search.fragments;
 
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.search.SearchableActivity;
@@ -29,7 +29,7 @@ public class PagesSearchResultsFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    private ProgressDialog progressDialog;
+    private ProgressBar progressBar;
 
     private List<Users> usersList;
 
@@ -47,6 +47,8 @@ public class PagesSearchResultsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_pages_search_results, container, false);
 
         RecyclerView pagesSearchFeed = view.findViewById(R.id.pagesSearchRecyclerView);
+        progressBar = view.findViewById(R.id.pagesSearchProgressBar);
+
         usersList = new ArrayList<>();
 
         pagesRecyclerAdapter = new UsersRecyclerAdapter(usersList);

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
@@ -27,7 +28,7 @@ public class ImageSearchResultsFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    //retrieve posts
+    private ProgressBar progressBar;
     private List<Posts> postsList;
     private List<Users> usersList;
 
@@ -36,7 +37,6 @@ public class ImageSearchResultsFragment extends Fragment {
     public ImageSearchResultsFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,7 +47,7 @@ public class ImageSearchResultsFragment extends Fragment {
 
         //initialize
         RecyclerView imageSearchFeed = view.findViewById(R.id.imageSearchRecyclerView);
-
+        progressBar = view.findViewById(R.id.imageSearchProgressBar);
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
 
@@ -108,9 +108,5 @@ public class ImageSearchResultsFragment extends Fragment {
 
             }
         }
-//        if (postsList.isEmpty()){
-//            ((SearchableActivity)getActivity())
-//                    .showSnack(getString(R.string.could_not_find_posts));
-//        }
     }
 }

@@ -1,7 +1,6 @@
 package com.nyayozangu.labs.fursa.activities.search.fragments;
 
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
@@ -28,7 +28,7 @@ public class LocationSearchResultsFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    private ProgressDialog progressDialog;
+    private ProgressBar progressBar;
     //retrieve posts
     private List<Posts> postsList;
     private List<Users> usersList;
@@ -48,6 +48,7 @@ public class LocationSearchResultsFragment extends Fragment {
 
         //initialize
         RecyclerView locationSearchFeed = view.findViewById(R.id.locationSearchRecyclerView);
+        progressBar = view.findViewById(R.id.locationSearchProgressBar);
 
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
@@ -107,11 +108,7 @@ public class LocationSearchResultsFragment extends Fragment {
                 }
             }
         }
-        // TODO: 6/14/18 test
-//        if (postsList.isEmpty()){
-//            ((SearchableActivity)getActivity())
-//                    .showSnack(getString(R.string.could_not_find_posts));
-//        }
+
     }
 
 }

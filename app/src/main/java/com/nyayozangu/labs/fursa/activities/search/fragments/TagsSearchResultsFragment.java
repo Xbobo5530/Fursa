@@ -1,7 +1,6 @@
 package com.nyayozangu.labs.fursa.activities.search.fragments;
 
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -11,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,8 +34,7 @@ public class TagsSearchResultsFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    private ProgressDialog progressDialog;
-
+    private ProgressBar progressBar;
     private List<Posts> postsList;
     private List<Tags> tagsList;
 
@@ -53,6 +52,7 @@ public class TagsSearchResultsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tags_search_results, container, false);
 
         RecyclerView tagsSearchFeed = view.findViewById(R.id.tagsSearchRecyclerView);
+        progressBar = view.findViewById(R.id.tagsSearchProgressBar);
         postsList = new ArrayList<>();
         tagsList = new ArrayList<>();
 
@@ -73,14 +73,13 @@ public class TagsSearchResultsFragment extends Fragment {
                     .showSnack(getResources().getString(R.string.something_went_wrong_text));
         }
 
-
         return view;
     }
 
     private void doMySearch(final String searchQuery) {
         Log.d(TAG, "doMySearch: ");
         //show progress
-        showProgress(getResources().getString(R.string.loading_text));
+        progressBar.setVisibility(View.VISIBLE);
         //clear posts
         postsList.clear();
         tagsList.clear();
@@ -103,7 +102,9 @@ public class TagsSearchResultsFragment extends Fragment {
                                             if (!tagsList.contains(tag)) {
                                                 tagsList.add(tag);
                                                 tagsRecyclerAdapter.notifyDataSetChanged();
-                                                coMeth.stopLoading(progressDialog);
+                                                if (progressBar.getVisibility() == View.VISIBLE) {
+                                                    progressBar.setVisibility(View.GONE);
+                                                }
                                             }
                                         }
                                     }
@@ -124,8 +125,6 @@ public class TagsSearchResultsFragment extends Fragment {
 
 
         //get post list
-
-
         coMeth.getDb()
                 .collection(CoMeth.TAGS)
                 .get()
@@ -143,7 +142,9 @@ public class TagsSearchResultsFragment extends Fragment {
                                         tagsList.add(tag);
                                     }
                                     tagsRecyclerAdapter.notifyDataSetChanged();
-                                    coMeth.stopLoading(progressDialog);
+                                    if (progressBar.getVisibility() == View.VISIBLE) {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
                                 }
                             }
                         }
@@ -155,14 +156,6 @@ public class TagsSearchResultsFragment extends Fragment {
                         Log.d(TAG, "onFailure: failed to get tags\n" + e.getMessage());
                     }
                 });
-    }
-
-    private void showProgress(String message) {
-        Log.d(TAG, "at showProgress\n message is: " + message);
-        //construct the dialog box
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(message);
-        progressDialog.show();
     }
 
 }
