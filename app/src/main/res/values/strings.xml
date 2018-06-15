@@ -221,8 +221,9 @@
     <string name="UPDATE_INFO">
         Thank you for updating.
         \nNew in this version:
-        \n- Added new categories: Art to share all different kinds of artworks, Apps to share different local and international apps and Groups to share different social groups from WhatsApp, Telegram and Facebook.
-        \n- New Tags view to see all the trending tags under the categories section
+        \n- Get notified when posts you have created are ready to view, edit and share.
+        \n- UI update on the trending tags
+        \n- New Search interface
         \nHope you enjoy your experience with Fursa!
     </string>
     <string name="close_text">Close</string>
@@ -270,5 +271,7 @@
     <string name="failed_to_sub_cat">Failed to subscribe to this category</string>
     <string name="failed_to_sub">Failed to subscribe to</string>
     <string name="failed_to_delete_post">Failed to delete post</string>
+    <string name="post_ready_text">Your post is ready</string>
+    <string name="new_post_message_text">You can now view, edit or share your post.</string>
 
 </resources>

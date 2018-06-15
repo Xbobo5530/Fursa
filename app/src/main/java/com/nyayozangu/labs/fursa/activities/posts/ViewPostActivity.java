@@ -332,7 +332,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             coMeth.stopLoading(progressDialog);
                             showSnack(getString(R.string.report_submit_failed_text));
                             Log.d(TAG, "onComplete: " + task.getException());
-
                         }
 
                     }
@@ -427,14 +426,14 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 })
                 .show();
     }
-
-    private boolean hasAdminAccess() {
-        return getIntent() != null &&
-                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME)) != null &&
-                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME))
-                        .equals(getResources().getString(R.string.ADMIN_VAL)) &&
-                isAdmin();
-    }
+//
+//    private boolean hasAdminAccess() {
+//        return getIntent() != null &&
+//                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME)) != null &&
+//                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME))
+//                        .equals(getResources().getString(R.string.ADMIN_VAL)) &&
+//                isAdmin();
+//    }
 
     private void goToEdit() {
 
@@ -1270,14 +1269,31 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void handleIntent() {
         if (coMeth.isConnected()) {
-            if (getIntent() != null) {
-                if (getIntent().hasExtra("postId")) {
-                    //get the sent intent
-                    Intent getPostIdIntent = getIntent();
-                    postId = getPostIdIntent.getStringExtra("postId");
-                    Log.d(TAG, "postId is: " + postId);
+            Intent intent = getIntent();
+            if (intent != null) {
+                if (intent.hasExtra("postId")) {
+                    if (intent.getBooleanExtra("isNewPost", false)) {
+                        //check if is new post
+                        Log.d(TAG, "handleIntent: this is from new post created notif");
+                        postId = intent.getStringExtra("postId");
+                        AlertDialog.Builder newPostBuilder = new AlertDialog.Builder(this);
+                        newPostBuilder.setTitle(getResources().getString(R.string.post_ready_text))
+                                .setMessage(getResources().getString(R.string.new_post_message_text))
+                                .setIcon(getResources().getDrawable(R.drawable.ic_action_new_post_notif))
+                                .setPositiveButton(getResources().getString(R.string.share_text), new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        sharePost();
+                                    }
+                                })
+                                .show();
+                    } else {
+                        //get the sent intent
+                        postId = intent.getStringExtra("postId");
+                        Log.d(TAG, "postId is: " + postId);
+                    }
                 } else {
-                    postId = handleDeepLinks(getIntent());
+                    postId = handleDeepLinks(intent);
                 }
             } else {
                 /*if (hasAdminAccess()) {
