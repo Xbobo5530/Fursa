@@ -93,12 +93,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     "Message: " + message + "\n" +
                     "Notification type: " + notifType + "\n" +
                     "extraInfo: " + extraInfo);
-
-            if (!extraInfo.isEmpty() &&
-                    userId != null &&
-                    !userId.equals(coMeth.getUid())) {
-                Log.d(TAG, "onMessageReceived: sending notif to 'other' users");
-                sendNotification(title, message, notifType, extraInfo, notifId);
+            // TODO: 6/15/18 code review
+            if (!extraInfo.isEmpty()) {
+                if (notifType.equals(CoMeth.NEW_POST_UPDATES) ||
+                        (coMeth.isLoggedIn() && !userId.equals(coMeth.getUid()))) {
+                    Log.d(TAG, "onMessageReceived: sending notif to 'other' users");
+                    sendNotification(title, message, notifType, extraInfo, notifId);
+                }
             } else {
                 if (userId != null &&
                         !userId.equals(coMeth.getUid())) {
@@ -147,19 +148,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (notifType != null) {
             switch (notifType) {
 
-                case "comment_updates":
+                case CoMeth.COMMENT_UPDATES:
                     //handle comment notifications
                     handleCommentNotif(title, extraInfo, notifId);
                     break;
 
-                case "categories_updates":
+                case CoMeth.CATEGORIES_UPDATES:
                     //handle cat notifications
                     handleCatNotif(title, messageBody, extraInfo, notifId);
                     break;
 
-                case "likes_updates":
+                case CoMeth.LIKES_UPDATES:
                     //handle likes notifications
                     handleLikesNotif(title, messageBody, extraInfo, notifId);
+                    break;
+
+                case CoMeth.NEW_POST_UPDATES:
+                    //handle notification for new post
+                    handleNewPostNotif(title, messageBody, extraInfo, notifId);
                     break;
 
                 default:
@@ -186,6 +192,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             buildNotif(title, messageBody, null, notifId);
         }
 
+    }
+
+    private void handleNewPostNotif(String title, String messageBody, String extraInfo, int notifId) {
+        Log.d(TAG, "handleNewPostNotif: ");
+        Intent newPostNotifIntent = new Intent(this, ViewPostActivity.class);
+        newPostNotifIntent.putExtra("postId", extraInfo);
+        newPostNotifIntent.putExtra("isNewPost", true);
+        newPostNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        pendingIntent = PendingIntent.getActivity(this, notifId /* Request code */, newPostNotifIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        buildNotif(title, messageBody, null, notifId);
     }
 
     private void handleLikesNotif(String title, String messageBody, String extraInfo, int notifId) {
@@ -356,7 +373,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
-
 
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
 

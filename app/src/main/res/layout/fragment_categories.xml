@@ -79,7 +79,7 @@
             app:tabIndicatorColor="@color/colorAccent"
             app:tabMode="fixed"
             app:tabSelectedTextColor="@color/colorAccent"
-            app:tabTextAppearance="@android:style/TextAppearance.Material.Widget.Toolbar.Subtitle"
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
             app:tabTextColor="@color/black_overlay" />
 
         <android.support.v4.view.ViewPager

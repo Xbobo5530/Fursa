@@ -86,6 +86,18 @@ public class CoMeth {
     private static final String TAG = "Sean";
     public static final String SUBSCRIPTIONS = "Subscriptions";
     public static final String MESSAGE = "message";
+    public static final String NEW_POST_UPDATES = "new_post_updates";
+    public static final String COMMENT_UPDATES = "comment_updates";
+    public static final String LIKES_UPDATES = "likes_updates";
+    public static final String SAVED_POSTS_UPDATES = "saved_posts_updates";
+    public static final String CATEGORIES_UPDATES = "categories_updates";
+    public static final String LIKES = "LIKES";
+    public static final String COMMENTS = "COMMENTS";
+    public static final String SAVED = "SAVED";
+    public static final String CATS = "CATS";
+    public static final String TITLE = "title";
+    public static final String EXTRA = "extra";
+    public static final String NOTIF_TYPE = "notif_type";
     public final String[] catTitle = new String[]{
 
             getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getString(R.string.cat_exhibitions),
@@ -95,8 +107,6 @@ public class CoMeth {
             getApplicationContext().getResources().getString(R.string.cat_places), getApplicationContext().getResources().getString(R.string.cat_services),
             getApplicationContext().getResources().getString(R.string.cat_education), getApplicationContext().getResources().getString(R.string.cat_queries),
             getApplicationContext().getResources().getString(R.string.cat_apps), getApplicationContext().getResources().getString(R.string.cat_groups)
-
-
 
     };
     public final String[] categories = new String[]{

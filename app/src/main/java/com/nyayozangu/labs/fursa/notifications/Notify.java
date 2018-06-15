@@ -54,7 +54,7 @@ public class Notify extends AsyncTask<String, String, Void> {
             //comment updates
             switch (strings[0]) {
 
-                case "comment_updates":
+                case CoMeth.COMMENT_UPDATES:
 
                     String postId = strings[1];
                     //notification type is comment updates
@@ -67,7 +67,7 @@ public class Notify extends AsyncTask<String, String, Void> {
                             "\npostId is: " + postId);
                     break;
 
-                case "likes_updates":
+                case CoMeth.LIKES_UPDATES:
 
                     postId = strings[1];
                     //notification type is likes updates
@@ -80,8 +80,7 @@ public class Notify extends AsyncTask<String, String, Void> {
                             "\npostId is: " + postId);
                     break;
 
-
-                case "saved_posts_updates":
+                case CoMeth.SAVED_POSTS_UPDATES:
 
                     postId = strings[1];
                     topic = topic.concat(postId);
@@ -90,7 +89,7 @@ public class Notify extends AsyncTask<String, String, Void> {
                     Log.d(TAG, "doInBackground: \nnotifType is: SAVED");
                     break;
 
-                case "categories_updates":
+                case CoMeth.CATEGORIES_UPDATES:
 
                     String catKey = strings[1];
                     topic = topic.concat(catKey);
@@ -98,16 +97,24 @@ public class Notify extends AsyncTask<String, String, Void> {
                     passNotifDetails(conn, json, "CATS", catKey);
                     break;
 
+                case CoMeth.NEW_POST_UPDATES:
+                    Log.d(TAG, "doInBackground: notify got new post updates");
+                    String postReadyTopic = strings[1];
+                    String newPostId = strings[2];
+                    Log.d(TAG, "doInBackground: new post id is: " + newPostId +
+                            "\npost ready topic is " + postReadyTopic);
+                    topic = topic.concat(postReadyTopic);
+                    json.put("to", topic);
+                    passNotifDetails(conn, json, CoMeth.NEW_POST_UPDATES, newPostId);
+                    break;
+
                 default:
-
-                    Log.d(TAG, "doInBackground: at default");
-
+                    Log.d(TAG, "doInBackground: in notify at default");
             }
 
         } catch (Exception e) {
             Log.d(TAG, "Notification error: " + e.getMessage());
         }
-
 
         return null;
     }
@@ -125,42 +132,48 @@ public class Notify extends AsyncTask<String, String, Void> {
 
         //create diff conditions for diff types of notifications
         switch (notifType) {
-            case "COMMENTS":
-                info.put("title", "New Comments");   // Notification title
-                info.put("message", "Check out new comments on the posts you follow"); // Notification body
-                info.put("notif_type", "comment_updates");
-                info.put("extra", extraInfo);
+            case CoMeth.COMMENTS:
+                info.put(CoMeth.TITLE, "New Comments");
+                info.put(CoMeth.MESSAGE, "Check out new comments on the posts you follow");
+                info.put(CoMeth.NOTIF_TYPE, "comment_updates");
+                info.put(CoMeth.EXTRA, extraInfo);
+                Log.d(TAG, "passNotifDetails: \nextraInfo is:" + extraInfo);
+                break;
+
+            case CoMeth.LIKES:
+                info.put(CoMeth.TITLE, "New Likes");
+                info.put(CoMeth.MESSAGE, "Check out new Likes on the posts you follow");
+                info.put(CoMeth.NOTIF_TYPE, "likes_updates");
+                info.put(CoMeth.EXTRA, extraInfo);
 
                 Log.d(TAG, "passNotifDetails: \nextraInfo is:" + extraInfo);
                 break;
 
-            case "LIKES":
-                info.put("title", "New Likes");   // Notification title
-                info.put("message", "Check out new Likes on the posts you follow"); // Notification body
-                info.put("notif_type", "likes_updates");
-                info.put("extra", extraInfo);
-
-                Log.d(TAG, "passNotifDetails: \nextraInfo is:" + extraInfo);
+            case CoMeth.SAVED:
+                info.put(CoMeth.TITLE, "Saved Post Updates");
+                info.put(CoMeth.MESSAGE, "Check out new updates on your saved posts");
+                info.put(CoMeth.NOTIF_TYPE, "saved_posts_updates");
+                info.put(CoMeth.EXTRA, extraInfo);
                 break;
 
-            case "SAVED":
-                info.put("title", "Saved Post Updates");   // Notification title
-                info.put("message", "Check out new updates on your saved posts"); // Notification body
-                info.put("notif_type", "saved_posts_updates");
-                info.put("extra", extraInfo);
+            case CoMeth.CATS:
+                info.put(CoMeth.TITLE, "New Posts on Categories you follow");
+                info.put(CoMeth.MESSAGE, "Check out new posts on the categories you follow");
+                info.put(CoMeth.NOTIF_TYPE, "categories_updates");
+                info.put(CoMeth.EXTRA, extraInfo);
                 break;
 
-            case "CATS":
-                info.put("title", "New Posts on Categories you follow");   // Notification title
-                info.put("message", "Check out new posts on the categories you follow"); // Notification body
-                info.put("notif_type", "categories_updates");
-                info.put("extra", extraInfo);
+            case CoMeth.NEW_POST_UPDATES:
+                info.put(CoMeth.TITLE, "Your post is ready");
+                info.put(CoMeth.MESSAGE, "You can now view, edit or share your post with everyone");
+                info.put(CoMeth.NOTIF_TYPE, CoMeth.NEW_POST_UPDATES);
+                info.put(CoMeth.EXTRA, extraInfo);
                 break;
 
             default:
                 Log.d(TAG, "passNotifDetails: at default");
-                info.put("title", "Sharing experiences and opportunities");   // Notification title
-                info.put("message", "See what everyone has been sharing aon Fursa"); // Notification body
+                info.put(CoMeth.TITLE, "Sharing experiences and opportunities");
+                info.put("message", "See what everyone has been sharing aon Fursa");
                 break;
 
         }

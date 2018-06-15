@@ -794,9 +794,6 @@ public class CreatePostActivity extends AppCompatActivity {
                             //check if posting is successful
                             if (task.isSuccessful()) {
 
-                                //update submit post result
-//                                isSubmitSuccessful = true;
-//                                goToMain();
                                 //notify users subscribed to cats
                                 notifyNewPostCatsUpdates(catsStringsArray);
                                 Log.d(TAG, "onComplete: posted post without image");
@@ -810,6 +807,13 @@ public class CreatePostActivity extends AppCompatActivity {
                                 //update tags on DB
                                 updateTagsOnDB(newPostId, postMap);
                                 updateCatsOnDB(newPostId, postMap);
+                                //notify user that post is ready to share
+                                //subscribe user to post ready topic
+                                String postReadyTopic = CoMeth.NEW_POST_UPDATES + currentUserId;
+
+                                FirebaseMessaging.getInstance().subscribeToTopic(postReadyTopic);
+                                //notify user
+                                new Notify().execute(CoMeth.NEW_POST_UPDATES, postReadyTopic, newPostId);
 
                             } else {
 
