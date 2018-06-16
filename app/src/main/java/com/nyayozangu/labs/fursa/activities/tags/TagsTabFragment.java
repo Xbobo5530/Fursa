@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,7 +57,8 @@ public class TagsTabFragment extends Fragment {
         tagsRecyclerView = view.findViewById(R.id.tagsRecyclerView);
         tagsList = new ArrayList<>();
         tagsRecyclerAdapter = new TagsRecyclerAdapter(tagsList);
-        tagsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        coMeth.handlePostsView(getContext(), getActivity(), tagsRecyclerView);
+//        tagsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         tagsRecyclerView.setHasFixedSize(true);
         tagsRecyclerView.setAdapter(tagsRecyclerAdapter);
 

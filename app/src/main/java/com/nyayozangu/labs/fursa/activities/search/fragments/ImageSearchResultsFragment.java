@@ -53,11 +53,9 @@ public class ImageSearchResultsFragment extends Fragment {
 
         String className = "SearchableActivity";
         imageSearchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
-        coMeth.handlePostsView(
-                getContext(), getActivity(), imageSearchFeed);
+        coMeth.handlePostsView(getContext(), getActivity(), imageSearchFeed);
         //set an adapter for the recycler view
         imageSearchFeed.setAdapter(imageSearchRecyclerAdapter);
-
 
         //get search query
         if (getActivity() != null) {
@@ -71,7 +69,6 @@ public class ImageSearchResultsFragment extends Fragment {
             ((SearchableActivity) Objects.requireNonNull(getActivity()))
                     .showSnack(getResources().getString(R.string.something_went_wrong_text));
         }
-
         return view;
 
     }

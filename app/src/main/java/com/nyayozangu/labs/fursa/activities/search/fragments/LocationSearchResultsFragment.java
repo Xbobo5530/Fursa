@@ -55,8 +55,7 @@ public class LocationSearchResultsFragment extends Fragment {
 
         String className = "SearchableActivity";
         imageSearchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
-        coMeth.handlePostsView(
-                getContext(), getActivity(), locationSearchFeed);
+        coMeth.handlePostsView(getContext(), getActivity(), locationSearchFeed);
         //set an adapter for the recycler view
         locationSearchFeed.setAdapter(imageSearchRecyclerAdapter);
 

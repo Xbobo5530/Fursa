@@ -3,7 +3,6 @@ package com.nyayozangu.labs.fursa.activities.search.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,7 +51,8 @@ public class PagesSearchResultsFragment extends Fragment {
         usersList = new ArrayList<>();
 
         pagesRecyclerAdapter = new UsersRecyclerAdapter(usersList);
-        pagesSearchFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
+        coMeth.handlePostsView(getContext(), getActivity(), pagesSearchFeed);
+//        pagesSearchFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         pagesSearchFeed.setHasFixedSize(true);
         pagesSearchFeed.setAdapter(pagesRecyclerAdapter);
 

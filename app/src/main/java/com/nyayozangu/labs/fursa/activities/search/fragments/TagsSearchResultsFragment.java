@@ -4,7 +4,6 @@ package com.nyayozangu.labs.fursa.activities.search.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,7 +56,8 @@ public class TagsSearchResultsFragment extends Fragment {
         tagsList = new ArrayList<>();
 
         tagsRecyclerAdapter = new TagsRecyclerAdapter(tagsList);
-        tagsSearchFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
+        coMeth.handlePostsView(getContext(), getActivity(), tagsSearchFeed);
+//        tagsSearchFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         tagsSearchFeed.setHasFixedSize(true);
         tagsSearchFeed.setAdapter(tagsRecyclerAdapter);
 

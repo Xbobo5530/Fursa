@@ -65,8 +65,7 @@ public class AllSearchResultsFragment extends Fragment {
         //initiate the PostsRecyclerAdapter
         String className = "SearchableActivity";
         searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
-        coMeth.handlePostsView(
-                getContext(), getActivity(), searchFeed);
+        coMeth.handlePostsView(getContext(), getActivity(), searchFeed);
         //set an adapter for the recycler view
         searchFeed.setAdapter(searchRecyclerAdapter);
 
