@@ -809,11 +809,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 updateCatsOnDB(newPostId, postMap);
                                 //notify user that post is ready to share
                                 //subscribe user to post ready topic
-                                String postReadyTopic = CoMeth.NEW_POST_UPDATES + currentUserId;
-
-                                FirebaseMessaging.getInstance().subscribeToTopic(postReadyTopic);
-                                //notify user
-                                new Notify().execute(CoMeth.NEW_POST_UPDATES, postReadyTopic, newPostId);
+                                newPostNotif(newPostId);
 
                             } else {
 
@@ -847,6 +843,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 //update tags on db
                                 updateTagsOnDB(postId, postMap);
                                 updateCatsOnDB(postId, postMap);
+                                newPostNotif(postId);
                             } else {
                                 //posting failed
                                 String errorMessage =
@@ -863,6 +860,18 @@ public class CreatePostActivity extends AppCompatActivity {
 //                return isSubmitSuccessful;
 
         }
+    }
+
+    /**
+     * send a notification on new post when post is ready
+     *
+     * @param newPostId the post id of the submitted post
+     */
+    private void newPostNotif(String newPostId) {
+        String postReadyTopic = CoMeth.NEW_POST_UPDATES + currentUserId;
+        FirebaseMessaging.getInstance().subscribeToTopic(postReadyTopic);
+        //notify user
+        new Notify().execute(CoMeth.NEW_POST_UPDATES, postReadyTopic, newPostId);
     }
 
     private void updateTagsOnDB(final String newPostId, Map<String, Object> postMap) {
@@ -1128,6 +1137,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             //update tags on DB
                             updateTagsOnDB(postId, postMap);
                             updateCatsOnDB(postId, postMap);
+                            newPostNotif(postId);
 
                         } else {
 
@@ -1139,7 +1149,7 @@ public class CreatePostActivity extends AppCompatActivity {
 //                          isSubmitSuccessful = false;
 //                            goToMain(getResources().getString(R.string.failed_to_post_text) +
 //                                    ": " + task.getException().getMessage());
-
+                            // TODO: 6/16/18 notify user when post failed to submit
                         }
                     }
                 });
@@ -1176,6 +1186,7 @@ public class CreatePostActivity extends AppCompatActivity {
                             String newPostId = task.getResult().getId();
                             updateTagsOnDB(newPostId, postMap);
                             updateCatsOnDB(newPostId, postMap);
+                            newPostNotif(newPostId);
 
                         } else {
 
@@ -1187,6 +1198,7 @@ public class CreatePostActivity extends AppCompatActivity {
 //                          isSubmitSuccessful = false;
 //                            goToMain(getResources().getString(R.string.failed_to_post_text) +
 //                                    ": " +  errorMessage);
+                            // TODO: 6/16/18 notify user when post failed to submit
                         }
                     }
                 });
