@@ -83,7 +83,7 @@ public class CoMeth {
     public static final String IMAGE_URL = "imageUrl";
     public static final String POST_ID = "postId";
     // TODO: 6/10/18 add all the static fields
-    private static final String TAG = "Sean";
+    public static final String TAG = "Sean";
     public static final String SUBSCRIPTIONS = "Subscriptions";
     public static final String MESSAGE = "message";
     public static final String NEW_POST_UPDATES = "new_post_updates";
@@ -100,6 +100,7 @@ public class CoMeth {
     public static final String NOTIF_TYPE = "notif_type";
     public static final String PERMISSION = "permission";
     public static final String ADMIN = "admin";
+    public static final String TAG_NAME = "tag";
     public final String[] catTitle = new String[]{
 
             getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getString(R.string.cat_exhibitions),

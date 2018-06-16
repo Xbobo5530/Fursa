@@ -94,6 +94,7 @@ public class AllSearchResultsFragment extends Fragment {
                 if (!postsList.isEmpty() && progressBar.getVisibility() == View.VISIBLE) {
                     //hide the progress bar
                     progressBar.setVisibility(View.GONE);
+                    Log.d(TAG, "run: post list size is " + postsList.size());
                     searchRecyclerAdapter.notifyDataSetChanged();
                 }
 //                searchRecyclerAdapter.notifyDataSetChanged();
