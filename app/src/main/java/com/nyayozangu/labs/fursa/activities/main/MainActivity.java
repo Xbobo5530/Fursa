@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     private List<String> lastSearches;
     private ProgressDialog progressDialog;
+    public ProgressBar progressBar;
 
     public String hasAcceptedTermsStatus;
 
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
         //initiate elements
         mainSearchView = findViewById(R.id.mainSearchView);
+        progressBar = findViewById(R.id.mainProgressBar);
         searchButton = findViewById(R.id.searchButton);
         searchLayout = findViewById(R.id.mainSearchConsLayout);
         userProfileImage = findViewById(R.id.currentUserImageView);
@@ -316,6 +319,13 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
     }
 
+
+    public void hideProgress() {
+        if (progressBar.getVisibility() == View.VISIBLE) {
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
     private void checkHasAcceptedTerms() {
 
         //default value for has accepted terms
@@ -492,7 +502,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         showProgress(sendEmailMessage);
                         sendVerEmail(dialog, user);
                         //hide progress
-                        hideProgress();
+                        coMeth.stopLoading(progressDialog);
 
                     }
                 })
@@ -665,12 +675,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         progressDialog.setMessage(message);
         progressDialog.show();
 
-    }
-
-    private void hideProgress() {
-        if (progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
     }
 
 //    @Override

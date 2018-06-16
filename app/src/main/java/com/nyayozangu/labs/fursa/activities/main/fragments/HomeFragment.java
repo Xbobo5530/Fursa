@@ -2,7 +2,6 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 
 import android.app.ProgressDialog;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -66,6 +65,12 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -84,6 +89,7 @@ public class HomeFragment extends Fragment {
         String className = "HomeFragment";
         postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
         coMeth.handlePostsView(getContext(), getActivity(), homeFeedView);
+        postsRecyclerAdapter.setHasStableIds(true);
         homeFeedView.setAdapter(postsRecyclerAdapter);
 
         // TODO: 5/21/18 load old data then show new data notification
@@ -105,8 +111,13 @@ public class HomeFragment extends Fragment {
                 if (reachedBottom) {
                     //clear post list
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
-//                    loadMorePosts();
-                    new LoadPostsTask().execute();
+//                    //show progress
+//                    ((MainActivity) Objects.requireNonNull(getActivity()))
+//                            .progressBar.setVisibility(View.VISIBLE);
+                    loadMorePosts();
+//                    new LoadPostsTask().execute();
+                } else {
+                    ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
                 }
             }
         });
@@ -171,6 +182,7 @@ public class HomeFragment extends Fragment {
                         usersList.clear();
                     }
 
+                    ArrayList<String> postIds = new ArrayList<>();
                     //create a for loop to check for document changes
                     for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
 
@@ -224,27 +236,6 @@ public class HomeFragment extends Fragment {
                                                             userNull.getMessage());
                                                 }
                                             }
-//                                            else {
-//                                                //user does not exist
-//                                                Log.d(TAG, "onSuccess: user does not exist\n" +
-//                                                        "deleting post");
-//                                                //delete post
-//                                                coMeth.getDb()
-//                                                        .collection(CoMeth.POSTS).document(postId)
-//                                                        .delete()
-//                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                                            @Override
-//                                                            public void onSuccess(Void aVoid) {
-//                                                                Log.d(TAG, "onSuccess: post with no user successfully deleted");
-//                                                            }
-//                                                        })
-//                                                        .addOnFailureListener(new OnFailureListener() {
-//                                                            @Override
-//                                                            public void onFailure(@NonNull Exception e) {
-//                                                                Log.d(TAG, "onFailure: failed to delete post with no user");
-//                                                            }
-//                                                        });
-//                                            }
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
@@ -558,6 +549,8 @@ public class HomeFragment extends Fragment {
     //for loading more posts
     public void loadMorePosts() {
 
+        //show progress
+        ((MainActivity) Objects.requireNonNull(getActivity())).progressBar.setVisibility(View.VISIBLE);
         Log.d(TAG, "loadMorePosts: ");
         Query nextQuery = coMeth.getDb()
                 .collection("Posts")
@@ -599,6 +592,7 @@ public class HomeFragment extends Fragment {
                                                     postsList.add(post);
                                                 }
                                                 postsRecyclerAdapter.notifyDataSetChanged();
+                                                ((MainActivity) getActivity()).hideProgress();
                                             }
                                         }
                                     })
@@ -630,14 +624,14 @@ public class HomeFragment extends Fragment {
     }
 
     //load post on a background thread
-    public class LoadPostsTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            Log.d(TAG, "doInBackground: ");
-            loadMorePosts();
-            return null;
-        }
-    }
+//    public class LoadPostsTask extends AsyncTask<Void, Void, Void> {
+//
+//        @Override
+//        protected Void doInBackground(Void... voids) {
+//            Log.d(TAG, "doInBackground: ");
+//            loadMorePosts();
+//            return null;
+//        }
+//    }
 
 }

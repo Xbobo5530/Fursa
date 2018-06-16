@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -120,6 +121,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         return postsList.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 
     static void updateFeedViews(Posts post) {
         Log.d(TAG, "updateFeedViews: ");
@@ -148,7 +158,18 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void loadPostContent(@NonNull final ViewHolder holder, int position) {
         //        holder.setIsRecyclable(false);
 
-        holder.setAd();
+        Log.d(TAG, "loadPostContent: position is " + position);
+        Random random = new Random();
+        int randNum = random.nextInt((((position + 20) - position) + 1)) + position;
+        if (position == randNum &&
+                (className.equals("HomeFragment") ||
+                        className.equals("ViewCategoryActivity"))) {
+            Log.d(TAG, "loadPostContent: rand num = pos, showing ad");
+            holder.adCard.setVisibility(View.VISIBLE);
+            holder.setAd();
+        } else {
+            holder.adCard.setVisibility(View.GONE);
+        }
 
         postTitle = postsList.get(position).getTitle();
         holder.setTitle(postTitle);

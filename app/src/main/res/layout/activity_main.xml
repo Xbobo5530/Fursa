@@ -8,6 +8,22 @@
     tools:context="com.nyayozangu.labs.fursa.activities.main.MainActivity">
 
 
+    <ProgressBar
+        android:id="@+id/mainProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        android:layout_margin="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:indeterminate="true"
+        android:padding="0dp"
+        android:progress="@integer/google_play_services_version"
+        app:layout_constraintBottom_toBottomOf="@+id/mainToolbarCardView"
+        app:layout_constraintEnd_toEndOf="@+id/mainToolbarCardView"
+        app:layout_constraintStart_toStartOf="@+id/mainToolbarCardView"
+        app:layout_constraintTop_toBottomOf="@+id/mainToolbarCardView" />
+
     <FrameLayout
         android:id="@+id/mainFrameContainer"
         android:layout_width="0dp"
@@ -16,7 +32,7 @@
         app:layout_constraintBottom_toTopOf="@+id/mainBottomNav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mainToolbarCardView">
+        app:layout_constraintTop_toBottomOf="@+id/mainProgressBar">
 
     </FrameLayout>
 
