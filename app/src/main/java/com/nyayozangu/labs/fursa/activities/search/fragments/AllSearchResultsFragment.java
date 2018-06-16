@@ -2,6 +2,7 @@ package com.nyayozangu.labs.fursa.activities.search.fragments;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -73,33 +74,33 @@ public class AllSearchResultsFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         //get post list
 
-        Log.d(TAG, "run: fetching results");
-        usersList = ((SearchableActivity) getActivity()).getUserList();
-        postsList = ((SearchableActivity)
-                Objects.requireNonNull(getActivity())).getPostList();
-        if (!postsList.isEmpty() && progressBar.getVisibility() == View.VISIBLE) {
-            //hide the progress bar
-            progressBar.setVisibility(View.GONE);
-            searchRecyclerAdapter.notifyDataSetChanged();
-        }
+//        Log.d(TAG, "run: fetching results");
+//        usersList = ((SearchableActivity) getActivity()).getUserList();
+//        postsList = ((SearchableActivity)
+//                Objects.requireNonNull(getActivity())).getPostList();
+//        if (!postsList.isEmpty() && progressBar.getVisibility() == View.VISIBLE) {
+//            //hide the progress bar
+//            progressBar.setVisibility(View.GONE);
+//            searchRecyclerAdapter.notifyDataSetChanged();
+//        }
 
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                Log.d(TAG, "run: fetching results every 1 sec");
-//                usersList = ((SearchableActivity) getActivity()).getUserList();
-//                postsList = ((SearchableActivity)
-//                        Objects.requireNonNull(getActivity())).getPostList();
-//                if (!postsList.isEmpty() && progressBar.getVisibility() == View.VISIBLE){
-//                    //hide the progress bar
-//                    progressBar.setVisibility(View.GONE);
-//                    searchRecyclerAdapter.notifyDataSetChanged();
-//                }
-//            }
-//        }, 1000);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "run: fetching results after 1 sec");
+                usersList = ((SearchableActivity) getActivity()).getUserList();
+                postsList = ((SearchableActivity)
+                        Objects.requireNonNull(getActivity())).getPostList();
+                if (!postsList.isEmpty() && progressBar.getVisibility() == View.VISIBLE) {
+                    //hide the progress bar
+                    progressBar.setVisibility(View.GONE);
+                    searchRecyclerAdapter.notifyDataSetChanged();
+                }
+//                searchRecyclerAdapter.notifyDataSetChanged();
+            }
+        }, 2000);
 //        usersList = ((SearchableActivity) getActivity()).getUserList();
 //        postsList = ((SearchableActivity) Objects.requireNonNull(getActivity())).getPostList();
-
 
 
 
@@ -111,11 +112,7 @@ public class AllSearchResultsFragment extends Fragment {
                 searchFeed.smoothScrollToPosition(0);
             }
         });
-
-
         return view;
     }
-
-
 
 }

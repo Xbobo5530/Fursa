@@ -772,12 +772,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                         coMeth.getUid().equals(post.getUser_id())) {
                                     activityField.setVisibility(View.VISIBLE);
                                     activityButton.setVisibility(View.VISIBLE);
-                                    int activity = post.getActivity();
-                                    activityField.setText(String.valueOf(activity));
-
                                 } else {
                                     //viewer has no credentials
-                                    //hide views
+                                    //hide activity
                                     activityField.setVisibility(View.GONE);
                                     activityButton.setVisibility(View.GONE);
                                 }
@@ -802,21 +799,18 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                     Log.d(TAG, "onEvent: has contact details");
                                     String contactString = "";
                                     for (int i = 0; i < contactArray.size(); i++) {
-
                                         //set the first item
-                                        contactString = contactString.concat(contactArray.get(i).toString() + "\n");
-
+                                        contactString = contactString
+                                                .concat(contactArray.get(i) + "\n");
                                     }
                                     //set contactString
                                     contactTextView.setText(contactString.trim());
                                     Log.d(TAG, "onEvent: contact details set");
 
                                 } else {
-
                                     //hide contact details field
                                     contactLayout.setVisibility(View.GONE);
                                     Log.d(TAG, "onEvent: has no contact details");
-
                                 }
 
                                 //set location
@@ -1048,7 +1042,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 userLayout.setVisibility(View.GONE);
 
                             }
-                        } else {
+                        }
+                        // TODO: 6/16/18 review deleting post if user is not present
+                        else {
                             //user does not exits
                             //delete post
                             coMeth.getDb()
@@ -1327,7 +1323,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
      * update the number of times a post is viewed
      * @param post the Posts post that is being viewed
      */
-    private void updateViews(Posts post) {
+    private void updateViews(final Posts post) {
         Log.d(TAG, "updateViews: ");
 
         int views = post.getViews();
@@ -1337,7 +1333,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             views = post.getViews() + 1;
         }
         //update activity
-        int activity = views + post.getLikes() + post.getComments() + post.getFeed_views();
+        final int activity = views + post.getLikes() + post.getComments() + post.getFeed_views();
         //update views
         Map<String, Object> viewsMap = new HashMap<>();
         viewsMap.put("views", views);
@@ -1350,6 +1346,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "onSuccess: views updated");
+                        //set the activity count
+                        activityField.setText(String.valueOf(activity));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
