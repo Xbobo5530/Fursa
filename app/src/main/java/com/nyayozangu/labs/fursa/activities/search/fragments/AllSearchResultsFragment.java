@@ -2,7 +2,6 @@ package com.nyayozangu.labs.fursa.activities.search.fragments;
 
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -62,6 +61,8 @@ public class AllSearchResultsFragment extends Fragment {
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
 
+        progressBar.setVisibility(View.VISIBLE);
+
         //initiate the PostsRecyclerAdapter
         String className = "SearchableActivity";
         searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
@@ -69,38 +70,20 @@ public class AllSearchResultsFragment extends Fragment {
         //set an adapter for the recycler view
         searchFeed.setAdapter(searchRecyclerAdapter);
 
-        //show progress
-        progressBar.setVisibility(View.VISIBLE);
-        //get post list
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-//        Log.d(TAG, "run: fetching results");
-//        usersList = ((SearchableActivity) getActivity()).getUserList();
-//        postsList = ((SearchableActivity)
-//                Objects.requireNonNull(getActivity())).getPostList();
-//        if (!postsList.isEmpty() && progressBar.getVisibility() == View.VISIBLE) {
-//            //hide the progress bar
-//            progressBar.setVisibility(View.GONE);
-//            searchRecyclerAdapter.notifyDataSetChanged();
-//        }
+        showSearchResults();
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "run: fetching results after 1 sec");
-                usersList = ((SearchableActivity) getActivity()).getUserList();
-                postsList = ((SearchableActivity)
-                        Objects.requireNonNull(getActivity())).getPostList();
-                if (!postsList.isEmpty() && progressBar.getVisibility() == View.VISIBLE) {
-                    //hide the progress bar
-                    progressBar.setVisibility(View.GONE);
-                    Log.d(TAG, "run: post list size is " + postsList.size());
-                    searchRecyclerAdapter.notifyDataSetChanged();
-                }
-//                searchRecyclerAdapter.notifyDataSetChanged();
-            }
-        }, 2000);
-//        usersList = ((SearchableActivity) getActivity()).getUserList();
-//        postsList = ((SearchableActivity) Objects.requireNonNull(getActivity())).getPostList();
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        }, 1000);
 
 
 
@@ -115,4 +98,29 @@ public class AllSearchResultsFragment extends Fragment {
         return view;
     }
 
+    private void showSearchResults() {
+        Log.d(TAG, "showSearchResults: ");
+        //clear previous data
+        postsList.clear();
+        usersList.clear();
+        List<Posts> mPostList = ((SearchableActivity) getActivity()).getPostList();
+        List<Users> mUsersList = ((SearchableActivity) getActivity()).getUserList();
+        for (Posts post : mPostList) {
+            if (!postsList.contains(post)) {
+                postsList.add(post);
+                usersList.add(mUsersList.get(mPostList.indexOf(post)));
+                searchRecyclerAdapter.notifyDataSetChanged();
+                if (progressBar.getVisibility() == View.VISIBLE) {
+                    progressBar.setVisibility(View.GONE);
+                }
+                Log.d(TAG, "showSearchResults: post list size is " + postsList.size());
+            }
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        showSearchResults();
+    }
 }

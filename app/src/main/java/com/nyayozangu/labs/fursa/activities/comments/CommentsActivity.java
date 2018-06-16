@@ -304,7 +304,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
             if (!chatField.getText().toString().trim().isEmpty()) {
 
                 //hide keyboard
-                hideKeyBoard();
+                // TODO: 6/16/18 review hide keyboard user experience
+//                hideKeyBoard();
                 //show progress
                 showProgress(getString(R.string.posting_comment_text));
                 final String comment = chatField.getText().toString().trim();

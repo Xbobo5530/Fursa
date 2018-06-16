@@ -85,6 +85,7 @@ public class TagsSearchResultsFragment extends Fragment {
         tagsList.clear();
         List<Posts> mPostList = ((SearchableActivity)
                 Objects.requireNonNull(getActivity())).getPostList();
+        final ArrayList<String> tagTitles = new ArrayList<>();
         for (Posts post : mPostList) {
             if (post.getTags() != null && !post.getTags().isEmpty()) {
                 for (String tag : post.getTags()) {
@@ -99,9 +100,11 @@ public class TagsSearchResultsFragment extends Fragment {
                                             // tags with no posts are deleted
                                             //convert snapshot to object
                                             Tags tag = documentSnapshot.toObject(Tags.class);
-                                            if (!tagsList.contains(tag)) {
+                                            String tagTitle = tag.getTitle();
+                                            if (!tagTitles.contains(tagTitle)) {
                                                 tagsList.add(tag);
                                                 tagsRecyclerAdapter.notifyDataSetChanged();
+                                                tagTitles.add(tagTitle);
                                                 if (progressBar.getVisibility() == View.VISIBLE) {
                                                     progressBar.setVisibility(View.GONE);
                                                 }

@@ -93,6 +93,9 @@ dependencies {
     //firebase app indexing
     implementation 'com.google.firebase:firebase-appindexing:15.0.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    //ads
+    implementation 'com.google.firebase:firebase-ads:15.0.1'
+
 
 }
 apply plugin: 'com.google.gms.google-services'

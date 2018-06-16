@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,7 +32,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
@@ -72,6 +74,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private String postTitle;
     private String postUserId;
+    private int AD_TYPE;
+    private int CONTENT_TYPE;
 
     //empty constructor for receiving the posts
     public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList, String className) {
@@ -92,7 +96,30 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
         return new ViewHolder(view);
+
+//        RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(view);
+//        return viewHolder;
+
     }
+
+    @Override
+    public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder,
+                                 int position) {
+
+        Log.d(TAG, "at onBindViewHolder");
+
+        Log.d(TAG, "onBindViewHolder: normal post");
+        loadPostContent(holder, position);
+
+    }
+
+    @Override
+    public int getItemCount() {
+        //the number of posts
+//        return postsList.size();
+        return postsList.size();
+    }
+
 
     static void updateFeedViews(Posts post) {
         Log.d(TAG, "updateFeedViews: ");
@@ -118,13 +145,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder,
-                                 int position) {
+    private void loadPostContent(@NonNull final ViewHolder holder, int position) {
+        //        holder.setIsRecyclable(false);
 
-        Log.d(TAG, "at onBindViewHolder");
-
-//        holder.setIsRecyclable(false);
+        holder.setAd();
 
         postTitle = postsList.get(position).getTitle();
         holder.setTitle(postTitle);
@@ -190,25 +214,26 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //get likes count
+        holder.updateLikesCount(post.getLikes());
         //create query to count
-        coMeth.getDb()
-                .collection("Posts/" + postId + "/Likes")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-                        Log.d(TAG, "at onEvent, when likes change");
-                        if (!queryDocumentSnapshots.isEmpty()) {
-
-                            //post has likes
-                            int numberOfLikes = queryDocumentSnapshots.size();
-                            holder.updateLikesCount(numberOfLikes);
-
-                        } else {
-                            //post has no likes
-                            holder.updateLikesCount(0);
-                        }
-                    }
-                });
+//        coMeth.getDb()
+//                .collection("Posts/" + postId + "/Likes")
+//                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+//                        Log.d(TAG, "at onEvent, when likes change");
+//                        if (!queryDocumentSnapshots.isEmpty()) {
+//
+//                            //post has likes
+//                            int numberOfLikes = queryDocumentSnapshots.size();
+//                            holder.updateLikesCount(numberOfLikes);
+//
+//                        } else {
+//                            //post has no likes
+//                            holder.updateLikesCount(0);
+//                        }
+//                    }
+//                });
 
 
         //determine likes by current user
@@ -411,24 +436,25 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
         //count comments
-        coMeth.getDb()
-                .collection("Posts/" + postId + "/Comments")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(QuerySnapshot queryDocumentSnapshots,
-                                        FirebaseFirestoreException e) {
-                        Log.d(TAG, "at onEvent, when likes change");
-                        if (!queryDocumentSnapshots.isEmpty()) {
-
-                            //post has likes
-                            int numberOfComments = queryDocumentSnapshots.size();
-                            holder.updateCommentsCount(numberOfComments);
-                        } else {
-                            //post has no likes
-                            holder.updateCommentsCount(0);
-                        }
-                    }
-                });
+        holder.updateCommentsCount(post.getComments());
+//        coMeth.getDb()
+//                .collection("Posts/" + postId + "/Comments")
+//                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onEvent(QuerySnapshot queryDocumentSnapshots,
+//                                        FirebaseFirestoreException e) {
+//                        Log.d(TAG, "at onEvent, when likes change");
+//                        if (!queryDocumentSnapshots.isEmpty()) {
+//
+//                            //post has likes
+//                            int numberOfComments = queryDocumentSnapshots.size();
+//                            holder.updateCommentsCount(numberOfComments);
+//                        } else {
+//                            //post has no likes
+//                            holder.updateCommentsCount(0);
+//                        }
+//                    }
+//                });
 
         //comment icon click action
         holder.postCommentButton.setOnClickListener(new View.OnClickListener() {
@@ -450,7 +476,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //set animation
 //        setAnimation(holder.itemView, position);
-
     }
 
     private void openComments(String postId) {
@@ -651,12 +676,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         context.startActivity(goToLoginIntent);
     }
 
-    @Override
-    public int getItemCount() {
-        //the number of posts
-        return postsList.size();
-    }
-
 
     //implement the viewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -672,6 +691,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 postSaveText, postShareText;
         private ImageView postSaveButton, postSharePostButton, postCommentButton,
                 postImageView, postLikeButton;
+        private CardView adCard;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -691,6 +711,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             titleTextView = mView.findViewById(R.id.postTitleTextView);
             descTextView = mView.findViewById(R.id.postDescTextView);
 
+            adCard = mView.findViewById(R.id.adCard);
         }
 
         //retrieve the title
@@ -784,7 +805,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             } catch (Exception e) {
                 Log.d(TAG, "setUserData: error " + e.getMessage());
             }
+        }
 
+
+        //set ad
+        public void setAd() {
+            Log.d(TAG, "setAd: ");
+            AdView adView = mView.findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            adView.loadAd(adRequest);
         }
     }
 
@@ -797,6 +826,4 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             return null;
         }
     }
-
-
 }

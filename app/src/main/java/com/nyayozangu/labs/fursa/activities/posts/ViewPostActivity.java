@@ -491,7 +491,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         ImageView shareButton = findViewById(R.id.viewPostShareImageView);
         shareText = findViewById(R.id.viewPostShareTextView);
 
-        activityField = findViewById(R.id.viewPostViewsCountTextView);
+        activityField = findViewById(R.id.viewPostActivityTextView);
         activityButton = findViewById(R.id.viewPostActivityImageView);
 
         titleTextView = findViewById(R.id.viewPostTitleTextView);
@@ -1433,7 +1433,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
 
-            case R.id.viewPostViewsCountTextView:
+            case R.id.viewPostActivityTextView:
                 showPostStats();
                 break;
             case R.id.viewPostActivityImageView:

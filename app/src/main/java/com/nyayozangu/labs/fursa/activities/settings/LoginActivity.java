@@ -57,6 +57,9 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     // TODO: 4/14/18 connect social accs to single user
+    // TODO: 6/16/18 post gradle update
+    // TODO: 6/16/18 try to use firebase Ui again
+    // TODO: 6/16/18 try to user teh job scheduler again
 
     private static final String TAG = "Sean";
     private static final int RC_SIGN_IN = 0;

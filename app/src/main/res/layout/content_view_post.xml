@@ -34,7 +34,7 @@
                 app:srcCompat="@drawable/ic_action_activity" />
 
             <TextView
-                android:id="@+id/viewPostViewsCountTextView"
+                android:id="@+id/viewPostActivityTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
