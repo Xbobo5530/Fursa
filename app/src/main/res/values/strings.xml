@@ -224,6 +224,7 @@
         \n- Get notified when posts you have created are ready to view, edit and share.
         \n- UI update on the trending tags
         \n- New Search interface
+        \n- Added more privacy and security features on user profiles
         \nHope you enjoy your experience with Fursa!
     </string>
     <string name="close_text">Close</string>
@@ -275,5 +276,6 @@
     <string name="new_post_message_text">You can now view, edit or share your post.</string>
     <string name="feed_views_text">Feed views</string>
     <string name="failed_to_signout_text">Failed to sign out</string>
+    <string name="share_app_mesage_text">Download the Fursa app and get to share experiences and opportunities with family and friends. Pakua app ya Fursa upate taarifa kuhusu Fursa mbalimbali kutoka kwa ndugu,jamaa na marafiki.</string>
 
 </resources>

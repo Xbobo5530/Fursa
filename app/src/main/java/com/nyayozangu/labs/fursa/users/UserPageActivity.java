@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa.users;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -453,12 +454,10 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
             case R.id.userPageLogoutCard:
-                signOut();
-                goToMain(getString(R.string.logged_out_text));
+                confirmSignOut();
                 break;
             case R.id.userPageLogoutButton:
-                coMeth.signOut();
-                goToMain(getString(R.string.logged_out_text));
+                confirmSignOut();  
                 break;
             case R.id.userPageEditProfileButton:
                 if (coMeth.isConnected()) {
@@ -505,6 +504,35 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    /**
+     * confirm sign out
+     */
+    private void confirmSignOut() {
+        AlertDialog.Builder confirmLogoutBuilder = new AlertDialog.Builder(this);
+        confirmLogoutBuilder.setTitle(getString(R.string.logout_text))
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
+                .setMessage(getString(R.string.confirm_lougout_text))
+                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .setPositiveButton(getString(R.string.logout_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        signOut();
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * sign out after confirmation
+     */
     private void signOut() {
         //check if user is google user
         FirebaseUser user = coMeth.getAuth().getCurrentUser();
@@ -525,6 +553,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                     //sign user out from google and from
                     Log.d(TAG, "onSuccess: signed out from google");
                     coMeth.signOut();
+                    goToMain(getResources().getString(R.string.logged_out_text));
                 }
             })
                     .addOnFailureListener(new OnFailureListener() {
@@ -539,6 +568,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         } else {
             //sign out regular non-google user
             coMeth.signOut();
+            goToMain(getResources().getString(R.string.logged_out_text));
         }
     }
 

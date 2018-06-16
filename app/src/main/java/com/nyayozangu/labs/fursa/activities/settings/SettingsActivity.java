@@ -13,12 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
@@ -29,18 +28,21 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.UserPageActivity;
+import com.nyayozangu.labs.fursa.users.Users;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    private ImageView userImage;
+    //    private ImageView userImage;
+    private CircleImageView userImage;
     private TextView usernameTextView, userBioTextView;
     private Button logoutButton, myProfileButton,
             shareAppButton, aboutButton, contactUsButton, privacyPolicyButton,
             adminButton;
     private android.support.v7.widget.Toolbar toolbar;
-    private ImageView myProfileIcon;
     private ProgressDialog progressDialog;
 
     @Override
@@ -51,7 +53,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         toolbar = findViewById(R.id.settingsToolbar);
 
         userImage = findViewById(R.id.settingsImageView);
-        myProfileIcon = findViewById(R.id.settingsMyProfileImageView);
         myProfileButton = findViewById(R.id.settingsMyProfileButton);
         shareAppButton = findViewById(R.id.settingsShareAppButton);
         aboutButton = findViewById(R.id.settingsAboutButton);
@@ -84,11 +85,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
 
         //handle other button clicks
+        userImage.setOnClickListener(this);
         shareAppButton.setOnClickListener(this);
         aboutButton.setOnClickListener(this);
         contactUsButton.setOnClickListener(this);
         privacyPolicyButton.setOnClickListener(this);
         myProfileButton.setOnClickListener(this);
+
+        //set the user image
+        handleUserImage();
 
         //disable access to admin to release version
         /*privacyPolicyButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -115,71 +120,109 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         });*/
     }
 
-    private void checkAdminAcc(String userEmail) {
-        coMeth.getDb()
-                .collection("Admins")
-                .document(userEmail)
-                .get()
-                .addOnCompleteListener(SettingsActivity.this, new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
-
-                        if (task.isSuccessful() && task.getResult().exists()) {
-
-                            //user is admin
-                            //show admin button
-                            adminButton.setVisibility(View.VISIBLE);
-                            adminButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    getAdminPassword(task);
+    private void handleUserImage() {
+        Log.d(TAG, "handleUserImage: ");
+        if (coMeth.isLoggedIn()) {
+            //set user profile image
+            coMeth.getDb()
+                    .collection(CoMeth.USERS).document(coMeth.getUid()).get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()) {
+                                //user exists
+                                Users user = documentSnapshot.toObject(Users.class);
+                                String userImageUrl = user.getImage();
+                                if (userImageUrl != null) {
+                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                            userImageUrl, userImage);
+                                } else {
+                                    userImage.setImageDrawable(
+                                            getResources().getDrawable(
+                                                    R.drawable.ic_action_person_placeholder));
                                 }
-                            });
+                            } else {
+                                Log.d(TAG, "onSuccess: user does not exist");
+                            }
                         }
-                    }
-                });
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to get user\n" + e.getMessage());
+                        }
+                    });
+        } else {
+            userImage.setImageDrawable(
+                    getResources().getDrawable(R.drawable.appiconshadow));
+        }
     }
 
-    private void getAdminPassword(@NonNull final Task<DocumentSnapshot> task) {
-        //open dialog to enter password
-        AlertDialog.Builder adminBuilder = new AlertDialog.Builder(SettingsActivity.this);
-        adminBuilder.setTitle("Admin Login")
-                .setIcon(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+//    private void checkAdminAcc(String userEmail) {
+//        coMeth.getDb()
+//                .collection("Admins")
+//                .document(userEmail)
+//                .get()
+//                .addOnCompleteListener(SettingsActivity.this, new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
+//
+//                        if (task.isSuccessful() && task.getResult().exists()) {
+//
+//                            //user is admin
+//                            //show admin button
+//                            adminButton.setVisibility(View.VISIBLE);
+//                            adminButton.setOnClickListener(new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    getAdminPassword(task);
+//                                }
+//                            });
+//                        }
+//                    }
+//                });
+//    }
 
-        //construct the view
-        final EditText input = new EditText(SettingsActivity.this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-
-        adminBuilder.setView(input)
-                .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String adminPass = input.getText().toString().trim();
-                        //check pass
-                        if (adminPass.equals(task.getResult().get("password"))) {
-
-                            //open admin panel
-                            startActivity(new Intent(SettingsActivity.this, AdminActivity.class));
-
-                        } else {
-
-                            dialog.dismiss();
-                            showSnack(getString(R.string.wrong_password_text));
-
-                        }
-                    }
-                })
-                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-    }
+//    private void getAdminPassword(@NonNull final Task<DocumentSnapshot> task) {
+//        //open dialog to enter password
+//        AlertDialog.Builder adminBuilder = new AlertDialog.Builder(SettingsActivity.this);
+//        adminBuilder.setTitle("Admin Login")
+//                .setIcon(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+//
+//        //construct the view
+//        final EditText input = new EditText(SettingsActivity.this);
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.MATCH_PARENT,
+//                LinearLayout.LayoutParams.MATCH_PARENT);
+//        input.setLayoutParams(lp);
+//
+//        adminBuilder.setView(input)
+//                .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        String adminPass = input.getText().toString().trim();
+//                        //check pass
+//                        if (adminPass.equals(task.getResult().get("password"))) {
+//
+//                            //open admin panel
+//                            startActivity(new Intent(SettingsActivity.this, AdminActivity.class));
+//
+//                        } else {
+//
+//                            dialog.dismiss();
+//                            showSnack(getString(R.string.wrong_password_text));
+//
+//                        }
+//                    }
+//                })
+//                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.dismiss();
+//                    }
+//                })
+//                .show();
+//    }
 
     private void goToLogin(String message) {
         Intent goToLoginIntent = new Intent(this, LoginActivity.class);
@@ -204,35 +247,35 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         finish();
     }
 
-    private void confirmSignOut() {
-        AlertDialog.Builder confirmLogoutBuilder = new AlertDialog.Builder(SettingsActivity.this);
-        confirmLogoutBuilder.setTitle(getString(R.string.logout_text))
-                .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
-                .setMessage(getString(R.string.confirm_lougout_text))
-                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+//    private void confirmSignOut() {
+//        AlertDialog.Builder confirmLogoutBuilder = new AlertDialog.Builder(SettingsActivity.this);
+//        confirmLogoutBuilder.setTitle(getString(R.string.logout_text))
+//                .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
+//                .setMessage(getString(R.string.confirm_lougout_text))
+//                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        dialog.dismiss();
+//
+//                    }
+//                })
+//                .setPositiveButton(getString(R.string.logout_text), new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        coMeth.signOut();
+//                        Log.d(TAG, "user is logged out");
+//                        goToMain();
+//                    }
+//                })
+//                .show();
+//    }
 
-                        dialog.dismiss();
-
-                    }
-                })
-                .setPositiveButton(getString(R.string.logout_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        coMeth.signOut();
-                        Log.d(TAG, "user is logged out");
-                        goToMain();
-                    }
-                })
-                .show();
-    }
-
-    private void goToMain() {
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
-    }
+//    private void goToMain() {
+//        startActivity(new Intent(this, MainActivity.class));
+//        finish();
+//    }
 
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.settingsLayout),
@@ -244,6 +287,13 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         switch (v.getId()) {
 
+            case R.id.settingsImageView:
+                if (coMeth.isLoggedIn()) {
+                    goToUserPage();
+                } else {
+                    goToLogin(getResources().getString(R.string.login_text));
+                }
+                break;
             case R.id.settingsShareAppButton:
                 shareApp();
                 break;
@@ -301,13 +351,11 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private void shareApp() {
         Log.d(TAG, "Sharing app");
-
         //show loading
         showProgress(getResources().getString(R.string.loading_text));
         //create app url
         String appUrl = getResources().getString(R.string.app_download_url);
-        final String fullShareMsg = "Download the Fursa app and get to share experiences and opportunities with family and friends.\n" +
-                "Pakua app ya Fursa upate taarifa kuhusu Fursa mbalimbali kutoka kwa ndugu,jamaa na marafiki.";
+        final String fullShareMsg = getString(R.string.share_app_mesage_text);
 
         Task<ShortDynamicLink> shortLinkTask =
                 FirebaseDynamicLinks.getInstance().createDynamicLink()

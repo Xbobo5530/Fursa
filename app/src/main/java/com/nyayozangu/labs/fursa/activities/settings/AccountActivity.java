@@ -160,7 +160,9 @@ public class AccountActivity extends AppCompatActivity {
                             userNameField.setText(userDisplayName);
                         } else {
                             if (userEmail != null) {
-                                userNameField.setText(userEmail);
+                                String defaultEmailName = userEmail
+                                        .substring(0, userEmail.indexOf("@"));
+                                userNameField.setText(defaultEmailName);
                             }
                         }
                         //set default user Image
