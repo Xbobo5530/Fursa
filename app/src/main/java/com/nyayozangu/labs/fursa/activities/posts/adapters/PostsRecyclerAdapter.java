@@ -856,7 +856,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         public void setAd() {
             Log.d(TAG, "setAd: ");
             AdView adView = mView.findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder().build();
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice("CD3E657857E4EEBE754743B250DCAB5E")
+                    .build();
+
 
 //            if (className.equals(HOME_FRAGMENT)) {
 //                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);

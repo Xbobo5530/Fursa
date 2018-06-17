@@ -13,12 +13,26 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"
-        app:layout_constraintBottom_toTopOf="@+id/mainBottomNav"
+        app:layout_constraintBottom_toTopOf="@+id/mainProgressBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mainToolbarCardView">
 
     </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/mainProgressBar"
+        style="@style/Base.Widget.AppCompat.ProgressBar"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_margin="0dp"
+        android:indeterminate="true"
+        android:padding="0dp"
+        android:progress="@integer/google_play_services_version"
+        app:layout_anchorGravity="bottom|center"
+        app:layout_constraintBottom_toTopOf="@+id/mainBottomNav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/mainSnack"
@@ -26,6 +40,7 @@
         android:layout_height="150dp"
         app:layout_constraintBottom_toTopOf="@+id/mainBottomNav"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
 
         <android.support.design.widget.FloatingActionButton
@@ -38,6 +53,7 @@
             android:tint="@android:color/white"
             android:tintMode="src_in"
             app:backgroundTint="@android:color/holo_red_dark"
+            app:elevation="8dp"
             app:layout_anchorGravity="bottom|right"
             app:layout_constraintBottom_toTopOf="@+id/mainBottomNav"
             app:layout_constraintEnd_toEndOf="parent"
@@ -77,22 +93,6 @@
             android:id="@+id/mainCardLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <ProgressBar
-                android:id="@+id/mainProgressBar"
-                style="@style/Base.Widget.AppCompat.ProgressBar"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_margin="0dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginTop="8dp"
-                android:indeterminate="true"
-                android:padding="0dp"
-                android:progress="@integer/google_play_services_version"
-                app:layout_constraintBottom_toBottomOf="@+id/fursaTitleTextView"
-                app:layout_constraintEnd_toStartOf="@+id/searchButton"
-                app:layout_constraintTop_toTopOf="@+id/fursaTitleTextView" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/currentUserImageView"
