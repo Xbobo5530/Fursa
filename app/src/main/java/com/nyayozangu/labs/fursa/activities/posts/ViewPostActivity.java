@@ -249,7 +249,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             // Else, if the item is already in the array, remove it
                             reportedItems.remove(coMeth.reportListKey[which]);
                         }
-
                     }
                 })
                 .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
@@ -267,7 +266,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         if (coMeth.isConnected()) {
 
                             showProgress(getString(R.string.submitting));
-
                             //create report details string
                             for (String item : reportedItems) {
                                 reportDetailsString = reportDetailsString.concat(item + "\n");
@@ -317,7 +315,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 })
                 .setCancelable(false)
                 .show();
-
     }
 
     private void submitReport(Map<String, Object> reportMap) {
@@ -334,17 +331,14 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             coMeth.stopLoading(progressDialog);
                             //alert user
                             showConfirmReport();
-
                         } else {
                             coMeth.stopLoading(progressDialog);
                             showSnack(getString(R.string.report_submit_failed_text));
                             Log.d(TAG, "onComplete: " + task.getException());
                         }
-
                     }
 
                 });
-
     }
 
     private void showConfirmReport() {
@@ -433,14 +427,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 })
                 .show();
     }
-//
-//    private boolean hasAdminAccess() {
-//        return getIntent() != null &&
-//                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME)) != null &&
-//                getIntent().getStringExtra(getResources().getString(R.string.PERMISSION_NAME))
-//                        .equals(getResources().getString(R.string.ADMIN_VAL)) &&
-//                isAdmin();
-//    }
 
     private void goToEdit() {
 
@@ -866,7 +852,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 postThumbUrl = post.getThumb_url();
 
                                 if (postImageUri != null && postThumbUrl != null) {
-
+                                    //if post has image show the image view
+                                    postImage.setVisibility(View.VISIBLE);
                                     try {
                                         coMeth.setImageWithTransition(R.drawable.appiconshadow,
                                                 postImageUri,
