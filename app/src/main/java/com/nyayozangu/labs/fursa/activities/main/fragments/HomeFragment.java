@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentChange;
@@ -65,6 +66,12 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG, "onDetach: ");
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
@@ -87,7 +94,7 @@ public class HomeFragment extends Fragment {
 
         //initiate the PostsRecyclerAdapter
         String className = "HomeFragment";
-        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
+        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className, Glide.with(this));
         coMeth.handlePostsView(getContext(), getActivity(), homeFeedView);
         postsRecyclerAdapter.setHasStableIds(true);
         homeFeedView.setAdapter(postsRecyclerAdapter);

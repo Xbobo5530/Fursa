@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -30,6 +31,7 @@ import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -73,7 +75,7 @@ public class SavedFragment extends Fragment {
         usersList = new ArrayList<>();
 
         String className = "SavedFragment";
-        savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList, className);
+        savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList, className, Glide.with(this));
         coMeth.handlePostsView(getContext(), getActivity(), savedPostsView);
         savedPostsView.setAdapter(savedPostsRecyclerAdapter);
 
@@ -105,23 +107,21 @@ public class SavedFragment extends Fragment {
         });
 
         //handle nav button re-select
-        try {
-            ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
-                    new BottomNavigationView.OnNavigationItemReselectedListener() {
-                        @Override
-                        public void onNavigationItemReselected(@NonNull MenuItem item) {
-                            switch (item.getItemId()) {
-                                case R.id.bottomNavSavedItem:
-                                    savedPostsView.smoothScrollToPosition(0);
-                                    break;
-                                default:
-                                    Log.d(TAG, "onNavigationItemReselected: at default");
+        ((MainActivity) Objects.requireNonNull(getActivity())).mainBottomNav
+                .setOnNavigationItemReselectedListener(
+                        new BottomNavigationView.OnNavigationItemReselectedListener() {
+                            @Override
+                            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                                switch (item.getItemId()) {
+                                    case R.id.bottomNavSavedItem:
+                                        savedPostsView.smoothScrollToPosition(0);
+                                        break;
+                                    default:
+                                        Log.d(TAG, "onNavigationItemReselected: at default");
+                                }
                             }
-                        }
-                    });
-        } catch (NullPointerException nullE) {
-            Log.d(TAG, "onCreateView: null at reselecting saved\n" + nullE.getMessage());
-        }
+                        });
+
 
         return view;
     }

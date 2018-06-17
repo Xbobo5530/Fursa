@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -214,7 +215,7 @@ ViewCategoryActivity extends AppCompatActivity {
         usersList = new ArrayList<>();
 
         String className = "ViewCategoryActivity";
-        categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
+        categoryRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className, Glide.with(this));
         coMeth.handlePostsView(
                 ViewCategoryActivity.this, ViewCategoryActivity.this, catFeed);
         catFeed.setAdapter(categoryRecyclerAdapter);

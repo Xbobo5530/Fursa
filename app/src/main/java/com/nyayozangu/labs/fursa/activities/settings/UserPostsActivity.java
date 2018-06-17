@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -86,7 +87,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
         //initiate the PostsRecyclerAdapter
         String className = "UserPostsActivity";
-        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
+        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className, Glide.with(this));
         coMeth.handlePostsView(
                 UserPostsActivity.this, UserPostsActivity.this, userPostsFeed);
         userPostsFeed.setAdapter(postsRecyclerAdapter);

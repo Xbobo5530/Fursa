@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.bumptech.glide.Glide;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.posts.adapters.PostsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
@@ -54,7 +55,7 @@ public class LocationSearchResultsFragment extends Fragment {
         usersList = new ArrayList<>();
 
         String className = "SearchableActivity";
-        imageSearchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className);
+        imageSearchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className, Glide.with(this));
         coMeth.handlePostsView(getContext(), getActivity(), locationSearchFeed);
         //set an adapter for the recycler view
         locationSearchFeed.setAdapter(imageSearchRecyclerAdapter);

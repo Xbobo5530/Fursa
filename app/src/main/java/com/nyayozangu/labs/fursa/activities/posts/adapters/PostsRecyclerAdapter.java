@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -69,7 +70,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     public List<Posts> postsList;
     public List<Users> usersList;
     public Context context;
+    //memory optimization
+    public RequestManager glide;
+
     public static Posts post;
+    private Users user;
 
     private int lastPosition = -1;
     private String userId;
@@ -79,16 +84,19 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private String postTitle;
     private String postUserId;
-    private int AD_TYPE;
-    private int CONTENT_TYPE;
 
     //empty constructor for receiving the posts
-    public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList, String className) {
+    public PostsRecyclerAdapter(List<Posts> postsList,
+                                List<Users> usersList,
+                                String className,
+                                RequestManager glide) {
 
         //store received posts
         this.postsList = postsList;
         this.usersList = usersList;
         this.className = className;
+        //mem opt
+        this.glide = glide;
     }
 
     @NonNull
@@ -101,9 +109,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
         return new ViewHolder(view);
-
-//        RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(view);
-//        return viewHolder;
 
     }
 
@@ -121,7 +126,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     @Override
     public int getItemCount() {
         //the number of posts
-//        return postsList.size();
         return postsList.size();
     }
 
@@ -133,6 +137,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     @Override
     public int getItemViewType(int position) {
         return position;
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        Log.d(TAG, "onViewDetachedFromWindow: item detached from window, clearing image");
+        glide.clear(holder.postImageView);
     }
 
     static void updateFeedViews(Posts post) {
@@ -175,13 +186,19 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             holder.adCard.setVisibility(View.GONE);
         }
 
-        postTitle = postsList.get(position).getTitle();
+        //get post
+        post = postsList.get(position);
+        user = usersList.get(position);
+//        postTitle = postsList.get(position).getTitle();
+        postTitle = post.getTitle();
         holder.setTitle(postTitle);
+
         final String descData = postsList.get(position).getDesc();
         holder.setDesc(descData);
 
         //set location
-        ArrayList locationArray = postsList.get(position).getLocation();
+//        ArrayList locationArray = postsList.get(position).getLocation();
+        ArrayList locationArray = post.getLocation();
         holder.setPostLocation(locationArray);
 
         final String currentUserId;
@@ -196,7 +213,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //update feed_views
-        post = postsList.get(position);
         new UpdatePostActivityTask().execute();
 
         //handle post image
@@ -762,7 +778,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions.placeholder(R.color.colorWhite);
-                Glide.with(context)
+//                Glide.with(context)
+                glide
                         .applyDefaultRequestOptions(requestOptions)
                         .load(imageDownloadUrl)
 //                        .transition(withCrossFade())
@@ -823,7 +840,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             try {
                 RequestOptions placeHolderOptions = new RequestOptions();
                 placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-                Glide.with(context)
+//                Glide.with(context)
+                glide
                         .applyDefaultRequestOptions(placeHolderOptions)
                         .load(userImageDownloadUri)
                         .into(postUserImageCircleView);
@@ -839,11 +857,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             AdView adView = mView.findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().build();
 
-            if (className.equals(HOME_FRAGMENT)) {
-                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
-            } else {
-                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
-            }
+//            if (className.equals(HOME_FRAGMENT)) {
+//                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
+//            } else {
+//                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
+//            }
 //            if className.equals(HOME_FRAGMENT) ?  adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID) : adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
             adView.loadAd(adRequest);
         }
