@@ -59,14 +59,7 @@ import java.util.Objects;
 public class
 ViewCategoryActivity extends AppCompatActivity {
 
-    // TODO: 5/30/18 sort events based on event dates
-
     private static final String TAG = "Sean";
-    private static final String CATEGORIES_COLL = "Categories";
-    private static final String CATEGORIES_DOC = "categories";
-    private static final String POSTS_COLL = "Posts";
-    private static final String SUBSCRIPTIONS_COLL = "Subscriptions";
-    private static final String USERS_COLL = "Users";
 
     private RecyclerView catFeed;
     private SwipeRefreshLayout swipeRefresh;
@@ -268,9 +261,9 @@ ViewCategoryActivity extends AppCompatActivity {
                         userId = coMeth.getUid();
 
                         coMeth.getDb()
-                                .collection(USERS_COLL + "/" + userId + "/" + SUBSCRIPTIONS_COLL)
-                                .document("categories")
-                                .collection(CATEGORIES_COLL).document(currentCat)
+                                .collection(CoMeth.USERS + "/" + userId + "/" + CoMeth.SUBSCRIPTIONS)
+                                .document(CoMeth.CATEGORIES_DOC)
+                                .collection(CoMeth.CATEGORIES).document(currentCat)
                                 .get()
                                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                     @Override
@@ -704,9 +697,9 @@ ViewCategoryActivity extends AppCompatActivity {
     private void getPopularPosts() {
         Log.d(TAG, "getPopularPosts: ");
         coMeth.getDb()
-                .collection(POSTS_COLL)
-                .orderBy("views", Query.Direction.DESCENDING)
-                .whereGreaterThan("views", 10)
+                .collection(CoMeth.POSTS)
+                .orderBy(CoMeth.ACTIVITY, Query.Direction.DESCENDING)
+                .whereGreaterThan(CoMeth.ACTIVITY, 20)
                 .limit(20)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -750,9 +743,9 @@ ViewCategoryActivity extends AppCompatActivity {
         userId = coMeth.getUid();
         //check if user is subscribed
         coMeth.getDb()
-                .collection(USERS_COLL + "/" + userId + "/" + SUBSCRIPTIONS_COLL)
-                .document(CATEGORIES_DOC)
-                .collection(CATEGORIES_COLL).document(currentCat)
+                .collection(CoMeth.USERS + "/" + userId + "/" + CoMeth.SUBSCRIPTIONS)
+                .document(CoMeth.CATEGORIES_DOC)
+                .collection(CoMeth.CATEGORIES).document(currentCat)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {

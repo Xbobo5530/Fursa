@@ -28,7 +28,6 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -228,12 +227,12 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                                     //set image
                                     coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                             userImageDownloadUri,
-                                            userProfileImage,
-                                            Glide.with(MainActivity.this));
+                                            userProfileImage);
                                 } else {
                                     userProfileImage
                                             .setImageDrawable(
-                                                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                                                    getResources().getDrawable(R.drawable
+                                                            .ic_action_person_placeholder));
                                 }
                             } else {
                                 //user does not exist

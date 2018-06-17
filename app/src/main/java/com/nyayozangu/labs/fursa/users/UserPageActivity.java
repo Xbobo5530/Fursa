@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -264,7 +263,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         Map<String, Object> postCountMap = new HashMap<>();
         postCountMap.put("posts", postCount);
         coMeth.getDb()
-                .collection("Users")
+                .collection(CoMeth.USERS)
                 .document(userId)
                 .update(postCountMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -285,7 +284,12 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     private void handleCatsCount(final String userId) {
         Log.d(TAG, "handleCatsCount: ");
         coMeth.getDb()
-                .collection("Users/" + userId + "/Subscriptions/categories/Categories")
+                .collection(
+                        CoMeth.USERS + "/" +
+                                userId + "/" +
+                                CoMeth.SUBSCRIPTIONS + "/" +
+                                CoMeth.CATEGORIES_DOC + "/" +
+                                CoMeth.CATEGORIES)
                 .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
@@ -298,11 +302,9 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                 catSubsButton.setVisibility(View.GONE);
                                 catSubsIcon.setVisibility(View.GONE);
                             } else {
-
                                 catsCountField.setVisibility(View.VISIBLE);
                                 catSubsButton.setVisibility(View.VISIBLE);
                                 catSubsIcon.setVisibility(View.VISIBLE);
-
                                 catsCountField.setText(String.valueOf(catsCount));
                             }
                             udpateUserCatsCount(userId, catsCount);
@@ -321,7 +323,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         catsCountMap.put("categories", catsCount);
         //update the user profile
         coMeth.getDb()
-                .collection("Users")
+                .collection(CoMeth.USERS)
                 .document(userId)
                 .update(catsCountMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -344,7 +346,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         //show progress
         showProgress(getResources().getString(R.string.loading_text));
         coMeth.getDb()
-                .collection("Users")
+                .collection(CoMeth.USERS)
                 .document(userId)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -384,7 +386,6 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                             //set categories
                             handleCatsCount(userId);
                             coMeth.stopLoading(progressDialog);
-
                         } else {
                             //user does not exist
                             coMeth.stopLoading(progressDialog);
@@ -426,8 +427,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         try {
             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                     userImageUrl,
-                    userImageView,
-                    Glide.with(this));
+                    userImageView);
         } catch (Exception settingImageException) {
             Log.d(TAG, "onSuccess: setting image exception " +
                     settingImageException.getMessage());
@@ -437,7 +437,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
             public void onClick(View v) {
                 Intent openImageIntent = new Intent(
                         UserPageActivity.this, ViewImageActivity.class);
-                openImageIntent.putExtra("imageUrl", userImageUrl);
+                openImageIntent.putExtra(CoMeth.IMAGE_URL, userImageUrl);
                 startActivity(openImageIntent);
             }
         });
@@ -514,15 +514,15 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         confirmLogoutBuilder.setTitle(getString(R.string.logout_text))
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
                 .setMessage(getString(R.string.confirm_lougout_text))
-                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel_text),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         dialog.dismiss();
-
                     }
                 })
-                .setPositiveButton(getString(R.string.logout_text), new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.logout_text),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -547,8 +547,9 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                     .requestIdToken(getString(R.string.default_web_client_id))
                     .requestEmail()
                     .build();
-
-            GoogleSignInClient mGoogleSignInClient = mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+            // TODO: 6/17/18 this is not working; signing out google users from google accs
+            GoogleSignInClient mGoogleSignInClient = mGoogleSignInClient =
+                    GoogleSignIn.getClient(this, gso);
             mGoogleSignInClient.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
@@ -668,12 +669,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                     catSubsArray.add(cat.getValue());
                                 }
                             }
-
-
-                            Log.d(TAG, "onEvent: \ncatSubArray contains: " + catSubsArray);
-                            Log.d(TAG, "onClick: \ncatsListItems: " + catsListItems);
                             catsListItems = catSubsArray.toArray((new String[catSubsArray.size()]));
-
                             //stop loading
                             coMeth.stopLoading(progressDialog);
                             //open an an alert dialog for the sub'd cats
@@ -718,18 +714,17 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     private void goToUserPosts() {
         Intent goToUserPostsIntent = new Intent(
                 UserPageActivity.this, UserPostsActivity.class);
-        goToUserPostsIntent.putExtra("userId", userId);
+        goToUserPostsIntent.putExtra(CoMeth.USER_ID, userId);
+        goToUserPostsIntent.putExtra(CoMeth.USERNAME, usernameField.getText().toString());
         startActivity(goToUserPostsIntent);
     }
 
     private void showProgress(String message) {
-
         Log.d(TAG, "at showProgress\n message is: " + message);
         //construct the dialog box
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
         progressDialog.show();
-
     }
 
     private void openCat(String catKey) {

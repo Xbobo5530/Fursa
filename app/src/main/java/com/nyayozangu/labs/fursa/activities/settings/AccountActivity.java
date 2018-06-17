@@ -23,7 +23,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -142,8 +141,7 @@ public class AccountActivity extends AppCompatActivity {
 
                             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                     image,
-                                    setupImage,
-                                    Glide.with(AccountActivity.this));
+                                    setupImage);
                             //update the imageUri
                             userImageUri = Uri.parse(image);
                         } catch (NullPointerException userImageException) {
@@ -174,8 +172,7 @@ public class AccountActivity extends AppCompatActivity {
                             //update the imageUrl
                             imageUrl = photoUrl;
                             try {
-                                coMeth.setImage(R.drawable.appiconshadow, photoUrl, setupImage,
-                                        Glide.with(AccountActivity.this));
+                                coMeth.setImage(R.drawable.appiconshadow, photoUrl, setupImage);
                             } catch (Exception e) {
                                 Log.d(TAG, "onComplete: failed to set photo from login\n" +
                                         "error is: " + e.getMessage());

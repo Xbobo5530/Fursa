@@ -89,6 +89,7 @@ public class SavedFragment extends Fragment {
             if (!coMeth.isConnected()) {
                 showSnack(getString(R.string.failed_to_connect_text));
             }
+
         }
         Log.d(TAG, "onCreateView: \ncurrentUserId is: " + currentUserId);
 
@@ -128,10 +129,10 @@ public class SavedFragment extends Fragment {
 
     private void loadPosts() {
         coMeth.getDb()
-                .collection("Users/" + currentUserId + "/Subscriptions")
-                .document("saved_posts")
-                .collection("SavedPosts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .collection(CoMeth.USERS + "/" + currentUserId + "/" + CoMeth.SUBSCRIPTIONS)
+                .document(CoMeth.SAVED_POSTS_DOC)
+                .collection(CoMeth.SAVED_POSTS)
+                .orderBy(CoMeth.TIMESTAMP, Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -251,7 +252,7 @@ public class SavedFragment extends Fragment {
     //failed to get users
     private void showSnack(String message) {
         try {
-            Snackbar.make(getActivity().findViewById(R.id.mainSnack),
+            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(R.id.mainSnack),
                     message, Snackbar.LENGTH_SHORT).show();
         } catch (NullPointerException nullE) {
             Log.d(TAG, "showSnack: null at saved posts\n" + nullE.getMessage());

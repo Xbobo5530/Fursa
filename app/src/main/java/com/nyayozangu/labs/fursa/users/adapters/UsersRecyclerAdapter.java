@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.UserPageActivity;
@@ -107,8 +108,16 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
                 bioField.setVisibility(View.GONE);
             }
             if (userImage != null) {
-                coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                        userImage, userImageView, glide);
+                try {
+                    RequestOptions placeHolderRequest = new RequestOptions();
+                    placeHolderRequest.placeholder(R.drawable.ic_action_person_placeholder);
+                    glide.applyDefaultRequestOptions(placeHolderRequest)
+                            .load(userImage)
+//                    .transition(withCrossFade())
+                            .into(userImageView);
+                } catch (Exception e) {
+                    Log.d(TAG, "setImage: failed to set image " + e.getMessage());
+                }
             } else {
                 userImageView.setImageDrawable(context.getResources()
                         .getDrawable(R.drawable.ic_action_person_placeholder));

@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -731,7 +730,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
             //set contents
             coMeth.getDb()
-                    .collection("Posts")
+                    .collection(CoMeth.POSTS)
                     .document(postId)
                     .get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -855,11 +854,10 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                     //if post has image show the image view
                                     postImage.setVisibility(View.VISIBLE);
                                     try {
-                                        coMeth.setImageWithTransition(R.drawable.appiconshadow,
+                                        coMeth.setImage(R.drawable.appiconshadow,
                                                 postImageUri,
                                                 postThumbUrl,
-                                                postImage,
-                                                Glide.with(ViewPostActivity.this));
+                                                postImage);
                                     } catch (Exception glideException) {
                                         Log.d(TAG, "onEvent: glide exception " +
                                                 glideException.getMessage());
@@ -999,20 +997,29 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             if (user.getThumb() != null) {
                                 //user has thumb
                                 String userThumbDwnUrl = user.getThumb();
-                                coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                        userThumbDwnUrl,
-                                        userImage,
-                                        Glide.with(ViewPostActivity.this));
-                                Log.d(TAG, "onEvent: user thumb set");
+                                try {
+
+                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                            userThumbDwnUrl,
+                                            userImage);
+                                    Log.d(TAG, "onEvent: user thumb set");
+                                } catch (Exception e) {
+                                    Log.d(TAG, "onSuccess: failed to load post image\n" +
+                                            e.getMessage());
+                                }
 
                             } else if (user.getImage() != null) {
                                 //use has no thumb but has image
                                 String userImageDwnUrl = user.getImage();
-                                coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                        userImageDwnUrl,
-                                        userImage,
-                                        Glide.with(ViewPostActivity.this));
-                                Log.d(TAG, "onEvent: user thumb set");
+                                try {
+                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                                            userImageDwnUrl,
+                                            userImage);
+                                    Log.d(TAG, "onEvent: user thumb set");
+                                } catch (Exception e) {
+                                    Log.d(TAG, "onSuccess: failed to set post image\n" +
+                                            e.getMessage());
+                                }
 
                             } else {
                                 //user has no image or thumb
@@ -1031,7 +1038,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             } else {
                                 //use name is null, hide the user layout
                                 userLayout.setVisibility(View.GONE);
-
                             }
                         }
                         // TODO: 6/16/18 review deleting post if user is not present

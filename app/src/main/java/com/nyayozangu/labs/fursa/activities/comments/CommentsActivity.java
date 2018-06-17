@@ -22,7 +22,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -384,8 +383,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                         documentSnapshot.get("image").toString();
                                 coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                         userProfileImageDownloadUrl,
-                                        currentUserImage,
-                                        Glide.with(CommentsActivity.this));
+                                        currentUserImage);
 
 
                             } catch (NullPointerException noImageFoundException) {
@@ -465,14 +463,12 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                 coMeth.setImage(
                                         R.drawable.ic_action_person_placeholder,
                                         userThumbDownloadUrl,
-                                        postUserImage,
-                                        Glide.with(CommentsActivity.this));
+                                        postUserImage);
                             } else {
                                 coMeth.setImage(
                                         R.drawable.ic_action_person_placeholder,
                                         userImageDownloadUrl,
-                                        postUserImage,
-                                        Glide.with(CommentsActivity.this));
+                                        postUserImage);
                             }
                         } else {
                             //user does not exist

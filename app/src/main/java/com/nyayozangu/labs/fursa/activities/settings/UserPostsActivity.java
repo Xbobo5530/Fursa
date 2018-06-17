@@ -87,7 +87,8 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
         //initiate the PostsRecyclerAdapter
         String className = "UserPostsActivity";
-        postsRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className, Glide.with(this));
+        postsRecyclerAdapter =
+                new PostsRecyclerAdapter(postsList, usersList, className, Glide.with(this));
         coMeth.handlePostsView(
                 UserPostsActivity.this, UserPostsActivity.this, userPostsFeed);
         userPostsFeed.setAdapter(postsRecyclerAdapter);
@@ -95,10 +96,9 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         //initialize items
         newPostFab = findViewById(R.id.userPostsNewPostFab);
 
-
         //get intent
         if (getIntent() != null) {
-            handleIntent();
+            handleIntent(getIntent());
         } else {
             goToMainOnException(getString(R.string.something_went_wrong_text));
         }
@@ -124,18 +124,23 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         });*/
     }
 
-    private void handleIntent() {
-        if (getIntent().getStringExtra("userId") != null) {
-            userId = getIntent().getStringExtra("userId");
+    private void handleIntent(Intent intent) {
+        if (intent.getStringExtra(CoMeth.USER_ID) != null) {
+            userId = intent.getStringExtra(CoMeth.USER_ID);
             //process showing fab
             processShowingFab();
             //set title
-            setPageTitle();
-            //proceed to processing
-            /*final Query firstQuery = coMeth.getDb()
-                    .collection("Posts");
-//                    .orderBy("timestamp", Query.Direction.DESCENDING);
-            loadPosts(firstQuery, userId);*/
+            String currentUser = coMeth.getUid();
+            if (userId.equals(currentUser)) {
+                //set page title
+                getSupportActionBar().setTitle(getString(R.string.my_posts_text));
+            } else {
+                if (intent.getStringExtra(CoMeth.USERNAME) != null) {
+                    String username = intent.getStringExtra(CoMeth.USERNAME);
+                    String pageTitle = username + "'s posts";
+                    getSupportActionBar().setTitle(pageTitle);
+                }
+            }
 
             loadPosts(userId);
 
@@ -160,9 +165,9 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
     private void loadPosts(final String userId) {
         coMeth.getDb()
-                .collection("Users/" + userId + "/Subscriptions")
-                .document("my_posts")
-                .collection("MyPosts")
+                .collection(CoMeth.USERS + "/" + userId + "/" + CoMeth.SUBSCRIPTIONS)
+                .document(CoMeth.MY_POSTS_DOC)
+                .collection(CoMeth.MY_POSTS)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
@@ -281,40 +286,41 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void setPageTitle() {
-        String currentUser = coMeth.getUid();
-        if (userId.equals(currentUser)) {
-            //set page title
-            getSupportActionBar().setTitle(getString(R.string.my_posts_text));
-        } else {
-            coMeth.getDb()
-                    .collection("Users")
-                    .document(userId)
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                //create user object
-                                Users user = documentSnapshot.toObject(Users.class);
-                                String username = user.getName();
-                                //set page title
-                                getSupportActionBar().setTitle(username + "\'s " +
-                                        getString(R.string.posts_text));
-                            } else {
-                                //user does not exist
-                                goToMainOnException(getString(R.string.user_not_found_text));
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            goToMainOnException(getString(R.string.something_went_wrong_text));
-                        }
-                    });
-        }
-    }
+//    private void setPageTitle(Posts post) {
+//        String currentUser = coMeth.getUid();
+//        if (userId.equals(currentUser)) {
+//            //set page title
+//            getSupportActionBar().setTitle(getString(R.string.my_posts_text));
+//        }
+////        else {
+////            coMeth.getDb()
+////                    .collection("Users")
+////                    .document(userId)
+////                    .get()
+////                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+////                        @Override
+////                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+////                            if (documentSnapshot.exists()) {
+////                                //create user object
+////                                Users user = documentSnapshot.toObject(Users.class);
+////                                String username = user.getName();
+////                                //set page title
+////                                getSupportActionBar().setTitle(username + "\'s " +
+////                                        getString(R.string.posts_text));
+////                            } else {
+////                                //user does not exist
+////                                goToMainOnException(getString(R.string.user_not_found_text));
+////                            }
+////                        }
+////                    })
+////                    .addOnFailureListener(new OnFailureListener() {
+////                        @Override
+////                        public void onFailure(@NonNull Exception e) {
+////                            goToMainOnException(getString(R.string.something_went_wrong_text));
+////                        }
+////                    });
+////        }
+//    }
 
     /**
      * open the main activity on exception

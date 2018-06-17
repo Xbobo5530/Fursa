@@ -15,7 +15,6 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -68,10 +67,12 @@ public class CoMeth {
     public static final String POSTS = "Posts";
     public static final String USERS = "Users";
     public static final String MY_POSTS = "MyPosts";
+    public static final String SAVED_POSTS = "SavedPosts";
 
     //documents
     public static final String CATEGORIES_DOC = "categories";
     public static final String MY_POSTS_DOC = "my_posts";
+    public static final String SAVED_POSTS_DOC = "saved_posts";
 
 
     public static final String CATEGORIES_VAL = "categories";
@@ -105,6 +106,7 @@ public class CoMeth {
     public static final String CATS = "CATS";
     public static final String TITLE = "title";
     public static final String EXTRA = "extra";
+    public static final String ACTIVITY = "activity";
     public static final String NOTIF_TYPE = "notif_type";
     public static final String PERMISSION = "permission";
     public static final String ADMIN = "admin";
@@ -113,6 +115,8 @@ public class CoMeth {
     public static final String HOME_FEED_AD_UNIT_ID = "ca-app-pub-6180360542591636/5341130287";
     public static final String CATS_FEED_AD_UNIT_ID = "ca-app-pub-6180360542591636/1267181570";
     public static final String TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111";
+    public static final String USER_ID = "userId";
+    public static final String USERNAME = "username";
 
     public final String[] catTitle = new String[]{
 
@@ -256,15 +260,15 @@ public class CoMeth {
 
     public void setImage(int placeholderDrawable,
                          String imageUrl,
-                         ImageView targetImageView,
-                         RequestManager glide) {
+                         ImageView targetImageView) {
         Log.d(TAG, "setImage: no thumb");
         try {
 
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
-//            Glide.with(getApplicationContext())
-            glide.setDefaultRequestOptions(placeHolderRequest)
+            Glide.with(getApplicationContext())
+//            glide
+                    .setDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
 //                    .transition(withCrossFade())
                     .into(targetImageView);
@@ -275,15 +279,15 @@ public class CoMeth {
 
     public void setImageWithTransition(int placeholderDrawable,
                                        String imageUrl,
-                                       ImageView targetImageView,
-                                       RequestManager glide) {
+                                       ImageView targetImageView) {
         Log.d(TAG, "setImage: no thumb");
         try {
 
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
-//            Glide.with(getApplicationContext())
-            glide.setDefaultRequestOptions(placeHolderRequest)
+            Glide.with(getApplicationContext())
+//            glide
+                    .setDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
                     .transition(withCrossFade())
                     .into(targetImageView);
@@ -295,14 +299,14 @@ public class CoMeth {
     public void setImage(int placeholderDrawable,
                          String imageUrl,
                          String thumbUrl,
-                         ImageView targetImageView,
-                         RequestManager glide) {
+                         ImageView targetImageView) {
         Log.d(TAG, "setImage: with thumb");
         try {
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
-//        Glide.with(getApplicationContext())
-            glide.applyDefaultRequestOptions(placeHolderRequest)
+            Glide.with(getApplicationContext())
+//            glide
+                    .applyDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
 //                    .transition(withCrossFade())
                     .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
@@ -315,14 +319,14 @@ public class CoMeth {
     public void setImageWithTransition(int placeholderDrawable,
                                        String imageUrl,
                                        String thumbUrl,
-                                       ImageView targetImageView,
-                                       RequestManager glide) {
+                                       ImageView targetImageView) {
         Log.d(TAG, "setImage: with thumb");
         try {
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
-//        Glide.with(getApplicationContext())
-            glide.applyDefaultRequestOptions(placeHolderRequest)
+            Glide.with(getApplicationContext())
+//            glide
+                    .applyDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
                     .transition(withCrossFade())
                     .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
