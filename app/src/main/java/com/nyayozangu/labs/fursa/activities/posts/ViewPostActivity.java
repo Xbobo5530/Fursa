@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -867,10 +868,11 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 if (postImageUri != null && postThumbUrl != null) {
 
                                     try {
-                                        coMeth.setImage(R.drawable.appiconshadow,
+                                        coMeth.setImageWithTransition(R.drawable.appiconshadow,
                                                 postImageUri,
                                                 postThumbUrl,
-                                                postImage);
+                                                postImage,
+                                                Glide.with(ViewPostActivity.this));
                                     } catch (Exception glideException) {
                                         Log.d(TAG, "onEvent: glide exception " +
                                                 glideException.getMessage());
@@ -1012,7 +1014,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 String userThumbDwnUrl = user.getThumb();
                                 coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                         userThumbDwnUrl,
-                                        userImage);
+                                        userImage,
+                                        Glide.with(ViewPostActivity.this));
                                 Log.d(TAG, "onEvent: user thumb set");
 
                             } else if (user.getImage() != null) {
@@ -1020,7 +1023,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 String userImageDwnUrl = user.getImage();
                                 coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                         userImageDwnUrl,
-                                        userImage);
+                                        userImage,
+                                        Glide.with(ViewPostActivity.this));
                                 Log.d(TAG, "onEvent: user thumb set");
 
                             } else {

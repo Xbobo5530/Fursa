@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -135,7 +136,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                                 String userImageUrl = user.getImage();
                                 if (userImageUrl != null) {
                                     coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                            userImageUrl, userImage);
+                                            userImageUrl, userImage, Glide.with(SettingsActivity.this));
                                 } else {
                                     userImage.setImageDrawable(
                                             getResources().getDrawable(

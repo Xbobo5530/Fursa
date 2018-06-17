@@ -51,6 +51,8 @@ import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+
 /**
  * Created by Sean on 4/4/18.
  * <p>
@@ -219,7 +221,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         final String imageUrl = postsList.get(position).getImage_url();
         String thumbUrl = postsList.get(position).getThumb_url();
         holder.setPostImage(imageUrl, thumbUrl);
-//        new ViewHolder.LoadPostImageTask().execute(imageUrl, thumbUrl);
 
         //receive the post id
         final String postId = postsList.get(position).PostId;
@@ -782,7 +783,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 glide
                         .applyDefaultRequestOptions(requestOptions)
                         .load(imageDownloadUrl)
-//                        .transition(withCrossFade())
+                        .transition(withCrossFade())
                         .thumbnail(Glide.with(context).load(thumbDownloadUrl))
                         .into(postImageView);
 

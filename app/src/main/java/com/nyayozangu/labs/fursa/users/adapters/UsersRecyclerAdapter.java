@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.RequestManager;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
 import com.nyayozangu.labs.fursa.users.UserPageActivity;
@@ -25,10 +26,13 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     private static final String TAG = "Sean";
     public List<Users> usersList;
     public Context context;
+    public RequestManager glide;
     private CoMeth coMeth = new CoMeth();
 
-    public UsersRecyclerAdapter(List<Users> usersList) {
+
+    public UsersRecyclerAdapter(List<Users> usersList, RequestManager glide) {
         this.usersList = usersList;
+        this.glide = glide;
     }
 
     @NonNull
@@ -104,7 +108,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
             }
             if (userImage != null) {
                 coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                        userImage, userImageView);
+                        userImage, userImageView, glide);
             } else {
                 userImageView.setImageDrawable(context.getResources()
                         .getDrawable(R.drawable.ic_action_person_placeholder));

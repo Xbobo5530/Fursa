@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,6 +28,7 @@ import com.nyayozangu.labs.fursa.activities.posts.models.Posts;
 import java.util.Date;
 import java.util.List;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 interface CheckConnectionInterface {
@@ -58,6 +60,7 @@ interface CheckConnectionInterface {
 
 
 public class CoMeth {
+    public static final String TAG = "Sean";
 
     //collections
     public static final String CATEGORIES = "Categories";
@@ -75,6 +78,12 @@ public class CoMeth {
 
     public static final String TIMESTAMP = "timestamp";
 
+    //cats values and names
+    public static final String FEATURED = "Featured";
+    public static final String POPULAR = "Popular";
+    public static final String EXHIBITIONS = "Exhibitions";
+
+
     //intent actions and keys
     public static final String ACTION = "action";
     public static final String GOTO = "goto";
@@ -83,7 +92,6 @@ public class CoMeth {
     public static final String IMAGE_URL = "imageUrl";
     public static final String POST_ID = "postId";
     // TODO: 6/10/18 add all the static fields
-    public static final String TAG = "Sean";
     public static final String SUBSCRIPTIONS = "Subscriptions";
     public static final String MESSAGE = "message";
     public static final String NEW_POST_UPDATES = "new_post_updates";
@@ -246,14 +254,17 @@ public class CoMeth {
         return FirebaseStorage.getInstance().getReference();
     }
 
-    public void setImage(int placeholderDrawable, String imageUrl, ImageView targetImageView) {
+    public void setImage(int placeholderDrawable,
+                         String imageUrl,
+                         ImageView targetImageView,
+                         RequestManager glide) {
         Log.d(TAG, "setImage: no thumb");
         try {
 
             RequestOptions placeHolderRequest = new RequestOptions();
-            placeHolderRequest.placeholder(placeholderDrawable);            //loading the string for url to the image view
-            Glide.with(getApplicationContext())
-                    .setDefaultRequestOptions(placeHolderRequest)
+            placeHolderRequest.placeholder(placeholderDrawable);
+//            Glide.with(getApplicationContext())
+            glide.setDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
 //                    .transition(withCrossFade())
                     .into(targetImageView);
@@ -262,24 +273,70 @@ public class CoMeth {
         }
     }
 
+    public void setImageWithTransition(int placeholderDrawable,
+                                       String imageUrl,
+                                       ImageView targetImageView,
+                                       RequestManager glide) {
+        Log.d(TAG, "setImage: no thumb");
+        try {
+
+            RequestOptions placeHolderRequest = new RequestOptions();
+            placeHolderRequest.placeholder(placeholderDrawable);
+//            Glide.with(getApplicationContext())
+            glide.setDefaultRequestOptions(placeHolderRequest)
+                    .load(imageUrl)
+                    .transition(withCrossFade())
+                    .into(targetImageView);
+        } catch (Exception e) {
+            Log.d(TAG, "setImage: error " + e.getMessage());
+        }
+    }
+
     public void setImage(int placeholderDrawable,
-                         String imageUrl, String thumbUrl, ImageView targetImageView) {
+                         String imageUrl,
+                         String thumbUrl,
+                         ImageView targetImageView,
+                         RequestManager glide) {
         Log.d(TAG, "setImage: with thumb");
-        RequestOptions placeHolderRequest = new RequestOptions();
-        placeHolderRequest.placeholder(placeholderDrawable);
-        Glide.with(getApplicationContext())
-                .applyDefaultRequestOptions(placeHolderRequest)
-                .load(imageUrl)
-//                .transition(withCrossFade())
-                .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
-                .into(targetImageView);
+        try {
+            RequestOptions placeHolderRequest = new RequestOptions();
+            placeHolderRequest.placeholder(placeholderDrawable);
+//        Glide.with(getApplicationContext())
+            glide.applyDefaultRequestOptions(placeHolderRequest)
+                    .load(imageUrl)
+//                    .transition(withCrossFade())
+                    .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
+                    .into(targetImageView);
+        } catch (Exception e) {
+            Log.d(TAG, "setImage: failed to set image " + e.getMessage());
+        }
+    }
+
+    public void setImageWithTransition(int placeholderDrawable,
+                                       String imageUrl,
+                                       String thumbUrl,
+                                       ImageView targetImageView,
+                                       RequestManager glide) {
+        Log.d(TAG, "setImage: with thumb");
+        try {
+            RequestOptions placeHolderRequest = new RequestOptions();
+            placeHolderRequest.placeholder(placeholderDrawable);
+//        Glide.with(getApplicationContext())
+            glide.applyDefaultRequestOptions(placeHolderRequest)
+                    .load(imageUrl)
+                    .transition(withCrossFade())
+                    .thumbnail(Glide.with(getApplicationContext()).load(thumbUrl))
+                    .into(targetImageView);
+        } catch (Exception e) {
+            Log.d(TAG, "setImage: failed to set image " + e.getMessage());
+        }
     }
 
     public String getCatKey(String catValue) {
 
         switch (catValue) {
-
-            case "Featured":
+            // TODO: 6/17/18 replace strings with static vals
+            case FEATURED:
                 return "featured";
             case "Popular":
                 return "popular";
@@ -404,6 +461,7 @@ public class CoMeth {
         }
     }
 
+    // TODO: 6/17/18 code review
     public String processPostDate(long millis) {
 
         //get current date
@@ -531,14 +589,6 @@ public class CoMeth {
             recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
         }
-    }
-
-    public void showProgress(String message, ProgressDialog progressDialog, Context context) {
-        Log.d(TAG, "at showProgress\n message is: " + message);
-        //construct the dialog box
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage(message);
-        progressDialog.show();
     }
 }
 

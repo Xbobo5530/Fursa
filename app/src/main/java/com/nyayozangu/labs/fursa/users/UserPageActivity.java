@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -425,7 +426,8 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         try {
             coMeth.setImage(R.drawable.ic_action_person_placeholder,
                     userImageUrl,
-                    userImageView);
+                    userImageView,
+                    Glide.with(this));
         } catch (Exception settingImageException) {
             Log.d(TAG, "onSuccess: setting image exception " +
                     settingImageException.getMessage());

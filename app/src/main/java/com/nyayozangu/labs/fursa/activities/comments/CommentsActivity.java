@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -383,7 +384,8 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                         documentSnapshot.get("image").toString();
                                 coMeth.setImage(R.drawable.ic_action_person_placeholder,
                                         userProfileImageDownloadUrl,
-                                        currentUserImage);
+                                        currentUserImage,
+                                        Glide.with(CommentsActivity.this));
 
 
                             } catch (NullPointerException noImageFoundException) {
@@ -462,11 +464,15 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                             if (userThumbDownloadUrl != null) {
                                 coMeth.setImage(
                                         R.drawable.ic_action_person_placeholder,
-                                        userThumbDownloadUrl, postUserImage);
+                                        userThumbDownloadUrl,
+                                        postUserImage,
+                                        Glide.with(CommentsActivity.this));
                             } else {
                                 coMeth.setImage(
                                         R.drawable.ic_action_person_placeholder,
-                                        userImageDownloadUrl, postUserImage);
+                                        userImageDownloadUrl,
+                                        postUserImage,
+                                        Glide.with(CommentsActivity.this));
                             }
                         } else {
                             //user does not exist

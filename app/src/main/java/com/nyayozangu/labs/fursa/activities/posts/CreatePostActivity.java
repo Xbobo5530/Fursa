@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
@@ -1580,7 +1581,9 @@ public class CreatePostActivity extends AppCompatActivity {
                         String imageUrl = task.getResult().get("image_url").toString();
                         String thumbUrl = task.getResult().get("thumb_url").toString();
                         try {
-                            coMeth.setImage(R.drawable.appiconshadow, imageUrl, thumbUrl, createPostImageView);
+                            coMeth.setImage(R.drawable.appiconshadow, imageUrl, thumbUrl,
+                                    createPostImageView,
+                                    Glide.with(CreatePostActivity.this));
                         } catch (Exception e) {
                             Log.d(TAG, "onComplete: failed to set create image");
                         }

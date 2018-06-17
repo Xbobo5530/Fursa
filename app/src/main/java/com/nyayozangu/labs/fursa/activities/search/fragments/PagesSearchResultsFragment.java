@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.bumptech.glide.Glide;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.search.SearchableActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
@@ -50,7 +51,7 @@ public class PagesSearchResultsFragment extends Fragment {
 
         usersList = new ArrayList<>();
 
-        pagesRecyclerAdapter = new UsersRecyclerAdapter(usersList);
+        pagesRecyclerAdapter = new UsersRecyclerAdapter(usersList, Glide.with(this));
         coMeth.handlePostsView(getContext(), getActivity(), pagesSearchFeed);
 //        pagesSearchFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         pagesSearchFeed.setHasFixedSize(true);
@@ -93,8 +94,6 @@ public class PagesSearchResultsFragment extends Fragment {
                     userIds.add(userId);
                 }
             }
-
         }
     }
-
 }
