@@ -238,6 +238,8 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </android.support.constraint.ConstraintLayout>
 
+        <!--ca-app-pub-6180360542591636/5341130287-->
+
     </android.support.v7.widget.CardView>
 
 </android.support.constraint.ConstraintLayout>

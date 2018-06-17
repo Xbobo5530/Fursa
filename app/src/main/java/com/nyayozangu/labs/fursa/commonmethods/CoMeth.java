@@ -101,6 +101,11 @@ public class CoMeth {
     public static final String PERMISSION = "permission";
     public static final String ADMIN = "admin";
     public static final String TAG_NAME = "tag";
+    public static final String SAVED_VAL = "saved";
+    public static final String HOME_FEED_AD_UNIT_ID = "ca-app-pub-6180360542591636/5341130287";
+    public static final String CATS_FEED_AD_UNIT_ID = "ca-app-pub-6180360542591636/1267181570";
+    public static final String TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111";
+
     public final String[] catTitle = new String[]{
 
             getApplicationContext().getResources().getString(R.string.cat_popular), getApplicationContext().getString(R.string.cat_exhibitions),

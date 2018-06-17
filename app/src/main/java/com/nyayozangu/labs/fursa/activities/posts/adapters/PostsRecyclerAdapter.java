@@ -32,6 +32,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.comments.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.main.MainActivity;
@@ -60,6 +61,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     // TODO: 6/14/18 add an impressions field for posts viewed on feed
 
     private static final String TAG = "Sean";
+    private static final String HOME_FRAGMENT = "HomeFragment";
+    private static final String VIEW_CAT_ACTIVITY = "ViewCategoryActivity";
+    private static final String SAVED_FRAGMENT = "SavedFragment";
 
     //member variables for storing posts
     public List<Posts> postsList;
@@ -162,8 +166,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         Random random = new Random();
         int randNum = random.nextInt((((position + 20) - position) + 1)) + position;
         if (position == randNum &&
-                (className.equals("HomeFragment") ||
-                        className.equals("ViewCategoryActivity"))) {
+                (className.equals(HOME_FRAGMENT) ||
+                        className.equals(VIEW_CAT_ACTIVITY))) {
             Log.d(TAG, "loadPostContent: rand num = pos, showing ad");
             holder.adCard.setVisibility(View.VISIBLE);
             holder.setAd();
@@ -235,26 +239,26 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //get likes count
-        holder.updateLikesCount(post.getLikes());
+//        holder.updateLikesCount(post.getLikes());
         //create query to count
-//        coMeth.getDb()
-//                .collection("Posts/" + postId + "/Likes")
-//                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-//                        Log.d(TAG, "at onEvent, when likes change");
-//                        if (!queryDocumentSnapshots.isEmpty()) {
-//
-//                            //post has likes
-//                            int numberOfLikes = queryDocumentSnapshots.size();
-//                            holder.updateLikesCount(numberOfLikes);
-//
-//                        } else {
-//                            //post has no likes
-//                            holder.updateLikesCount(0);
-//                        }
-//                    }
-//                });
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Likes")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                        Log.d(TAG, "at onEvent, when likes change");
+                        if (!queryDocumentSnapshots.isEmpty()) {
+
+                            //post has likes
+                            int numberOfLikes = queryDocumentSnapshots.size();
+                            holder.updateLikesCount(numberOfLikes);
+
+                        } else {
+                            //post has no likes
+                            holder.updateLikesCount(0);
+                        }
+                    }
+                });
 
 
         //determine likes by current user
@@ -457,25 +461,26 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
 
         //count comments
-        holder.updateCommentsCount(post.getComments());
-//        coMeth.getDb()
-//                .collection("Posts/" + postId + "/Comments")
-//                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onEvent(QuerySnapshot queryDocumentSnapshots,
-//                                        FirebaseFirestoreException e) {
-//                        Log.d(TAG, "at onEvent, when likes change");
-//                        if (!queryDocumentSnapshots.isEmpty()) {
-//
-//                            //post has likes
-//                            int numberOfComments = queryDocumentSnapshots.size();
-//                            holder.updateCommentsCount(numberOfComments);
-//                        } else {
-//                            //post has no likes
-//                            holder.updateCommentsCount(0);
-//                        }
-//                    }
-//                });
+//        holder.updateCommentsCount(post.getComments());
+        //use snapshot listener so update the counts realtime
+        coMeth.getDb()
+                .collection("Posts/" + postId + "/Comments")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots,
+                                        FirebaseFirestoreException e) {
+                        Log.d(TAG, "at onEvent, when likes change");
+                        if (!queryDocumentSnapshots.isEmpty()) {
+
+                            //post has likes
+                            int numberOfComments = queryDocumentSnapshots.size();
+                            holder.updateCommentsCount(numberOfComments);
+                        } else {
+                            //post has no likes
+                            holder.updateCommentsCount(0);
+                        }
+                    }
+                });
 
         //comment icon click action
         holder.postCommentButton.setOnClickListener(new View.OnClickListener() {
@@ -652,16 +657,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void showSaveSnack(@NonNull final ViewHolder holder, String message) {
 
         //check current class
-        String homeFragmentText = "HomeFragment";
-        String savedFragmentText = "SavedFragment";
-        if (className.equals(homeFragmentText)) {
+//        String homeFragmentText = "HomeFragment";
+//        String savedFragmentText = "SavedFragment";
+        if (className.equals(HOME_FRAGMENT)) {
 
             //dont show the see list snackbar action 
             Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                     message, Snackbar.LENGTH_SHORT)
                     .show();
 
-        } else if (className.equals(savedFragmentText)) {
+        } else if (className.equals(SAVED_FRAGMENT)) {
 
             //do nothing
             Log.d(TAG, "showSaveSnack: liked on saved fragment");
@@ -675,10 +680,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         public void onClick(View v) {
 
                             Intent goToSavedIntent = new Intent(context, MainActivity.class);
-                            goToSavedIntent.putExtra("action", "goto");
-                            goToSavedIntent.putExtra("destination", "saved");
+                            goToSavedIntent.putExtra(CoMeth.ACTION, CoMeth.GOTO);
+                            goToSavedIntent.putExtra(CoMeth.DESTINATION, CoMeth.SAVED_VAL);
                             context.startActivity(goToSavedIntent);
-
                         }
                     })
                     .show();
@@ -834,6 +838,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             Log.d(TAG, "setAd: ");
             AdView adView = mView.findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().build();
+
+            if (className.equals(HOME_FRAGMENT)) {
+                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
+            } else {
+                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
+            }
+//            if className.equals(HOME_FRAGMENT) ?  adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID) : adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
             adView.loadAd(adRequest);
         }
     }
