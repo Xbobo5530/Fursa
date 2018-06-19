@@ -254,7 +254,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 ads:adSize="MEDIUM_RECTANGLE"
-                ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+                ads:adUnitId="ca-app-pub-6180360542591636/5341130287"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />

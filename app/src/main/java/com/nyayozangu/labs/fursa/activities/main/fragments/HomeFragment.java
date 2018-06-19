@@ -99,6 +99,7 @@ public class HomeFragment extends Fragment {
         postsRecyclerAdapter.setHasStableIds(true);
         homeFeedView.setAdapter(postsRecyclerAdapter);
 
+
         // TODO: 5/21/18 load old data then show new data notification
         // TODO: 5/21/18 check if user is firs time loading
         // TODO: 5/21/18 check if there is cached data

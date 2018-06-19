@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
@@ -76,7 +77,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     public RequestManager glide;
 
     public static Posts post;
-    private Users user;
 
     private int lastPosition = -1;
     private String userId;
@@ -84,8 +84,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private ProgressDialog progressDialog;
     private CoMeth coMeth = new CoMeth();
 
-    private String postTitle;
     private String postUserId;
+
+    private ArrayList<ViewHolder> holders = new ArrayList<>();
 
     //empty constructor for receiving the posts
     public PostsRecyclerAdapter(List<Posts> postsList,
@@ -123,7 +124,19 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         Log.d(TAG, "onBindViewHolder: normal post");
         loadPostContent(holder, position);
 
+        //clear previous post's images
+//        holders.add(holder);
+//        if (position % 10 == 0){
+//            for (int i = position - 10; i < position - 5; i ++){
+//                if (i >= 0){
+//                    holders.get(i).clearImages();
+//                    Log.d(TAG, "onBindViewHolder: \ni is " + i +
+//                            "\nclearing previous 5 posts images after the 10th post");
+//                }
+//            }
+//        }
     }
+
 
     @Override
     public int getItemCount() {
@@ -142,10 +155,17 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     }
 
     @Override
-    public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
+    public void onViewDetachedFromWindow(@NonNull final ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
-        Log.d(TAG, "onViewDetachedFromWindow: item detached from window, clearing image");
-        glide.clear(holder.postImageView);
+        Log.d(TAG, "onViewDetachedFromWindow: starting timer to delete view holder images");
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "run: 10s are up deleting old images");
+                glide.clear(holder.postImageView);
+            }
+        }, 30000);
+
     }
 
     static void updateFeedViews(Posts post) {
@@ -190,10 +210,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //get post
         post = postsList.get(position);
-        user = usersList.get(position);
+        Users user = usersList.get(position);
 //        postTitle = postsList.get(position).getTitle();
-        postTitle = post.getTitle();
-        holder.setTitle(postTitle);
+        String postTitle1 = post.getTitle();
+        holder.setTitle(postTitle1);
 
         final String descData = postsList.get(position).getDesc();
         holder.setDesc(descData);
@@ -206,13 +226,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         final String currentUserId;
 
         //handling getting the user who clicked like
-        if (coMeth.isLoggedIn()) {
-            currentUserId = coMeth.getUid();
-            Log.d(TAG, "user is logged in\n current user_id is :" + currentUserId);
-        } else {
-            currentUserId = null;
-            Log.d(TAG, "user is logged in\n current user_id is :" + currentUserId);
-        }
+        currentUserId = coMeth.getUid();
+
 
         //update feed_views
         new UpdatePostActivityTask().execute();
@@ -868,6 +883,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 //            }
 //            if className.equals(HOME_FRAGMENT) ?  adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID) : adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
             adView.loadAd(adRequest);
+        }
+
+        public void clearImages() {
+            Log.d(TAG, "clearImages: ");
+            glide.clear(postImageView);
         }
     }
 
