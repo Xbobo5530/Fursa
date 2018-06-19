@@ -112,7 +112,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
         return new ViewHolder(view);
-
     }
 
     @Override
@@ -123,18 +122,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         Log.d(TAG, "onBindViewHolder: normal post");
         loadPostContent(holder, position);
-
-        //clear previous post's images
-//        holders.add(holder);
-//        if (position % 10 == 0){
-//            for (int i = position - 10; i < position - 5; i ++){
-//                if (i >= 0){
-//                    holders.get(i).clearImages();
-//                    Log.d(TAG, "onBindViewHolder: \ni is " + i +
-//                            "\nclearing previous 5 posts images after the 10th post");
-//                }
-//            }
-//        }
     }
 
 
@@ -165,7 +152,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 glide.clear(holder.postImageView);
             }
         }, 30000);
-
     }
 
     static void updateFeedViews(Posts post) {
@@ -791,12 +777,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             if (imageDownloadUrl != null && thumbDownloadUrl != null) {
 
                 postImageView.setVisibility(View.VISIBLE);
-
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions.placeholder(R.color.colorWhite);
 //                Glide.with(context)
-                glide
-                        .applyDefaultRequestOptions(requestOptions)
+                glide.applyDefaultRequestOptions(requestOptions)
                         .load(imageDownloadUrl)
                         .transition(withCrossFade())
                         .thumbnail(Glide.with(context).load(thumbDownloadUrl))

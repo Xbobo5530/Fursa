@@ -71,7 +71,6 @@ public class ImageSearchResultsFragment extends Fragment {
                     .showSnack(getResources().getString(R.string.something_went_wrong_text));
         }
         return view;
-
     }
 
     private void doMySearch(String searchQuery) {
@@ -103,7 +102,6 @@ public class ImageSearchResultsFragment extends Fragment {
                     usersList.add(mUserList.get(mPostList.indexOf(post)));
                     imageSearchRecyclerAdapter.notifyDataSetChanged();
                 }
-
             }
         }
     }
