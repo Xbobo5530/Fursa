@@ -600,7 +600,12 @@ public class HomeFragment extends Fragment {
                                                     postsList.add(post);
                                                 }
                                                 postsRecyclerAdapter.notifyDataSetChanged();
-                                                ((MainActivity) getActivity()).hideProgress();
+                                                try {
+                                                    ((MainActivity) getActivity()).hideProgress();
+                                                } catch (NullPointerException activityIsNull) {
+                                                    Log.d(TAG, "onSuccess: actvity is null\n" +
+                                                            activityIsNull.getMessage());
+                                                }
                                             }
                                         }
                                     })

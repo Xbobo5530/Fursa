@@ -18,9 +18,6 @@ import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
  */
 public class AlertFragment extends Fragment {
 
-    //initiate members
-    private Button alertLoginButton;
-
 
     public AlertFragment() {
         // Required empty public constructor
@@ -33,7 +30,7 @@ public class AlertFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_alert, container, false);
 
         //initiate
-        alertLoginButton = view.findViewById(R.id.alrerLoginButton);
+        Button alertLoginButton = view.findViewById(R.id.alrerLoginButton);
         alertLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

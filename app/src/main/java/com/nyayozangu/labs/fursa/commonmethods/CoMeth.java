@@ -117,6 +117,8 @@ public class CoMeth {
     public static final String TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111";
     public static final String USER_ID = "userId";
     public static final String USERNAME = "username";
+    public static final String LIKES_COL = "Likes";
+    public static final String SAVES = "Saves";
 
     public final String[] catTitle = new String[]{
 

@@ -530,32 +530,32 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private void likePost(String postId, String currentUserId) {
         Map<String, Object> likesMap = new HashMap<>();
-        likesMap.put("timestamp", FieldValue.serverTimestamp());
+        likesMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
         coMeth.getDb()
-                .collection("Posts/" + postId + "/Likes")
+                .collection(CoMeth.POSTS + "/" + postId + "/" + CoMeth.LIKES_COL)
                 .document(currentUserId)
                 .set(likesMap);
     }
 
     private void unlikePost(String postId, String currentUserId) {
         coMeth.getDb()
-                .collection("Posts/" + postId + "/Likes")
+                .collection(CoMeth.POSTS + "/" + postId + "/" + CoMeth.LIKES_COL)
                 .document(currentUserId)
                 .delete();
     }
 
     private void savePost(String postId, String currentUserId, @NonNull ViewHolder holder) {
         Map<String, Object> savesMap = new HashMap<>();
-        savesMap.put("timestamp", FieldValue.serverTimestamp());
+        savesMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
         //save new post
         coMeth.getDb()
-                .collection("Posts/" + postId + "/Saves")
+                .collection(CoMeth.POSTS + "/" + postId + "/" + CoMeth.SAVES)
                 .document(currentUserId)
                 .set(savesMap);
         userId = coMeth.getUid();
         coMeth.getDb()
-                .collection("Users/" + userId + "/Subscriptions")
-                .document("saved_posts").collection("SavedPosts")
+                .collection(CoMeth.USERS + "/" + userId + "/" + CoMeth.SUBSCRIPTIONS)
+                .document(CoMeth.SAVED_POSTS_DOC).collection(CoMeth.SAVED_POSTS)
                 .document(postId)
                 .set(savesMap);
         showSaveSnack(holder, context.getString(R.string.added_to_saved_text));
@@ -563,12 +563,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private void unsavePost(String postId, String currentUserId) {
         coMeth.getDb()
-                .collection("Posts/" + postId + "/Saves")
+                .collection(CoMeth.POSTS + "/" + postId + "/" + CoMeth.SAVES)
                 .document(currentUserId)
                 .delete();
         coMeth.getDb()
-                .collection("Users/" + userId + "/Subscriptions")
-                .document("saved_posts").collection("SavedPosts")
+                .collection(CoMeth.USERS + "/" + userId + "/" + CoMeth.SUBSCRIPTIONS)
+                .document(CoMeth.SAVED_POSTS_DOC).collection(CoMeth.SAVED_POSTS)
                 .document(postId)
                 .delete();
     }
@@ -635,7 +635,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                             shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.app_name));
                             shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
                             coMeth.stopLoading(progressDialog);
-                            context.startActivity(Intent.createChooser(shareIntent, "Share with"));
+                            context.startActivity(Intent.createChooser(shareIntent,
+                                    context.getResources().getString(R.string.share_with_text)));
                         } else {
                             Log.d(TAG, "onComplete: \ncreating short link task failed\n" +
                                     task.getException());
@@ -675,20 +676,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void showSaveSnack(@NonNull final ViewHolder holder, String message) {
 
         //check current class
-//        String homeFragmentText = "HomeFragment";
-//        String savedFragmentText = "SavedFragment";
         if (className.equals(HOME_FRAGMENT)) {
-
             //dont show the see list snackbar action 
             Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                     message, Snackbar.LENGTH_SHORT)
                     .show();
 
         } else if (className.equals(SAVED_FRAGMENT)) {
-
             //do nothing
             Log.d(TAG, "showSaveSnack: liked on saved fragment");
-
         } else {
 
             Snackbar.make(holder.mView.findViewById(R.id.postLayout),
@@ -704,7 +700,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         }
                     })
                     .show();
-
         }
     }
 
@@ -724,7 +719,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         //initiate view
-        public View mView;
+        View mView;
 
         //initiate elements in the view holder
         private TextView postUsernameTextView;
@@ -736,7 +731,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 postImageView, postLikeButton;
         private CardView adCard;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             //use mView to populate other methods
             mView = itemView;
@@ -759,35 +754,27 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //retrieve the title
         public void setTitle(String title) {
-
-//            titleTextView = mView.findViewById(R.id.postTitleTextView);
             titleTextView.setText(title);
         }
 
         //retrieves description on post
-        public void setDesc(String descText) {
-
-//            descTextView = mView.findViewById(R.id.postDescTextView);
+        void setDesc(String descText) {
             descTextView.setText(descText);
         }
 
         //retrieve the image
-        public void setPostImage(final String imageDownloadUrl, final String thumbDownloadUrl) {
+        void setPostImage(final String imageDownloadUrl, final String thumbDownloadUrl) {
 
             if (imageDownloadUrl != null && thumbDownloadUrl != null) {
 
                 postImageView.setVisibility(View.VISIBLE);
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions.placeholder(R.color.colorWhite);
-//                Glide.with(context)
                 glide.applyDefaultRequestOptions(requestOptions)
                         .load(imageDownloadUrl)
                         .transition(withCrossFade())
                         .thumbnail(Glide.with(context).load(thumbDownloadUrl))
                         .into(postImageView);
-
-//                new LoadPostImageTask().execute(imageDownloadUrl, thumbDownloadUrl);
-
             } else {
                 //post has no image, hide imageView
                 postImageView.setVisibility(View.GONE);
@@ -795,7 +782,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //set post location
-        public void setPostLocation(ArrayList locationArray) {
+        void setPostLocation(ArrayList locationArray) {
 
             if (locationArray != null) {
 
@@ -805,16 +792,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     locationString = locationString.concat(locationArray.get(i).toString() + "\n");
                 }
                 postLocationTextView.setText(locationString.trim());
-
             } else {
                 Log.d(TAG, "location details are null");
                 postLocationTextView.setVisibility(View.GONE);
             }
-
         }
 
         //set post date
-        public void setPostDate(String date) {
+        void setPostDate(String date) {
             postDateTextView = mView.findViewById(R.id.postDateTextView);
             postDateTextView.setText(date);
         }
@@ -834,13 +819,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
             postUsernameTextView = mView.findViewById(R.id.postUsernameTextView);
             postUsernameTextView.setText(userName);
-
             postUserImageCircleView = mView.findViewById(R.id.postUserImageCircleImageView);
             //add the placeholder image
             try {
                 RequestOptions placeHolderOptions = new RequestOptions();
                 placeHolderOptions.placeholder(R.drawable.ic_action_person_placeholder);
-//                Glide.with(context)
                 glide
                         .applyDefaultRequestOptions(placeHolderOptions)
                         .load(userImageDownloadUri)
@@ -850,28 +833,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         }
 
-
         //set ad
         public void setAd() {
             Log.d(TAG, "setAd: ");
             AdView adView = mView.findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder()
-                    .addTestDevice("CD3E657857E4EEBE754743B250DCAB5E")
+//                    .addTestDevice("CD3E657857E4EEBE754743B250DCAB5E")
                     .build();
-
-
-//            if (className.equals(HOME_FRAGMENT)) {
-//                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
-//            } else {
-//                adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
-//            }
-//            if className.equals(HOME_FRAGMENT) ?  adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID) : adView.setAdUnitId(CoMeth.TEST_AD_UNIT_ID);
             adView.loadAd(adRequest);
-        }
-
-        public void clearImages() {
-            Log.d(TAG, "clearImages: ");
-            glide.clear(postImageView);
         }
     }
 

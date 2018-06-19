@@ -29,7 +29,6 @@ public class CategoriesFragment extends Fragment {
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
     public TabLayout catsTabsLayout;
-    private ViewPager catsViewPager;
     private ProgressDialog progressDialog;
 
     public CategoriesFragment() {
@@ -43,7 +42,7 @@ public class CategoriesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
 
-        catsViewPager = view.findViewById(R.id.catsViewPager);
+        ViewPager catsViewPager = view.findViewById(R.id.catsViewPager);
         setupViewPager(catsViewPager);
         catsTabsLayout = view.findViewById(R.id.catsTabsLayout);
         catsTabsLayout.setupWithViewPager(catsViewPager);
@@ -64,7 +63,7 @@ public class CategoriesFragment extends Fragment {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
-        public ViewPagerAdapter(FragmentManager manager) {
+        ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
 
@@ -78,7 +77,7 @@ public class CategoriesFragment extends Fragment {
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, String title) {
+        void addFragment(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
