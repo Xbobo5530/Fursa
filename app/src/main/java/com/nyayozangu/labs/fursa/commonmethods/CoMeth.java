@@ -119,6 +119,7 @@ public class CoMeth {
     public static final String USERNAME = "username";
     public static final String LIKES_COL = "Likes";
     public static final String SAVES = "Saves";
+    public static final String VIEWS = "views";
 
     public final String[] catTitle = new String[]{
 
@@ -229,13 +230,13 @@ public class CoMeth {
                 "\nhasInternet: " + hasInternet);*/
 
 
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        return isConnected /*&& hasInternet*/;
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting() /*&& hasInternet*/;
 
     }
 
     /**
      * A method to get the Firestore database
+     *
      * @return a FirebaseFirestore instance
      */
     public FirebaseFirestore getDb() {

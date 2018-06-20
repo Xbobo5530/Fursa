@@ -885,7 +885,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 final Map<String, Object> tagsMap = new HashMap<>();
                 tagsMap.put("title", title);
                 coMeth.getDb()
-                        .collection("Tags")
+                        .collection(CoMeth.TAGS)
                         .document(title)
                         .update(tagsMap)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -901,7 +901,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 Log.d(TAG, "onFailure: failed to add new post to Tags collection\n" +
                                         e.getMessage());
                                 coMeth.getDb()
-                                        .collection("Tags")
+                                        .collection(CoMeth.TAGS)
                                         .document(title)
                                         .set(tagsMap)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {

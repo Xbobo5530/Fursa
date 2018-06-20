@@ -66,6 +66,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
 
     private static final String TAG = "Sean";
+    private static final String IS_NEW_POST = "isNewPost";
     private CoMeth coMeth = new CoMeth();
 
     private MenuItem editPost, deletePost;
@@ -1270,15 +1271,15 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         if (coMeth.isConnected()) {
             Intent intent = getIntent();
             if (intent != null) {
-                if (intent.hasExtra("postId")) {
-                    if (intent.getBooleanExtra("isNewPost", false)) {
+                if (intent.hasExtra(CoMeth.POST_ID)) {
+                    if (intent.getBooleanExtra(IS_NEW_POST, false)) {
                         //check if is new post
                         Log.d(TAG, "handleIntent: this is from new post created notif");
-                        postId = intent.getStringExtra("postId");
+                        postId = intent.getStringExtra(CoMeth.POST_ID);
                         showShareNewPostDialog();
                     } else {
                         //get the sent intent
-                        postId = intent.getStringExtra("postId");
+                        postId = intent.getStringExtra(CoMeth.POST_ID);
                         Log.d(TAG, "postId is: " + postId);
                     }
                 } else {
@@ -1318,6 +1319,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     /**
      * update the number of times a post is viewed
+     *
      * @param post the Posts post that is being viewed
      */
     private void updateViews(final Posts post) {
@@ -1333,10 +1335,10 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         final int activity = views + post.getLikes() + post.getComments() + post.getFeed_views();
         //update views
         Map<String, Object> viewsMap = new HashMap<>();
-        viewsMap.put("views", views);
-        viewsMap.put("activity", activity);
+        viewsMap.put(CoMeth.VIEWS, views);
+        viewsMap.put(CoMeth.ACTIVITY, activity);
         coMeth.getDb()
-                .collection("Posts")
+                .collection(CoMeth.POSTS)
                 .document(postId)
                 .update(viewsMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
