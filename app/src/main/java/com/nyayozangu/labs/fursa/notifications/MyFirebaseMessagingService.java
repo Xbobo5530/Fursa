@@ -61,6 +61,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private String message;
     private String notifType;
     private String extraInfo;
+    private String errorMessage;
     private String userId;
     private int notifId;
 
@@ -88,11 +89,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (data.get("extra") != null) {
                 extraInfo = data.get("extra").trim();
             }
-            Log.d(TAG, "onMessageReceived: Message Received: \n" +
-                    "Title: " + title + "\n" +
-                    "Message: " + message + "\n" +
-                    "Notification type: " + notifType + "\n" +
-                    "extraInfo: " + extraInfo);
+            if (data.get(CoMeth.ERROR) != null) {
+                errorMessage = data.get(CoMeth.ERROR).trim();
+            }
             // TODO: 6/15/18 code review
             if (!extraInfo.isEmpty()) {
                 if (notifType.equals(CoMeth.NEW_POST_UPDATES) ||
@@ -101,6 +100,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     sendNotification(title, message, notifType, extraInfo, notifId);
                 }
             } else {
+                if (notifType.equals(CoMeth.NEW_POST_UPDATES) &&
+                        errorMessage != null) {
+                    //notification has error message
+                    sendNotification(title, message, null, null, notifId);
+                }
                 if (userId != null &&
                         !userId.equals(coMeth.getUid())) {
                     sendNotification(title, message, null, null, notifId);

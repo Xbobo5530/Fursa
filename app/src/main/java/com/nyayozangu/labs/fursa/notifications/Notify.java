@@ -99,13 +99,36 @@ public class Notify extends AsyncTask<String, String, Void> {
 
                 case CoMeth.NEW_POST_UPDATES:
                     Log.d(TAG, "doInBackground: notify got new post updates");
+
                     String postReadyTopic = strings[1];
-                    String newPostId = strings[2];
-                    Log.d(TAG, "doInBackground: new post id is: " + newPostId +
-                            "\npost ready topic is " + postReadyTopic);
-                    topic = topic.concat(postReadyTopic);
-                    json.put("to", topic);
-                    passNotifDetails(conn, json, CoMeth.NEW_POST_UPDATES, newPostId);
+                    if (strings[2].equals(CoMeth.SUCCESS)) {
+                        String newPostId = strings[3];
+                        Log.d(TAG, "doInBackground: new post id is: " + newPostId +
+                                "\npost ready topic is " + postReadyTopic);
+                        topic = topic.concat(postReadyTopic);
+                        json.put("to", topic);
+                        passNotifDetails(conn, json, CoMeth.NEW_POST_UPDATES, newPostId);
+                    } else {
+                        //failed to post
+                        String errorMessage = strings[2];
+                        topic = topic.concat(postReadyTopic);
+                        json.put("to", topic);
+
+                        JSONObject info = new JSONObject();
+                        info.put(CoMeth.TITLE, "Sorry, Something went wrong");
+                        info.put(CoMeth.MESSAGE, "Could not submit your post: "
+                                + errorMessage);
+                        info.put(CoMeth.NOTIF_TYPE, CoMeth.NEW_POST_UPDATES);
+                        info.put(CoMeth.ERROR, errorMessage);
+
+                        json.put("data", info);
+
+                        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                        wr.write(json.toString());
+                        wr.flush();
+                        conn.getInputStream();
+
+                    }
                     break;
 
                 default:

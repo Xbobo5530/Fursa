@@ -140,9 +140,6 @@ public class CreatePostActivity extends AppCompatActivity {
     private ArrayList<String> cats;
     private ArrayList<String> tags;
 
-    //submit result
-    public boolean isSubmitSuccessful;
-
     @Override
     protected void onNewIntent(Intent intent) {
         handleIntent();
@@ -484,7 +481,6 @@ public class CreatePostActivity extends AppCompatActivity {
             }
         });
 
-
         //on submit
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -785,7 +781,7 @@ public class CreatePostActivity extends AppCompatActivity {
             // TODO: 6/7/18 check why use add not set
             //create new post
             coMeth.getDb()
-                    .collection("Posts")
+                    .collection(CoMeth.POSTS)
                     .add(postMap)
                     .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                         @Override
@@ -809,21 +805,22 @@ public class CreatePostActivity extends AppCompatActivity {
                                 updateCatsOnDB(newPostId, postMap);
                                 //notify user that post is ready to share
                                 //subscribe user to post ready topic
-                                newPostNotif(newPostId);
+                                newPostNotif(true, newPostId);
 
                             } else {
 
                                 Log.d(TAG, "onComplete: " + task.getException());
+                                String errorMassage = Objects.requireNonNull(task.getException()).getMessage();
+                                newPostNotif(false, errorMassage);
                             }
                         }
                     });
 
-//                return isSubmitSuccessful;
         } else {
 
             //for edit post
             coMeth.getDb()
-                    .collection("Posts")
+                    .collection(CoMeth.POSTS)
                     .document(postId)
                     .update(postMap)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -833,9 +830,6 @@ public class CreatePostActivity extends AppCompatActivity {
                             //check if posting is successful
                             if (task.isSuccessful()) {
                                 //update post result
-//                                isSubmitSuccessful = true;
-//                                goToMain();
-                                //notify users subscribed to cats
                                 notifyNewPostCatsUpdates(catsStringsArray);
                                 Log.d(TAG, "onComplete: posted post without image");
                                 //subscribe current user to post comments
@@ -843,35 +837,37 @@ public class CreatePostActivity extends AppCompatActivity {
                                 //update tags on db
                                 updateTagsOnDB(postId, postMap);
                                 updateCatsOnDB(postId, postMap);
-                                newPostNotif(postId);
+                                newPostNotif(true, postId);
                             } else {
                                 //posting failed
                                 String errorMessage =
                                         Objects.requireNonNull(task.getException()).getMessage();
-//                                    showSnack(getString(R.string.failed_to_post_text));
-//                                    isSubmitSuccessful = false;
-//                                goToMain(getResources().getString(R.string.failed_to_post_text)
-//                                        + ": " + errorMessage);
+                                newPostNotif(false, errorMessage);
+
                             }
 
                         }
                     });
-
-//                return isSubmitSuccessful;
-
         }
     }
 
     /**
      * send a notification on new post when post is ready
      *
-     * @param newPostId the post id of the submitted post
+     * @param metaData the post id of the submitted post when post is successful
+     *                 and error message when post failed
      */
-    private void newPostNotif(String newPostId) {
+    private void newPostNotif(boolean isSuccess, String metaData) {
+        Log.d(TAG, "newPostNotif: is success is " + isSuccess);
         String postReadyTopic = CoMeth.NEW_POST_UPDATES + currentUserId;
         FirebaseMessaging.getInstance().subscribeToTopic(postReadyTopic);
-        //notify user
-        new Notify().execute(CoMeth.NEW_POST_UPDATES, postReadyTopic, newPostId);
+        if (isSuccess) {
+            //notify user
+            new Notify().execute(CoMeth.NEW_POST_UPDATES, postReadyTopic, CoMeth.SUCCESS, metaData);
+        } else {
+            //failed to post
+            new Notify().execute(CoMeth.NEW_POST_UPDATES, postReadyTopic, CoMeth.FAIL, metaData);
+        }
     }
 
     private void updateTagsOnDB(final String newPostId, Map<String, Object> postMap) {
@@ -1086,10 +1082,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 public void onFailure(@NonNull Exception e) {
                                     //upload failed
                                     Log.d(TAG, "Db Update failed: " + e.getMessage());
-//                                showSnack(getString(R.string.failed_to_upload_image_text));
-//                                isSubmitSuccessful = false;
-//                            goToMain(getResources().getString(R.string.failed_to_post_text) +
-//                                    ": " + e.getMessage());
+
                                 }
                             });
 
@@ -1097,10 +1090,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                             //post failed
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-//                        showSnack(getString(R.string.failed_to_upload_image_text));
-//                        isSubmitSuccessful = false;
-//                    goToMain(getResources().getString(R.string.failed_to_post_text)
-//                            + ": " + Objects.requireNonNull(task.getException()).getMessage());
+
                         }
                     }
                 });
@@ -1125,9 +1115,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                             //db update successful
                             Log.d(TAG, "Db Update successful");
-//                                                        goToMain();
                             //update post submit status
-                            isSubmitSuccessful = true;
                             //notify users subscribed to cats
                             notifyNewPostCatsUpdates(catsStringsArray);
                             Log.d(TAG, "onComplete: about to upload " +
@@ -1137,19 +1125,15 @@ public class CreatePostActivity extends AppCompatActivity {
                             //update tags on DB
                             updateTagsOnDB(postId, postMap);
                             updateCatsOnDB(postId, postMap);
-                            newPostNotif(postId);
+                            newPostNotif(true, postId);
 
                         } else {
 
                             //upload failed
                             Log.d(TAG, "Db Update failed: " +
                                     Objects.requireNonNull(task.getException()).getMessage());
-//                          showSnack(getString(R.string.failed_to_upload_image_text));
-                            //update submit status
-//                          isSubmitSuccessful = false;
-//                            goToMain(getResources().getString(R.string.failed_to_post_text) +
-//                                    ": " + task.getException().getMessage());
-                            // TODO: 6/16/18 notify user when post failed to submit
+                            String errorMessage = Objects.requireNonNull(task.getException()).getMessage();
+                            newPostNotif(false, errorMessage);
                         }
                     }
                 });
@@ -1186,19 +1170,14 @@ public class CreatePostActivity extends AppCompatActivity {
                             String newPostId = task.getResult().getId();
                             updateTagsOnDB(newPostId, postMap);
                             updateCatsOnDB(newPostId, postMap);
-                            newPostNotif(newPostId);
+                            newPostNotif(true, newPostId);
 
                         } else {
 
                             String errorMessage =
                                     Objects.requireNonNull(task.getException()).getMessage();
                             Log.d(TAG, "Db Update failed: " + errorMessage);
-//                          showSnack(getString(R.string.failed_to_upload_image_text));
-                            //set post submit status
-//                          isSubmitSuccessful = false;
-//                            goToMain(getResources().getString(R.string.failed_to_post_text) +
-//                                    ": " +  errorMessage);
-                            // TODO: 6/16/18 notify user when post failed to submit
+                            newPostNotif(false, errorMessage);
                         }
                     }
                 });

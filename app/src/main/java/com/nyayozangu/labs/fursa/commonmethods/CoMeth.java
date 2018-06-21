@@ -120,6 +120,9 @@ public class CoMeth {
     public static final String LIKES_COL = "Likes";
     public static final String SAVES = "Saves";
     public static final String VIEWS = "views";
+    public static final String SUCCESS = "success";
+    public static final String FAIL = "fail";
+    public static final String ERROR = "error";
 
     public final String[] catTitle = new String[]{
 

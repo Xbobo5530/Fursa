@@ -59,7 +59,6 @@ public class SavedFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
@@ -75,7 +74,8 @@ public class SavedFragment extends Fragment {
         usersList = new ArrayList<>();
 
         String className = "SavedFragment";
-        savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList, className, Glide.with(this));
+        savedPostsRecyclerAdapter = new PostsRecyclerAdapter(savedPostsList, usersList, className,
+                Glide.with(this));
         coMeth.handlePostsView(getContext(), getActivity(), savedPostsView);
         savedPostsView.setAdapter(savedPostsRecyclerAdapter);
 
@@ -122,14 +122,14 @@ public class SavedFragment extends Fragment {
                                 }
                             }
                         });
-
-
         return view;
     }
 
     private void loadPosts() {
+        Log.d(TAG, "loadPosts: ");
         coMeth.getDb()
-                .collection(CoMeth.USERS + "/" + currentUserId + "/" + CoMeth.SUBSCRIPTIONS)
+                .collection(CoMeth.USERS + "/" + currentUserId + "/" +
+                        CoMeth.SUBSCRIPTIONS)
                 .document(CoMeth.SAVED_POSTS_DOC)
                 .collection(CoMeth.SAVED_POSTS)
                 .orderBy(CoMeth.TIMESTAMP, Query.Direction.DESCENDING)
@@ -143,96 +143,8 @@ public class SavedFragment extends Fragment {
                             for (final QueryDocumentSnapshot document : queryDocumentSnapshots) {
                                 //get post id
                                 final String postId = document.getId();
-                                coMeth.getDb()
-                                        .collection("Posts")
-                                        .document(postId)
-                                        .get()
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                //get post
-                                                if (documentSnapshot.exists()) {
-                                                    //the post exists
-                                                    //convert doc to post object
-                                                    final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
-                                                    //get post user
-                                                    final String postUserId = post.getUser_id();
-                                                    coMeth.getDb()
-                                                            .collection("Users")
-                                                            .document(postUserId)
-                                                            .get()
-                                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                                    if (documentSnapshot.exists()) {
-                                                                        //user exists
-                                                                        //get user object
-                                                                        Users user = documentSnapshot.toObject(Users.class).withId(postUserId);
-                                                                        //add post and user to post list and user list
-                                                                        savedPostsList.add(post);
-                                                                        usersList.add(user);
-                                                                        savedPostsRecyclerAdapter.notifyDataSetChanged();
-                                                                    } else {
-                                                                        //user does not exist
-                                                                        //delete post
-                                                                        Log.d(TAG, "onSuccess: user does not exist");
-                                                                        coMeth.getDb()
-                                                                                .collection("Posts")
-                                                                                .document(postId)
-                                                                                .delete()
-                                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                    @Override
-                                                                                    public void onSuccess(Void aVoid) {
-                                                                                        Log.d(TAG, "onSuccess:deleted post because post user does not exist");
-                                                                                    }
-                                                                                })
-                                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                                    @Override
-                                                                                    public void onFailure(@NonNull Exception e) {
-                                                                                        Log.d(TAG, "onFailure: failed to delete post of user who does nt exist");
-                                                                                    }
-                                                                                });
-                                                                    }
-                                                                }
-                                                            })
-                                                            .addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    Log.d(TAG, "onFailure: failed to get user details\n" + e.getMessage());
-                                                                }
-                                                            });
-                                                } else {
-                                                    //post does not exists anymore
-                                                    //delete reference
-                                                    coMeth.getDb()
-                                                            .collection("Users/" + currentUserId + "/Subscriptions/saved_posts/SavedPosts")
-                                                            .document(postId)
-                                                            .delete()
-                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                @Override
-                                                                public void onSuccess(Void aVoid) {
-                                                                    Log.d(TAG, "onSuccess: deleted saved doc reference ");
-                                                                }
-                                                            })
-                                                            .addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    Log.d(TAG, "onFailure: failed to delete doc reference on saved ref\n" + e.getMessage());
-                                                                }
-                                                            });
-                                                }
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.d(TAG, "onFailure: failed to get saved document\n" + e.getMessage());
-                                            }
-                                        });
-                                coMeth.stopLoading(progressDialog, swipeRefresh);
+                                getSavedPostDetails(postId);
                             }
-
-
                         } else {
                             //user has no saved posts
                             showSnack(getString(R.string.dont_have_saves_text));
@@ -245,6 +157,112 @@ public class SavedFragment extends Fragment {
                         Log.d(TAG, "onFailure: failed to get saved posts\n" + e.getMessage());
                         showSnack(getResources().getString(R.string.failed_to_get_saves) + ": " +
                                 e.getMessage());
+                    }
+                });
+    }
+
+    private void getSavedPostDetails(final String postId) {
+        Log.d(TAG, "getSavedPostDetails: ");
+        coMeth.getDb()
+                .collection(CoMeth.POSTS)
+                .document(postId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        //get post
+                        if (documentSnapshot.exists()) {
+                            //the post exists
+                            //convert doc to post object
+                            final Posts post = Objects.requireNonNull(
+                                    documentSnapshot.toObject(Posts.class)).withId(postId);
+                            //get post user
+                            final String postUserId = post.getUser_id();
+                            getUserData(post, postUserId, postId);
+                        } else {
+                            //post does not exists anymore
+                            //delete reference
+                            coMeth.getDb()
+                                    .collection(CoMeth.USERS + "/" +
+                                            currentUserId + "/" + CoMeth.SUBSCRIPTIONS + "/" +
+                                            CoMeth.SAVED_POSTS_DOC + "/" + CoMeth.SAVED_POSTS)
+                                    .document(postId)
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG, "onSuccess: deleted saved doc reference ");
+                                            coMeth.stopLoading(progressDialog, swipeRefresh);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            coMeth.stopLoading(progressDialog, swipeRefresh);
+                                            Log.d(TAG, "onFailure: failed to delete doc" +
+                                                    " reference on saved ref\n" +
+                                                    e.getMessage());
+                                        }
+                                    });
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get saved document\n" +
+                                e.getMessage());
+                        coMeth.stopLoading(progressDialog, swipeRefresh);
+                    }
+                });
+    }
+
+    private void getUserData(final Posts post, final String postUserId, final String postId) {
+        coMeth.getDb()
+                .collection("Users")
+                .document(postUserId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //user exists
+                            //get user object
+                            Users user = Objects.requireNonNull(
+                                    documentSnapshot.toObject(Users.class)).withId(postUserId);
+                            //add post and user to post list and user list
+                            savedPostsList.add(post);
+                            usersList.add(user);
+                            savedPostsRecyclerAdapter.notifyDataSetChanged();
+                        } else {
+                            //user does not exist
+                            //delete post
+                            Log.d(TAG, "onSuccess: user does not exist");
+                            coMeth.getDb()
+                                    .collection(CoMeth.POSTS)
+                                    .document(postId)
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG, "onSuccess:deleted post " +
+                                                    "because post user does not exist");
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(TAG, "onFailure: failed to delete " +
+                                                    "post of user who does nt exist");
+                                        }
+                                    });
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get user details\n" + e.getMessage());
                     }
                 });
     }
