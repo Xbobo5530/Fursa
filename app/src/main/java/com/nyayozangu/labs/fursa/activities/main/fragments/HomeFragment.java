@@ -54,7 +54,6 @@ public class HomeFragment extends Fragment {
     private DocumentSnapshot lastVisiblePost;
     private Boolean isFirstPageFirstLoad = true;
     private ProgressDialog progressDialog;
-    private ArrayList<String> tags;
 
     public HomeFragment() {
     } // Required empty public constructor
@@ -62,7 +61,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-//        outState.putString("postList", postsList);
     }
 
     @Override
@@ -74,6 +72,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        //hide progress
         ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
     }
 
@@ -90,7 +89,7 @@ public class HomeFragment extends Fragment {
         //initiate an arrayList to hold all the posts
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
-        tags = new ArrayList<>();
+        ArrayList<String> tags = new ArrayList<>();
 
         //initiate the PostsRecyclerAdapter
         String className = "HomeFragment";
@@ -626,6 +625,7 @@ public class HomeFragment extends Fragment {
 
 
     }
+
 
     //show progress
     private void showProgress(String message) {

@@ -154,7 +154,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }, 30000);
     }
 
-    static void updateFeedViews(Posts post) {
+    public static void updateFeedViews(Posts post) {
         Log.d(TAG, "updateFeedViews: ");
         Map<String, Object> feedViewMap = new HashMap<>();
         int feedViews = post.getFeed_views() + 1;
@@ -188,8 +188,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 (className.equals(HOME_FRAGMENT) ||
                         className.equals(VIEW_CAT_ACTIVITY))) {
             Log.d(TAG, "loadPostContent: rand num = pos, showing ad");
-            holder.adCard.setVisibility(View.VISIBLE);
             holder.setAd();
+//            holder.adCard.setVisibility(View.VISIBLE);
         } else {
             holder.adCard.setVisibility(View.GONE);
         }
@@ -834,13 +834,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         //set ad
-        public void setAd() {
+        void setAd() {
             Log.d(TAG, "setAd: ");
             AdView adView = mView.findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder()
 //                    .addTestDevice("CD3E657857E4EEBE754743B250DCAB5E")
                     .build();
             adView.loadAd(adRequest);
+            adCard.setVisibility(View.VISIBLE);
         }
     }
 

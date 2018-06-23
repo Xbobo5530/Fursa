@@ -23,7 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     private static final String TAG = "Sean";
 
+    // TODO: 6/23/18 handle notifications
+    // TODO: 6/23/18 handle general notoifications and user notifications
+
     //common methods
     private CoMeth coMeth = new CoMeth();
 
@@ -76,10 +79,9 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     private boolean doubleBackToExitPressedOnce = false;
 
     private CircleImageView userProfileImage;
-    private TextView searchBar, fursaTitle;
+    private TextView searchBar;
 
     private SearchView mainSearchView;
-    private ImageView searchButton;
     private ConstraintLayout searchLayout;
 
     private List<String> lastSearches;
@@ -111,12 +113,12 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         //initiate elements
         mainSearchView = findViewById(R.id.mainSearchView);
         progressBar = findViewById(R.id.mainProgressBar);
-        searchButton = findViewById(R.id.searchButton);
+        ImageButton searchButton = findViewById(R.id.searchButton);
         searchLayout = findViewById(R.id.mainSearchConsLayout);
         userProfileImage = findViewById(R.id.currentUserImageView);
         createPostButton = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
-        fursaTitle = findViewById(R.id.fursaTitleTextView);
+        TextView titleBar = findViewById(R.id.fursaTitleTextView);
 
         hasAcceptedTermsStatus = getResources().getString(R.string.false_value);
 
@@ -136,7 +138,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
             }
         });
         //fursa title is clicked
-        fursaTitle.setOnClickListener(new View.OnClickListener() {
+        titleBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: fursa title is clicked");
