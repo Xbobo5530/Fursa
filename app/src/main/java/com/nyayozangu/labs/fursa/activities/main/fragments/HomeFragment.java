@@ -73,7 +73,7 @@ public class HomeFragment extends Fragment {
     public void onPause() {
         super.onPause();
         //hide progress
-        ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
+//        ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
     }
 
     @Override
@@ -118,21 +118,15 @@ public class HomeFragment extends Fragment {
                 if (reachedBottom) {
                     //clear post list
                     Log.d(TAG, "at addOnScrollListener\n reached bottom");
-//                    //show progress
-//                    ((MainActivity) Objects.requireNonNull(getActivity()))
-//                            .progressBar.setVisibility(View.VISIBLE);
                     loadMorePosts();
-//                    new LoadPostsTask().execute();
-                } else {
-                    ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
                 }
             }
         });
 
 
         final Query firstQuery = coMeth.getDb()
-                .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .collection(CoMeth.POSTS)
+                .orderBy(CoMeth.TIMESTAMP, Query.Direction.DESCENDING)
                 .limit(10);
         //get all posts from the database
         loadPosts(firstQuery);
@@ -557,11 +551,11 @@ public class HomeFragment extends Fragment {
     public void loadMorePosts() {
 
         //show progress
-        ((MainActivity) Objects.requireNonNull(getActivity())).progressBar.setVisibility(View.VISIBLE);
+        showProgress(getResources().getString(R.string.loading_text));
         Log.d(TAG, "loadMorePosts: ");
         Query nextQuery = coMeth.getDb()
-                .collection("Posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .collection(CoMeth.POSTS)
+                .orderBy(CoMeth.TIMESTAMP, Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
                 .limit(10);
 
@@ -599,12 +593,7 @@ public class HomeFragment extends Fragment {
                                                     postsList.add(post);
                                                 }
                                                 postsRecyclerAdapter.notifyDataSetChanged();
-                                                try {
-                                                    ((MainActivity) getActivity()).hideProgress();
-                                                } catch (NullPointerException activityIsNull) {
-                                                    Log.d(TAG, "onSuccess: actvity is null\n" +
-                                                            activityIsNull.getMessage());
-                                                }
+                                                coMeth.stopLoading(progressDialog, swipeRefresh);
                                             }
                                         }
                                     })
@@ -613,8 +602,11 @@ public class HomeFragment extends Fragment {
                                         public void onFailure(@NonNull Exception e) {
                                             Log.d(TAG, "onFailure: failed to get user info\n" +
                                                     e.getMessage());
+                                            coMeth.stopLoading(progressDialog, swipeRefresh);
+
                                         }
                                     });
+//                            coMeth.stopLoading(progressDialog, swipeRefresh);
                         }
                     }
 

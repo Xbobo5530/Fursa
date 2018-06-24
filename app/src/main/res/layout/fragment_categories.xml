@@ -1,6 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/catsFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment">
@@ -16,10 +17,42 @@
         android:stretchMode="columnWidth"
         android:verticalSpacing="10dp" />-->
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/catsConstraintLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/catsLinear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/catsTabsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="@color/colorAccent"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/colorAccent"
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
+            app:tabTextColor="@color/black_overlay" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/catsViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/catsTabsLayout" />
+
+    </LinearLayout>
+
+    <!--<android.support.constraint.ConstraintLayout-->
+    <!--android:id="@+id/catsConstraintLayout"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent">-->
 
         <!--<LinearLayout-->
         <!--android:id="@+id/catsLinearLayout"-->
@@ -68,28 +101,5 @@
         <!--</FrameLayout>-->
 
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/catsTabsLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@color/colorAccent"
-            app:tabMode="fixed"
-            app:tabSelectedTextColor="@color/colorAccent"
-            app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
-            app:tabTextColor="@color/black_overlay" />
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/catsViewPager"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/catsTabsLayout" />
-    </android.support.constraint.ConstraintLayout>
+    <!--</android.support.constraint.ConstraintLayout>-->
 </FrameLayout>

@@ -67,7 +67,7 @@ public class TermsFragment extends Fragment {
                         getString(R.string.true_value));
                 editor.apply();
                 //show bottom nav and go home
-                ((MainActivity) getActivity()).createPostButton.setVisibility(View.VISIBLE);
+                ((MainActivity) getActivity()).newPostFab.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).mainBottomNav.setVisibility(View.VISIBLE);
                 ((MainActivity) getActivity()).mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
 

@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     private CoMeth coMeth = new CoMeth();
 
     //users
-    public FloatingActionButton createPostButton;
+    public FloatingActionButton newPostFab;
     public BottomNavigationView mainBottomNav;
     private TextView titleBarTextView;
 
@@ -86,7 +85,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     private List<String> lastSearches;
     private ProgressDialog progressDialog;
-    public ProgressBar progressBar;
+//    public ProgressBar progressBar;
 
     public String hasAcceptedTermsStatus;
 
@@ -112,11 +111,11 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
         //initiate elements
         mainSearchView = findViewById(R.id.mainSearchView);
-        progressBar = findViewById(R.id.mainProgressBar);
+//        progressBar = findViewById(R.id.mainProgressBar);
         ImageButton searchButton = findViewById(R.id.searchButton);
         searchLayout = findViewById(R.id.mainSearchConsLayout);
         userProfileImage = findViewById(R.id.currentUserImageView);
-        createPostButton = findViewById(R.id.newPostFab);
+        newPostFab = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
         TextView titleBar = findViewById(R.id.fursaTitleTextView);
 
@@ -127,6 +126,13 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
         //check if already accepted terms
         checkHasAcceptedTerms();
+
+
+        //handle bottom nav scroll
+//        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams)
+//                mainBottomNav.getLayoutParams();
+//        layoutParams.setBehavior(new BottomNavigationViewBehavior());
+
 
         //search
         //search icon is clicked
@@ -266,7 +272,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                 goToSettings();
             }
         });
-        createPostButton.setOnClickListener(new View.OnClickListener() {
+        newPostFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -322,11 +328,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
     }
 
-
-    public void hideProgress() {
-        if (progressBar.getVisibility() == View.VISIBLE) {
-            progressBar.setVisibility(View.GONE);
-        }
+    public void hideNewPostFab() {
+        newPostFab.hide();
     }
 
     private void checkHasAcceptedTerms() {
@@ -372,7 +375,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         //hide the hide bottom nav
         //hide create post fab
         mainBottomNav.setVisibility(View.GONE);
-        createPostButton.setVisibility(View.GONE);
+        newPostFab.setVisibility(View.GONE);
     }
 
 

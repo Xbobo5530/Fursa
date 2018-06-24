@@ -219,7 +219,7 @@ public class SavedFragment extends Fragment {
 
     private void getUserData(final Posts post, final String postUserId, final String postId) {
         coMeth.getDb()
-                .collection("Users")
+                .collection(CoMeth.USERS)
                 .document(postUserId)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -234,28 +234,7 @@ public class SavedFragment extends Fragment {
                             savedPostsList.add(post);
                             usersList.add(user);
                             savedPostsRecyclerAdapter.notifyDataSetChanged();
-                        } else {
-                            //user does not exist
-                            //delete post
-                            Log.d(TAG, "onSuccess: user does not exist");
-                            coMeth.getDb()
-                                    .collection(CoMeth.POSTS)
-                                    .document(postId)
-                                    .delete()
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG, "onSuccess:deleted post " +
-                                                    "because post user does not exist");
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "onFailure: failed to delete " +
-                                                    "post of user who does nt exist");
-                                        }
-                                    });
+                            coMeth.stopLoading(progressDialog, swipeRefresh);
                         }
                     }
                 })
@@ -263,6 +242,7 @@ public class SavedFragment extends Fragment {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "onFailure: failed to get user details\n" + e.getMessage());
+                        coMeth.stopLoading(progressDialog, swipeRefresh);
                     }
                 });
     }

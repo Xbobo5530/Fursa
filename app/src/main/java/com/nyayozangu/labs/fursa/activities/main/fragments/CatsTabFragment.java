@@ -3,6 +3,7 @@ package com.nyayozangu.labs.fursa.activities.main.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -34,6 +36,9 @@ public class CatsTabFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
+
+    private int mLastFirstVisibleItem;
+
 
     public CatsTabFragment() {
         // Required empty public constructor
@@ -88,8 +93,13 @@ public class CatsTabFragment extends Fragment {
         int[] to = {R.id.catGridItemImageView, R.id.catGridItemTextView};
 
         SimpleAdapter simpleAdapter =
-                new SimpleAdapter(getActivity().getBaseContext(), aList, R.layout.cat_grid_item_layout, from, to);
+                new SimpleAdapter(getActivity().getBaseContext(),
+                        aList, R.layout.cat_grid_item_layout, from, to);
         final GridView catGridView = view.findViewById(R.id.catsGridView);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            catGridView.setNestedScrollingEnabled(true);
+        }
 
         View gridCell = inflater.inflate(R.layout.cat_grid_item_layout, null);
         int cellWidth = measureCellWidth(getContext(), gridCell);
@@ -98,19 +108,6 @@ public class CatsTabFragment extends Fragment {
         catGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                /*
-                "Featured",
-                "Popular",
-                "UpComing",
-                "Events",
-                "Places",
-                "Business",
-                "Buy and sell",
-                "Education",
-                "Jobs",
-                "Queries",
-                "Exhibitions"*/
 
                 Log.d(TAG, "onItemClick: ");
                 openCat(coMeth.getCatKey(coMeth.catTitle[position]));
@@ -138,6 +135,42 @@ public class CatsTabFragment extends Fragment {
         } catch (NullPointerException nullE) {
             Log.d(TAG, "onCreateView: null on reselect cats tab\n" + nullE.getMessage());
         }
+
+        //handle hiding views on scroll
+        catGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+            private int mInitialScroll = 0;
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+//                int scrolledOffset = catGridView.getVerticalScrollOffset();
+//                if (scrolledOffset!=mInitialScroll) {
+//                    //if scroll position changed
+//                    boolean scrollUp = (scrolledOffset - mInitialScroll) < 0;
+//
+//                    hideViews(scrollUp);
+//
+//                    mInitialScroll = scrolledOffset;
+//                }
+                if (mLastFirstVisibleItem < firstVisibleItem) {
+                    Log.i("SCROLLING DOWN", "TRUE");
+                    //hide views
+
+                }
+                if (mLastFirstVisibleItem > firstVisibleItem) {
+                    Log.i("SCROLLING UP", "TRUE");
+                    //show views
+
+                }
+                mLastFirstVisibleItem = firstVisibleItem;
+
+            }
+        });
 
 
         return view;
@@ -176,5 +209,24 @@ public class CatsTabFragment extends Fragment {
 
         return width;
     }
+
+//    public class ScrollDetectingGridView extends GridView {
+//        public ScrollDetectingGridView(Context context) {
+//            super(context);
+//        }
+//
+//        public ScrollDetectingGridView(Context context, AttributeSet attrs) {
+//            super(context,attrs);
+//        }
+//
+//        public ScrollDetectingGridView(Context context, AttributeSet attrs, int defStyle) {
+//            super(context, attrs, defStyle);
+//        }
+//
+//        //we need this protected method for scroll detection
+//        public int getVerticalScrollOffset() {
+//            return computeVerticalScrollOffset();
+//        }
+//    }
 
 }

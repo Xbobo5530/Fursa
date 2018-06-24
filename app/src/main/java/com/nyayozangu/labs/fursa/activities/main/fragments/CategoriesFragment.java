@@ -52,7 +52,7 @@ public class CategoriesFragment extends Fragment {
 
     private void setupViewPager(ViewPager catsViewPager) {
         Log.d(TAG, "setupViewPager: ");
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager()/* getSupportFragmentManager()*/);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         adapter.addFragment(new CatsTabFragment(), getResources().getString(R.string.categories_text));
         adapter.addFragment(new TagsTabFragment(), getResources().getString(R.string.trending_tags_text));
         catsViewPager.setAdapter(adapter);
