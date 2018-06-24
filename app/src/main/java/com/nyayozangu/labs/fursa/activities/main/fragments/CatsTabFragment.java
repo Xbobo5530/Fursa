@@ -115,7 +115,6 @@ public class CatsTabFragment extends Fragment {
             }
         });
 
-
         // handle the re-selecting the categories tab on the main bottom navigation on MainActivity
         try {
             ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
@@ -148,15 +147,7 @@ public class CatsTabFragment extends Fragment {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-//                int scrolledOffset = catGridView.getVerticalScrollOffset();
-//                if (scrolledOffset!=mInitialScroll) {
-//                    //if scroll position changed
-//                    boolean scrollUp = (scrolledOffset - mInitialScroll) < 0;
-//
-//                    hideViews(scrollUp);
-//
-//                    mInitialScroll = scrolledOffset;
-//                }
+
                 if (mLastFirstVisibleItem < firstVisibleItem) {
                     Log.i("SCROLLING DOWN", "TRUE");
                     //hide views
@@ -168,10 +159,8 @@ public class CatsTabFragment extends Fragment {
 
                 }
                 mLastFirstVisibleItem = firstVisibleItem;
-
             }
         });
-
 
         return view;
     }
@@ -209,24 +198,4 @@ public class CatsTabFragment extends Fragment {
 
         return width;
     }
-
-//    public class ScrollDetectingGridView extends GridView {
-//        public ScrollDetectingGridView(Context context) {
-//            super(context);
-//        }
-//
-//        public ScrollDetectingGridView(Context context, AttributeSet attrs) {
-//            super(context,attrs);
-//        }
-//
-//        public ScrollDetectingGridView(Context context, AttributeSet attrs, int defStyle) {
-//            super(context, attrs, defStyle);
-//        }
-//
-//        //we need this protected method for scroll detection
-//        public int getVerticalScrollOffset() {
-//            return computeVerticalScrollOffset();
-//        }
-//    }
-
 }

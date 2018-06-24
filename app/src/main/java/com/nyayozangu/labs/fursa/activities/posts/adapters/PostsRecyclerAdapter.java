@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
@@ -141,20 +140,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         return position;
     }
 
-    @Override
-    public void onViewDetachedFromWindow(@NonNull final ViewHolder holder) {
-        super.onViewDetachedFromWindow(holder);
-        Log.d(TAG, "onViewDetachedFromWindow: starting timer to delete view holder images");
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "run: 10s are up deleting old images");
-                glide.clear(holder.postImageView);
-            }
-        }, 30000);
-    }
-
-    public static void updateFeedViews(Posts post) {
+    static void updateFeedViews(Posts post) {
         Log.d(TAG, "updateFeedViews: ");
         Map<String, Object> feedViewMap = new HashMap<>();
         int feedViews = post.getFeed_views() + 1;
@@ -176,6 +162,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                 e.getMessage());
                     }
                 });
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        super.onViewRecycled(holder);
+        Log.d(TAG, "onViewRecycled: view is recycled clearing images");
+        glide.clear(holder.postImageView);
     }
 
     private void loadPostContent(@NonNull final ViewHolder holder, int position) {
