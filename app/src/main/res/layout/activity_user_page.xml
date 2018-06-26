@@ -5,7 +5,7 @@
     android:id="@+id/userPageLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nyayozangu.labs.fursa.users.UserPageActivity">
+    tools:context="com.nyayozangu.labs.fursa.activities.UserPageActivity">
 
     <android.support.v7.widget.CardView
         android:id="@+id/userPageCard"

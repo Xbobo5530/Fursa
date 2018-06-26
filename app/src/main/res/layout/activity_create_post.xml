@@ -5,7 +5,7 @@
     android:id="@+id/createPostActivityLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity">
+    tools:context="com.nyayozangu.labs.fursa.activities.CreatePostActivity">
 
 
     <android.support.design.widget.AppBarLayout
@@ -36,8 +36,8 @@
                 android:id="@+id/createPostToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
                 android:background="@color/black_transparent"
+                app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
 
                 <android.support.constraint.ConstraintLayout

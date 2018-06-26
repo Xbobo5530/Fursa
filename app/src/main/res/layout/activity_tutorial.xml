@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/tutbackground"
-    tools:context="com.nyayozangu.labs.fursa.activities.tutorial.TutorialActivity">
+    tools:context="com.nyayozangu.labs.fursa.activities.TutorialActivity">
 
 
     <android.support.v4.view.ViewPager

@@ -5,7 +5,7 @@
     android:id="@+id/tagsTabLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.tags.TagsTabFragment">
+    tools:context=".fragments.TagsTabFragment">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"

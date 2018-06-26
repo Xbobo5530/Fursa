@@ -5,7 +5,7 @@
     android:id="@+id/allSearchResultsFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.search.fragments.AllSearchResultsFragment">
+    tools:context=".fragments.AllSearchResultsFragment">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"

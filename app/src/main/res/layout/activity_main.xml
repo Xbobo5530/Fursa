@@ -45,7 +45,7 @@
             android:src="@drawable/ic_action_add_white"
             app:elevation="8dp"
             app:layout_anchorGravity="top|center"
-            app:layout_behavior="com.nyayozangu.labs.fursa.FabBehaviour" />
+            app:layout_behavior="com.nyayozangu.labs.fursa.helpers.FabBehaviour" />
 
 
         <android.support.design.widget.BottomNavigationView
@@ -58,7 +58,7 @@
             app:itemIconTint="@color/nav_items"
             app:itemTextColor="@color/nav_items"
             app:layout_anchorGravity="bottom"
-            app:layout_behavior="com.nyayozangu.labs.fursa.BottomNavigationViewBehavior"
+            app:layout_behavior="com.nyayozangu.labs.fursa.helpers.BottomNavigationViewBehavior"
             app:menu="@menu/bottom_nav_menu" />
 
         <View

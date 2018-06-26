@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.nyayozangu.labs.fursa.activities.categories.ViewCategoryActivity">
+    tools:context="com.nyayozangu.labs.fursa.activities.ViewCategoryActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/view_cat_app_bar"
@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
+            app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:toolbarId="@+id/viewCatToolbar">
 

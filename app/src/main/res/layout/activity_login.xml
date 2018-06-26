@@ -7,15 +7,14 @@
     android:layout_height="match_parent"
     android:paddingEnd="0dp"
     android:paddingStart="0dp"
-    tools:context="com.nyayozangu.labs.fursa.activities.settings.LoginActivity">
+    tools:context="com.nyayozangu.labs.fursa.activities.LoginActivity">
 
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/loginToolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -280,5 +280,6 @@
     <string name="verification_email_sent_text">A verification email has been sent to your email address.</string>
     <string name="login_afer_verification_text">Login after verifying your email to create posts.</string>
     <string name="notifications_text">Notifications</string>
+    <string name="open_text">Open</string>
 
 </resources>

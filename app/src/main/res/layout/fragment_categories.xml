@@ -4,7 +4,7 @@
     android:id="@+id/catsFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nyayozangu.labs.fursa.activities.main.fragments.CategoriesFragment">
+    tools:context=".fragments.CategoriesFragment">
 
 
     <!--<GridView

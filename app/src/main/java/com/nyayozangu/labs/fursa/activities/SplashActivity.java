@@ -8,8 +8,6 @@ import android.util.Log;
 
 import com.nyayozangu.labs.fursa.BuildConfig;
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.main.MainActivity;
-import com.nyayozangu.labs.fursa.activities.tutorial.TutorialActivity;
 
 public class SplashActivity extends AppCompatActivity {
 

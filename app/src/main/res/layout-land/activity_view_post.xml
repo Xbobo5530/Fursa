@@ -6,12 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.nyayozangu.labs.fursa.activities.posts.ViewPostActivity">
+    tools:context="com.nyayozangu.labs.fursa.activities.ViewPostActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/viewPostToolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         app:layout_collapseMode="pin"

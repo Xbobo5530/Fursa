@@ -5,14 +5,13 @@
     android:id="@+id/comment_activity_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nyayozangu.labs.fursa.activities.comments.CommentsActivity">
+    tools:context="com.nyayozangu.labs.fursa.activities.CommentsActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/commentsToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
