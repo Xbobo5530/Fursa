@@ -209,6 +209,8 @@ public class MainActivity extends AppCompatActivity {
 
         //set the userProfile image
         handleNavViewHeader(navigationView);
+
+        //hadnlde new posts fab
         newPostFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -303,6 +305,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             userProfileImage.setImageDrawable(
                     getResources().getDrawable(R.drawable.appiconshadow));
+            //set login text
+            usernameField.setText(getResources().getString(R.string.login_text));
             //if user is not logged in
             //clicking the nav header opens the login page
             navHeader.setOnClickListener(new View.OnClickListener() {
@@ -639,7 +643,6 @@ public class MainActivity extends AppCompatActivity {
         Intent goToUserPageIntent = new Intent(this, UserPageActivity.class);
         goToUserPageIntent.putExtra("userId", coMeth.getUid());
         startActivity(goToUserPageIntent);
-        finish();
     }
 
 }
