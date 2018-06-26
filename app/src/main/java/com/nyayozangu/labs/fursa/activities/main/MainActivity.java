@@ -13,9 +13,11 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,8 +26,10 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,13 +51,14 @@ import com.nyayozangu.labs.fursa.activities.search.SearchableActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
+import com.nyayozangu.labs.fursa.users.UserPageActivity;
 import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity/* implements CreatePostActivity.AsyncResponse */ {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
 
@@ -67,6 +72,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     public FloatingActionButton newPostFab;
     public BottomNavigationView mainBottomNav;
     private TextView titleBarTextView;
+
+    private DrawerLayout mainDrawerLayout;
 
     //instances of fragments
     private HomeFragment homeFragment;
@@ -85,7 +92,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     private List<String> lastSearches;
     private ProgressDialog progressDialog;
-//    public ProgressBar progressBar;
 
     public String hasAcceptedTermsStatus;
 
@@ -97,7 +103,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        cleanDB();
         //subscribe to app updates
         FirebaseMessaging.getInstance().subscribeToTopic("UPDATES");
         Log.d(TAG, "user subscribed to topic UPDATES");
@@ -118,6 +123,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         newPostFab = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
         TextView titleBar = findViewById(R.id.fursaTitleTextView);
+        mainDrawerLayout = findViewById(R.id.drawer_layout);
 
         hasAcceptedTermsStatus = getResources().getString(R.string.false_value);
 
@@ -127,30 +133,36 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
         //check if already accepted terms
         checkHasAcceptedTerms();
 
+        NavigationView navigationView = findViewById(R.id.nav_view);
 
-        //handle bottom nav scroll
-//        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams)
-//                mainBottomNav.getLayoutParams();
-//        layoutParams.setBehavior(new BottomNavigationViewBehavior());
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // set item as selected to persist highlight
+//                        menuItem.setChecked(true);
+
+                        Log.d(TAG, "onNavigationItemSelected: selected item is " + menuItem);
 
 
-        //search
-        //search icon is clicked
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: search icon is clicked");
-                openSearch();
-            }
-        });
-        //fursa title is clicked
-        titleBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: fursa title is clicked");
-                openSearch();
-            }
-        });
+                        switch (menuItem.getItemId()) {
+                            case R.id.nav_share:
+                                Log.d(TAG, "onNavigationItemSelected: " +
+                                        "share nave item selected");
+                                Toast.makeText(MainActivity.this, "share nav item selected", Toast.LENGTH_SHORT).show();
+                            default:
+                                Log.d(TAG, "onNavigationItemSelected: " +
+                                        "nav menu item select on default");
+                                Toast.makeText(MainActivity.this, "at default", Toast.LENGTH_SHORT).show();
+
+                        }
+
+                        // close drawer when item is tapped
+                        mainDrawerLayout.closeDrawers();
+                        return true;
+
+                    }
+                });
 
         if (!coMeth.isConnected()) {
             //notify user is not connected
@@ -183,46 +195,74 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                     }
                 });
 
-        // TODO: 5/23/18 handle reselect bottom nav items
-        //handle bottom nav item re-selected
-        /*mainBottomNav.setOnNavigationItemReselectedListener(
-                new BottomNavigationView.OnNavigationItemReselectedListener() {
+        //set the userProfile image
+        handleNavViewHeader(navigationView);
+        //set click listener to image view
+        userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onNavigationItemReselected(@NonNull MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.bottomNavHomeItem:
+            public void onClick(View v) {
+                goToSettings();
+            }
+        });
+        newPostFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-                        *//*
-                        * Bundle bundle = new Bundle();
-                            bundle.putString("edttext", "From Activity");
-                            // set Fragmentclass Arguments
-                            Fragmentclass fragobj = new Fragmentclass();
-                            fragobj.setArguments(bundle);
-                        * *//*
-                        Log.d(TAG, "onNavigationItemReselected: ");
-                        Bundle bundle = new Bundle();
-                        bundle.putString("action", "home_reselect");
-                        homeFragment.setArguments(bundle);
-                        setFragment(homeFragment);
-                        break;
-                    case R.id.bottomNavSavedItem:
-                        setFragment(savedFragment);
-                        break;
-                    default:
-                        Log.d(TAG, "onNavigationItemReselected: ");
+                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+                    //check is user has verified email
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    boolean emailVerified = user.isEmailVerified();
+                    if (emailVerified
+                            || user.getProviders().contains("facebook.com")
+                            || user.getProviders().contains("twitter.com")
+                            || user.getProviders().contains("google.com")) {
+                        //start the new post activity
+                        goToCreatePost();
+                    } else {
+                        showVerEmailDialog();
+                    }
+                } else {
+                    if (!coMeth.isConnected()) showConnectionErrorMessage();
+                    if (!coMeth.isLoggedIn()) goToLogin(getString(R.string.login_to_post_text));
                 }
             }
-        });*/
+        });
 
-        //set the userProfile image
+        //handle search
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(
+                new ComponentName(this, SearchableActivity.class)));
+        mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
+    }
+
+    private void showConnectionErrorMessage() {
+        AlertDialog.Builder noNetBuilder = new AlertDialog.Builder(MainActivity.this);
+        noNetBuilder.setTitle("Connection Error")
+                .setIcon(R.drawable.ic_action_red_alert)
+                .setMessage("Failed to connect to the internet" +
+                        "\nCheck your connection and try again")
+                .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    private void handleNavViewHeader(NavigationView navigationView) {
+        Log.d(TAG, "handleNavViewHeader: ");
+        ConstraintLayout navHeader = (ConstraintLayout) navigationView.getHeaderView(0);
+        final ImageView userProfileImage = navHeader.findViewById(R.id.navHeaderUserImageView);
+        final TextView usernameField = navHeader.findViewById(R.id.navHeaderUsernameTextView);
+
         if (coMeth.isLoggedIn()) {
-
-            //user is logged in
-            String userId = new CoMeth().getUid();
+            //set user data
+            String userId = coMeth.getUid();
             coMeth.getDb()
-                    .collection("Users")
-                    .document(userId)
-                    .get()
+                    .collection(CoMeth.USERS).document(userId).get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -230,18 +270,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                             //convert user to object
                             if (documentSnapshot.exists()) {
                                 Users user = documentSnapshot.toObject(Users.class);
-                                if (user.getImage() != null) {
-                                    String userImageDownloadUri = user.getImage();
-                                    //set image
-                                    coMeth.setImage(R.drawable.ic_action_person_placeholder,
-                                            userImageDownloadUri,
-                                            userProfileImage);
-                                } else {
-                                    userProfileImage
-                                            .setImageDrawable(
-                                                    getResources().getDrawable(R.drawable
-                                                            .ic_action_person_placeholder));
-                                }
+                                assert user != null;
+                                setUserData(user, userProfileImage, usernameField);
                             } else {
                                 //user does not exist
                                 Log.d(TAG, "onSuccess: user does not exist");
@@ -257,79 +287,58 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                                     getResources().getDrawable(R.drawable.ic_action_person_placeholder));
                         }
                     });
+
+            //set click listener
+            navHeader.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToUserPage();
+                }
+            });
         } else {
             userProfileImage.setImageDrawable(
                     getResources().getDrawable(R.drawable.appiconshadow));
-        }
-
-
-        //hide search layout
-        searchLayout.setVisibility(View.GONE);
-        //set click listener to image view
-        userProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToSettings();
-            }
-        });
-        newPostFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (coMeth.isConnected()) {
-
-                    //only allow the user to post if user is signed in
-                    if (coMeth.isLoggedIn()) {
-
-                        //check is user has verified email
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        boolean emailVerified = user.isEmailVerified();
-                        if (emailVerified
-                                || user.getProviders().contains("facebook.com")
-                                || user.getProviders().contains("twitter.com")
-                                || user.getProviders().contains("google.com")) {
-                            //start the new post activity
-                            goToCreatePost();
-                        } else {
-                            //user has not verified email
-                            //alert user is not verified
-                            showVerEmailDialog();
-                        }
-                    } else {
-
-                        String message = getString(R.string.login_to_post_text);
-                        goToLogin(message);
-                    }
-                } else {
-
-                    AlertDialog.Builder noNetBuilder = new AlertDialog.Builder(MainActivity.this);
-                    noNetBuilder.setTitle("Connection Error")
-                            .setIcon(R.drawable.ic_action_red_alert)
-                            .setMessage("Failed to connect to the internet" +
-                                    "\nCheck your connection and try again")
-                            .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                    dialog.dismiss();
-                                }
-                            })
-                            .show();
+            //if user is not logged in
+            //clicking the nav header opens the login page
+            navHeader.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToLogin();
                 }
-            }
-        });
-
-
-        //handle search
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(
-                new ComponentName(this, SearchableActivity.class)));
-        mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
+            });
+        }
     }
 
-    public void hideNewPostFab() {
-        newPostFab.hide();
+    /**
+     * go to login page without message
+     */
+    private void goToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    /**
+     * set user data
+     *
+     * @param user             user data
+     * @param usernameField    view TextView for username
+     * @param userProfileImage String user image download url
+     */
+    private void setUserData(Users user, ImageView userProfileImage, TextView usernameField) {
+        if (user.getImage() != null) {
+            String userImageDownloadUri = user.getImage();
+            String username = user.getName();
+            //set image
+            coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                    userImageDownloadUri,
+                    userProfileImage);
+            //set username
+            usernameField.setText(username);
+        } else {
+            userProfileImage
+                    .setImageDrawable(
+                            getResources().getDrawable(R.drawable
+                                    .ic_action_person_placeholder));
+        }
     }
 
     private void checkHasAcceptedTerms() {
@@ -387,14 +396,12 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     }
 
     private void handleIntent() {
-        Log.d(TAG, "handleIntent: at main");
         if (getIntent() != null) {
-            Log.d(TAG, "handleIntent: intent is not null");
             Intent intent = getIntent();
             if (intent.getStringExtra(getResources().getString(R.string.ACTION_NAME)) != null) {
                 switch (intent.getStringExtra(getResources().getString(R.string.ACTION_NAME))) {
 
-                    case "notify":
+                    case CoMeth.NOTIFY:
 
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
@@ -406,7 +413,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
                         break;
 
-                    case "update":
+                    case CoMeth.UPDATE:
                         //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
@@ -414,44 +421,37 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         Log.d(TAG, "handleIntent: action is update");
                         break;
 
-                    case "goto":
+                    case CoMeth.GOTO:
 
-                        switch (intent.getStringExtra("destination")) {
+                        switch (intent.getStringExtra(CoMeth.DESTINATION)) {
 
-                            case "saved":
+                            case CoMeth.SAVED_VAL:
                                 mainBottomNav.setSelectedItemId(R.id.bottomNavSavedItem);
                                 setFragment(savedFragment);
                                 break;
-                            case "categories":
+                            case CoMeth.CATEGORIES_VAL:
                                 mainBottomNav.setSelectedItemId(R.id.bottomNavCatItem);
                                 setFragment(categoriesFragment);
                                 break;
-                            case "terms":
+                            case CoMeth.TERMS:
                                 setFragment(termsFragment);
                                 break;
                             default:
-                                //set the homeFragment when home the main activity is loaded
                                 mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                                 setFragment(homeFragment);
                                 Log.d(TAG, "onCreate: at goto default");
                         }
                         break;
                     default:
-                        //set the homeFragment when home the main activity is loaded
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
-//                        setFragment(homeFragment);
                         Log.d(TAG, "onCreate: at action default" +
                                 intent.getStringExtra("action"));
                 }
             } else {
-                //set the homeFragment when home the main activity is loaded
-//                mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                 setFragment(homeFragment);
             }
         } else {
-            //set the homeFragment when home the main activity is loaded
             Log.d(TAG, "handleIntent: intent is null");
-//            mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
             setFragment(homeFragment);
         }
     }
@@ -459,9 +459,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
     private void showUpdateDialog() {
         Log.d(TAG, "showUpdateDialog: ");
         AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(this);
-        Log.d(TAG, "showVersionInfo: aboutBuilder " + aboutBuilder.toString());
         String versionName = BuildConfig.VERSION_NAME;
-        Log.d(TAG, "showVersionInfo: versionName " + versionName);
         aboutBuilder.setTitle(getResources().getString(R.string.app_name) + " " + versionName)
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_info_grey))
                 .setMessage(getResources().getString(R.string.UPDATE_INFO))
@@ -477,7 +475,7 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     private void goToLogin(String message) {
         Intent goToLogin = new Intent(MainActivity.this, LoginActivity.class);
-        goToLogin.putExtra("message", message);
+        goToLogin.putExtra(CoMeth.MESSAGE, message);
         startActivity(goToLogin);
     }
 
@@ -496,8 +494,8 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                 new android.app.AlertDialog.Builder(MainActivity.this);
         emailVerBuilder.setTitle(R.string.email_ver_text)
                 .setIcon(R.drawable.ic_action_info_grey)
-                .setMessage("You have to verify your email address to create a post.")
-                .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
+                .setMessage(R.string.verify_your_email_text)
+                .setPositiveButton(R.string.resend_email_text, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
 
@@ -507,7 +505,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                         String sendEmailMessage = getString(R.string.send_email_text);
                         showProgress(sendEmailMessage);
                         sendVerEmail(dialog, user);
-                        //hide progress
                         coMeth.stopLoading(progressDialog);
 
                     }
@@ -518,7 +515,6 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                     public void onClick(DialogInterface dialog, int which) {
 
                         dialog.dismiss();
-
                     }
                 })
                 .show();
@@ -535,77 +531,36 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
                             //inform user email is sent
                             //close the
                             dialog.dismiss();
-                            AlertDialog.Builder logoutConfirmEmailBuilder =
-                                    new AlertDialog.Builder(MainActivity.this);
-                            logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
-                                    .setIcon(R.drawable.ic_action_info_grey)
-                                    .setMessage("A verification email has been sent to your email address." +
-                                            "\nLogin after verifying your email to create posts.")
-                                    .setPositiveButton(getString(R.string.ok_text),
-                                            new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            //log use out
-                                            //take user to login screen
-                                            coMeth.signOut();
-                                            startActivity(new Intent(
-                                                    MainActivity.this,
-                                                    LoginActivity.class));
-                                            finish();
-
-                                        }
-                                    }).show();
+                            showVerificationInstructions();
 
                         }
                     }
                 });
     }
 
-    @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause: ");
-        super.onPause();
-        hideSearchView();
+    private void showVerificationInstructions() {
+        AlertDialog.Builder logoutConfirmEmailBuilder =
+                new AlertDialog.Builder(MainActivity.this);
+        logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
+                .setIcon(R.drawable.ic_action_info_grey)
+                .setMessage(getString(R.string.verification_email_sent_text) +
+                        getString(R.string.login_afer_verification_text))
+                .setPositiveButton(getString(R.string.ok_text),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //take user to login screen
+                                coMeth.signOut();
+                                startActivity(new Intent(
+                                        MainActivity.this,
+                                        LoginActivity.class));
+                                finish();
+
+                            }
+                        }).show();
     }
 
-    private void openSearch() {
-        //show the search view
-        showSearchView();
-    }
 
-    private void showSearchView() {
-        //Load animation
-        Animation slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_down);
-        searchLayout.startAnimation(slide_down);
-        searchLayout.setVisibility(View.VISIBLE);
-
-        //editing the text color and hints of the searchView
-        int textViewId = mainSearchView.getContext()
-                .getResources()
-                .getIdentifier("android:id/search_src_text", null, null);
-        TextView textView = mainSearchView.findViewById(textViewId);
-
-        mainSearchView.setSubmitButtonEnabled(true);
-        mainSearchView.setIconifiedByDefault(true);
-        mainSearchView.setFocusable(true);
-        mainSearchView.setIconified(false);
-        mainSearchView.requestFocusFromTouch();
-        mainSearchView.setQueryHint(getString(R.string.search_view_query_hint_text));
-
-        mainSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-
-                //hide search layout
-                hideSearchView();
-
-                return false;
-            }
-        });
-
-    }
 
     /**
      * hides the searchView
@@ -683,66 +638,12 @@ public class MainActivity extends AppCompatActivity/* implements CreatePostActiv
 
     }
 
-//    @Override
-//    public void processFinish(boolean submitSuccessful) {
-//        Log.d(TAG, "processFinish: on main");
-//        if (submitSuccessful) {
-//            showSnack("Your post has been successfully posted");
-//        }else{
-//            showSnack("Failed to submit post");
-//        }
-//    }
 
-    /*
-    private void cleanDB() {
-        Log.d(TAG, "cleanDB: ");
-        //get all user posts and check if user exists
-        coMeth.getDb()
-                .collection("Posts")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                if (doc.getType() == DocumentChange.Type.ADDED) {
-                                    final String postId = doc.getDocument().getId();
-                                    final Posts post = doc.getDocument().toObject(Posts.class);
-                                    String postUserId = post.getUser_id();
-                                    //check if user still exists
-                                    coMeth.getDb()
-                                            .collection("Users")
-                                            .document(postUserId)
-                                            .get()
-                                            .addOnCompleteListener(
-                                                    new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(
-                                                                @NonNull Task<DocumentSnapshot> task) {
-                                                            if (!task.getResult().exists()) {
-                                                                //delete post
-                                                                coMeth.getDb()
-                                                                        .collection("Posts")
-                                                                        .document(postId)
-                                                                        .delete();
-                                                            }
-                                                        }
-                                                    })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG,
-                                                            "onFailure: failed to get post with error" +
-                                                                    "\nerror is: " + e.getMessage());
-                                                }
-                                            });
-                                }
-                            }
-                        }
-                    }
-                });
-
+    private void goToUserPage() {
+        Intent goToUserPageIntent = new Intent(this, UserPageActivity.class);
+        goToUserPageIntent.putExtra("userId", coMeth.getUid());
+        startActivity(goToUserPageIntent);
+        finish();
     }
-    */
 
 }

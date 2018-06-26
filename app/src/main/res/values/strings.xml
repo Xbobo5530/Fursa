@@ -275,5 +275,10 @@
     <string name="feed_views_text">Feed views</string>
     <string name="failed_to_signout_text">Failed to sign out</string>
     <string name="share_app_mesage_text">Download the Fursa app and get to share experiences and opportunities with family and friends. Pakua app ya Fursa upate taarifa kuhusu Fursa mbalimbali kutoka kwa ndugu,jamaa na marafiki.</string>
+    <string name="verify_your_email_text">You have to verify your email address to create a post.</string>
+    <string name="resend_email_text">Resend Email</string>
+    <string name="verification_email_sent_text">A verification email has been sent to your email address.</string>
+    <string name="login_afer_verification_text">Login after verifying your email to create posts.</string>
+    <string name="notifications_text">Notifications</string>
 
 </resources>

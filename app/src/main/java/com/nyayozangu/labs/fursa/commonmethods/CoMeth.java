@@ -123,6 +123,8 @@ public class CoMeth {
     public static final String SUCCESS = "success";
     public static final String FAIL = "fail";
     public static final String ERROR = "error";
+    public static final String UPDATE = "update";
+    public static final String TERMS = "terms";
 
     public final String[] catTitle = new String[]{
 
