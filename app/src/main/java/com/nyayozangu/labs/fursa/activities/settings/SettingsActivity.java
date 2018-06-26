@@ -95,29 +95,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         //set the user image
         handleUserImage();
 
-        //disable access to admin to release version
-        /*privacyPolicyButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Toast.makeText(SettingsActivity.this, "Checking for admin access",
-                        Toast.LENGTH_SHORT).show();
-                //handle admin access
-                if (coMeth.isConnected() && coMeth.isLoggedIn()) {
-                    try {
-                        //get user email address
-                        FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                        String userEmail = user.getEmail();
-                        if (userEmail != null) {
-                            //get admins
-                            checkAdminAcc(userEmail);
-                        }
-                    } catch (Exception e) {
-                        Log.d(TAG, "onCreate: checking admin access failed " + e.getMessage());
-                    }
-                }
-                return true;
-            }
-        });*/
+
     }
 
     private void handleUserImage() {
@@ -158,71 +136,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-//    private void checkAdminAcc(String userEmail) {
-//        coMeth.getDb()
-//                .collection("Admins")
-//                .document(userEmail)
-//                .get()
-//                .addOnCompleteListener(SettingsActivity.this, new OnCompleteListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
-//
-//                        if (task.isSuccessful() && task.getResult().exists()) {
-//
-//                            //user is admin
-//                            //show admin button
-//                            adminButton.setVisibility(View.VISIBLE);
-//                            adminButton.setOnClickListener(new View.OnClickListener() {
-//                                @Override
-//                                public void onClick(View v) {
-//                                    getAdminPassword(task);
-//                                }
-//                            });
-//                        }
-//                    }
-//                });
-//    }
-
-//    private void getAdminPassword(@NonNull final Task<DocumentSnapshot> task) {
-//        //open dialog to enter password
-//        AlertDialog.Builder adminBuilder = new AlertDialog.Builder(SettingsActivity.this);
-//        adminBuilder.setTitle("Admin Login")
-//                .setIcon(getResources().getDrawable(R.drawable.ic_action_person_placeholder));
-//
-//        //construct the view
-//        final EditText input = new EditText(SettingsActivity.this);
-//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.MATCH_PARENT,
-//                LinearLayout.LayoutParams.MATCH_PARENT);
-//        input.setLayoutParams(lp);
-//
-//        adminBuilder.setView(input)
-//                .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        String adminPass = input.getText().toString().trim();
-//                        //check pass
-//                        if (adminPass.equals(task.getResult().get("password"))) {
-//
-//                            //open admin panel
-//                            startActivity(new Intent(SettingsActivity.this, AdminActivity.class));
-//
-//                        } else {
-//
-//                            dialog.dismiss();
-//                            showSnack(getString(R.string.wrong_password_text));
-//
-//                        }
-//                    }
-//                })
-//                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                })
-//                .show();
-//    }
 
     private void goToLogin(String message) {
         Intent goToLoginIntent = new Intent(this, LoginActivity.class);
@@ -247,35 +160,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         finish();
     }
 
-//    private void confirmSignOut() {
-//        AlertDialog.Builder confirmLogoutBuilder = new AlertDialog.Builder(SettingsActivity.this);
-//        confirmLogoutBuilder.setTitle(getString(R.string.logout_text))
-//                .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
-//                .setMessage(getString(R.string.confirm_lougout_text))
-//                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//
-//                        dialog.dismiss();
-//
-//                    }
-//                })
-//                .setPositiveButton(getString(R.string.logout_text), new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//
-//                        coMeth.signOut();
-//                        Log.d(TAG, "user is logged out");
-//                        goToMain();
-//                    }
-//                })
-//                .show();
-//    }
-
-//    private void goToMain() {
-//        startActivity(new Intent(this, MainActivity.class));
-//        finish();
-//    }
 
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.settingsLayout),

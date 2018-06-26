@@ -2,7 +2,6 @@ package com.nyayozangu.labs.fursa.activities.main;
 
 import android.app.ProgressDialog;
 import android.app.SearchManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,16 +17,17 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +47,6 @@ import com.nyayozangu.labs.fursa.activities.main.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.SavedFragment;
 import com.nyayozangu.labs.fursa.activities.main.fragments.TermsFragment;
 import com.nyayozangu.labs.fursa.activities.posts.CreatePostActivity;
-import com.nyayozangu.labs.fursa.activities.search.SearchableActivity;
 import com.nyayozangu.labs.fursa.activities.settings.LoginActivity;
 import com.nyayozangu.labs.fursa.activities.settings.SettingsActivity;
 import com.nyayozangu.labs.fursa.commonmethods.CoMeth;
@@ -56,11 +55,10 @@ import com.nyayozangu.labs.fursa.users.Users;
 
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Sean";
+    private static final String FACEBOOK_COM = "facebook.com";
 
     // TODO: 6/23/18 handle notifications
     // TODO: 6/23/18 handle general notoifications and user notifications
@@ -84,11 +82,11 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean doubleBackToExitPressedOnce = false;
 
-    private CircleImageView userProfileImage;
-    private TextView searchBar;
+//    private CircleImageView userProfileImage;
+//    private TextView searchBar;
 
-    private SearchView mainSearchView;
-    private ConstraintLayout searchLayout;
+//    private SearchView mainSearchView;
+//    private ConstraintLayout searchLayout;
 
     private List<String> lastSearches;
     private ProgressDialog progressDialog;
@@ -115,15 +113,29 @@ public class MainActivity extends AppCompatActivity {
         termsFragment = new TermsFragment();
 
         //initiate elements
-        mainSearchView = findViewById(R.id.mainSearchView);
+//        mainSearchView = findViewById(R.id.mainSearchView);
 //        progressBar = findViewById(R.id.mainProgressBar);
-        ImageButton searchButton = findViewById(R.id.searchButton);
-        searchLayout = findViewById(R.id.mainSearchConsLayout);
-        userProfileImage = findViewById(R.id.currentUserImageView);
+//        ImageButton searchButton = findViewById(R.id.searchButton);
+//        searchLayout = findViewById(R.id.mainSearchConsLayout);
+//        userProfileImage = findViewById(R.id.currentUserImageView);
         newPostFab = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
-        TextView titleBar = findViewById(R.id.fursaTitleTextView);
+//        TextView titleBar = findViewById(R.id.fursaTitleTextView);
         mainDrawerLayout = findViewById(R.id.drawer_layout);
+
+        //handle toolbar
+        Toolbar toolbar = findViewById(R.id.mainToolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setTitle(getResources().getString(R.string.app_name));
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainDrawerLayout.openDrawer(Gravity.START);
+            }
+        });
 
         hasAcceptedTermsStatus = getResources().getString(R.string.false_value);
 
@@ -197,13 +209,6 @@ public class MainActivity extends AppCompatActivity {
 
         //set the userProfile image
         handleNavViewHeader(navigationView);
-        //set click listener to image view
-        userProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToSettings();
-            }
-        });
         newPostFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -213,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     boolean emailVerified = user.isEmailVerified();
                     if (emailVerified
-                            || user.getProviders().contains("facebook.com")
+                            || user.getProviders().contains(FACEBOOK_COM)
                             || user.getProviders().contains("twitter.com")
                             || user.getProviders().contains("google.com")) {
                         //start the new post activity
@@ -230,10 +235,10 @@ public class MainActivity extends AppCompatActivity {
 
         //handle search
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(
-                new ComponentName(this, SearchableActivity.class)));
-        mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
+//        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        mainSearchView.setSearchableInfo(searchManager.getSearchableInfo(
+//                new ComponentName(this, SearchableActivity.class)));
+//        mainSearchView.setQueryHint(getResources().getString(R.string.search_hint));
     }
 
     private void showConnectionErrorMessage() {
@@ -377,6 +382,13 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setCancelable(false)
                 .show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_toolbar, menu);
+        return true;
     }
 
     private void goToTerms() {
@@ -558,22 +570,6 @@ public class MainActivity extends AppCompatActivity {
 
                             }
                         }).show();
-    }
-
-
-
-    /**
-     * hides the searchView
-     */
-    private void hideSearchView() {
-        if (searchLayout.getVisibility() == View.VISIBLE) {
-            //load animation
-            Animation slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
-                    R.anim.slide_up);
-            searchLayout.startAnimation(slide_up);
-            mainSearchView.setQuery(String.valueOf(""), false);
-            searchLayout.setVisibility(View.GONE);
-        }
     }
 
     private void showSnack(String message) {

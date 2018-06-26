@@ -10,7 +10,7 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/notifsToolbarManuItem"
-        android:icon="@drawable/ic_notifications_light"
+        android:icon="@drawable/ic_action_notifications"
         android:title="@string/notifications_text"
         android:visible="true"
         app:showAsAction="always" />
