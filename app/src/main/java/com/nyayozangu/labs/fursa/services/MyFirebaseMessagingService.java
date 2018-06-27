@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,6 +36,7 @@ import com.nyayozangu.labs.fursa.models.Users;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -49,21 +51,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "Sean";
     private static final String CHANNEL_ID = "UPDATES";
     private static final String KEY_TEXT_REPLY = "key_text_reply";
-    private String GROUP_KEY_FURSA = "com.nyayozangu.labs.fursa.COMMENTS";
+    private static final String TITLE = "title";
+    private static final String MESSAGE = "message";
+    private static final String NOTIFICATION_TYPE = "notif_type";
+    private static final String IS_NEW_POST = "isNewPost";
+    private static final String NOTIFICATION_ID = "notifId";
 
     private CoMeth coMeth = new CoMeth();
     private PendingIntent pendingIntent;
-    private Uri defaultSoundUri;
     private NotificationCompat.Builder notificationBuilder;
     private NotificationManager notificationManager;
 
-    private String title;
-    private String message;
     private String notifType;
     private String extraInfo;
     private String errorMessage;
     private String userId;
-    private int notifId;
+
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -72,22 +75,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "onMessageReceived: ");
         Log.d(TAG, remoteMessage.toString());
 
-        notifId = createNotifId();
+        int notifId = createNotifId();
 
+        String title;
+        String message;
         if (remoteMessage.getData().size() > 0) {
 
             Log.d(TAG, "onMessageReceived: message has data");
 
             Map<String, String> data = remoteMessage.getData();
-            title = data.get("title");
-            message = data.get("message");
-            if (data.get("notif_type") != null) {
-                notifType = data.get("notif_type");
-                //all notifs with notif_type must have userIds
-                userId = data.get("userId");
+            title = data.get(TITLE);
+            message = data.get(MESSAGE);
+            if (data.get(NOTIFICATION_TYPE) != null) {
+                notifType = data.get(NOTIFICATION_TYPE);
+                userId = data.get(CoMeth.USER_ID);
             }
-            if (data.get("extra") != null) {
-                extraInfo = data.get("extra").trim();
+            if (data.get(CoMeth.EXTRA) != null) {
+                extraInfo = data.get(CoMeth.EXTRA).trim();
             }
             if (data.get(CoMeth.ERROR) != null) {
                 errorMessage = data.get(CoMeth.ERROR).trim();
@@ -96,39 +100,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (!extraInfo.isEmpty()) {
                 if (notifType.equals(CoMeth.NEW_POST_UPDATES) ||
                         (coMeth.isLoggedIn() && !userId.equals(coMeth.getUid()))) {
-                    Log.d(TAG, "onMessageReceived: sending notif to 'other' users");
                     sendNotification(title, message, notifType, extraInfo, notifId);
                 }
             } else {
-                if (notifType.equals(CoMeth.NEW_POST_UPDATES) &&
-                        errorMessage != null) {
-                    //notification has error message
-                    sendNotification(title, message, null, null, notifId);
-                }
-                if (userId != null &&
-                        !userId.equals(coMeth.getUid())) {
+                if ((notifType.equals(CoMeth.NEW_POST_UPDATES) && errorMessage != null) ||
+                        (userId != null && !userId.equals(coMeth.getUid()))) {
                     sendNotification(title, message, null, null, notifId);
                 }
             }
         } else if (remoteMessage.getNotification() != null &&
-                remoteMessage.getData().size() == 0) {
-            //has no data probably comes from database
-            Log.d(TAG, "remoteMessage has no 'Data'");
+                remoteMessage.getData().size() == 0 &&
+                remoteMessage.getNotification().getTitle() != null &&
+                remoteMessage.getNotification().getBody() != null) {
             title = remoteMessage.getNotification().getTitle();
             message = remoteMessage.getNotification().getBody();
-
-            Log.d(TAG, "title is: " + title + "\nmessage is: " + message);
-
-            if (title != null && message != null) {
-                sendNotification(title, message, null, null, notifId);
-            } else {
-                title = getResources().getString(R.string.app_name);
-                message = getResources().getString(R.string.sharing_opp_text);
-                sendNotification(title, message, null, null, notifId);
-            }
+            sendNotification(title, message, null, null, notifId);
         } else {
             //other weird cases
-            Log.d(TAG, "data is null, notification is null");
             title = getResources().getString(R.string.app_name);
             message = getResources().getString(R.string.sharing_opp_text);
             sendNotification(title, message, null, null, notifId);
@@ -138,6 +126,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     /**
      * sends the notification
+     *
      * @param title the title of the notification
      * @param messageBody the message of the notification
      * @param extraInfo the url to open when the notification is opened
@@ -174,7 +163,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 default:
 
-                    Log.d(TAG, "sendNotification: at default");
                     Intent noExtraNotifIntent = new Intent(this, MainActivity.class);
                     noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
                             Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -182,6 +170,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             this, notifId /* Request code */, noExtraNotifIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     buildNotif(title, messageBody, null, notifId);
+                    addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
 
             }
         } else {
@@ -194,42 +183,81 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     this, notifId /* Request code */, noExtraNotifIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             buildNotif(title, messageBody, null, notifId);
+            addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
         }
+
+        //add notification to db
+//        addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
 
     }
 
+    private void addNotifToDb(String title, String messageBody,
+                              String notifType, String extraInfo, int notifId) {
+
+        if (coMeth.isLoggedIn()) {
+            String currentUserId = coMeth.getUid();
+            Map<String, Object> notifMap = new HashMap<>();
+            notifMap.put(TITLE, title);
+            notifMap.put(MESSAGE, messageBody);
+            notifMap.put(NOTIFICATION_TYPE, notifType);
+            notifMap.put(CoMeth.EXTRA, extraInfo);
+            notifMap.put(NOTIFICATION_ID, notifId);
+
+            coMeth.getDb().collection(CoMeth.USERS).document(currentUserId)
+                    .collection(CoMeth.NOTIFICATIONS).add(notifMap)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            // TODO: 6/28/18 handle on success
+                            Log.d(TAG, "onSuccess: notification added");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // TODO: 6/28/18 handle on failure
+                            Log.d(TAG, "onFailure: failed to add notification" +
+                                    e.getMessage());
+                        }
+                    });
+        }
+    }
+
     private void handleNewPostNotif(String title, String messageBody, String extraInfo, int notifId) {
-        Log.d(TAG, "handleNewPostNotif: ");
+
         Intent newPostNotifIntent = new Intent(this, ViewPostActivity.class);
-        newPostNotifIntent.putExtra("postId", extraInfo);
-        newPostNotifIntent.putExtra("isNewPost", true);
+        newPostNotifIntent.putExtra(CoMeth.POST_ID, extraInfo);
+        newPostNotifIntent.putExtra(IS_NEW_POST, true);
         newPostNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        pendingIntent = PendingIntent.getActivity(this, notifId /* Request code */, newPostNotifIntent,
+        pendingIntent = PendingIntent.getActivity(this, notifId, newPostNotifIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         buildNotif(title, messageBody, null, notifId);
+        addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
     }
 
     private void handleLikesNotif(String title, String messageBody, String extraInfo, int notifId) {
         Intent likesNotifIntent = new Intent(this, ViewPostActivity.class);
-        likesNotifIntent.putExtra("postId", extraInfo);
+        likesNotifIntent.putExtra(CoMeth.POST_ID, extraInfo);
         likesNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        pendingIntent = PendingIntent.getActivity(this, notifId /* Request code */, likesNotifIntent,
+        pendingIntent = PendingIntent.getActivity(this, notifId, likesNotifIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         buildNotif(title, messageBody, null, notifId);
+        addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
     }
 
     private void handleCatNotif(String title, String messageBody, String extraInfo, int notifId) {
         Intent catsNotifIntent = new Intent(this, ViewCategoryActivity.class);
         catsNotifIntent.putExtra("category", extraInfo);
         catsNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        pendingIntent = PendingIntent.getActivity(this, notifId /* Request code */, catsNotifIntent,
+        pendingIntent = PendingIntent.getActivity(this, notifId, catsNotifIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         buildNotif(title, messageBody, null, notifId);
+        addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
     }
 
     private void handleCommentNotif(String title, String extraInfo, int notifId) {
         Intent commentsNotifIntent = new Intent(this, CommentsActivity.class);
-        commentsNotifIntent.putExtra("postId", extraInfo);
+        commentsNotifIntent.putExtra(CoMeth.POST_ID, extraInfo);
         commentsNotifIntent.addFlags(
                 Intent.FLAG_ACTIVITY_SINGLE_TOP |
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
@@ -240,7 +268,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         final ArrayList<Comments> commentsList = new ArrayList<>();
         //pass comment details
-        // TODO: 6/1/18 find better way of receiving the latest comment
         fetchLatestComment(title, extraInfo, notifId, commentsList);
     }
 
@@ -287,7 +314,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                    final String title,
                                    final int notifId) {
         coMeth.getDb()
-                .collection("Users")
+                .collection(CoMeth.USERS)
                 .document(commentUserId)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -302,9 +329,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             String image = user.getImage();
 
                             buildNotif(title,
-                                    username + "\n" + latestComment,
-                                    image,
-                                    notifId);
+                                    username + "\n" + latestComment, image, notifId);
+
+                            addNotifToDb(title, username + "\n" + latestComment,
+                                    notifType, extraInfo, notifId);
 
                         } else {
                             if (!task.isSuccessful()) {
@@ -335,21 +363,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             String messageBody,
                             String userImageDownloadUrl,
                             int notifId) {
-        Log.d(TAG, "buildNotif: ");
-        defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         // TODO: 6/2/18 show notifications in a group
-        /*NotificationCompat.Builder groupBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_stat_notification)
-                        .setContentTitle(title)
-                        .setContentText(messageBody)
-                        .setGroupSummary(true)
-                        .setGroup(GROUP_KEY_FURSA)
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
-                        .setContentIntent(pendingIntent);*/
 
-
+        String GROUP_KEY_FURSA = "com.nyayozangu.labs.fursa.COMMENTS";
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_notification)
                 .setContentTitle(title)
@@ -408,107 +426,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-//    /***
-//    private void buildCommentNotif(String title,
-//                                   String messageBody,
-//                                   String userImageDownloadUrl,
-//                                   int notifId) {
-//
-//        Log.d(TAG, "buildCommentNotif: ");
-//
-//        String replyLabel = getResources().getString(R.string.reply_label);
-//
-//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            RemoteInput remoteInput = new RemoteInput.Builder(KEY_TEXT_REPLY)
-//                    .setLabel(replyLabel)
-//                    .build();
-//
-//
-//            PendingIntent replyPendingIntent =
-//                    PendingIntent.getBroadcast(getApplicationContext(),
-//                            notifId,
-//                            getMessageReplyIntent(notifId),
-//                            PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//            // Create the reply action and add the remote input.
-//            NotificationCompat.Action action =
-//                    new NotificationCompat.Action.Builder(R.drawable.ic_action_send,
-//                            getString(R.string.reply_label), replyPendingIntent)
-//                            .addRemoteInput(remoteInput)
-//                            .build();
-//
-//            // Build the notification and add the action.
-//            Notification newMessageNotification = new Notification.Builder(getApplicationContext(), CHANNEL_ID)
-//                    .setSmallIcon(R.drawable.appic)
-//                    .setContentTitle(title)
-//                    .setContentText(messageBody)
-//                    .addAction(action)
-//                    .build();
-//
-//            // Issue the notification.
-//            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-//            notificationManager.notify(notifId, newMessageNotification);
-//
-//        }else {
-//
-//            defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-//                    .setSmallIcon(R.drawable.ic_stat_notification)
-//                    .setContentTitle(title)
-//                    .setContentText(messageBody)
-//                    .setColor(getResources().getColor(R.color.colorPrimaryDark))
-//                    .setGroup(GROUP_KEY_FURSA)
-//                    .setAutoCancel(true)
-//                    .setSound(defaultSoundUri)
-//                    .setContentIntent(pendingIntent)
-//                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-//                    .setLargeIcon(BitmapFactory.decodeResource(
-//                            getResources(), R.mipmap.ic_launcher))
-//                    .setStyle(new NotificationCompat.BigTextStyle()
-//                            .bigText(messageBody));
-//
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                Log.d(TAG, "buildNotif: at Build.VERSION.SDK_INT >= Build.VERSION_CODES.O");
-//                CharSequence name = getString(R.string.channel_name);
-//                String description = getString(R.string.channel_description);
-//                int importance = NotificationManager.IMPORTANCE_DEFAULT;
-//                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-//                channel.setDescription(description);
-//                // Register the channel with the system; you can't change the importance
-//                // or other notification behaviors after this
-//                NotificationManager notificationManager = getSystemService(NotificationManager.class);
-//                notificationManager.createNotificationChannel(channel);
-//
-//                if (notificationManager != null) {
-//
-//
-//                    NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
-//
-//                    // notificationId is a unique int for each notification that you must define
-//                    notificationManagerCompat.notify(createNotifId() /* ID of notification */, notificationBuilder.build());
-//
-//                    Log.d(TAG, "buildNotif: notifying");
-////                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
-//                }
-//
-//            } else {
-//
-//                notificationManager =
-//                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//
-//                if (notificationManager != null) {
-//
-//                    Log.d(TAG, "buildNotif: notifying");
-//                    notificationManager.notify(createNotifId() /* ID of notification */, notificationBuilder.build());
-//                }
-//
-//            }
-//        }
-//    }
 
-//    private Intent getMessageReplyIntent(int notifId) {
-//        Intent getMessageReplyIntent = new Intent(this, )
-//    }
 
     @Override
     public void onDeletedMessages() {
