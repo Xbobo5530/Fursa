@@ -33,9 +33,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_notifications_light" />
-                                      <entry key="theme" value="HOLO_DARK" />
-                                      <entry key="themeColor" value="1e75fc" />
+                                      <entry key="outputName" value="ic_notifications_red" />
+                                      <entry key="theme" value="CUSTOM" />
+                                      <entry key="themeColor" value="e20101" />
                                     </map>
                                   </option>
                                 </PersistentState>
