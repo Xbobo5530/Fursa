@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group>
+    <group android:id="@+id/user_actions">
+        <item
+            android:id="@+id/nav_my_posts"
+            android:icon="@drawable/ic_action_posts"
+            android:title="@string/my_posts_text" />
+        <item
+            android:id="@+id/nav_my_saves"
+            android:icon="@drawable/ic_action_bookmark"
+            android:title="@string/my_saved_posts_text" />
+        <item
+            android:id="@+id/nav_my_subs"
+            android:icon="@drawable/ic_action_subscriptions"
+            android:title="@string/my_subscriptions_text" />
+        <item
+            android:id="@+id/nav_login"
+            android:icon="@drawable/ic_action_logout"
+            android:title="@string/login_text" />
+    </group>
+    <group android:id="@+id/other_actions">
         <item
             android:id="@+id/nav_share"
             android:icon="@drawable/ic_action_share"

@@ -55,7 +55,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String MESSAGE = "message";
     private static final String NOTIFICATION_TYPE = "notif_type";
     private static final String IS_NEW_POST = "isNewPost";
-    private static final String NOTIFICATION_ID = "notifId";
+    private static final String NOTIFICATION_ID = "notif_id";
 
     private CoMeth coMeth = new CoMeth();
     private PendingIntent pendingIntent;
@@ -263,7 +263,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
                         Intent.FLAG_ACTIVITY_NEW_TASK);
         pendingIntent = PendingIntent.getActivity(this,
-                notifId /* Request code */, commentsNotifIntent,
+                notifId, commentsNotifIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         final ArrayList<Comments> commentsList = new ArrayList<>();
@@ -276,10 +276,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                     final int notifId,
                                     final ArrayList<Comments> commentsList) {
         coMeth.getDb()
-                .collection("Posts")
+                .collection(CoMeth.POSTS)
                 .document(extraInfo)
-                .collection("Comments")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .collection(CoMeth.COMMENTS_COLL)
+                .orderBy(CoMeth.TIMESTAMP, Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override

@@ -283,5 +283,12 @@
     <string name="open_text">Open</string>
     <string name="login_to_view_notifs_text">Login to view notifications</string>
     <string name="terms_n_cond_text">Terms and Conditions</string>
+    <string name="warning_text">Warning</string>
+    <string name="submit_no_details_text">You are about to submit a post with no details</string>
+    <string name="are_u_sure_submit_post_text">are you sure you want to submit this post?</string>
+    <string name="edit_post_text">Edit post</string>
+    <string name="proceed_text">Proceed</string>
+    <string name="my_subscriptions_text">My Subscriptions</string>
+    <string name="my_saved_posts_text">My saved posts</string>
 
 </resources>

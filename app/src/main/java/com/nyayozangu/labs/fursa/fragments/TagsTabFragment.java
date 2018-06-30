@@ -69,7 +69,7 @@ public class TagsTabFragment extends Fragment {
         progressBar = view.findViewById(R.id.tagTabsProgressBar);
         progressBar.setVisibility(View.VISIBLE);
         coMeth.getDb()
-                .collection("Tags")
+                .collection(CoMeth.TAGS)
                 .orderBy("post_count", Query.Direction.DESCENDING)
                 .limit(30)
                 .get()

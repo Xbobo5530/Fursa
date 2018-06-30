@@ -70,25 +70,16 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
+                android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_action_posts"
                 android:text="@string/user_posts_text"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
                 android:textColor="@color/colorAccent"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintEnd_toStartOf="@+id/userPagePostsCountTextView"
-                app:layout_constraintStart_toEndOf="@+id/userPageUserPostsImageView"
-                app:layout_constraintTop_toBottomOf="@+id/userPageCatsButton" />
-
-            <ImageView
-                android:id="@+id/userPageUserPostsImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="16dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/userPagePostsButton"
                 app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@drawable/ic_action_posts" />
+                app:layout_constraintTop_toBottomOf="@+id/userPageEditProfileButton" />
 
             <Button
                 android:id="@+id/userPageEditProfileButton"
@@ -99,30 +90,15 @@
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
                 android:text="@string/edit_profile_sett_button"
+                android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_action_edit_dark"
                 android:textAlignment="viewStart"
                 android:textAllCaps="false"
                 android:textColor="@color/colorAccent"
+                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/userPageEditProfileImageView"
-                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/userPageUserImage" />
-
-            <Button
-                android:id="@+id/userPageCatsButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/transparent"
-                android:text="@string/cats_subs_text"
-                android:textAlignment="viewStart"
-                android:textAllCaps="false"
-                android:textColor="@color/colorAccent"
-                android:visibility="gone"
-                app:layout_constraintEnd_toStartOf="@+id/userPageCatsCountTextView"
-                app:layout_constraintStart_toEndOf="@+id/userPageCatsImageView"
-                app:layout_constraintTop_toBottomOf="@+id/userPageEditProfileButton" />
 
             <ImageView
                 android:id="@+id/userPageEditProfileImageView"
@@ -137,34 +113,6 @@
                 app:layout_constraintTop_toTopOf="@+id/userPageEditProfileButton"
                 app:srcCompat="@drawable/ic_action_edit_dark" />
 
-            <ImageView
-                android:id="@+id/userPageCatsImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/userPageCatsButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/userPageCatsButton"
-                app:srcCompat="@drawable/ic_action_cat_light" />
-
-            <TextView
-                android:id="@+id/userPageCatsCountTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/zero_text"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/userPageCatsButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/userPageCatsButton" />
-
             <TextView
                 android:id="@+id/userPagePostsCountTextView"
                 android:layout_width="wrap_content"
@@ -175,7 +123,7 @@
                 android:text="@string/zero_text"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/userPagePostsButton"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/userPagePostsButton" />
@@ -189,26 +137,18 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
+                android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_action_share"
                 android:text="@string/share_profile_text"
                 android:textAlignment="viewStart"
                 android:textAllCaps="false"
                 android:textColor="@color/colorAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/userPageShareImageView"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/userPagePostsButton" />
 
-            <ImageView
-                android:id="@+id/userPageShareImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/userPageShareProfileButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/userPageShareProfileButton"
-                app:srcCompat="@drawable/ic_action_share" />
+
         </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>
@@ -223,54 +163,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/userPageLogoutCardView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/userPageLogoutCard"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/userPageLogoutButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:background="@android:color/transparent"
-                android:text="@string/logout_text"
-                android:textAlignment="viewStart"
-                android:textAllCaps="false"
-                android:textColor="@color/black_overlay"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toEndOf="@+id/userPageLogoutImageView"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/userPageLogoutImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/userPageLogoutButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/userPageLogoutButton"
-                app:srcCompat="@drawable/ic_action_logout" />
-        </android.support.constraint.ConstraintLayout>
-
-    </android.support.v7.widget.CardView>
 </android.support.constraint.ConstraintLayout>
