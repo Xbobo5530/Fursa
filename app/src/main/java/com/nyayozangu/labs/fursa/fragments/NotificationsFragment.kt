@@ -74,6 +74,7 @@ class NotificationsFragment : Fragment() {
         coMeth.db
                 .collection("$USERS/$userId/$NOTIFICATIONS")
                 .orderBy(TIMESTAMP, Query.Direction.DESCENDING)
+                .orderBy(STATUS, Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener { queryDocumentSnapshots ->
                     if (!queryDocumentSnapshots.isEmpty) {
@@ -90,7 +91,6 @@ class NotificationsFragment : Fragment() {
                             }
                         }
                     } else {
-                        TODO()
                     }
                 }
                 .addOnFailureListener { Log.d(TAG, "onFailure: failed to fetch latest comment") }
