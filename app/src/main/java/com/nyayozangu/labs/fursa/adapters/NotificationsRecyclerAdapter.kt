@@ -21,6 +21,9 @@ import com.nyayozangu.labs.fursa.models.Notifications
 
 class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, var context: Context) :
         RecyclerView.Adapter<NotificationsRecyclerAdapter.ViewHolder>() {
+
+    private val coMeth: CoMeth = CoMeth()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):
             NotificationsRecyclerAdapter.ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -43,6 +46,9 @@ class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, v
         val notifButton =
                 holder.itemView.findViewById<ConstraintLayout>(R.id.notifItemLayout)
         notifButton.setOnClickListener(View.OnClickListener {
+
+            coMeth.updateNotificationStatus(notification, coMeth.uid)
+//            updateNotificationStatus(notification)
             when (notifType) {
                 CoMeth.COMMENT_UPDATES -> openCommentsNotif(holder, extra)
                 CoMeth.CATEGORIES_UPDATES -> openCatsNotif(extra)
@@ -55,6 +61,18 @@ class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, v
         })
     }
 
+//    private fun updateNotificationStatus(notification: Notifications) {
+//        val notifStatusMap = mapOf<String, Any>(STATUS to 1)
+//        coMeth.db.collection("${CoMeth.USERS}/${coMeth.uid}/${CoMeth.NOTIFICATIONS}")
+//                .document(notification.doc_id).update(notifStatusMap)
+//                .addOnSuccessListener(OnSuccessListener {
+//                    Log.d(TAG, "notif status updated")
+//                })
+//                .addOnFailureListener(OnFailureListener {
+//                    Log.d(TAG, "error updating status ${it.message}")
+//                })
+//    }
+
     private fun openNofitDialog(title: String, message: String) {
         val notifDialogBuilder = AlertDialog.Builder(context)
         notifDialogBuilder.setTitle(title)
@@ -66,19 +84,19 @@ class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, v
                 .show()
     }
 
-    private fun openPostNotif(postId: String) {
+    private fun openPostNotif(postId: String?) {
         val openLikedPostIntent = Intent(context, ViewPostActivity::class.java)
         openLikedPostIntent.putExtra(POST_ID, postId)
         context.startActivity(openLikedPostIntent)
     }
 
-    private fun openCatsNotif(cat: String) {
+    private fun openCatsNotif(cat: String?) {
         val openCatsIntent = Intent(context, ViewCategoryActivity::class.java)
         openCatsIntent.putExtra(CATEGORY, cat)
         context.startActivity(openCatsIntent)
     }
 
-    private fun openCommentsNotif(holder: ViewHolder, postId: String) {
+    private fun openCommentsNotif(holder: ViewHolder, postId: String?) {
         val openCommentsIntent = Intent(context, CommentsActivity::class.java)
         openCommentsIntent.putExtra(POST_ID, postId)
         context.startActivity(openCommentsIntent)
@@ -88,7 +106,7 @@ class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, v
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        fun setData(title: String, message: String, status: Int) {
+        fun setData(title: String, message: String, status: Int?) {
             itemView.findViewById<TextView>(R.id.notifTitleTextView).text = title
             itemView.findViewById<TextView>(R.id.notifDescTextView).text = message
             val notifLayout = itemView.findViewById<ConstraintLayout>(R.id.notifItemLayout)

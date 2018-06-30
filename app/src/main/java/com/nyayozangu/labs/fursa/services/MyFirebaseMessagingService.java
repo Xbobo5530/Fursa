@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -193,7 +194,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void addNotifToDb(String title, String messageBody,
                               String notifType, String extraInfo, int notifId) {
-
+        Log.d(TAG, "addNotifToDb: ");
         if (coMeth.isLoggedIn()) {
             String currentUserId = coMeth.getUid();
             Map<String, Object> notifMap = new HashMap<>();
@@ -202,20 +203,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notifMap.put(NOTIFICATION_TYPE, notifType);
             notifMap.put(CoMeth.EXTRA, extraInfo);
             notifMap.put(NOTIFICATION_ID, notifId);
+            notifMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
 
             coMeth.getDb().collection(CoMeth.USERS).document(currentUserId)
                     .collection(CoMeth.NOTIFICATIONS).add(notifMap)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            // TODO: 6/28/18 handle on success
                             Log.d(TAG, "onSuccess: notification added");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            // TODO: 6/28/18 handle on failure
                             Log.d(TAG, "onFailure: failed to add notification" +
                                     e.getMessage());
                         }
