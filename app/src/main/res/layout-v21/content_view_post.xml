@@ -112,107 +112,6 @@
                 app:layout_constraintStart_toStartOf="@+id/viewPostActivityImageView"
                 app:layout_constraintTop_toBottomOf="@+id/viewPostActivityImageView" />
 
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/viewPostActionsLeftLayout"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/viewPostActivityImageView"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@+id/viewPostLikesCountsTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/zero_text"
-                    android:textAlignment="center"
-                    android:visibility="visible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/viewPostLikeImageView"
-                    app:layout_constraintStart_toStartOf="@+id/viewPostLikeImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/viewPostLikeImageView" />
-
-                <TextView
-                    android:id="@+id/viewPostShareTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/share_text"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/viewPostShareImageView"
-                    app:layout_constraintStart_toStartOf="@+id/viewPostShareImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/viewPostShareImageView" />
-
-                <TextView
-                    android:id="@+id/viewPostCommentTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/zero_text"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/viewPostCommentImageView"
-                    app:layout_constraintStart_toStartOf="@+id/viewPostCommentImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/viewPostCommentImageView" />
-
-                <TextView
-                    android:id="@+id/viewPostSaveTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/save_text"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/viewPostSaveImageView"
-                    app:layout_constraintStart_toStartOf="@+id/viewPostSaveImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/viewPostSaveImageView" />
-
-                <ImageView
-                    android:id="@+id/viewPostShareImageView"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintStart_toEndOf="@+id/viewPostSaveImageView"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_action_share" />
-
-                <ImageView
-                    android:id="@+id/viewPostCommentImageView"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintStart_toEndOf="@+id/viewPostLikeImageView"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_action_comment" />
-
-                <ImageView
-                    android:id="@+id/viewPostSaveImageView"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintStart_toEndOf="@+id/viewPostCommentImageView"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_action_bookmark_outline" />
-
-                <ImageView
-                    android:id="@+id/viewPostLikeImageView"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_action_like_unclicked" />
-
-            </android.support.constraint.ConstraintLayout>
-
         </android.support.constraint.ConstraintLayout>
 
         <TextView
@@ -324,47 +223,11 @@
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:drawableStart="@drawable/ic_action_contact"
+            android:drawablePadding="18dp"
             android:gravity="start|center"
             android:padding="8dp"
             android:text="@string/contact_view_post_text"
             android:textAllCaps="false" />
-
-        <!--<android.support.constraint.ConstraintLayout-->
-        <!--android:id="@+id/viewPostContactLayout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:paddingTop="8dp">-->
-
-        <!--<ImageView-->
-        <!--android:id="@+id/viewPostContactImageView"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:srcCompat="@drawable/ic_action_contact" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/viewPostContactTextView"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:autoLink="all"-->
-        <!--android:text="@string/contact_view_post_text"-->
-        <!--android:textIsSelectable="true"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toEndOf="@+id/viewPostContactImageView"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-        <!--</android.support.constraint.ConstraintLayout>-->
-
 
         <Button
             android:id="@+id/viewPostLocationButton"
@@ -373,47 +236,12 @@
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:drawableStart="@drawable/ic_action_location"
+            android:drawablePadding="18dp"
             android:gravity="start|center"
             android:padding="8dp"
             android:text="@string/location_view_post_text"
             android:textAllCaps="false"
             android:textColor="@color/colorAccent" />
-
-        <!--<android.support.constraint.ConstraintLayout-->
-        <!--android:id="@+id/viewPostLocationLayout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:paddingTop="8dp">-->
-
-        <!--<ImageView-->
-        <!--android:id="@+id/viewPostLocationImageView"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:srcCompat="@drawable/ic_action_location" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/viewPostLocationTextView"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:text="@string/location_view_post_text"-->
-        <!--android:textColor="@color/colorAccent"-->
-        <!--android:textIsSelectable="true"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toEndOf="@+id/viewPostLocationImageView"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-        <!--</android.support.constraint.ConstraintLayout>-->
 
 
         <Button
@@ -423,44 +251,11 @@
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:drawableStart="@drawable/ic_action_event_date"
+            android:drawablePadding="18dp"
             android:gravity="start|center"
             android:padding="8dp"
             android:text="@string/event_date_view_post_text"
             android:textAllCaps="false" />
-
-        <!--<android.support.constraint.ConstraintLayout-->
-        <!--android:id="@+id/viewPostEventDateLayout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:paddingTop="8dp">-->
-
-        <!--<ImageView-->
-        <!--android:id="@+id/viewPostEventDateImageView"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:srcCompat="@drawable/ic_action_event_date" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/viewPostEventDateTextView"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:text="@string/event_date_view_post_text"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toEndOf="@+id/viewPostEventDateImageView"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-        <!--</android.support.constraint.ConstraintLayout>-->
 
         <Button
             android:id="@+id/viewPostPriceButton"
@@ -469,45 +264,11 @@
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:drawableStart="@drawable/ic_action_payment"
+            android:drawablePadding="18dp"
             android:gravity="start|center"
             android:padding="8dp"
             android:text="@string/price_text"
             android:textAllCaps="false" />
-
-        <!--<android.support.constraint.ConstraintLayout-->
-        <!--android:id="@+id/viewPostPriceLayout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:paddingTop="8dp">-->
-
-        <!--<ImageView-->
-        <!--android:id="@+id/viewPostPriceImageView"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:srcCompat="@drawable/ic_action_payment" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/viewPostPriceTextView"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:text="@string/price_view_post_text"-->
-        <!--android:textIsSelectable="true"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toEndOf="@+id/viewPostPriceImageView"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-        <!--</android.support.constraint.ConstraintLayout>-->
 
         <Button
             android:id="@+id/viewPostCatButton"
@@ -516,46 +277,12 @@
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:drawableStart="@drawable/ic_action_cat_light"
+            android:drawablePadding="18dp"
             android:gravity="start|center"
             android:padding="8dp"
             android:text="@string/categories_text"
             android:textAllCaps="false"
             android:textColor="@color/colorPrimary" />
-
-        <!--<android.support.constraint.ConstraintLayout-->
-        <!--android:id="@+id/viewPostCatLayout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:paddingTop="8dp">-->
-
-        <!--<ImageView-->
-        <!--android:id="@+id/viewPostCatImageView"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:srcCompat="@drawable/ic_action_cat_light" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/viewPostCatTextView"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:text="@string/categories_text"-->
-        <!--android:textColor="@color/colorAccent"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toEndOf="@+id/viewPostCatImageView"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-        <!--</android.support.constraint.ConstraintLayout>-->
 
         <Button
             android:id="@+id/viewPostTagsButton"
@@ -564,47 +291,12 @@
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:drawableStart="@drawable/ic_action_tags"
+            android:drawablePadding="18dp"
             android:gravity="start|center"
             android:padding="8dp"
             android:text="@string/tags_text"
             android:textAllCaps="false"
             android:textColor="@color/colorPrimary" />
-
-        <!--<android.support.constraint.ConstraintLayout-->
-        <!--android:id="@+id/viewPostTagsLayout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:paddingTop="8dp">-->
-
-        <!--<ImageView-->
-        <!--android:id="@+id/viewPostTagsImageView"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:srcCompat="@drawable/ic_action_tags" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/viewPostTagsTextView"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:text="@string/tags_text"-->
-        <!--android:textColor="@color/colorPrimary"-->
-        <!--android:textStyle="bold|italic"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toEndOf="@+id/viewPostTagsImageView"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-        <!--</android.support.constraint.ConstraintLayout>-->
 
         <Button
             android:id="@+id/viewPostTimeButton"
@@ -613,45 +305,11 @@
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:drawableStart="@drawable/ic_action_time"
+            android:drawablePadding="18dp"
             android:gravity="start|center"
             android:padding="8dp"
             android:text="@string/time_view_post_text"
             android:textAllCaps="false" />
-
-        <!--<android.support.constraint.ConstraintLayout-->
-        <!--android:id="@+id/viewPostTimeLayout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:paddingTop="8dp">-->
-
-        <!--<ImageView-->
-        <!--android:id="@+id/viewPostTimeImageView"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:srcCompat="@drawable/ic_action_time" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/viewPostTimeTextView"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:text="@string/time_view_post_text"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toEndOf="@+id/viewPostTimeImageView"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-        <!--</android.support.constraint.ConstraintLayout>-->
-
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/viewPostUserLayout"
@@ -671,15 +329,16 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_action_person_placeholder" />
 
-            <TextView
-                android:id="@+id/viewPostUserTextView"
+            <Button
+                android:id="@+id/viewPostUserButton"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/user_view_post_text"
+                android:background="@android:color/transparent"
+                android:gravity="start|center"
+                android:padding="8dp"
+                android:text="@string/username_text"
+                android:textAllCaps="false"
                 android:textColor="@color/colorAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -687,8 +346,5 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </android.support.constraint.ConstraintLayout>
-
     </LinearLayout>
-
-
 </android.support.v4.widget.NestedScrollView>
