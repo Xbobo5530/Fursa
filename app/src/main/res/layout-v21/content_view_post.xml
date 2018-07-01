@@ -22,19 +22,20 @@
 
             <Button
                 android:id="@+id/viewPostLikeButton"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:drawablePadding="4dp"
                 android:drawableTop="@drawable/ic_action_like_unclicked"
                 android:text="@string/zero_text"
+
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
 
             <Button
                 android:id="@+id/viewPostCommentsButton"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:drawablePadding="4dp"
                 android:drawableTop="@drawable/ic_action_comment"
                 android:text="@string/zero_text"
@@ -43,9 +44,9 @@
 
             <Button
                 android:id="@+id/viewPostSaveButton"
+                style="@android:style/Widget.Material.Button.Borderless.Colored"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:drawablePadding="4dp"
                 android:drawableTop="@drawable/ic_action_bookmark_outline"
                 android:text="@string/save_text"
@@ -54,9 +55,9 @@
 
             <Button
                 android:id="@+id/viewPostShareButton"
+                style="@android:style/Widget.Material.Button.Borderless.Colored"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:drawablePadding="4dp"
                 android:drawableTop="@drawable/ic_action_share"
                 android:text="@string/share_text"
@@ -66,10 +67,10 @@
 
             <Button
                 android:id="@+id/viewPostActivityButton"
+                style="@android:style/Widget.Material.Button.Borderless.Colored"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:background="@android:color/transparent"
                 android:drawablePadding="4dp"
                 android:drawableTop="@drawable/ic_action_activity"
                 android:text="@string/zero_text"
@@ -214,31 +215,50 @@
 
         </android.support.constraint.ConstraintLayout>
 
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/viewPostTitleLayout"
+        <TextView
+            android:id="@+id/viewPostTitleTextView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:autoLink="all"
+            android:text="@string/title_view_post_text"
+            android:textIsSelectable="true"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!--<android.support.constraint.ConstraintLayout-->
+        <!--android:id="@+id/viewPostTitleLayout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content">-->
 
 
-            <TextView
-                android:id="@+id/viewPostTitleTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:autoLink="all"
-                android:text="@string/title_view_post_text"
-                android:textIsSelectable="true"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </android.support.constraint.ConstraintLayout>
+        <!--<TextView-->
+        <!--android:id="@+id/viewPostTitleTextView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_marginBottom="8dp"-->
+        <!--android:layout_marginEnd="8dp"-->
+        <!--android:layout_marginStart="8dp"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--android:autoLink="all"-->
+        <!--android:text="@string/title_view_post_text"-->
+        <!--android:textIsSelectable="true"-->
+        <!--android:textSize="24sp"-->
+        <!--android:textStyle="bold"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="parent" />-->
+        <!--</android.support.constraint.ConstraintLayout>-->
 
 
         <android.support.constraint.ConstraintLayout
@@ -299,10 +319,10 @@
 
         <Button
             android:id="@+id/viewPostContactButton"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
-            android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_action_contact"
             android:gravity="start|center"
             android:padding="8dp"
@@ -348,10 +368,10 @@
 
         <Button
             android:id="@+id/viewPostLocationButton"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
-            android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_action_location"
             android:gravity="start|center"
             android:padding="8dp"
@@ -398,10 +418,10 @@
 
         <Button
             android:id="@+id/viewPostEventDateButton"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
-            android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_action_event_date"
             android:gravity="start|center"
             android:padding="8dp"
@@ -444,10 +464,10 @@
 
         <Button
             android:id="@+id/viewPostPriceButton"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
-            android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_action_payment"
             android:gravity="start|center"
             android:padding="8dp"
@@ -491,10 +511,10 @@
 
         <Button
             android:id="@+id/viewPostCatButton"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
-            android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_action_cat_light"
             android:gravity="start|center"
             android:padding="8dp"
@@ -539,10 +559,10 @@
 
         <Button
             android:id="@+id/viewPostTagsButton"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
-            android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_action_tags"
             android:gravity="start|center"
             android:padding="8dp"
@@ -588,10 +608,10 @@
 
         <Button
             android:id="@+id/viewPostTimeButton"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
-            android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_action_time"
             android:gravity="start|center"
             android:padding="8dp"

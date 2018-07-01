@@ -293,5 +293,6 @@
     <string name="view_cats_qn_text">Would you like to view all categories and trending tags?</string>
     <string name="not_subd_to_cats_text">You have not yet subscribed to any categories or tags</string>
     <string name="view_cats_text">View categories</string>
+    <string name="deleting_text">Deleting...</string>
 
 </resources>
