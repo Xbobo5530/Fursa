@@ -58,7 +58,9 @@ class NotificationsFragment : Fragment() {
         newPostFab?.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "clear notifs is clicked")
             for (notification in notificationsList) {
-                coMeth.updateNotificationStatus(notification, coMeth.uid)
+                if (notification.status == 0) {
+                    coMeth.updateNotificationStatus(notification, coMeth.uid)
+                }
             }
             loadNotifications(userId, notificationsList, adapter, progressBar)
         })
