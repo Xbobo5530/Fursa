@@ -14,13 +14,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ImageView
+    <com.jsibbold.zoomage.ZoomageView
         android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        app:srcCompat="@drawable/appiconshadow" />
+        android:src="@drawable/appiconshadow"
+        app:zoomage_animateOnReset="true"
+        app:zoomage_autoCenter="true"
+        app:zoomage_autoResetMode="UNDER"
+        app:zoomage_maxScale="8"
+        app:zoomage_minScale="0.6"
+        app:zoomage_restrictBounds="false"
+        app:zoomage_translatable="true"
+        app:zoomage_zoomable="true" />
+
+    <!--<ImageView-->
+    <!--android:id="@+id/fullscreen_content"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:gravity="center"-->
+    <!--android:keepScreenOn="true"-->
+    <!--app:srcCompat="@drawable/appiconshadow" />-->
 
     <!--&lt;!&ndash; This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. &ndash;&gt;

@@ -289,8 +289,5 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </android.support.constraint.ConstraintLayout>
-
     </LinearLayout>
-
-
 </android.support.v4.widget.NestedScrollView>
