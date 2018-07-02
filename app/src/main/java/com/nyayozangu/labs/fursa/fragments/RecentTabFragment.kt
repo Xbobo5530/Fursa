@@ -2,6 +2,7 @@ package com.nyayozangu.labs.fursa.fragments
 
 
 import android.os.Bundle
+import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.RecyclerView
@@ -13,6 +14,7 @@ import android.widget.ProgressBar
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Query
 import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter
 import com.nyayozangu.labs.fursa.helpers.CoMeth
@@ -20,10 +22,7 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Posts
 import com.nyayozangu.labs.fursa.models.Users
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+private const val RECENT_FRAGMENT = "RecentFragment"
 
 /**
  * A simple [Fragment] subclass.
@@ -39,20 +38,50 @@ class RecentTabFragment : Fragment() {
     lateinit var adapter: PostsRecyclerAdapter
     lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     lateinit var mProgressBar: ProgressBar
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_recent_tab, container, false)
 
         val mRecyclerView = view.findViewById<RecyclerView>(R.id.recentRecyclerView)
         adapter = PostsRecyclerAdapter(postsList, usersList,
-                "RecentFragment", Glide.with(this))
+                RECENT_FRAGMENT, Glide.with(this))
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
 
         mProgressBar = view.findViewById<ProgressBar>(R.id.recentProgressBar)
         mProgressBar.visibility = View.VISIBLE
 
-        //listen to scrolling
+
+        hanldeScrolling(mRecyclerView)
+        val firstQuery = coMeth.db.collection(POSTS)
+                .orderBy(CoMeth.TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(10)
+        loadPosts(firstQuery)
+        handleSwipeRefresh(view, mRecyclerView, firstQuery)
+        handleBottomNavReselect(mRecyclerView)
+
+        return view
+    }
+
+    fun handleBottomNavReselect(mRecyclerView: RecyclerView) {
+        val mBottomNav = activity?.findViewById<BottomNavigationView>(R.id.mainBottomNav)
+        mBottomNav?.setOnNavigationItemReselectedListener {
+            mRecyclerView.smoothScrollToPosition(0)
+        }
+    }
+
+    private fun handleSwipeRefresh(view: View, mRecyclerView: RecyclerView, firstQuery: Query) {
+        mSwipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.recentSwipeRefresh)
+        mSwipeRefreshLayout.setOnRefreshListener {
+            mRecyclerView.recycledViewPool.clear()
+            postsList.clear()
+            usersList.clear()
+            loadPosts(firstQuery)
+        }
+    }
+
+    private fun hanldeScrolling(mRecyclerView: RecyclerView) {
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
 
@@ -64,21 +93,6 @@ class RecentTabFragment : Fragment() {
                 }
             }
         })
-
-        val firstQuery = coMeth.db.collection(POSTS)
-                .orderBy(CoMeth.TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .limit(10)
-        loadPosts(firstQuery)
-
-        mSwipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.recentSwipeRefresh)
-        mSwipeRefreshLayout.setOnRefreshListener {
-            mRecyclerView.recycledViewPool.clear()
-            postsList.clear()
-            usersList.clear()
-            loadPosts(firstQuery)
-        }
-
-        return view
     }
 
     private fun loadPosts(firstQuery: com.google.firebase.firestore.Query) {

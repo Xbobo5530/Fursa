@@ -72,6 +72,7 @@
                 android:drawablePadding="4dp"
                 android:drawableTop="@drawable/ic_action_activity"
                 android:text="@string/zero_text"
+                android:visibility="gone"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
                 android:textColor="@color/black_overlay"
                 android:textSize="12sp" />
@@ -190,7 +191,6 @@
         <Button
             android:id="@+id/viewPostEventDateButton"
             android:layout_width="match_parent"
-            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:background="@android:color/transparent"

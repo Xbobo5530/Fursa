@@ -19,11 +19,7 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.models.Posts
 import com.nyayozangu.labs.fursa.models.Users
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
+private const val POPULAR_FRAGMENT = "PopularFragment"
 /**
  * A simple [Fragment] subclass.
  *
@@ -45,7 +41,7 @@ class PopularTabFragment : Fragment() {
 
         val mRecyclerView = view.findViewById<RecyclerView>(R.id.popularRecyclerView)
         adapter = PostsRecyclerAdapter(postsList, usersList,
-                "PopularFragment", Glide.with(this))
+                POPULAR_FRAGMENT, Glide.with(this))
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
 
@@ -59,7 +55,6 @@ class PopularTabFragment : Fragment() {
                 super.onScrolled(recyclerView, dx, dy)
                 val reachedBottom = !mRecyclerView.canScrollVertically(1)
                 if (reachedBottom) {
-                    Log.d(CoMeth.TAG, "at addOnScrollListener\n reached bottom")
                     loadMorePosts()
                 }
             }
@@ -129,7 +124,7 @@ class PopularTabFragment : Fragment() {
                     }
                 }
                 .addOnFailureListener {
-                    Log.d(CoMeth.TAG, "failed to get user deatails ${it.message}")
+                    Log.d(CoMeth.TAG, "failed to get user details ${it.message}")
                 }
     }
 

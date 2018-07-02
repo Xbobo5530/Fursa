@@ -73,6 +73,7 @@
                 android:drawablePadding="4dp"
                 android:drawableTop="@drawable/ic_action_activity"
                 android:text="@string/zero_text"
+                android:visibility="gone"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
                 android:textColor="@color/black_overlay"
                 android:textSize="12sp" />

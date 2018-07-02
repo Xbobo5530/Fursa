@@ -93,6 +93,8 @@ class NotificationsFragment : Fragment() {
                                 mProgressBar.visibility = View.GONE
                             }
                         }
+                    } else {
+                        mProgressBar.visibility = View.GONE
                     }
                 }
                 .addOnFailureListener { Log.d(TAG, "Failed to get notifications\n${it.message}") }
