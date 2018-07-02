@@ -2,7 +2,6 @@ package com.nyayozangu.labs.fursa.fragments
 
 
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
@@ -18,6 +17,7 @@ import com.nyayozangu.labs.fursa.adapters.NotificationsRecyclerAdapter
 import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Notifications
+import kotlinx.android.synthetic.main.activity_main.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -45,7 +45,6 @@ class NotificationsFragment : Fragment() {
         val adapter = NotificationsRecyclerAdapter(notificationsList, this.context!!)
         notifRecyclerView.adapter = adapter
 
-        //handle progress bar
         val progressBar = view.findViewById<ProgressBar>(R.id.notifsProgressBar)
         val userId = coMeth.uid
 
@@ -53,9 +52,10 @@ class NotificationsFragment : Fragment() {
 
         loadNotifications(userId, notificationsList, adapter, progressBar)
 
-        val clearAllButton = view.findViewById<FloatingActionButton>(
-                R.id.clearNotificationsFloatingActionButton)
-        clearAllButton.setOnClickListener(View.OnClickListener {
+        val newPostFab = activity?.newPostFab
+        newPostFab?.setImageDrawable(view.resources.getDrawable(R.drawable.ic_clear_white))
+        //have the new post fab clear notifications when notif fragment visible
+        newPostFab?.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "clear notifs is clicked")
             for (notification in notificationsList) {
                 coMeth.updateNotificationStatus(notification, coMeth.uid)
@@ -73,8 +73,8 @@ class NotificationsFragment : Fragment() {
         notificationsList.clear()
         coMeth.db
                 .collection("$USERS/$userId/$NOTIFICATIONS")
+//                .orderBy(STATUS)
                 .orderBy(TIMESTAMP, Query.Direction.DESCENDING)
-                .orderBy(STATUS, Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener { queryDocumentSnapshots ->
                     if (!queryDocumentSnapshots.isEmpty) {

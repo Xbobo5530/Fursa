@@ -294,5 +294,6 @@
     <string name="not_subd_to_cats_text">You have not yet subscribed to any categories or tags</string>
     <string name="view_cats_text">View categories</string>
     <string name="deleting_text">Deleting...</string>
+    <string name="home_text">Home</string>
 
 </resources>

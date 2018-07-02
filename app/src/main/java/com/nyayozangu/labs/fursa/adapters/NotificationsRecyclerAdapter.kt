@@ -15,8 +15,7 @@ import com.nyayozangu.labs.fursa.activities.CommentsActivity
 import com.nyayozangu.labs.fursa.activities.ViewCategoryActivity
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity
 import com.nyayozangu.labs.fursa.helpers.CoMeth
-import com.nyayozangu.labs.fursa.helpers.CoMeth.CATEGORY
-import com.nyayozangu.labs.fursa.helpers.CoMeth.POST_ID
+import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Notifications
 
 class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, var context: Context) :
@@ -61,18 +60,6 @@ class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, v
         })
     }
 
-//    private fun updateNotificationStatus(notification: Notifications) {
-//        val notifStatusMap = mapOf<String, Any>(STATUS to 1)
-//        coMeth.db.collection("${CoMeth.USERS}/${coMeth.uid}/${CoMeth.NOTIFICATIONS}")
-//                .document(notification.doc_id).update(notifStatusMap)
-//                .addOnSuccessListener(OnSuccessListener {
-//                    Log.d(TAG, "notif status updated")
-//                })
-//                .addOnFailureListener(OnFailureListener {
-//                    Log.d(TAG, "error updating status ${it.message}")
-//                })
-//    }
-
     private fun openNofitDialog(title: String, message: String) {
         val notifDialogBuilder = AlertDialog.Builder(context)
         notifDialogBuilder.setTitle(title)
@@ -99,6 +86,7 @@ class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, v
     private fun openCommentsNotif(holder: ViewHolder, postId: String?) {
         val openCommentsIntent = Intent(context, CommentsActivity::class.java)
         openCommentsIntent.putExtra(POST_ID, postId)
+        openCommentsIntent.putExtra(SOURCE, NOTIFICATIONS_VAL)
         context.startActivity(openCommentsIntent)
     }
 
