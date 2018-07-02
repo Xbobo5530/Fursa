@@ -19,10 +19,6 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Notifications
 import kotlinx.android.synthetic.main.activity_main.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
@@ -31,7 +27,9 @@ private const val ARG_PARAM2 = "param2"
 class NotificationsFragment : Fragment() {
     val coMeth = CoMeth()
     var notification = Notifications()
-
+    lateinit var notificationsList: MutableList<Notifications>
+    lateinit var adapter: NotificationsRecyclerAdapter
+    lateinit var mProgressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -41,16 +39,16 @@ class NotificationsFragment : Fragment() {
                 inflater.inflate(R.layout.fragment_notifications, container, false)
         val notifRecyclerView = view.findViewById<RecyclerView>(R.id.notifRecyclerView)
         coMeth.handlePostsView(context, activity, notifRecyclerView)
-        val notificationsList = ArrayList<Notifications>()
-        val adapter = NotificationsRecyclerAdapter(notificationsList, this.context!!)
+        notificationsList = ArrayList<Notifications>()
+        adapter = NotificationsRecyclerAdapter(notificationsList, this.context!!)
         notifRecyclerView.adapter = adapter
 
-        val progressBar = view.findViewById<ProgressBar>(R.id.notifsProgressBar)
+        mProgressBar = view.findViewById<ProgressBar>(R.id.notifsProgressBar)
         val userId = coMeth.uid
 
         if (!coMeth.isConnected) showSnack(resources.getString(R.string.failed_to_connect_text))
 
-        loadNotifications(userId, notificationsList, adapter, progressBar)
+        loadNotifications()
 
         val newPostFab = activity?.newPostFab
         newPostFab?.setImageDrawable(view.resources.getDrawable(R.drawable.ic_clear_white))
@@ -62,40 +60,42 @@ class NotificationsFragment : Fragment() {
                     coMeth.updateNotificationStatus(notification, coMeth.uid)
                 }
             }
-            loadNotifications(userId, notificationsList, adapter, progressBar)
+            loadNotifications()
         })
-
         return view
     }
 
-    private fun loadNotifications(userId: String?,
-                                  notificationsList: ArrayList<Notifications>,
-                                  adapter: NotificationsRecyclerAdapter,
-                                  progressBar: ProgressBar) {
-        notificationsList.clear()
-        coMeth.db
-                .collection("$USERS/$userId/$NOTIFICATIONS")
-//                .orderBy(STATUS)
-                .orderBy(TIMESTAMP, Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener { queryDocumentSnapshots ->
-                    if (!queryDocumentSnapshots.isEmpty) {
-                        for (doc in queryDocumentSnapshots.documentChanges) {
-                            if (doc.type == DocumentChange.Type.ADDED) {
-                                val notificationId = doc.document.id
+    override fun onPause() {
+        super.onPause()
+        loadNotifications()
+    }
 
-                                notification = doc.document.toObject(Notifications::class.java)
+    override fun onStart() {
+        super.onStart()
+        loadNotifications()
+    }
+
+    private fun loadNotifications() {
+        notificationsList.clear()
+        val userId = coMeth.uid
+        coMeth.db.collection("$USERS/$userId/$NOTIFICATIONS")
+//                .orderBy(STATUS)
+                .orderBy(TIMESTAMP, Query.Direction.DESCENDING).get()
+                .addOnSuccessListener {
+                    if (!it.isEmpty) {
+                        for (document in it.documentChanges) {
+                            if (document.type == DocumentChange.Type.ADDED) {
+                                val notificationId = document.document.id
+                                notification = document.document.toObject(Notifications::class.java)
                                 notification.doc_id = notificationId
                                 notificationsList.add(notification)
                                 adapter.notifyDataSetChanged()
-                                progressBar.visibility = View.GONE
-
+                                mProgressBar.visibility = View.GONE
                             }
                         }
-                    } else {
                     }
                 }
-                .addOnFailureListener { Log.d(TAG, "onFailure: failed to fetch latest comment") }
+                .addOnFailureListener { Log.d(TAG, "Failed to get notifications\n${it.message}") }
     }
 
     private fun showSnack(message: String) {

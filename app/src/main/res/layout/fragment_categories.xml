@@ -6,17 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".fragments.CategoriesFragment">
 
-
-    <!--<GridView
-        android:id="@+id/catsGridView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:horizontalSpacing="10dp"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="10dp" />-->
-
     <LinearLayout
         android:id="@+id/catsLinear"
         android:layout_width="wrap_content"
@@ -48,58 +37,4 @@
             app:layout_constraintTop_toBottomOf="@+id/catsTabsLayout" />
 
     </LinearLayout>
-
-    <!--<android.support.constraint.ConstraintLayout-->
-    <!--android:id="@+id/catsConstraintLayout"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent">-->
-
-        <!--<LinearLayout-->
-        <!--android:id="@+id/catsLinearLayout"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:orientation="horizontal"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent">-->
-
-        <!--<Button-->
-        <!--android:id="@+id/catsTabButton"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_margin="2dp"-->
-        <!--android:layout_weight="1"-->
-        <!--android:background="@color/colorWhite"-->
-        <!--android:text="@string/categories_text"-->
-        <!--android:textAllCaps="false" />-->
-
-        <!--<Button-->
-        <!--android:id="@+id/tagsTabButton"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_margin="2dp"-->
-        <!--android:layout_weight="1"-->
-        <!--android:background="@color/colorWhite"-->
-        <!--android:text="@string/trending_tags_text"-->
-        <!--android:textAllCaps="false" />-->
-        <!--</LinearLayout>-->
-
-        <!---->
-        <!---->
-        <!---->
-        <!--<FrameLayout-->
-        <!--android:id="@+id/catsFrame"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="0dp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/catsLinearLayout">-->
-
-        <!--</FrameLayout>-->
-
-
-    <!--</android.support.constraint.ConstraintLayout>-->
 </FrameLayout>

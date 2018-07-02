@@ -295,5 +295,8 @@
     <string name="view_cats_text">View categories</string>
     <string name="deleting_text">Deleting...</string>
     <string name="home_text">Home</string>
+    <string name="recent_text">Recent</string>
+    <string name="popular_text">Popular</string>
+    <string name="saved_text">Saved</string>
 
 </resources>
