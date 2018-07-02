@@ -59,7 +59,6 @@ class PopularTabFragment : Fragment() {
                 super.onScrolled(recyclerView, dx, dy)
                 val reachedBottom = !mRecyclerView.canScrollVertically(1)
                 if (reachedBottom) {
-                    //clear post list
                     Log.d(CoMeth.TAG, "at addOnScrollListener\n reached bottom")
                     loadMorePosts()
                 }
@@ -76,6 +75,7 @@ class PopularTabFragment : Fragment() {
             mRecyclerView.recycledViewPool.clear()
             postsList.clear()
             usersList.clear()
+            loadPosts(firstQuery)
         }
 
         return view
@@ -86,7 +86,7 @@ class PopularTabFragment : Fragment() {
             if (firebaseFirestoreException == null) {
                 if (!querySnapshot?.isEmpty!!) {
                     if (isFirstPageFirstLoad) {
-                        lastVisiblePost = querySnapshot.documents.get(querySnapshot.size() - 1)
+                        lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
                         postsList.clear()
                         usersList.clear()
 
@@ -143,14 +143,14 @@ class PopularTabFragment : Fragment() {
         nextQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
             if (firebaseFirestoreException == null) {
                 if (!querySnapshot?.isEmpty!!) {
+                    lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
                     for (document in querySnapshot.documentChanges) {
                         if (document.type == DocumentChange.Type.ADDED) {
                             val postId = document.document.id
                             val post = document.document
                                     .toObject(Posts::class.java).withId<Posts>(postId)
-                            val postUserid = post.user_id
-                            //get user details
-                            getUserData(postUserid, post)
+                            val postUserId = post.user_id
+                            getUserData(postUserId, post)
                         }
                     }
                 }
@@ -159,4 +159,6 @@ class PopularTabFragment : Fragment() {
             }
         }
     }
+
+
 }

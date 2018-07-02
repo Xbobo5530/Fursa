@@ -32,11 +32,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tabGravity="fill"
-            app:tabIndicatorColor="@color/colorAccent"
             app:tabMode="fixed"
-            app:tabSelectedTextColor="@color/colorAccent"
-            app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
-            app:tabTextColor="@color/black_overlay" />
+            android:background="@color/colorPrimary"
+            app:tabIndicatorColor="@color/colorWhite"
+            app:tabSelectedTextColor="@color/colorWhite"
+            app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+            app:tabTextColor="@color/colorWhiteTransparent" />
 
         <android.support.v4.view.ViewPager
             android:id="@+id/homeViewPager"

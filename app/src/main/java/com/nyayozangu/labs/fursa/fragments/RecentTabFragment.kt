@@ -59,7 +59,6 @@ class RecentTabFragment : Fragment() {
                 super.onScrolled(recyclerView, dx, dy)
                 val reachedBottom = !mRecyclerView.canScrollVertically(1)
                 if (reachedBottom) {
-                    //clear post list
                     Log.d(TAG, "at addOnScrollListener\n reached bottom")
                     loadMorePosts()
                 }
@@ -76,6 +75,7 @@ class RecentTabFragment : Fragment() {
             mRecyclerView.recycledViewPool.clear()
             postsList.clear()
             usersList.clear()
+            loadPosts(firstQuery)
         }
 
         return view
@@ -86,7 +86,7 @@ class RecentTabFragment : Fragment() {
             if (firebaseFirestoreException == null) {
                 if (!querySnapshot?.isEmpty!!) {
                     if (isFirstPageFirstLoad) {
-                        lastVisiblePost = querySnapshot.documents.get(querySnapshot.size() - 1)
+                        lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
                         postsList.clear()
                         usersList.clear()
 
@@ -112,28 +112,30 @@ class RecentTabFragment : Fragment() {
                 .addOnSuccessListener {
                     if (it.exists()) {
                         val user = it.toObject(Users::class.java)?.withId<Users>(postUserId)
-                        if (isFirstPageFirstLoad && !postsList.contains(post)) {
+                        if (isFirstPageFirstLoad) {
                             if (user != null) {
                                 usersList.add(0, user)
                                 postsList.add(0, post)
+                                adapter.notifyDataSetChanged()
                             }
                         } else {
                             if (user != null) {
                                 usersList.add(user)
                                 postsList.add(post)
+                                adapter.notifyDataSetChanged()
                             }
-                            adapter.notifyDataSetChanged()
-                            mProgressBar.visibility = View.GONE
-                            coMeth.stopLoading(mSwipeRefreshLayout)
                         }
+                        mProgressBar.visibility = View.GONE
+                        coMeth.stopLoading(mSwipeRefreshLayout)
                     }
                 }
                 .addOnFailureListener {
-                    Log.d(TAG, "failed to get user deatails ${it.message}")
+                    Log.d(TAG, "failed to get user details ${it.message}")
                 }
     }
 
     private fun loadMorePosts() {
+        Log.d(TAG, "at load more posts")
         mProgressBar.visibility = View.VISIBLE
         val nextQuery = coMeth.db.collection(POSTS)
                 .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
@@ -143,14 +145,14 @@ class RecentTabFragment : Fragment() {
         nextQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
             if (firebaseFirestoreException == null) {
                 if (!querySnapshot?.isEmpty!!) {
+                    lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
                     for (document in querySnapshot.documentChanges) {
                         if (document.type == DocumentChange.Type.ADDED) {
                             val postId = document.document.id
                             val post = document.document
                                     .toObject(Posts::class.java).withId<Posts>(postId)
-                            val postUserid = post.user_id
-                            //get user details
-                            getUserData(postUserid, post)
+                            val postUserId = post.user_id
+                            getUserData(postUserId, post)
                         }
                     }
                 }
