@@ -298,5 +298,8 @@
     <string name="recent_text">Recent</string>
     <string name="popular_text">Popular</string>
     <string name="saved_text">Saved</string>
+    <string name="toast_message_text">toast message</string>
+    <string name="notifs_will_appear_here_text">Your notifications will appear here</string>
+    <string name="failed_to_get_notifications">Failed to get notifications</string>
 
 </resources>

@@ -2,7 +2,6 @@ package com.nyayozangu.labs.fursa.fragments
 
 
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -10,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import android.widget.Toast
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.Query
 import com.nyayozangu.labs.fursa.R
@@ -26,15 +26,15 @@ import kotlinx.android.synthetic.main.activity_main.*
  */
 class NotificationsFragment : Fragment() {
     val coMeth = CoMeth()
-    var notification = Notifications()
-    lateinit var notificationsList: MutableList<Notifications>
+    private lateinit var toast: Toast
+    private var notification = Notifications()
+    private lateinit var notificationsList: MutableList<Notifications>
     lateinit var adapter: NotificationsRecyclerAdapter
-    lateinit var mProgressBar: ProgressBar
+    private lateinit var mProgressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        // Inflate the layout for this fragment
         val view =
                 inflater.inflate(R.layout.fragment_notifications, container, false)
         val notifRecyclerView = view.findViewById<RecyclerView>(R.id.notifRecyclerView)
@@ -46,13 +46,14 @@ class NotificationsFragment : Fragment() {
         mProgressBar = view.findViewById<ProgressBar>(R.id.notifsProgressBar)
         val userId = coMeth.uid
 
-        if (!coMeth.isConnected) showSnack(resources.getString(R.string.failed_to_connect_text))
+        toast = Toast.makeText(context, "", Toast.LENGTH_LONG)
+        if (!coMeth.isConnected) coMeth.showToast(toast, activity, context,
+                resources.getString(R.string.failed_to_connect_text))
 
         loadNotifications()
 
         val newPostFab = activity?.newPostFab
         newPostFab?.setImageDrawable(view.resources.getDrawable(R.drawable.ic_clear_white))
-        //have the new post fab clear notifications when notif fragment visible
         newPostFab?.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "clear notifs is clicked")
             for (notification in notificationsList) {
@@ -62,7 +63,13 @@ class NotificationsFragment : Fragment() {
             }
             loadNotifications()
         })
+
         return view
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        toast.cancel()
     }
 
     override fun onPause() {
@@ -94,15 +101,16 @@ class NotificationsFragment : Fragment() {
                             }
                         }
                     } else {
+                        val message = resources.getString(R.string.notifs_will_appear_here_text)
+//                                coMeth.showToast(toast, activity, activity, message)
                         mProgressBar.visibility = View.GONE
                     }
                 }
-                .addOnFailureListener { Log.d(TAG, "Failed to get notifications\n${it.message}") }
-    }
-
-    private fun showSnack(message: String) {
-        activity?.findViewById<View>(R.id.mainSnack)?.let {
-            Snackbar.make(it, message, Snackbar.LENGTH_LONG).show()
-        }
+                .addOnFailureListener {
+                    Log.d(TAG, "Failed to get notifications\n${it.message}")
+//                    coMeth.showToast(toast, activity, context,
+//                            "${resources.getString(R.string.failed_to_get_notifications)}: " +
+//                                    "${it.message}")
+                }
     }
 }
