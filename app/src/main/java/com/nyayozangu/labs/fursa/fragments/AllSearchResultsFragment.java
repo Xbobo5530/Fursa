@@ -66,7 +66,8 @@ public class AllSearchResultsFragment extends Fragment {
 
         //initiate the PostsRecyclerAdapter
         String className = "SearchableActivity";
-        searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className, Glide.with(this));
+        searchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className,
+                Glide.with(this), getActivity());
         coMeth.handlePostsView(getContext(), getActivity(), searchFeed);
         //set an adapter for the recycler view
         searchFeed.setAdapter(searchRecyclerAdapter);

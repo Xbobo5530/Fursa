@@ -3,6 +3,8 @@ package com.nyayozangu.labs.fursa.fragments
 
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.design.widget.CoordinatorLayout
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -43,7 +45,7 @@ class RecentTabFragment : Fragment() {
 
         val mRecyclerView = view.findViewById<RecyclerView>(R.id.recentRecyclerView)
         adapter = PostsRecyclerAdapter(postsList, usersList,
-                RECENT_FRAGMENT, Glide.with(this))
+                RECENT_FRAGMENT, Glide.with(this), activity)
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
 
@@ -157,6 +159,12 @@ class RecentTabFragment : Fragment() {
             } else {
                 Log.d(TAG, "error ${firebaseFirestoreException.message}")
             }
+        }
+    }
+
+    fun showSnack(message: String) {
+        activity?.findViewById<CoordinatorLayout>(R.id.mainSnack)?.let {
+            Snackbar.make(it, message, Snackbar.LENGTH_LONG)
         }
     }
 }

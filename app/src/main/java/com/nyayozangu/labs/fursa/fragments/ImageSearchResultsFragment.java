@@ -53,7 +53,8 @@ public class ImageSearchResultsFragment extends Fragment {
         usersList = new ArrayList<>();
 
         String className = "SearchableActivity";
-        imageSearchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className, Glide.with(this));
+        imageSearchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className,
+                Glide.with(this), getActivity());
         coMeth.handlePostsView(getContext(), getActivity(), imageSearchFeed);
         //set an adapter for the recycler view
         imageSearchFeed.setAdapter(imageSearchRecyclerAdapter);

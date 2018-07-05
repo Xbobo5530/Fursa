@@ -74,6 +74,7 @@
     <string name="select_categories_create_post_hint_text" translatable="false">Select related categories</string>
     <string name="enter_location_create_post_hint_text" translatable="false">Enter a location (optional)</string>
     <string name="enter_event_date_create_post_hint_text" translatable="false">Enter a date for an event (optional)</string>
+    <string name="enter_event_end_date_create_post_hint_text" translatable="false">Enter an end date for an event (optional)</string>
     <string name="enter_price_create_post_hint_text" translatable="false">Enter a price value (optional)</string>
     <string name="zero_text" translatable="false">0</string>
     <string name="save_text" translatable="false">Save</string>
@@ -301,5 +302,10 @@
     <string name="toast_message_text">toast message</string>
     <string name="notifs_will_appear_here_text">Your notifications will appear here</string>
     <string name="failed_to_get_notifications">Failed to get notifications</string>
+    <string name="failed_to_load_posts">Failed to load posts</string>
+    <string name="post_desc_text">Post Description</string>
+    <string name="contact_details_text">Contact Details</string>
+    <string name="daily_limited_text">Daily post limit reached</string>
+    <string name="you_have_reached_daily_limit_text">You have reached you daily posting limit.</string>
 
 </resources>

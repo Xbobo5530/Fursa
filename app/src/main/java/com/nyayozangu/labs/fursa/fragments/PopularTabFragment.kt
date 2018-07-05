@@ -39,7 +39,7 @@ class PopularTabFragment : Fragment() {
 
         val mRecyclerView = view.findViewById<RecyclerView>(R.id.popularRecyclerView)
         adapter = PostsRecyclerAdapter(postsList, usersList,
-                POPULAR_FRAGMENT, Glide.with(this))
+                POPULAR_FRAGMENT, Glide.with(this), activity)
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
 

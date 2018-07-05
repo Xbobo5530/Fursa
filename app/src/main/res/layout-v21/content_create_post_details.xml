@@ -61,10 +61,10 @@
 
             <Button
                 android:id="@+id/createPostCategoriesButton"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="none"
-                android:background="@android:color/transparent"
                 android:drawablePadding="18dp"
                 android:drawableStart="@drawable/ic_action_cat_light"
                 android:gravity="start|center"
@@ -74,10 +74,10 @@
 
             <Button
                 android:id="@+id/createPostContactButton"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="none"
-                android:background="@android:color/transparent"
                 android:drawablePadding="18dp"
                 android:drawableStart="@drawable/ic_action_contact"
                 android:gravity="start|center"
@@ -87,10 +87,10 @@
 
             <Button
                 android:id="@+id/createPostLocationButton"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="none"
-                android:background="@android:color/transparent"
                 android:drawablePadding="18dp"
                 android:drawableStart="@drawable/ic_action_location"
                 android:gravity="start|center"
@@ -105,11 +105,11 @@
 
                 <Button
                     android:id="@+id/createPostEventDateButton"
+                    style="@android:style/Widget.Material.Button.Borderless"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:autoLink="none"
-                    android:background="@android:color/transparent"
                     android:drawablePadding="18dp"
                     android:drawableStart="@drawable/ic_action_event_date"
                     android:gravity="start|center"
@@ -127,11 +127,11 @@
 
                 <Button
                     android:id="@+id/createPostEventEndDateButton"
+                    style="@android:style/Widget.Material.Button.Borderless"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:autoLink="none"
-                    android:background="@android:color/transparent"
                     android:drawablePadding="18dp"
                     android:gravity="start|center"
                     android:hint="@string/enter_event_end_date_create_post_hint_text"
@@ -142,15 +142,15 @@
 
             <Button
                 android:id="@+id/createPostPriceButton"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="none"
-                android:background="@android:color/transparent"
                 android:drawablePadding="18dp"
                 android:drawableStart="@drawable/ic_action_payment"
                 android:gravity="start|center"
-                android:padding="8dp"
                 android:hint="@string/enter_price_create_post_hint_text"
+                android:padding="8dp"
                 android:textAllCaps="false" />
         </LinearLayout>
 
