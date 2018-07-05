@@ -38,8 +38,9 @@
             android:id="@+id/mainSnack"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_gravity="bottom|end"
-            android:layout_marginBottom="72dp">
+            android:layout_gravity="top"
+            app:layout_anchor="@id/mainBottomNav"
+            app:layout_anchorGravity="top">
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/newPostFab"
@@ -50,8 +51,8 @@
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_action_add_white"
                 app:elevation="8dp"
-                app:layout_anchorGravity="top|center"
-                app:layout_behavior="com.nyayozangu.labs.fursa.helpers.FabBehaviour" />
+                app:layout_anchorGravity="bottom" />
+            <!--app:layout_behavior="com.nyayozangu.labs.fursa.helpers.FabBehaviour" -->
         </android.support.design.widget.CoordinatorLayout>
 
 
@@ -61,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:background="@color/colorWhite"
-            app:elevation="?attr/actionBarSize"
+            app:elevation="56dp"
             app:itemIconTint="@color/nav_items"
             app:itemTextColor="@color/nav_items"
             app:layout_anchorGravity="bottom"
