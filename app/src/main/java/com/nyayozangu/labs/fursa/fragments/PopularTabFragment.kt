@@ -58,12 +58,29 @@ class PopularTabFragment : Fragment() {
             }
         })
 
+        //handle scroll to top
+        handleScrolling(mRecyclerView)
+
         val firstQuery = coMeth.db.collection(CoMeth.POSTS)
                 .orderBy(CoMeth.ACTIVITY, com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(10)
         loadPosts(firstQuery)
 
         return view
+    }
+
+    private fun handleScrolling(mRecyclerView: RecyclerView) {
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+
+                super.onScrolled(recyclerView, dx, dy)
+                val reachedBottom = !mRecyclerView.canScrollVertically(1)
+                if (reachedBottom) {
+                    Log.d(CoMeth.TAG, "at addOnScrollListener\n reached bottom")
+                    loadMorePosts()
+                }
+            }
+        })
     }
 
     private fun loadPosts(firstQuery: com.google.firebase.firestore.Query) {

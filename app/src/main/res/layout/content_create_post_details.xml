@@ -44,7 +44,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="100dp">
 
             <Button
                 android:id="@+id/createPostDescButton"
@@ -56,6 +57,9 @@
                 android:drawableStart="@drawable/ic_action_descritption"
                 android:gravity="start|center"
                 android:hint="@string/enter_description_hint_text"
+                android:maxHeight="20sp"
+                android:maxLength="100"
+                android:maxLines="30"
                 android:padding="8dp"
                 android:textAllCaps="false" />
 

@@ -53,7 +53,7 @@ class RecentTabFragment : Fragment() {
         mProgressBar.visibility = View.VISIBLE
 
 
-        hanldeScrolling(mRecyclerView)
+        handleScrolling(mRecyclerView)
         val firstQuery = coMeth.db.collection(POSTS)
                 .orderBy(CoMeth.TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(10)
@@ -70,7 +70,7 @@ class RecentTabFragment : Fragment() {
         }
     }
 
-    private fun hanldeScrolling(mRecyclerView: RecyclerView) {
+    private fun handleScrolling(mRecyclerView: RecyclerView) {
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
 
