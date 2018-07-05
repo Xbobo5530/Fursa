@@ -3,7 +3,6 @@ package com.nyayozangu.labs.fursa.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,7 +31,6 @@ class PopularTabFragment : Fragment() {
     var isFirstPageFirstLoad = true
     lateinit var lastVisiblePost: DocumentSnapshot
     lateinit var adapter: PostsRecyclerAdapter
-    lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     lateinit var mProgressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -64,14 +62,6 @@ class PopularTabFragment : Fragment() {
                 .orderBy(CoMeth.ACTIVITY, com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(10)
         loadPosts(firstQuery)
-
-        mSwipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.popularSwipeRefresh)
-        mSwipeRefreshLayout.setOnRefreshListener {
-            mRecyclerView.recycledViewPool.clear()
-            postsList.clear()
-            usersList.clear()
-            loadPosts(firstQuery)
-        }
 
         return view
     }
@@ -119,7 +109,6 @@ class PopularTabFragment : Fragment() {
                             }
                             adapter.notifyDataSetChanged()
                             mProgressBar.visibility = View.GONE
-                            coMeth.stopLoading(mSwipeRefreshLayout)
                         }
                     }
                 }
@@ -154,6 +143,4 @@ class PopularTabFragment : Fragment() {
             }
         }
     }
-
-
 }

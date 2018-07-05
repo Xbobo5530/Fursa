@@ -4,7 +4,6 @@ package com.nyayozangu.labs.fursa.fragments
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -36,7 +35,6 @@ class RecentTabFragment : Fragment() {
     var isFirstPageFirstLoad = true
     lateinit var lastVisiblePost: DocumentSnapshot
     lateinit var adapter: PostsRecyclerAdapter
-    lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     lateinit var mProgressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +56,6 @@ class RecentTabFragment : Fragment() {
                 .orderBy(CoMeth.TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(10)
         loadPosts(firstQuery)
-        handleSwipeRefresh(view, mRecyclerView, firstQuery)
         handleBottomNavReselect(mRecyclerView)
 
         return view
@@ -68,16 +65,6 @@ class RecentTabFragment : Fragment() {
         val mBottomNav = activity?.findViewById<BottomNavigationView>(R.id.mainBottomNav)
         mBottomNav?.setOnNavigationItemReselectedListener {
             mRecyclerView.smoothScrollToPosition(0)
-        }
-    }
-
-    private fun handleSwipeRefresh(view: View, mRecyclerView: RecyclerView, firstQuery: Query) {
-        mSwipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.recentSwipeRefresh)
-        mSwipeRefreshLayout.setOnRefreshListener {
-            mRecyclerView.recycledViewPool.clear()
-            postsList.clear()
-            usersList.clear()
-            loadPosts(firstQuery)
         }
     }
 
@@ -140,7 +127,6 @@ class RecentTabFragment : Fragment() {
                             }
                         }
                         mProgressBar.visibility = View.GONE
-                        coMeth.stopLoading(mSwipeRefreshLayout)
                     }
                 }
                 .addOnFailureListener {
@@ -149,11 +135,9 @@ class RecentTabFragment : Fragment() {
     }
 
     private fun loadMorePosts() {
-        Log.d(TAG, "at load more posts")
         mProgressBar.visibility = View.VISIBLE
         val nextQuery = coMeth.db.collection(POSTS)
-                .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .startAfter(lastVisiblePost)
+                .orderBy(TIMESTAMP, Query.Direction.DESCENDING).startAfter(lastVisiblePost)
                 .limit(10)
 
         nextQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->

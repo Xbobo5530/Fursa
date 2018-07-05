@@ -5,19 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.HomeFragment">
 
-    <!--<android.support.v4.widget.SwipeRefreshLayout-->
-    <!--android:id="@+id/homeSwipeRefresh"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent">-->
-
-    <!--<android.support.v7.widget.RecyclerView-->
-    <!--android:id="@+id/homeFeedView"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent" />-->
-
-    <!--</android.support.v4.widget.SwipeRefreshLayout>-->
-
-
     <LinearLayout
         android:id="@+id/homeLinear"
         android:layout_width="wrap_content"
