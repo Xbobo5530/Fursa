@@ -17,7 +17,7 @@
             android:id="@+id/mainFrameContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="112dp"
+            android:paddingBottom="56dp"
             app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior" />
 
         <android.support.design.widget.AppBarLayout
@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="16dp"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_action_add_white"
                 app:elevation="8dp"
