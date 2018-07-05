@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/user_actions">
         <item
+            android:id="@+id/nav_my_profile"
+            android:icon="@drawable/ic_action_person_placeholder"
+            android:title="@string/my_profile_text" />
+        <item
             android:id="@+id/nav_my_posts"
             android:icon="@drawable/ic_action_posts"
             android:title="@string/my_posts_text" />

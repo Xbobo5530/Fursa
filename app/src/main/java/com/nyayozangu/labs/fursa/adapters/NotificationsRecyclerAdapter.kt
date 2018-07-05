@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.activities.CommentsActivity
@@ -17,8 +18,10 @@ import com.nyayozangu.labs.fursa.activities.ViewPostActivity
 import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Notifications
+import kotlinx.android.synthetic.main.notif_list_item.view.*
 
-class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, var context: Context) :
+class NotificationsRecyclerAdapter(private val notificationsList: List<Notifications>,
+                                   var context: Context) :
         RecyclerView.Adapter<NotificationsRecyclerAdapter.ViewHolder>() {
 
     private val coMeth: CoMeth = CoMeth()
@@ -41,23 +44,70 @@ class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, v
         val status = notification.status
 
         holder.setData(title, message, status)
-
+        val mImage = holder.itemView.notifImageView
+        setImage(mImage, notifType, status)
         val notifButton =
                 holder.itemView.findViewById<ConstraintLayout>(R.id.notifItemLayout)
-        notifButton.setOnClickListener(View.OnClickListener {
+        hanldeItemClick(notifButton, notification, notifType, holder, extra, title, message)
+    }
 
+    private fun hanldeItemClick(notifButton: ConstraintLayout,
+                                notification: Notifications,
+                                notifType: String?,
+                                holder: ViewHolder,
+                                extra: String?,
+                                title: String,
+                                message: String) {
+        notifButton.setOnClickListener(View.OnClickListener {
             coMeth.updateNotificationStatus(notification, coMeth.uid)
-//            updateNotificationStatus(notification)
             when (notifType) {
-                CoMeth.COMMENT_UPDATES -> openCommentsNotif(holder, extra)
-                CoMeth.CATEGORIES_UPDATES -> openCatsNotif(extra)
-                CoMeth.LIKES_UPDATES -> openPostNotif(extra)
-                CoMeth.NEW_POST_UPDATES -> openPostNotif(extra)
+                COMMENT_UPDATES -> openCommentsNotif(holder, extra)
+                CATEGORIES_UPDATES -> openCatsNotif(extra)
+                LIKES_UPDATES -> openPostNotif(extra)
+                NEW_POST_UPDATES -> openPostNotif(extra)
                 else -> {
                     openNofitDialog(title, message)
                 }
             }
         })
+    }
+
+    private fun setImage(mImage: ImageView, notifType: String?, status: Int?) {
+
+        when (notifType) {
+            COMMENT_UPDATES -> if (status == 0) {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_comments_green))
+            } else {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_action_comment))
+            }
+            CATEGORIES_UPDATES -> if (status == 0) {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_notif_active_red))
+            } else {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_action_notifications))
+            }
+            LIKES_UPDATES -> if (status == 0) {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_action_liked))
+            } else {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_action_like_unclicked))
+            }
+            NEW_POST_UPDATES -> if (status == 0) {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_action_new_post_notif))
+            } else {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_new_post_update_dark))
+            }
+            else -> {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_action_notifications))
+            }
+        }
     }
 
     private fun openNofitDialog(title: String, message: String) {
@@ -94,16 +144,18 @@ class NotificationsRecyclerAdapter(val notificationsList: List<Notifications>, v
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
+        val notifImage = itemView.findViewById<ImageView>(R.id.notifImageView)
+
         fun setData(title: String, message: String, status: Int?) {
             itemView.findViewById<TextView>(R.id.notifTitleTextView).text = title
             itemView.findViewById<TextView>(R.id.notifDescTextView).text = message
             val notifLayout = itemView.findViewById<ConstraintLayout>(R.id.notifItemLayout)
-            if (status == 0) { // 0 means unread
+            if (status == 0) { // 0 is unread
                 notifLayout.setBackgroundColor(ContextCompat.getColor(itemView.context,
                         R.color.colorWhite))
             } else {
                 notifLayout.setBackgroundColor(ContextCompat.getColor(itemView.context,
-                        R.color.black_transparent))
+                        R.color.grey_background))
             }
         }
     }

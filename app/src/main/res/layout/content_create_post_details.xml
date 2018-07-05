@@ -121,7 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:hint="to"
+                    android:hint="@string/to_text"
                     android:paddingEnd="12dp"
                     android:paddingStart="8dp" />
 
