@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|enterAlways"
             app:tabGravity="fill"
-            app:tabIndicatorColor="@color/colorWhite"
+            app:tabIndicatorColor="@color/secondaryColor"
             app:tabMode="fixed"
             app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
             app:tabTextColor="@color/colorWhiteTransparent">

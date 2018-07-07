@@ -27,127 +27,132 @@
                 android:id="@+id/userPageUserImage"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
+                android:layout_marginBottom="8dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/userPageEditProfileButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/appiconshadow" />
 
-            <TextView
-                android:id="@+id/userPageUsernameTextView"
+            <LinearLayout
+                android:id="@+id/userPageUserDetailsLinLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/username_post_placeholder_text"
-                android:textSize="24sp"
-                android:textStyle="bold"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/userPageUserImage"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@+id/userPageUserImage">
 
-            <TextView
-                android:id="@+id/userPageUserBioTextView"
-                android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/userPageUsernameTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/username_post_placeholder_text"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/userPageUserBioTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="16dp"
+                    android:autoLink="all"
+                    android:text="@string/user_bio_sett_textview_hint" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:autoLink="all"
-                android:text="@string/user_bio_sett_textview_hint"
-                app:layout_constraintBottom_toBottomOf="@+id/userPageUserImage"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/userPageUserImage"
-                app:layout_constraintTop_toBottomOf="@+id/userPageUsernameTextView" />
-
-            <Button
-                android:id="@+id/userPagePostsButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/transparent"
-                android:drawablePadding="8dp"
-                android:drawableStart="@drawable/ic_action_posts"
-                android:text="@string/user_posts_text"
-                android:textAlignment="textStart"
-                android:textAllCaps="false"
-                android:textColor="@color/colorAccent"
-                android:visibility="visible"
-                app:layout_constraintEnd_toStartOf="@+id/userPagePostsCountTextView"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/userPageEditProfileButton" />
-
-            <Button
-                android:id="@+id/userPageEditProfileButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/transparent"
-                android:text="@string/edit_profile_sett_button"
-                android:drawablePadding="8dp"
-                android:drawableStart="@drawable/ic_action_edit_dark"
-                android:textAlignment="viewStart"
-                android:textAllCaps="false"
-                android:textColor="@color/colorAccent"
-                android:visibility="visible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/userPageEditProfileImageView"
-                app:layout_constraintTop_toBottomOf="@+id/userPageUserImage" />
-
-            <ImageView
-                android:id="@+id/userPageEditProfileImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/userPageEditProfileButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/userPageEditProfileButton"
-                app:srcCompat="@drawable/ic_action_edit_dark" />
-
-            <TextView
-                android:id="@+id/userPagePostsCountTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/zero_text"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@+id/userPagePostsButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/userPagePostsButton" />
-
-            <Button
-                android:id="@+id/userPageShareProfileButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/transparent"
-                android:drawablePadding="8dp"
-                android:drawableStart="@drawable/ic_action_share"
-                android:text="@string/share_profile_text"
-                android:textAlignment="viewStart"
-                android:textAllCaps="false"
-                android:textColor="@color/colorAccent"
+                android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/userPagePostsButton" />
+                app:layout_constraintTop_toBottomOf="@+id/userPageUserImage">
 
+                <Button
+                    android:id="@+id/userPageEditProfileButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@android:color/transparent"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/ic_action_edit_dark"
+                    android:text="@string/edit_profile_sett_button"
+                    android:textAlignment="viewStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/secondaryColor"
+                    android:visibility="visible" />
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/userPagePostsButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@android:color/transparent"
+                        android:drawablePadding="8dp"
+                        android:drawableStart="@drawable/ic_action_posts"
+                        android:text="@string/user_posts_text"
+                        android:textAlignment="textStart"
+                        android:textAllCaps="false"
+                        android:textColor="@color/secondaryColor"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toStartOf="@+id/userPagePostsCountTextView"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <TextView
+                        android:id="@+id/userPagePostsCountTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/zero_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        app:layout_constraintBottom_toBottomOf="@+id/userPagePostsButton"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/userPagePostsButton" />
+                </android.support.constraint.ConstraintLayout>
+
+                <Button
+                    android:id="@+id/userPageShareProfileButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@android:color/transparent"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/ic_action_share"
+                    android:text="@string/share_profile_text"
+                    android:textAlignment="viewStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/secondaryColor" />
+
+            </LinearLayout>
 
         </android.support.constraint.ConstraintLayout>
 

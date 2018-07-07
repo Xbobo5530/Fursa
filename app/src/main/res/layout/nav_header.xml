@@ -4,7 +4,7 @@
     android:id="@+id/navHeaderLayout"
     android:layout_width="match_parent"
     android:layout_height="250dp"
-    android:background="@color/colorPrimary">
+    android:background="@color/secondaryColor">
 
     <ImageView
         android:id="@+id/navHeaderUserImageView"
