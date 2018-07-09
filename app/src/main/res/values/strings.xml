@@ -50,7 +50,7 @@
     <string name="edit_profile_sett_button" translatable="false">Edit Profile</string>
     <string name="my_subscriptions_sett_button" translatable="false">My Subscriptions</string>
     <string name="my_posts_sett_button" translatable="false">My Posts</string>
-    <string name="contact_us_sett_button" translatable="false">Contact Us</string>
+    <string name="contact_us_sett_button" translatable="false">Contact us</string>
     <string name="privacy_policy_sett_button" translatable="false">Terms and conditions and Privacy Policy</string>
     <string name="feedback_sett_button" translatable="false">Feedback</string>
     <string name="title_activity_my_posts" translatable="false">MyPostsActivity</string>
@@ -181,7 +181,7 @@
     <string name="view_details_text" translatable="false">View details</string>
     <string name="app_download_url" translatable="false">https://play.google.com/store/apps/details?id=com.nyayozangu.labs.fursa</string>
     <string name="user_not_found_text" translatable="false">User not found</string>
-    <string name="my_posts_text" translatable="false">My Posts</string>
+    <string name="my_posts_text" translatable="false">My posts</string>
     <string name="posts_text" translatable="false">posts</string>
     <string name="share_with_text" translatable="false">Share with</string>
     <string name="create_post_text" translatable="false">Create post</string>
@@ -290,7 +290,7 @@
     <string name="are_u_sure_submit_post_text">are you sure you want to submit this post?</string>
     <string name="edit_post_text">Edit post</string>
     <string name="proceed_text">Proceed</string>
-    <string name="my_subscriptions_text">My Subscriptions</string>
+    <string name="my_subscriptions_text">My subscriptions</string>
     <string name="my_saved_posts_text">My saved posts</string>
     <string name="view_cats_qn_text">Would you like to view all categories and trending tags?</string>
     <string name="not_subd_to_cats_text">You have not yet subscribed to any categories or tags</string>
@@ -313,5 +313,10 @@
     <string name="retry_text">Retry</string>
     <string name="reloading_text">Reloading…</string>
     <string name="reload_text">Reload</string>
+    <string name="follow_text">Follow</string>
+    <string name="login_to_follow">Login to follow other users</string>
+    <string name="followting_text">Following</string>
+    <string name="failed_to_follow_text">Failed to follow page</string>
+    <string name="failed_to_unfollow_text">Failed to un-follow page</string>
 
 </resources>
