@@ -59,6 +59,7 @@
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -217,6 +218,10 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.UsersActivity"
+            android:label="@string/title_activity_users"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
