@@ -55,7 +55,7 @@ class RecentTabFragment : Fragment() {
 
         handleScrolling(mRecyclerView)
         val firstQuery = coMeth.db.collection(POSTS)
-                .orderBy(CoMeth.TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(10)
         loadPosts(firstQuery)
         handleBottomNavReselect(mRecyclerView)

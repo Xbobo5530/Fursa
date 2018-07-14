@@ -65,6 +65,7 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
                 CATEGORIES_UPDATES -> openCatsNotif(extra)
                 LIKES_UPDATES -> openPostNotif(extra)
                 NEW_POST_UPDATES -> openPostNotif(extra)
+                FOLLOWER_POST -> openPostNotif(extra)
                 else -> {
                     openNofitDialog(title, message)
                 }
@@ -102,6 +103,13 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
             } else {
                 mImage.setImageDrawable(
                         context.resources.getDrawable(R.drawable.ic_new_post_update_dark))
+            }
+            FOLLOWER_POST -> if (status == 0) {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_follower_post_active))
+            } else {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_follower_post))
             }
             else -> {
                 mImage.setImageDrawable(

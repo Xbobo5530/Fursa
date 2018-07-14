@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -32,6 +33,7 @@ import com.nyayozangu.labs.fursa.activities.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Comments;
+import com.nyayozangu.labs.fursa.models.Posts;
 import com.nyayozangu.labs.fursa.models.Users;
 
 import java.text.SimpleDateFormat;
@@ -40,6 +42,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_COLL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_ID;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 
 /**
  *
@@ -157,6 +165,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     handleLikesNotif(title, messageBody, extraInfo, notifId);
                     break;
 
+                case CoMeth.FOLLOWER_POST:
+                    //handle notification for new post
+                    handleFollowerPostNotif(title, extraInfo, notifId);
+                    break;
+
                 case CoMeth.NEW_POST_UPDATES:
                     //handle notification for new post
                     handleNewPostNotif(title, messageBody, extraInfo, notifId);
@@ -190,6 +203,53 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //add notification to db
 //        addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
 
+    }
+
+    private void handleFollowerPostNotif(final String title, final String extraInfo, final int notifId) {
+        //extra info is new post id
+        Intent intent = new Intent(this, ViewPostActivity.class);
+        intent.putExtra(POST_ID, extraInfo);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        pendingIntent = PendingIntent.getActivity(this, notifId, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        getUserInfo(title, extraInfo, notifId, extraInfo);
+    }
+
+    private void getUserInfo(final String title, final String extraInfo, final int notifId, String newPostId) {
+        DocumentReference newPostRef = coMeth.getDb().collection(POSTS).document(newPostId);
+        newPostRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    Posts post = documentSnapshot.toObject(Posts.class);
+                    String newPostUserId = Objects.requireNonNull(post).getUser_id();
+                    DocumentReference postUserRef = coMeth.getDb().collection(USERS).document(newPostUserId);
+                    postUserRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()) {
+                                Users user = documentSnapshot.toObject(Users.class);
+                                assert user != null;
+                                String username = user.getName();
+                                String messageBody = username + " " + getString(R.string.has_new_post_text);
+                                String userImageUrl = user.getImage();
+                                buildNotif(title, messageBody, userImageUrl, notifId);
+                                addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
+                            }
+                        }
+                    });
+                }else{
+                    Log.d(TAG, "onSuccess: user does not exist");
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: error fetching user details\n" + e.getMessage());
+                    }
+                });
     }
 
     private void addNotifToDb(String title, String messageBody,
@@ -226,7 +286,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleNewPostNotif(String title, String messageBody, String extraInfo, int notifId) {
 
         Intent newPostNotifIntent = new Intent(this, ViewPostActivity.class);
-        newPostNotifIntent.putExtra(CoMeth.POST_ID, extraInfo);
+        newPostNotifIntent.putExtra(POST_ID, extraInfo);
         newPostNotifIntent.putExtra(IS_NEW_POST, true);
         newPostNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         pendingIntent = PendingIntent.getActivity(this, notifId, newPostNotifIntent,
@@ -237,7 +297,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void handleLikesNotif(String title, String messageBody, String extraInfo, int notifId) {
         Intent likesNotifIntent = new Intent(this, ViewPostActivity.class);
-        likesNotifIntent.putExtra(CoMeth.POST_ID, extraInfo);
+        likesNotifIntent.putExtra(POST_ID, extraInfo);
         likesNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         pendingIntent = PendingIntent.getActivity(this, notifId, likesNotifIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -257,7 +317,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void handleCommentNotif(String title, String extraInfo, int notifId) {
         Intent commentsNotifIntent = new Intent(this, CommentsActivity.class);
-        commentsNotifIntent.putExtra(CoMeth.POST_ID, extraInfo);
+        commentsNotifIntent.putExtra(POST_ID, extraInfo);
         commentsNotifIntent.addFlags(
                 Intent.FLAG_ACTIVITY_SINGLE_TOP |
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
@@ -271,16 +331,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         fetchLatestComment(title, extraInfo, notifId, commentsList);
     }
 
-    private void fetchLatestComment(final String title,
-                                    String extraInfo,
-                                    final int notifId,
+    private void fetchLatestComment(final String title, String extraInfo, final int notifId,
                                     final ArrayList<Comments> commentsList) {
-        coMeth.getDb()
-                .collection(CoMeth.POSTS)
-                .document(extraInfo)
-                .collection(CoMeth.COMMENTS_COLL)
-                .orderBy(CoMeth.TIMESTAMP, Query.Direction.DESCENDING)
-                .get()
+        CollectionReference commentsRef = coMeth.getDb().collection(POSTS +
+                "/" + extraInfo +"/" + COMMENTS_COLL);
+        commentsRef.orderBy(CoMeth.TIMESTAMP, Query.Direction.DESCENDING).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -293,10 +348,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             }
                             //get the comments list and get the latest comment
                             final String latestComment = commentsList.get(0).getComment();
-                            Log.d(TAG, "onEvent: latest comment is " + latestComment);
                             String commentUserId = commentsList.get(0).getUser_id();
                             getCommentDetails(latestComment, commentUserId, title, notifId);
-
                         }
                     }
                 })
@@ -309,43 +362,28 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
-    private void getCommentDetails(final String latestComment,
-                                   String commentUserId,
-                                   final String title,
-                                   final int notifId) {
-        coMeth.getDb()
-                .collection(CoMeth.USERS)
-                .document(commentUserId)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+    private void getCommentDetails(final String latestComment, String commentUserId,
+                                   final String title, final int notifId) {
+        DocumentReference userRef =
+        coMeth.getDb().collection(CoMeth.USERS).document(commentUserId);
+        userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    Users user = documentSnapshot.toObject(Users.class);
+                    String username = Objects.requireNonNull(user).getName();
+                    String image = user.getImage();
+                    buildNotif(title, username + "\n" + latestComment, image, notifId);
+                    addNotifToDb(title, username + "\n" + latestComment, notifType, extraInfo, notifId);
+                }
+
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                        if (task.isSuccessful() && task.getResult().exists()) {
-
-                            //convert user to object
-                            Users user = task.getResult().toObject(Users.class);
-                            String username = user.getName();
-                            String image = user.getImage();
-
-                            buildNotif(title,
-                                    username + "\n" + latestComment, image, notifId);
-
-                            addNotifToDb(title, username + "\n" + latestComment,
-                                    notifType, extraInfo, notifId);
-
-                        } else {
-                            if (!task.isSuccessful()) {
-                                //getting user task failed
-                                Log.d(TAG, "onComplete: getting user task failed");
-
-                            }
-                            if (!task.getResult().exists()) {
-                                //comment does not exist
-                                Log.d(TAG, "onComplete: comment does not exist");
-
-                            }
-                        }
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: error getting comments for notifications\n" +
+                        e.getMessage());
                     }
                 });
     }
@@ -354,7 +392,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "createNotifId: ");
         Date date = new Date();
         int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss", Locale.US).format(date));
-        Log.d(TAG, "createNotifId: \nid is: " + id);
         return id;
     }
 
@@ -391,37 +428,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-
+            Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
-
-            // notificationId is a unique int for each notification that you must define
             notificationManagerCompat.notify(notifId, notificationBuilder.build());
-
             Log.d(TAG, "buildNotif: notifying");
-//                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
-
-
         } else {
-
-
             NotificationManagerCompat manager = NotificationManagerCompat.from(this);
-//            manager.notify(createNotifId(), groupBuilder.build());
             manager.notify(notifId, notificationBuilder.build());
-
-
-
-            /*notificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-            if (notificationManager != null) {
-
-                Log.d(TAG, "buildNotif: notifying");
-                notificationManager.notify(notifId, notificationBuilder.build());
-            }*/
 
         }
     }

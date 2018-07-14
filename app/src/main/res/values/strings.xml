@@ -411,5 +411,6 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="followers_text">Followers</string>
+    <string name="has_new_post_text">has a new post</string>
 
 </resources>
