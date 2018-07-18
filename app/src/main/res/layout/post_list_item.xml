@@ -1,269 +1,282 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/postLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <Space
-        android:id="@+id/space"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/adCard"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <android.support.v7.widget.CardView
+        <android.support.v7.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_marginTop="8dp">
 
-        <android.support.constraint.ConstraintLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <!--image, username and location-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/postUserImageCircleImageView"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintBottom_toTopOf="@+id/postImageView"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_action_person_placeholder" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/postUsernameTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginTop="16dp"
+                            android:maxLength="20"
+                            android:maxLines="1"
+                            android:text="@string/username_post_placeholder_text"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toTopOf="@+id/postLocationTextView"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/postLocationTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:maxLength="50"
+                            android:maxLines="3"
+                            android:text="@string/location__post_placeholder_text"
+                            android:textStyle="italic"
+                            app:layout_constraintBottom_toBottomOf="@+id/postUserImageCircleImageView"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
+                            app:layout_constraintTop_toBottomOf="@+id/postUsernameTextView" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/postImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="center"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/postUserImageCircleImageView"
+                    app:srcCompat="@color/colorWhite" />
+
+
+                <TextView
+                    android:id="@+id/postTitleTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/title_text"
+                    android:maxLength="100"
+                    android:maxLines="2"
+                    android:textAllCaps="false"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/postDescTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:maxLength="100"
+                    android:maxLines="3"
+                    android:text="@string/desc_post_placeholder_text" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <ImageView
+                            android:id="@+id/postLikeImageView"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            app:srcCompat="@drawable/ic_action_like_unclicked" />
+                        <TextView
+                            android:id="@+id/postLikeCountText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/zero_text"
+                            android:textSize="12sp"
+                            android:layout_gravity="center"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <ImageView
+                            android:id="@+id/postCommetnImageView"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            app:srcCompat="@drawable/ic_action_comment" />
+                        <TextView
+                            android:id="@+id/postCommentCountText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/zero_text"
+                            android:textSize="12sp"
+                            android:layout_gravity="center"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:id="@+id/postShareImageView"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            app:srcCompat="@drawable/ic_action_share" />
+
+                        <TextView
+                            android:id="@+id/postShareTextTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/share_text"
+                            android:textSize="12sp"
+                            android:layout_gravity="center"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <ImageView
+                            android:id="@+id/postSaveImageView"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            app:srcCompat="@drawable/ic_action_bookmark_outline" />
+                        <TextView
+                            android:id="@+id/postSaveTextTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/save_text"
+                            android:textSize="12sp"
+                            android:layout_gravity="center"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/postDateTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/date_post_placeholder_text"
+                    android:textAllCaps="false"
+                    android:textSize="10sp" />
+
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+        <Space
+            android:id="@+id/space"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/adCard"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardView" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/adCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/cardview_light_background">
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:visibility="visible">
 
-            <ImageView
-                android:id="@+id/postLikeImageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
-                app:srcCompat="@drawable/ic_action_like_unclicked" />
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/sponsoredLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/postUserImageCircleImageView"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_action_person_placeholder" />
+                <TextView
+                    android:id="@+id/sponsoredTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPrimary"
+                    android:padding="4dp"
+                    android:text="@string/sponsored_text"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/postDateTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/date_post_placeholder_text"
-                android:textAllCaps="false"
-                android:textSize="10sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postLikeCountText" />
+                <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/adView"
+                    android:layout_width="300dp"
+                    android:layout_height="254dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="32dp"
+                    ads:adSize="MEDIUM_RECTANGLE"
+                    ads:adUnitId="ca-app-pub-6180360542591636/5341130287"
+                    ads:layout_constraintTop_toBottomOf="@+id/sponsoredTextView"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-            <TextView
-                android:id="@+id/postUsernameTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:maxLength="20"
-                android:maxLines="1"
-                android:text="@string/username_post_placeholder_text"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/postLocationTextView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
-                app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
 
-            <ImageView
-                android:id="@+id/postImageView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:scaleType="center"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postUserImageCircleImageView"
-                app:srcCompat="@color/colorWhite" />
+            <!--test: ca-app-pub-3940256099942544/6300978111-->
+            <!--ca-app-pub-6180360542591636/5341130287-->
 
-            <TextView
-                android:id="@+id/postDescTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:maxLength="100"
-                android:maxLines="3"
-                android:text="@string/desc_post_placeholder_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postTitleTextView" />
+        </android.support.v7.widget.CardView>
 
-            <TextView
-                android:id="@+id/postLikeCountText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/zero_text"
-                android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="@+id/postLikeImageView"
-                app:layout_constraintStart_toStartOf="@+id/postLikeImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postLikeImageView" />
-
-            <TextView
-                android:id="@+id/postLocationTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:maxLength="50"
-                android:maxLines="3"
-                android:text="@string/location__post_placeholder_text"
-                android:textStyle="italic"
-                app:layout_constraintBottom_toBottomOf="@+id/postUserImageCircleImageView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postUsernameTextView" />
-
-            <TextView
-                android:id="@+id/postTitleTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:maxLength="100"
-                android:maxLines="2"
-                android:text="@string/post_title__post_placeholder_text"
-                android:textAllCaps="false"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postImageView" />
-
-            <ImageView
-                android:id="@+id/postCommetnImageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/postLikeImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
-                app:srcCompat="@drawable/ic_action_comment" />
-
-            <ImageView
-                android:id="@+id/postShareImageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/postSaveImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
-                app:srcCompat="@drawable/ic_action_share" />
-
-            <ImageView
-                android:id="@+id/postSaveImageView"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/postCommetnImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postDescTextView"
-                app:srcCompat="@drawable/ic_action_bookmark_outline" />
-
-            <TextView
-                android:id="@+id/postCommentCountText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/zero_text"
-                android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="@+id/postCommetnImageView"
-                app:layout_constraintStart_toStartOf="@+id/postCommetnImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postCommetnImageView" />
-
-            <TextView
-                android:id="@+id/postSaveTextTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/save_text"
-                android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="@+id/postSaveImageView"
-                app:layout_constraintStart_toStartOf="@+id/postSaveImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postSaveImageView" />
-
-            <TextView
-                android:id="@+id/postShareTextTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/share_text"
-                android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="@+id/postShareImageView"
-                app:layout_constraintStart_toStartOf="@+id/postShareImageView"
-                app:layout_constraintTop_toBottomOf="@+id/postShareImageView" />
-
-        </android.support.constraint.ConstraintLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/adCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:background="@color/colorPrimary"
-                android:padding="4dp"
-                android:text="Sponsored"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold|italic"
-                app:layout_constraintBottom_toTopOf="@+id/adView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/adView"
-                android:layout_width="300dp"
-                android:layout_height="250dp"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                ads:adSize="MEDIUM_RECTANGLE"
-                ads:adUnitId="ca-app-pub-6180360542591636/5341130287"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </android.support.constraint.ConstraintLayout>
-
-        <!--test: ca-app-pub-3940256099942544/6300978111-->
-        <!--ca-app-pub-6180360542591636/5341130287-->
-
-    </android.support.v7.widget.CardView>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

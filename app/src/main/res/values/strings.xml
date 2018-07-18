@@ -412,5 +412,8 @@
     </string>
     <string name="followers_text">Followers</string>
     <string name="has_new_post_text">has a new post</string>
+    <string name="recommended_text">Recommended</string>
+    <string name="sponsored_text">Sponsored</string>
+    <string name="related_posts_text">Related posts</string>
 
 </resources>

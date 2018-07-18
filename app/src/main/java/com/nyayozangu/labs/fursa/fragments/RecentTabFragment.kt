@@ -161,10 +161,4 @@ class RecentTabFragment : Fragment() {
             }
         }
     }
-
-    fun showSnack(message: String) {
-        activity?.findViewById<CoordinatorLayout>(R.id.mainSnack)?.let {
-            Snackbar.make(it, message, Snackbar.LENGTH_LONG)
-        }
-    }
 }

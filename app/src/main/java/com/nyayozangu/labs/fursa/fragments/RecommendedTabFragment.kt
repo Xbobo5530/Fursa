@@ -15,6 +15,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter
 import com.nyayozangu.labs.fursa.helpers.CoMeth
+import com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS
+import com.nyayozangu.labs.fursa.helpers.CoMeth.USERS
 import com.nyayozangu.labs.fursa.models.Posts
 import com.nyayozangu.labs.fursa.models.Users
 
@@ -23,15 +25,15 @@ private const val POPULAR_FRAGMENT = "PopularFragment"
  * A simple [Fragment] subclass.
  *
  */
-class PopularTabFragment : Fragment() {
+class RecommendedTabFragment : Fragment() {
 
-    var postsList: MutableList<Posts> = ArrayList()
-    var usersList: MutableList<Users> = ArrayList()
-    val coMeth: CoMeth = CoMeth()
-    var isFirstPageFirstLoad = true
-    lateinit var lastVisiblePost: DocumentSnapshot
-    lateinit var adapter: PostsRecyclerAdapter
-    lateinit var mProgressBar: ProgressBar
+    private var postsList: MutableList<Posts> = ArrayList()
+    private var usersList: MutableList<Users> = ArrayList()
+    private val coMeth: CoMeth = CoMeth()
+    private var isFirstPageFirstLoad = true
+    private lateinit var lastVisiblePost: DocumentSnapshot
+    private lateinit var adapter: PostsRecyclerAdapter
+    private lateinit var mProgressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -43,10 +45,9 @@ class PopularTabFragment : Fragment() {
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
 
-        mProgressBar = view.findViewById<ProgressBar>(R.id.popularProgressBar)
+        mProgressBar = view.findViewById(R.id.popularProgressBar)
         mProgressBar.visibility = View.VISIBLE
 
-        //listen to scrolling
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
 
@@ -57,13 +58,8 @@ class PopularTabFragment : Fragment() {
                 }
             }
         })
-
-        //handle scroll to top
         handleScrolling(mRecyclerView)
-
-        val firstQuery = coMeth.db.collection(CoMeth.POSTS)
-                .orderBy(CoMeth.ACTIVITY, com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .limit(10)
+        val firstQuery = coMeth.db.collection(CoMeth.POSTS).limit(10)
         loadPosts(firstQuery)
 
         return view
@@ -98,7 +94,6 @@ class PopularTabFragment : Fragment() {
                                 val post = document.document
                                         .toObject(Posts::class.java).withId<Posts>(postId)
                                 val postUserId = post.user_id
-                                //get user data
                                 getUserData(postUserId, post)
                             }
                         }
@@ -110,7 +105,7 @@ class PopularTabFragment : Fragment() {
     }
 
     private fun getUserData(postUserId: String, post: Posts) {
-        coMeth.db.collection(CoMeth.USERS).document(postUserId).get()
+        coMeth.db.collection(USERS).document(postUserId).get()
                 .addOnSuccessListener {
                     if (it.exists()) {
                         val user = it.toObject(Users::class.java)?.withId<Users>(postUserId)
@@ -136,10 +131,7 @@ class PopularTabFragment : Fragment() {
 
     private fun loadMorePosts() {
         mProgressBar.visibility = View.VISIBLE
-        val nextQuery = coMeth.db.collection(CoMeth.POSTS)
-                .orderBy(CoMeth.ACTIVITY, com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .startAfter(lastVisiblePost)
-                .limit(10)
+        val nextQuery = coMeth.db.collection(POSTS).startAfter(lastVisiblePost).limit(10)
 
         nextQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
             if (firebaseFirestoreException == null) {
