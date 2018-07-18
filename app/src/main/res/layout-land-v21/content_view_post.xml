@@ -328,20 +328,22 @@
             android:layout_height="wrap_content">
 
             <TextView
+                android:id="@+id/relatedPostsTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:text="@string/related_posts_text"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/relatedPostsRecyclerView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/relatedPostsRecyclerView"/>
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/relatedPostsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/relatedPostsTextView"/>
 
             <ProgressBar
                 android:id="@+id/relatedPostsProgressBar"

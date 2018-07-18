@@ -31,13 +31,13 @@ private const val RECENT_FRAGMENT = "RecentFragment"
  */
 class RecentTabFragment : Fragment() {
 
-    var postsList: MutableList<Posts> = ArrayList()
-    var usersList: MutableList<Users> = ArrayList()
-    val coMeth: CoMeth = CoMeth()
-    var isFirstPageFirstLoad = true
-    lateinit var lastVisiblePost: DocumentSnapshot
-    lateinit var adapter: PostsRecyclerAdapter
-    lateinit var mProgressBar: ProgressBar
+    private var postsList: MutableList<Posts> = ArrayList()
+    private var usersList: MutableList<Users> = ArrayList()
+    private val coMeth: CoMeth = CoMeth()
+    private var isFirstPageFirstLoad = true
+    private lateinit var lastVisiblePost: DocumentSnapshot
+    private lateinit var adapter: PostsRecyclerAdapter
+    private lateinit var mProgressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
