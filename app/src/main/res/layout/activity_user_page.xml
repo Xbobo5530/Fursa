@@ -138,33 +138,6 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/userPageEditProfileButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/button_shape"
-                    android:drawablePadding="8dp"
-                    android:drawableStart="@drawable/ic_action_edit_dark"
-                    android:text="@string/edit_profile_sett_button"
-                    android:textColor="@color/primaryDarkColor"
-                    android:textAlignment="viewStart"
-                    android:textAllCaps="false"
-                    android:visibility="visible" />
-
-                <Button
-                    android:id="@+id/userPageShareProfileButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/button_shape"
-                    android:drawablePadding="8dp"
-                    android:drawableStart="@drawable/ic_action_share"
-                    android:text="@string/share_profile_text"
-                    android:textAlignment="viewStart"
-                    android:textAllCaps="false"
-                    android:textColor="@color/secondaryColor" />
-
             </LinearLayout>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
