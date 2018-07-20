@@ -29,6 +29,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.MainActivity;
+import com.nyayozangu.labs.fursa.activities.UserPageActivity;
 import com.nyayozangu.labs.fursa.activities.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
@@ -44,10 +45,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.CATEGORIES_UPDATES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_COLL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENT_UPDATES;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.ERROR;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.EXTRA;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.FOLLOWER_POST;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_UPDATES;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_FOLLOWERS_UPDATE;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_POST_UPDATES;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_ID;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
 
 /**
  *
@@ -68,8 +79,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private CoMeth coMeth = new CoMeth();
     private PendingIntent pendingIntent;
-    private NotificationCompat.Builder notificationBuilder;
-    private NotificationManager notificationManager;
 
     private String notifType;
     private String extraInfo;
@@ -97,22 +106,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             message = data.get(MESSAGE);
             if (data.get(NOTIFICATION_TYPE) != null) {
                 notifType = data.get(NOTIFICATION_TYPE);
-                userId = data.get(CoMeth.USER_ID);
+                userId = data.get(USER_ID);
             }
-            if (data.get(CoMeth.EXTRA) != null) {
-                extraInfo = data.get(CoMeth.EXTRA).trim();
+            if (data.get(EXTRA) != null) {
+                extraInfo = data.get(EXTRA).trim();
             }
-            if (data.get(CoMeth.ERROR) != null) {
-                errorMessage = data.get(CoMeth.ERROR).trim();
+            if (data.get(ERROR) != null) {
+                errorMessage = data.get(ERROR).trim();
             }
             // TODO: 6/15/18 code review
             if (!extraInfo.isEmpty()) {
-                if (notifType.equals(CoMeth.NEW_POST_UPDATES) ||
-                        (coMeth.isLoggedIn() && !userId.equals(coMeth.getUid()))) {
+                if (notifType.equals(NEW_POST_UPDATES) || notifType.equals(NEW_FOLLOWERS_UPDATE) ||
+                        coMeth.isLoggedIn() && !userId.equals(coMeth.getUid())) {
                     sendNotification(title, message, notifType, extraInfo, notifId);
                 }
             } else {
-                if ((notifType.equals(CoMeth.NEW_POST_UPDATES) && errorMessage != null) ||
+                if ((notifType.equals(NEW_POST_UPDATES) && errorMessage != null) ||
                         (userId != null && !userId.equals(coMeth.getUid()))) {
                     sendNotification(title, message, null, null, notifId);
                 }
@@ -150,29 +159,32 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (notifType != null) {
             switch (notifType) {
 
-                case CoMeth.COMMENT_UPDATES:
-                    //handle comment notifications
+                case COMMENT_UPDATES:
                     handleCommentNotif(title, extraInfo, notifId);
                     break;
 
-                case CoMeth.CATEGORIES_UPDATES:
+                case CATEGORIES_UPDATES:
                     //handle cat notifications
                     handleCatNotif(title, messageBody, extraInfo, notifId);
                     break;
 
-                case CoMeth.LIKES_UPDATES:
+                case LIKES_UPDATES:
                     //handle likes notifications
                     handleLikesNotif(title, messageBody, extraInfo, notifId);
                     break;
 
-                case CoMeth.FOLLOWER_POST:
+                case FOLLOWER_POST:
                     //handle notification for new post
                     handleFollowerPostNotif(title, extraInfo, notifId);
                     break;
 
-                case CoMeth.NEW_POST_UPDATES:
+                case NEW_POST_UPDATES:
                     //handle notification for new post
                     handleNewPostNotif(title, messageBody, extraInfo, notifId);
+                    break;
+                case NEW_FOLLOWERS_UPDATE:
+                    //handle notification for new post
+                    handleNewFollowerNotif(title, messageBody, extraInfo, notifId);
                     break;
 
                 default:
@@ -199,10 +211,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             buildNotif(title, messageBody, null, notifId);
             addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
         }
-
-        //add notification to db
-//        addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
-
     }
 
     private void handleFollowerPostNotif(final String title, final String extraInfo, final int notifId) {
@@ -261,12 +269,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notifMap.put(TITLE, title);
             notifMap.put(MESSAGE, messageBody);
             notifMap.put(NOTIFICATION_TYPE, notifType);
-            notifMap.put(CoMeth.EXTRA, extraInfo);
+            notifMap.put(EXTRA, extraInfo);
             notifMap.put(NOTIFICATION_ID, notifId);
             notifMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
 
             coMeth.getDb().collection(CoMeth.USERS).document(currentUserId)
-                    .collection(CoMeth.NOTIFICATIONS).add(notifMap)
+                    .collection(NOTIFICATIONS).add(notifMap)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
@@ -293,6 +301,40 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         buildNotif(title, messageBody, null, notifId);
         addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
+    }
+
+    private void handleNewFollowerNotif(final String title, final String messageBody, final String extraInfo, final int notifId) {
+
+        Intent newFollowerNotifIntent = new Intent(this, UserPageActivity.class);
+        newFollowerNotifIntent.putExtra(USER_ID, extraInfo);
+        newFollowerNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        pendingIntent = PendingIntent.getActivity(this, notifId, newFollowerNotifIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //get follower data
+        DocumentReference followerRef = coMeth.getDb().collection(USERS).document(extraInfo);
+        followerRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    Users follower = documentSnapshot.toObject(Users.class);
+                    assert follower != null;
+                    String name = follower.getName();
+                    String followerImageUrl = follower.getImage();
+                    String newFollowerMessage = name + " " + getResources().getString(R.string.is_now_following_text);
+                    buildNotif(title, newFollowerMessage, followerImageUrl, notifId);
+                    addNotifToDb(title, newFollowerMessage, notifType, extraInfo, notifId);
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: failed to get follower data\n " + e.getMessage());
+                        buildNotif(title, messageBody, null, notifId);
+                        addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
+                    }
+                });
     }
 
     private void handleLikesNotif(String title, String messageBody, String extraInfo, int notifId) {

@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.activities.CommentsActivity
+import com.nyayozangu.labs.fursa.activities.UserPageActivity
 import com.nyayozangu.labs.fursa.activities.ViewCategoryActivity
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity
 import com.nyayozangu.labs.fursa.helpers.CoMeth
@@ -66,6 +67,7 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
                 LIKES_UPDATES -> openPostNotif(extra)
                 NEW_POST_UPDATES -> openPostNotif(extra)
                 FOLLOWER_POST -> openPostNotif(extra)
+                NEW_FOLLOWERS_UPDATE -> openUserPage(extra)
                 else -> {
                     openNofitDialog(title, message)
                 }
@@ -111,6 +113,13 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
                 mImage.setImageDrawable(
                         context.resources.getDrawable(R.drawable.ic_follower_post))
             }
+            NEW_FOLLOWERS_UPDATE -> if (status == 0) {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_new_follower_update_active))
+            } else {
+                mImage.setImageDrawable(
+                        context.resources.getDrawable(R.drawable.ic_new_follower_update))
+            }
             else -> {
                 mImage.setImageDrawable(
                         context.resources.getDrawable(R.drawable.ic_action_notifications))
@@ -133,6 +142,12 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
         val openLikedPostIntent = Intent(context, ViewPostActivity::class.java)
         openLikedPostIntent.putExtra(POST_ID, postId)
         context.startActivity(openLikedPostIntent)
+    }
+
+    private fun openUserPage(userId: String?) {
+        val openFollowerPageIntent = Intent(context, UserPageActivity::class.java)
+        openFollowerPageIntent.putExtra(USER_ID, userId)
+        context.startActivity(openFollowerPageIntent)
     }
 
     private fun openCatsNotif(cat: String?) {

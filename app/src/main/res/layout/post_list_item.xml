@@ -139,6 +139,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/zero_text"
+                            android:textAlignment="center"
                             android:textSize="12sp"
                             android:layout_gravity="center"/>
                     </LinearLayout>
@@ -149,7 +150,7 @@
                         android:orientation="vertical"
                         android:padding="8dp">
                         <ImageView
-                            android:id="@+id/postCommetnImageView"
+                            android:id="@+id/postCommentImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             app:srcCompat="@drawable/ic_action_comment" />
@@ -158,8 +159,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/zero_text"
+                            android:textAlignment="center"
                             android:textSize="12sp"
-                            android:layout_gravity="center"/>
+                            android:layout_gravity="center" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -179,6 +181,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/share_text"
+                            android:textAlignment="center"
                             android:textSize="12sp"
                             android:layout_gravity="center"/>
                     </LinearLayout>
@@ -198,6 +201,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/save_text"
+                            android:textAlignment="center"
                             android:textSize="12sp"
                             android:layout_gravity="center"/>
                     </LinearLayout>

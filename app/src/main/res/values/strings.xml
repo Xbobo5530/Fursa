@@ -415,5 +415,7 @@
     <string name="recommended_text">Recommended</string>
     <string name="sponsored_text">Sponsored</string>
     <string name="related_posts_text">Related posts</string>
+    <string name="is_now_following_text">is now following you</string>
+    <string name="like_text">Like</string>
 
 </resources>
