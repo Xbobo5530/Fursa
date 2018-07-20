@@ -196,7 +196,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     noExtraNotifIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
                             Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     pendingIntent = PendingIntent.getActivity(
-                            this, notifId /* Request code */, noExtraNotifIntent,
+                            this, notifId, noExtraNotifIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     buildNotif(title, messageBody, null, notifId);
                     addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
@@ -208,7 +208,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             noExtraNotifIntent.addFlags(
                     Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(
-                    this, notifId /* Request code */, noExtraNotifIntent,
+                    this, notifId, noExtraNotifIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             buildNotif(title, messageBody, null, notifId);
             addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
@@ -262,48 +262,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
         });
 
-    }
-
-    private void getUserInfo(final String title, final String extraInfo, final int notifId, String newPostId) {
-        DocumentReference newPostRef = coMeth.getDb().collection(POSTS).document(newPostId);
-        newPostRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()) {
-                    Posts post = documentSnapshot.toObject(Posts.class);
-                    String newPostUserId = Objects.requireNonNull(post).getUser_id();
-                    DocumentReference postUserRef = coMeth.getDb().collection(USERS).document(newPostUserId);
-                    postUserRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                Users user = documentSnapshot.toObject(Users.class);
-                                assert user != null;
-                                String username = user.getName();
-                                String messageBody = username + " " + getString(R.string.has_new_post_text);
-                                String userImageUrl = user.getImage();
-                                buildNotif(title, messageBody, userImageUrl, notifId);
-                                addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                        }
-                    });
-                }else{
-                    Log.d(TAG, "onSuccess: user does not exist");
-                }
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: error fetching user details\n" + e.getMessage());
-                    }
-                });
     }
 
     private void handleNewPostNotif(String title, String messageBody, String extraInfo, int notifId) {
