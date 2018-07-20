@@ -116,7 +116,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
             // TODO: 6/15/18 code review
             if (!extraInfo.isEmpty()) {
-                if (notifType.equals(NEW_POST_UPDATES) || notifType.equals(NEW_FOLLOWERS_UPDATE) ||
+                if (
+                        notifType.equals(NEW_POST_UPDATES) ||
+                        notifType.equals(NEW_FOLLOWERS_UPDATE) ||
+                        notifType.equals(FOLLOWER_POST) ||
                         coMeth.isLoggedIn() && !userId.equals(coMeth.getUid())) {
                     sendNotification(title, message, notifType, extraInfo, notifId);
                 }
@@ -175,7 +178,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 case FOLLOWER_POST:
                     //handle notification for new post
-                    handleFollowerPostNotif(title, extraInfo, notifId);
+                    handleFollowerPostNotif(title, messageBody, extraInfo, notifId);
                     break;
 
                 case NEW_POST_UPDATES:
@@ -200,7 +203,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             }
         } else {
-
             //notif and extra are null
             Intent noExtraNotifIntent = new Intent(this, MainActivity.class);
             noExtraNotifIntent.addFlags(
@@ -213,7 +215,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void handleFollowerPostNotif(final String title, final String extraInfo, final int notifId) {
+    private void handleFollowerPostNotif(final String title, final String messageBody,
+                                         final String extraInfo, final int notifId) {
         //extra info is new post id
         Intent intent = new Intent(this, ViewPostActivity.class);
         intent.putExtra(POST_ID, extraInfo);
@@ -221,7 +224,44 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         pendingIntent = PendingIntent.getActivity(this, notifId, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        getUserInfo(title, extraInfo, notifId, extraInfo);
+        //get user info
+        DocumentReference newPostRef = coMeth.getDb().collection(POSTS).document(extraInfo);
+        newPostRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    Posts post = documentSnapshot.toObject(Posts.class);
+                    String newPostUserId = Objects.requireNonNull(post).getUser_id();
+                    DocumentReference postUserRef = coMeth.getDb().collection(USERS).document(newPostUserId);
+                    postUserRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()) {
+                                Users user = documentSnapshot.toObject(Users.class);
+                                assert user != null;
+                                String username = user.getName();
+                                String messageBody = username + " " + getString(R.string.has_new_post_text);
+                                String userImageUrl = user.getImage();
+                                buildNotif(title, messageBody, userImageUrl, notifId);
+                                addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
+                            }
+                        }
+                    })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "onFailure: failed to get new post user details\n" +
+                                            e.getMessage());
+                                    buildNotif(title, messageBody, null, notifId);
+                                    addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
+                                }
+                            });
+                } else {
+                    Log.d(TAG, "onSuccess: user does not exist");
+                }
+            }
+        });
+
     }
 
     private void getUserInfo(final String title, final String extraInfo, final int notifId, String newPostId) {
@@ -246,6 +286,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 addNotifToDb(title, messageBody, notifType, extraInfo, notifId);
                             }
                         }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
                     });
                 }else{
                     Log.d(TAG, "onSuccess: user does not exist");
@@ -258,37 +304,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         Log.d(TAG, "onFailure: error fetching user details\n" + e.getMessage());
                     }
                 });
-    }
-
-    private void addNotifToDb(String title, String messageBody,
-                              String notifType, String extraInfo, int notifId) {
-        Log.d(TAG, "addNotifToDb: ");
-        if (coMeth.isLoggedIn()) {
-            String currentUserId = coMeth.getUid();
-            Map<String, Object> notifMap = new HashMap<>();
-            notifMap.put(TITLE, title);
-            notifMap.put(MESSAGE, messageBody);
-            notifMap.put(NOTIFICATION_TYPE, notifType);
-            notifMap.put(EXTRA, extraInfo);
-            notifMap.put(NOTIFICATION_ID, notifId);
-            notifMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
-
-            coMeth.getDb().collection(CoMeth.USERS).document(currentUserId)
-                    .collection(NOTIFICATIONS).add(notifMap)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Log.d(TAG, "onSuccess: notification added");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to add notification" +
-                                    e.getMessage());
-                        }
-                    });
-        }
     }
 
     private void handleNewPostNotif(String title, String messageBody, String extraInfo, int notifId) {
@@ -404,6 +419,37 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
+    private void addNotifToDb(String title, String messageBody,
+                              String notifType, String extraInfo, int notifId) {
+        Log.d(TAG, "addNotifToDb: ");
+        if (coMeth.isLoggedIn()) {
+            String currentUserId = coMeth.getUid();
+            Map<String, Object> notifMap = new HashMap<>();
+            notifMap.put(TITLE, title);
+            notifMap.put(MESSAGE, messageBody);
+            notifMap.put(NOTIFICATION_TYPE, notifType);
+            notifMap.put(EXTRA, extraInfo);
+            notifMap.put(NOTIFICATION_ID, notifId);
+            notifMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
+
+            coMeth.getDb().collection(CoMeth.USERS).document(currentUserId)
+                    .collection(NOTIFICATIONS).add(notifMap)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "onSuccess: notification added");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to add notification" +
+                                    e.getMessage());
+                        }
+                    });
+        }
+    }
+
     private void getCommentDetails(final String latestComment, String commentUserId,
                                    final String title, final int notifId) {
         DocumentReference userRef =
@@ -438,10 +484,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     // TODO: 5/6/18 handle images on notifications
-    private void buildNotif(String title,
-                            String messageBody,
-                            String userImageDownloadUrl,
-                            int notifId) {
+    private void buildNotif(String title, String messageBody, String userImageDownloadUrl, int notifId) {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         // TODO: 6/2/18 show notifications in a group
@@ -482,10 +525,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-
-
     @Override
-    public void onDeletedMessages() {
-
-    }
+    public void onDeletedMessages() { }
 }
