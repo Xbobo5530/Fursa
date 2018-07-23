@@ -322,7 +322,7 @@
             android:layout_height="match_parent"
             android:paddingTop="8dp">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <ImageView
                 android:id="@+id/viewPostUserImageView"
                 android:layout_width="35dp"
                 android:layout_height="35dp"

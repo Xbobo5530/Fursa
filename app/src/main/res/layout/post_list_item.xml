@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
         <android.support.v7.widget.CardView
-        android:id="@+id/cardView"
+        android:id="@+id/postCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -29,34 +29,21 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <!--<de.hdodenhof.circleimageview.CircleImageView-->
-                        <!--android:id="@+id/postUserImageCircleImageView"-->
-                        <!--android:layout_width="50dp"-->
-                        <!--android:layout_height="50dp"-->
-                        <!--android:layout_marginBottom="8dp"-->
-                        <!--android:layout_marginStart="8dp"-->
-                        <!--android:layout_marginTop="16dp"-->
-                        <!--app:layout_constraintBottom_toTopOf="@+id/postImageView"-->
-                        <!--app:layout_constraintStart_toStartOf="parent"-->
-                        <!--app:layout_constraintTop_toTopOf="parent"-->
-                        <!--app:srcCompat="@drawable/ic_action_person_placeholder" />-->
-
                     <ImageView
                         android:id="@+id/postUserImageImageView"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_marginBottom="8dp"
                         android:layout_marginStart="8dp"
-                        android:layout_marginTop="16dp"
-                        app:layout_constraintBottom_toTopOf="@+id/postImageView"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="8dp"
+                        android:layout_gravity="center"
                         app:srcCompat="@drawable/ic_action_person_placeholder" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:layout_gravity="center">
 
                         <TextView
                             android:id="@+id/postUsernameTextView"
@@ -64,7 +51,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
                             android:layout_marginStart="8dp"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="8dp"
                             android:maxLength="20"
                             android:maxLines="1"
                             android:text="@string/username_post_placeholder_text"
@@ -125,7 +112,7 @@
                     android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
-                    android:maxLength="100"
+                    android:maxLength="200"
                     android:maxLines="3"
                     android:text="@string/desc_post_placeholder_text" />
 
@@ -137,6 +124,7 @@
                     android:padding="8dp">
 
                     <LinearLayout
+                        android:id="@+id/postLikeLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -145,18 +133,20 @@
                             android:id="@+id/postLikeImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_action_like_unclicked" />
                         <TextView
                             android:id="@+id/postLikeCountText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/zero_text"
+                            android:text="@string/like_text"
                             android:textAlignment="center"
                             android:textSize="12sp"
                             android:layout_gravity="center"/>
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/postCommentLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -165,18 +155,20 @@
                             android:id="@+id/postCommentImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_action_comment" />
                         <TextView
                             android:id="@+id/postCommentCountText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/zero_text"
+                            android:text="@string/comment_text"
                             android:textAlignment="center"
                             android:textSize="12sp"
                             android:layout_gravity="center" />
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/postShareLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -186,6 +178,7 @@
                             android:id="@+id/postShareImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_action_share" />
 
                         <TextView
@@ -199,6 +192,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/postSaveLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -207,12 +201,36 @@
                             android:id="@+id/postSaveImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_action_bookmark_outline" />
                         <TextView
                             android:id="@+id/postSaveTextTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/save_text"
+                            android:textAlignment="center"
+                            android:textSize="12sp"
+                            android:layout_gravity="center"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/postActivityLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <ImageView
+                            android:id="@+id/postActivityImageView"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            app:srcCompat="@drawable/ic_action_activity" />
+                        <TextView
+                            android:id="@+id/postActivityTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/activity_text"
+                            android:textColor="@color/views_color"
                             android:textAlignment="center"
                             android:textSize="12sp"
                             android:layout_gravity="center"/>
@@ -241,7 +259,7 @@
             app:layout_constraintBottom_toTopOf="@+id/adCard"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView" />
+            app:layout_constraintTop_toBottomOf="@+id/postCardView" />
 
         <android.support.v7.widget.CardView
             android:id="@+id/adCard"

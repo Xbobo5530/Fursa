@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
@@ -22,6 +23,8 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
+
 public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.ViewHolder> {
 
     private static final String TAG = "Sean";
@@ -29,7 +32,6 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     public Context context;
     public RequestManager glide;
     private CoMeth coMeth = new CoMeth();
-
 
     public UsersRecyclerAdapter(List<Users> usersList, RequestManager glide) {
         this.usersList = usersList;
@@ -49,26 +51,40 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull UsersRecyclerAdapter.ViewHolder holder, int position) {
 
-        Log.d(TAG, "onBindViewHolder: users recycler adapter");
-        String username = usersList.get(position).getName();
-        String bio = usersList.get(position).getBio();
-        if (usersList.get(position).getThumb() != null) {
-            String thumb = usersList.get(position).getThumb();
-            holder.setUserData(username, bio, thumb);
-        } else if (usersList.get(position).getImage() != null) {
-            String image = usersList.get(position).getThumb();
-            holder.setUserData(username, bio, image);
-        } else {
-            holder.setUserData(username, bio, null);
-        }
-        //set click listener to user item view
-        final String userId = usersList.get(position).UserId;
-        holder.pageItemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToUserPage(userId);
+        Users user = usersList.get(position);
+        if (user != null) {
+            String username = user.getName();
+            String bio = user.getBio();
+            String imageUrl = user.getImage();
+            String thumbUrl = user.getThumb();
+            holder.usernameField.setText(username);
+            ImageView userImageView = holder.userImageView;
+            if (bio != null && !bio.isEmpty()){
+                holder.bioField.setText(bio);
+            }else{
+                holder.bioField.setVisibility(View.GONE);
             }
-        });
+            if (thumbUrl != null){
+                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, thumbUrl, userImageView);
+            } else if (imageUrl != null){
+                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, imageUrl, userImageView);
+            }else{
+                userImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+            }
+            //set click listener to user item view
+            final String userId = user.UserId;
+            holder.pageItemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToUserPage(userId);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        glide.clear(holder.userImageView);
     }
 
     @Override
@@ -77,51 +93,26 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     }
 
     private void goToUserPage(String userId) {
-        Intent goToUserPageIntnet = new Intent(context, UserPageActivity.class);
-        goToUserPageIntnet.putExtra("userId", userId);
-        context.startActivity(goToUserPageIntnet);
+        Intent intent = new Intent(context, UserPageActivity.class);
+        intent.putExtra(USER_ID, userId);
+        context.startActivity(intent);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
-        public View mView;
-
+        View mView;
         //initiate items on view holder
         private TextView usernameField, bioField;
-        private CircleImageView userImageView;
+        private ImageView userImageView;
         private ConstraintLayout pageItemView;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
             usernameField = mView.findViewById(R.id.userListItemUsernameTextView);
             bioField = mView.findViewById(R.id.userListItemBioTextView);
             userImageView = mView.findViewById(R.id.userListItemUserImageView);
             pageItemView = mView.findViewById(R.id.userListItemItemView);
-        }
-
-        public void setUserData(String username, String bio, String userImage) {
-            usernameField.setText(username);
-            if (bio != null) {
-                bioField.setText(bio.trim());
-            } else {
-                bioField.setVisibility(View.GONE);
-            }
-            if (userImage != null) {
-                try {
-                    RequestOptions placeHolderRequest = new RequestOptions();
-                    placeHolderRequest.placeholder(R.drawable.ic_action_person_placeholder);
-                    glide.applyDefaultRequestOptions(placeHolderRequest)
-                            .load(userImage)
-//                    .transition(withCrossFade())
-                            .into(userImageView);
-                } catch (Exception e) {
-                    Log.d(TAG, "setImage: failed to set image " + e.getMessage());
-                }
-            } else {
-                userImageView.setImageDrawable(context.getResources()
-                        .getDrawable(R.drawable.ic_action_person_placeholder));
-            }
         }
     }
 }
