@@ -40,10 +40,11 @@
                         app:srcCompat="@drawable/ic_action_person_placeholder" />
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_gravity="center">
+                        android:layout_gravity="center"
+                        android:layout_weight="1">
 
                         <TextView
                             android:id="@+id/postUsernameTextView"
@@ -51,15 +52,12 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
                             android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
                             android:maxLength="20"
                             android:maxLines="1"
                             android:text="@string/username_post_placeholder_text"
                             android:textStyle="bold"
-                            app:layout_constraintBottom_toTopOf="@+id/postLocationTextView"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            android:layout_gravity="center" />
+
 
                         <TextView
                             android:id="@+id/postLocationTextView"
@@ -76,7 +74,23 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
                             app:layout_constraintTop_toBottomOf="@+id/postUsernameTextView" />
+
+
                     </LinearLayout>
+
+                    <Button
+                        android:id="@+id/postFollowButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/follow_text"
+                        android:textColor="@color/primaryTextColor"
+                        android:textAllCaps="false"
+                        android:background="@drawable/follow_button_shape"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"/>
+
 
                 </LinearLayout>
 
