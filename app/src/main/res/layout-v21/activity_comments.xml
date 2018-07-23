@@ -41,7 +41,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <ImageView
             android:id="@+id/commentsCurrentUserImageView"
             android:layout_width="45dp"
             android:layout_height="45dp"
@@ -97,7 +97,7 @@
         app:layout_constraintTop_toBottomOf="@+id/commentsToolbar">
 
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <ImageView
             android:id="@+id/commentsPostUserImageView"
             android:layout_width="45dp"
             android:layout_height="45dp"

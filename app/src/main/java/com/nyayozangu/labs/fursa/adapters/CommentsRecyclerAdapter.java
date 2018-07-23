@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -24,7 +25,6 @@ import com.nyayozangu.labs.fursa.models.Users;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
@@ -42,11 +42,6 @@ public class CommentsRecyclerAdapter extends
     public String postId;
     public Context context;
     private CoMeth coMeth = new CoMeth();
-
-    private String reportDetails;
-    private ProgressDialog progressDialog;
-    private String[] reportOptionsList;
-    private boolean isAdmin = false;
 
     private Comments comment;
 
@@ -66,7 +61,6 @@ public class CommentsRecyclerAdapter extends
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.comment_list_item, parent, false);
         context = parent.getContext();
-        ArrayList flags = new ArrayList<String>();
         return new CommentsRecyclerAdapter.ViewHolder(view);
     }
 
@@ -77,7 +71,6 @@ public class CommentsRecyclerAdapter extends
         comment = commentsList.get(position);
         String userComment = comment.getComment();
         holder.setComment(userComment);
-        String userId = comment.getUser_id();
         setUserData(holder);
 
     }
@@ -90,6 +83,7 @@ public class CommentsRecyclerAdapter extends
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             Users user = documentSnapshot.toObject(Users.class);
+                            assert user != null;
                             String username = user.getName();
                             holder.setUsername(username);
                             String userImageDownloadUrl = user.getImage();
@@ -131,7 +125,7 @@ public class CommentsRecyclerAdapter extends
         private View mView;
 
         private ConstraintLayout commentItemView;
-        private CircleImageView userImageView;
+        private ImageView userImageView;
         private TextView commentTextView, usernameTextView;
 
         ViewHolder(View itemView) {
@@ -145,7 +139,7 @@ public class CommentsRecyclerAdapter extends
 
         public void setImage(String imageUrl) {
             if (imageUrl != null) {
-                coMeth.setImage(R.drawable.ic_action_person_placeholder,
+                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder,
                         imageUrl, userImageView);
             } else {
                 userImageView.setImageDrawable(context.getResources()

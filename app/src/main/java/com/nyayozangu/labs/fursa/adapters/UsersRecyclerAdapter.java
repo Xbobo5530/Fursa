@@ -21,7 +21,6 @@ import com.nyayozangu.labs.fursa.models.Users;
 
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
 

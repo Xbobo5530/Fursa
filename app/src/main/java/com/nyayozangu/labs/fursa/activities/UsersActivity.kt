@@ -1,11 +1,9 @@
 package com.nyayozangu.labs.fursa.activities
 
 import android.app.ProgressDialog
-import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
-import android.widget.Switch
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange

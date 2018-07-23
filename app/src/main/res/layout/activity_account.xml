@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <ImageView
                 android:id="@+id/setupImageCircleImageView"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
@@ -32,7 +32,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/appiconshadow" />
+                app:srcCompat="@drawable/ic_action_person_placeholder" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/accEditFab"
