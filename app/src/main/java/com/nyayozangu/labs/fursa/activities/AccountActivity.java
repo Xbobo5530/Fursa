@@ -94,12 +94,7 @@ public class AccountActivity extends AppCompatActivity {
 
         //user
         userId = coMeth.getUid();
-
-        //show progress
         showProgress(getString(R.string.loading_text));
-
-        //disable save button
-        saveButton.setEnabled(false);
 
         //retrieve data if any
         coMeth.getDb().collection(USERS).document(userId).get()

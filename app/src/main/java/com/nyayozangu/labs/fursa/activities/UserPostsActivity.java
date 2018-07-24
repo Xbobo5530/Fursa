@@ -310,11 +310,13 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
                         //send ver email
                         FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                        String sendEmailMessage = getString(R.string.send_email_text);
-                        showProgress(sendEmailMessage);
-                        sendVerEmail(dialog, user);
-                        //hide progress
-                        coMeth.stopLoading(progressDialog);
+                        if (user != null) {
+                            String sendEmailMessage = getString(R.string.send_email_text);
+                            showProgress(sendEmailMessage);
+                            sendVerEmail(dialog, user);
+                            //hide progress
+                            coMeth.stopLoading(progressDialog);
+                        }
 
                     }
                 })

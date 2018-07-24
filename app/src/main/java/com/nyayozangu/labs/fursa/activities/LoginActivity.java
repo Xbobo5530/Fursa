@@ -1,29 +1,18 @@
 package com.nyayozangu.labs.fursa.activities;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
-import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -37,8 +26,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.nyayozangu.labs.fursa.R;
@@ -53,6 +40,8 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
+
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     // TODO: 6/16/18 post gradle update
@@ -60,85 +49,59 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     // TODO: 6/16/18 try to user teh job scheduler again
 
     private static final String TAG = "Sean";
+    private static final String CONSUMER_KEY = "D99HM3hZBaOVTKW6tfUeAtAcQ";
+    private static final String CONSUMER_SECRET = "dxQNNNK4q4W32Bpu6RHRI2CNrAiFVqokAJ9t2d9cSCwQxdnY0d";
     private static final int RC_SIGN_IN = 0;
-    //for google sign in
     GoogleSignInClient mGoogleSignInClient;
-    //for facebook sing in
-    CallbackManager mCallbackManager;
-    //common methods
     private CoMeth coMeth = new CoMeth();
-    private Button loginButton;
-    private Button loginRegistrationButton;
     private ProgressDialog progressDialog;
     private TextView loginAlertTextView;
-
-    //social login buttons
     private SignInButton googleSignInButton;
     private TwitterLoginButton twitterLoginButton;
-
-    private View registerView;
-    private View loginView;
-
 
     @Override
     protected void onStart() {
         super.onStart();
+        handleViewsVisibility();
+    }
 
-        //check connection to show the login buttons
+    private void handleViewsVisibility() {
         if (!coMeth.isConnected()) {
-
-            //hide login buttons
-            loginButton.setVisibility(View.GONE);
-            loginRegistrationButton.setVisibility(View.GONE);
             googleSignInButton.setVisibility(View.GONE);
-//            facebookLoginButton.setVisibility(View.GONE);
             twitterLoginButton.setVisibility(View.GONE);
-            //show connection alert
             loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
-
         } else {
-
-            //hide login buttons
-            loginButton.setVisibility(View.VISIBLE);
-            loginRegistrationButton.setVisibility(View.VISIBLE);
             googleSignInButton.setVisibility(View.VISIBLE);
-//            facebookLoginButton.setVisibility(View.VISIBLE);
             twitterLoginButton.setVisibility(View.VISIBLE);
-
         }
-
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        TwitterConfig config = new TwitterConfig.Builder(this)
-                .logger(new DefaultLogger(Log.DEBUG))
-                .twitterAuthConfig(new TwitterAuthConfig("D99HM3hZBaOVTKW6tfUeAtAcQ",
-                        "dxQNNNK4q4W32Bpu6RHRI2CNrAiFVqokAJ9t2d9cSCwQxdnY0d"))
-                .debug(true)
-                .build();
-        Twitter.initialize(config);
-
         setContentView(R.layout.activity_login);
-
-        //initiating elements
-        loginButton = findViewById(R.id.loginButton);
-        loginRegistrationButton = findViewById(R.id.loginRegisterButton);
         loginAlertTextView = findViewById(R.id.loginAlertTextView);
         Toolbar toolbar = findViewById(R.id.loginToolbar);
-        //social login
         googleSignInButton = findViewById(R.id.google_sign_in_button);
         twitterLoginButton = findViewById(R.id.twitter_login_button);
-        LoginButton facebookLoginButton = findViewById(R.id.facebook_login_button);
+        handleToolbar(toolbar);
+        handleViewsVisibility();
+        handleIntent();
+        configGoogleSignIn();
+        configTwitterSignIn();
+    }
 
-        //get the sent intent
-        Intent getPostIdIntent = getIntent();
-        final String postId = getPostIdIntent.getStringExtra("postId");
-        Log.d(TAG, "postId is: " + postId);
+    private void handleIntent() {
+        Intent intent = getIntent();
+        if (intent != null &&
+                intent.getStringExtra(MESSAGE) != null) {
+            String alertMessage = intent.getStringExtra(MESSAGE);
+            loginAlertTextView.setText(alertMessage);
+            loginAlertTextView.setVisibility(View.VISIBLE);
+        }
+    }
 
-        //handle toolbar
+    private void handleToolbar(Toolbar toolbar) {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(getString(R.string.login_text));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -148,266 +111,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 finish();
             }
         });
+    }
 
-        //check connection to show the login buttons
-        if (!coMeth.isConnected()) {
-
-            //hide login buttons
-            loginButton.setVisibility(View.GONE);
-            loginRegistrationButton.setVisibility(View.GONE);
-            googleSignInButton.setVisibility(View.GONE);
-//            facebookLoginButton.setVisibility(View.GONE);
-            twitterLoginButton.setVisibility(View.GONE);
-            //show connection alert
-            loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
-
-        } else {
-
-            //show login buttons
-            loginButton.setVisibility(View.VISIBLE);
-            loginRegistrationButton.setVisibility(View.VISIBLE);
-            googleSignInButton.setVisibility(View.VISIBLE);
-//            facebookLoginButton.setVisibility(View.VISIBLE);
-            twitterLoginButton.setVisibility(View.VISIBLE);
-
-        }
-
-        //handle intents
-        if (getIntent() != null &&
-                getIntent().getStringExtra("message") != null) {
-
-            String alertMessage = getIntent().getStringExtra("message");
-            loginAlertTextView.setText(alertMessage);
-            loginAlertTextView.setVisibility(View.VISIBLE);
-
-        }
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Log.d(TAG, "onClick: login button is clicked");
-                //sign in an existing user
-                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-                loginView = inflater.inflate(R.layout.login_alert_dialog_content, null);
-
-                //show login in with email dialog
-                AlertDialog.Builder loginBuilder = new AlertDialog.Builder(LoginActivity.this);
-                loginBuilder.setTitle("Login with Email")
-                        .setIcon(getResources().getDrawable(R.drawable.ic_action_contact_email))
-                        .setView(loginView)
-                        .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-
-                            }
-                        })
-                        .setPositiveButton(getString(R.string.login_text), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                EditText emailField = loginView.findViewById(R.id.loginDialogEmailEditText);
-                                EditText passwordField = loginView.findViewById(R.id.loginDialogPasswordEditText);
-                                Log.d(TAG, "onClick: items are initialized");
-                                String email = emailField.getText().toString().trim();
-                                String password = passwordField.getText().toString().trim();
-                                Log.d(TAG, "onClick: \nemail is: " + email +
-                                        "\npassword is: " + password);
-
-                                if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
-
-                                    //hide keyboard
-                                    hideKeyBoard();
-                                    //show progress
-                                    showProgress(getString(R.string.logging_in_text));
-
-                                    coMeth.getAuth()
-                                            .signInWithEmailAndPassword(email, password)
-                                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<AuthResult> task) {
-                                            //check if login was successful
-                                            if (task.isSuccessful()) {
-                                                goToAccSettings();
-                                            } else {
-                                                //login was not successful
-                                                String errorMessage = task.getException().getMessage();
-                                                showSnack(R.id.login_activity_layout,
-                                                        "Error: " + errorMessage);
-                                            }
-                                            //hide progress
-                                            coMeth.stopLoading(progressDialog);
-                                        }
-                                    });
-
-                                } else if (TextUtils.isEmpty(email)) {
-                                    showSnack(R.id.login_activity_layout,
-                                            getResources().getString(R.string.enter_email_hint));
-                                } else if (TextUtils.isEmpty(password)) {
-                                    showSnack(R.id.login_activity_layout,
-                                            getResources().getString(R.string.enter_password_hint));
-                                } else {
-                                    showSnack(R.id.login_activity_layout,
-                                            getResources().getString(R.string.enter_login_details_hint));
-                                }
-                            }
-                        })
-                        .show();
-            }
-        });
-        loginRegistrationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //open dialog
-                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-                registerView = inflater.inflate(R.layout.register_alert_dialog_content, null);
-
-                AlertDialog.Builder registerDialog = new AlertDialog.Builder(LoginActivity.this);
-                registerDialog.setTitle("Register with Email")
-                        .setIcon(getResources().getDrawable(R.drawable.ic_action_email))
-                        .setView(registerView)
-                        .setPositiveButton("Register", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                //get text
-                                EditText emailField = registerView.findViewById(R.id.regEmailEditText);
-                                EditText passwordField = registerView.findViewById(R.id.regPassEditText);
-                                EditText confirmPasswordField = registerView.findViewById(R.id.regConfirmPassEditText);
-
-                                String email = emailField.getText().toString();
-                                String password = passwordField.getText().toString();
-                                String confirmPassword = confirmPasswordField.getText().toString();
-
-                                //check if fields are empty
-                                if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(confirmPassword)) {
-                                    //check for confirm password
-                                    if (password.equals(confirmPassword)) {
-
-                                        //hide keyboard
-                                        hideKeyBoard();
-                                        // show progress
-                                        showProgress("Registering...");
-
-                                        //create new user
-                                        coMeth.getAuth()
-                                                .createUserWithEmailAndPassword(email, password)
-                                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                                //check registration status
-                                                if (task.isSuccessful()) {
-
-                                                    //go to account setup
-                                                    startActivity(new Intent(LoginActivity.this, AccountActivity.class));
-                                                    finish();
-
-                                                } else {
-
-                                                    //registration failed
-                                                    String errorMessage = task.getException().getMessage();
-                                                    showSnack(R.id.login_activity_layout, "Error: " + errorMessage);
-
-                                                }
-                                            }
-                                        });
-
-                                        coMeth.stopLoading(progressDialog, null);
-
-                                    } else {
-
-                                        // TODO: 5/11/18 user string resources
-                                        //password and confirm pass are a mismatch
-                                        showSnack(R.id.login_activity_layout, "Confirmed password does not match");
-
-                                    }
-                                } else if (TextUtils.isEmpty(email)) {
-
-                                    showSnack(R.id.login_activity_layout, "Enter your email to sign up");
-
-                                } else if (TextUtils.isEmpty(password)) {
-
-                                    showSnack(R.id.login_activity_layout, "Enter your password to sign up");
-
-                                } else if (TextUtils.isEmpty(confirmPassword)) {
-
-                                    showSnack(R.id.login_activity_layout, "Confirm your password to sign up");
-
-                                } else {
-
-                                    //all fields are empty
-                                    showSnack(R.id.login_activity_layout, "Enter your email and password to sign up");
-
-                                }
-
-                            }
-                        })
-                        .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                dialog.dismiss();
-
-                            }
-                        })
-                        .show();
-
-            }
-        });
-
-
-        // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
+    private void configTwitterSignIn() {
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .logger(new DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(new TwitterAuthConfig(CONSUMER_KEY , CONSUMER_SECRET))
+                .debug(true)
                 .build();
-
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */,
-                        this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        //on user clicks sign in with google
-        googleSignInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signIn();
-            }
-        });
-
-
-        // Initialize Facebook Login button
-        mCallbackManager = CallbackManager.Factory.create();
-        LoginButton loginButton = findViewById(R.id.facebook_login_button);
-        loginButton.setReadPermissions("email", "public_profile");
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
-            }
-
-            @Override
-            public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-                // ...
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
-                // ...
-            }
-        });
-
-
-        //Twitter login
+        Twitter.initialize(config);
         twitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
@@ -418,23 +130,28 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void failure(TwitterException exception) {
                 Log.w(TAG, "twitterLogin:failure", exception);
-                //login failed
+               showSnack(getResources().getString(R.string.error_text) + ": " + exception.getMessage());
             }
         });
-
-
     }
 
-    private void showSnack(int id, String message) {
-        Snackbar.make(findViewById(id),
+    private void configGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signIn();
+            }
+        });
+    }
+
+    private void showSnack(String message) {
+        Snackbar.make(findViewById(R.id.login_activity_layout),
                 message, Snackbar.LENGTH_LONG).show();
-    }
-
-    private void startMain() {
-        //send user to Main
-        Intent mainIntent = new Intent(this, MainActivity.class);
-        startActivity(mainIntent);
-        finish();
     }
 
     //sign in with google
@@ -452,7 +169,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         if (requestCode == RC_SIGN_IN) {
 
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
@@ -469,7 +185,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
 
         // Pass the activity result back to the Facebook SDK
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+//        mCallbackManager.onActivityResult(requestCode, resultCode, data);
 
         // Pass the activity result to the Twitter login button.
         twitterLoginButton.onActivityResult(requestCode, resultCode, data);
@@ -478,30 +194,30 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
 
     //handle result for facebook sign in
-    private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
-
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        coMeth.getAuth()
-                .signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                            goToAccSettings();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Snackbar.make(findViewById(R.id.login_activity_layout),
-                                    "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                        }
-
-                    }
-                });
-    }
+//    private void handleFacebookAccessToken(AccessToken token) {
+//        Log.d(TAG, "handleFacebookAccessToken:" + token);
+//
+//        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+//        coMeth.getAuth()
+//                .signInWithCredential(credential)
+//                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<AuthResult> task) {
+//                        if (task.isSuccessful()) {
+//                            // Sign in success, update UI with the signed-in user's information
+//                            Log.d(TAG, "signInWithCredential:success");
+//                            FirebaseUser user = coMeth.getAuth().getCurrentUser();
+//                            goToAccSettings();
+//                        } else {
+//                            // If sign in fails, display a message to the user.
+//                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+//                            Snackbar.make(findViewById(R.id.login_activity_layout),
+//                                    "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+//                        }
+//
+//                    }
+//                });
+//    }
 
     //handle result for twitter sign in
     private void handleTwitterSession(TwitterSession session) {
