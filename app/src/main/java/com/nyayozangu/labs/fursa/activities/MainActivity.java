@@ -528,72 +528,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 new Intent(this, CreatePostActivity.class));
     }
 
-    private void showVerEmailDialog() {
-        android.app.AlertDialog.Builder emailVerBuilder =
-                new android.app.AlertDialog.Builder(MainActivity.this);
-        emailVerBuilder.setTitle(R.string.email_ver_text)
-                .setIcon(R.drawable.ic_action_info_grey)
-                .setMessage(R.string.verify_your_email_text)
-                .setPositiveButton(R.string.resend_email_text, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-
-                        //send ver email
-                        FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                        String sendEmailMessage = getString(R.string.send_email_text);
-                        showProgress(sendEmailMessage);
-                        assert user != null;
-                        sendVerEmail(dialog, user);
-                        coMeth.stopLoading(progressDialog);
-
-                    }
-                })
-                .setNegativeButton(getString(R.string.cancel_text),
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-    }
-
-    private void sendVerEmail(final DialogInterface dialog, FirebaseUser user) {
-        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            //inform user email is sent
-                            dialog.dismiss();
-                            showVerificationInstructions();
-                        }
-                    }
-                });
-    }
-
-    private void showVerificationInstructions() {
-        AlertDialog.Builder logoutConfirmEmailBuilder =
-                new AlertDialog.Builder(MainActivity.this);
-        logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
-                .setIcon(R.drawable.ic_action_info_grey)
-                .setMessage(getString(R.string.verification_email_sent_text) +
-                        getString(R.string.login_afer_verification_text))
-                .setPositiveButton(getString(R.string.ok_text),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //take user to login screen
-                                coMeth.signOut();
-                                startActivity(new Intent(
-                                        MainActivity.this,
-                                        LoginActivity.class));
-                                finish();
-
-                            }
-                        }).show();
-    }
-
     public void showSnack(String message) {
         Snackbar.make(findViewById(R.id.mainSnack), message, Snackbar.LENGTH_LONG).show();
     }
@@ -604,7 +538,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setFragment(Fragment fragment) {
-        //begin transaction
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction =  fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.mainFrameContainer, fragment);
@@ -643,7 +576,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDialog.setMessage(message);
         progressDialog.show();
     }
-
 
     private void goToUserPage() {
         Intent goToUserPageIntent = new Intent(this, UserPageActivity.class);
@@ -780,13 +712,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void goToMySavedPosts() {
         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
         HomeFragment homeFragment = new HomeFragment();
-////            homeFragment.selectPage(2);
             Bundle args = new Bundle();
             args.putInt(TAB, 2);
             homeFragment.setArguments(args);
-////            mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
             setFragment(homeFragment);
-//            homeFragment.selectPage(2);
 
     }
 
@@ -826,37 +755,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void signOut() {
         //check if user is google user
         FirebaseUser user = coMeth.getAuth().getCurrentUser();
-        if (user == null &&
-                user.getProviders() != null &&
-                user.getProviders().contains(GOOGLE_DOT_COM)) {
-
+        if (user != null && user.getProviders() != null && user.getProviders().contains(GOOGLE_DOT_COM)) {
             // Configure Google Sign In
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(getString(R.string.default_web_client_id))
                     .requestEmail()
                     .build();
-            // TODO: 6/17/18 this is not working; signing out google users from google accs
-            GoogleSignInClient mGoogleSignInClient = mGoogleSignInClient =
-                    GoogleSignIn.getClient(this, gso);
+            // TODO: 6/17/18 this is not working; signing out google users from google acc
+            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
             mGoogleSignInClient.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    //sign user out from google and from
                     Log.d(TAG, "onSuccess: signed out from google");
                     coMeth.signOut();
-//                    goToMain(getResources().getString(R.string.logged_out_text));
                 }
             })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to signout from google\n" +
+                            Log.d(TAG, "onFailure: failed to sign out from google\n" +
                                     e.getMessage());
-                            String message = getString(R.string.failed_to_signout_text) + ": " +
-                                    e.getMessage();
-//                            coMeth.showToast(MainActivity.this,
-//                                    MainActivity.this, message);
-                            showSnack(getString(R.string.failed_to_signout_text) + ": " + e.getMessage());
+                            String errorMessage = getString(R.string.failed_to_signout_text) + ": " + e.getMessage();
+                            showSnack(errorMessage);
                         }
                     });
         } else {
@@ -867,14 +787,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void shareApp() {
         Log.d(TAG, "Sharing app");
-        //show loading
         showProgress(getResources().getString(R.string.loading_text));
-        //create app url
         String appUrl = getResources().getString(R.string.app_download_url);
         final String fullShareMsg = getString(R.string.share_app_mesage_text);
 
-        Task<ShortDynamicLink> shortLinkTask =
-                FirebaseDynamicLinks.getInstance().createDynamicLink()
+        FirebaseDynamicLinks.getInstance().createDynamicLink()
                         .setLink(Uri.parse(appUrl))
                         .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
                         .setSocialMetaTagParameters(
@@ -884,32 +801,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         .setImageUrl(Uri.parse(getString(R.string.app_icon_url)))
                                         .build())
                         .buildShortDynamicLink()
-                        .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                        .addOnSuccessListener(new OnSuccessListener<ShortDynamicLink>() {
                             @Override
-                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                                if (task.isSuccessful()) {
-                                    Uri shortLink = task.getResult().getShortLink();
-                                    Uri flowchartLink = task.getResult().getPreviewLink();
-                                    showShareDialog(shortLink, fullShareMsg);
-                                } else {
-                                    coMeth.stopLoading(progressDialog);
-                                    String message = getString(R.string.failed_to_share_text) + ": " +
-                                            Objects.requireNonNull(task.getException()).getMessage();
-//                                    coMeth.showToast(MainActivity.this,
-//                                            MainActivity.this, message);
-                                    showSnack(getString(R.string.failed_to_share_text) + ": " +
-                                            Objects.requireNonNull(task.getException()).getMessage());
-                                }
+                            public void onSuccess(ShortDynamicLink shortDynamicLink) {
+                                Uri shortLink = shortDynamicLink.getShortLink();
+                                showShareDialog(shortLink, fullShareMsg);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                coMeth.stopLoading(progressDialog);
+                                String errorMessage = getString(R.string.failed_to_share_text) + ": " +
+                                        e.getMessage();
+                                Log.e(TAG, "onFailure: " + errorMessage, e);
+                                showSnack(errorMessage);
                             }
                         });
     }
 
-    /**
-     * show the share dialog after constructing the dynamic link
-     *
-     * @param shortLink Uri the constructed dynamic link
-     * @param fullShareMsg String the message to display with link
-     * */
     private void showShareDialog(Uri shortLink, String fullShareMsg) {
         String shareText = fullShareMsg + "\n" + shortLink;
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -969,18 +879,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void handleNewPostFab(){
         if (coMeth.isConnected() && coMeth.isLoggedIn()) {
-            //check is user has verified email
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            boolean emailVerified = user.isEmailVerified();
-            if (emailVerified
-                    || user.getProviders().contains(FACEBOOK_DOT_COM)
-                    || user.getProviders().contains(TWITTER_DOT_COM)
-                    || user.getProviders().contains(GOOGLE_DOT_COM)) {
-                //start the new post activity
-                goToCreatePost();
-            } else {
-                showVerEmailDialog();
-            }
+            goToCreatePost();
         } else {
             if (!coMeth.isConnected()) showSnack(getResources().getString(R.string.failed_to_connect_text));
             if (!coMeth.isLoggedIn()) goToLogin(getString(R.string.login_to_post_text));
