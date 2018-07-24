@@ -60,6 +60,22 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private TwitterLoginButton twitterLoginButton;
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initializeTwitter();
+        setContentView(R.layout.activity_login);
+        loginAlertTextView = findViewById(R.id.loginAlertTextView);
+        Toolbar toolbar = findViewById(R.id.loginToolbar);
+        googleSignInButton = findViewById(R.id.google_sign_in_button);
+        twitterLoginButton = findViewById(R.id.twitter_login_button);
+        handleToolbar(toolbar);
+        handleViewsVisibility();
+        handleIntent();
+        configGoogleSignIn();
+        configTwitterSignIn();
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         handleViewsVisibility();
@@ -74,21 +90,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             googleSignInButton.setVisibility(View.VISIBLE);
             twitterLoginButton.setVisibility(View.VISIBLE);
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        loginAlertTextView = findViewById(R.id.loginAlertTextView);
-        Toolbar toolbar = findViewById(R.id.loginToolbar);
-        googleSignInButton = findViewById(R.id.google_sign_in_button);
-        twitterLoginButton = findViewById(R.id.twitter_login_button);
-        handleToolbar(toolbar);
-        handleViewsVisibility();
-        handleIntent();
-        configGoogleSignIn();
-        configTwitterSignIn();
     }
 
     private void handleIntent() {
@@ -114,12 +115,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void configTwitterSignIn() {
-        TwitterConfig config = new TwitterConfig.Builder(this)
-                .logger(new DefaultLogger(Log.DEBUG))
-                .twitterAuthConfig(new TwitterAuthConfig(CONSUMER_KEY , CONSUMER_SECRET))
-                .debug(true)
-                .build();
-        Twitter.initialize(config);
         twitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
@@ -133,6 +128,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                showSnack(getResources().getString(R.string.error_text) + ": " + exception.getMessage());
             }
         });
+    }
+
+    private void initializeTwitter() {
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .logger(new DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(new TwitterAuthConfig(CONSUMER_KEY , CONSUMER_SECRET))
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
     }
 
     private void configGoogleSignIn() {
