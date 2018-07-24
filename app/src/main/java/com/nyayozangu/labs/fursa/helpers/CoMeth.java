@@ -172,6 +172,7 @@ public class CoMeth {
 
     public static final String NEW_FOLLOWER = "new_follower";
     public static final String LIKES_VAL = "likes";
+    public static final String EVENT_DATE = "event_date";
 
 
     public final String[] catTitle = new String[]{

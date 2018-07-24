@@ -61,26 +61,21 @@ import com.nyayozangu.labs.fursa.fragments.AlertFragment;
 import com.nyayozangu.labs.fursa.fragments.CategoriesFragment;
 import com.nyayozangu.labs.fursa.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.fragments.NotificationsFragment;
-import com.nyayozangu.labs.fursa.fragments.SavedTabFragment;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Categories;
-import com.nyayozangu.labs.fursa.models.Notifications;
 import com.nyayozangu.labs.fursa.models.Users;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.CATEGORIES_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.DESTINATION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FACEBOOK_DOT_COM;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.FOLLOWERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOOGLE_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOTO;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_FOLLOWERS_UPDATE;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_VAL;

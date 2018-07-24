@@ -4,7 +4,7 @@
     android:id="@+id/saved_fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.SavedTabFragment">
+    tools:context=".fragments.UpcomingTabFragment">
 
 
     <android.support.constraint.ConstraintLayout
@@ -25,13 +25,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!--<android.support.v4.widget.SwipeRefreshLayout-->
-        <!--android:id="@+id/savedSwipeRefresh"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent">-->
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/savedPostView"
+                android:id="@+id/upcomingPostRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

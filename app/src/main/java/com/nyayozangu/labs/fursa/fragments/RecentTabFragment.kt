@@ -49,10 +49,8 @@ class RecentTabFragment : Fragment() {
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
 
-        mProgressBar = view.findViewById<ProgressBar>(R.id.recentProgressBar)
+        mProgressBar = view.findViewById(R.id.recentProgressBar)
         mProgressBar.visibility = View.VISIBLE
-
-
         handleScrolling(mRecyclerView)
         val firstQuery = coMeth.db.collection(POSTS)
                 .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
@@ -63,7 +61,7 @@ class RecentTabFragment : Fragment() {
         return view
     }
 
-    fun handleBottomNavReselect(mRecyclerView: RecyclerView) {
+    private fun handleBottomNavReselect(mRecyclerView: RecyclerView) {
         val mBottomNav = activity?.findViewById<BottomNavigationView>(R.id.mainBottomNav)
         mBottomNav?.setOnNavigationItemReselectedListener {
             mRecyclerView.smoothScrollToPosition(0)
@@ -73,11 +71,9 @@ class RecentTabFragment : Fragment() {
     private fun handleScrolling(mRecyclerView: RecyclerView) {
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-
                 super.onScrolled(recyclerView, dx, dy)
                 val reachedBottom = !mRecyclerView.canScrollVertically(1)
                 if (reachedBottom) {
-                    Log.d(TAG, "at addOnScrollListener\n reached bottom")
                     loadMorePosts()
                 }
             }

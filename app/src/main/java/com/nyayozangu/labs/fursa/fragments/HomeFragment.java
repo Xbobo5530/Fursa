@@ -30,7 +30,7 @@ public class HomeFragment extends Fragment {
     private int[] tabIcons = {
             R.drawable.ic_recent,
             R.drawable.ic_recomended_light,
-            R.drawable.ic_saved
+            R.drawable.ic_upcoming_light
     };
 
     public HomeFragment() { }
@@ -72,12 +72,7 @@ public class HomeFragment extends Fragment {
         ViewPagerAdapter mAdapter = new ViewPagerAdapter(getChildFragmentManager());
         mAdapter.addFragment(new RecentTabFragment(), getResources().getString(R.string.recent_text));
         mAdapter.addFragment(new RecommendedTabFragment(), getResources().getString(R.string.recommended_text));
-        CoMeth coMeth = new CoMeth();
-        if (coMeth.isLoggedIn()) {
-            mAdapter.addFragment(new SavedTabFragment(), getResources().getString(R.string.saved_text));
-        }else{
-            mAdapter.addFragment(new AlertFragment(), getResources().getString(R.string.saved_text));
-        }
+        mAdapter.addFragment(new UpcomingTabFragment(), getResources().getString(R.string.cat_upcoming));
         mViewPager.setAdapter(mAdapter);
     }
 

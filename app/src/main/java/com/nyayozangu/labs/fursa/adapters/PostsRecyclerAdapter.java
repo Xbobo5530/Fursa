@@ -93,7 +93,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private static final String TAG = "Sean";
     private static final String VIEW_CAT_ACTIVITY = "ViewCategoryActivity";
-    private static final String SAVED_FRAGMENT = "SavedTabFragment";
+    private static final String SAVED_FRAGMENT = "UpcomingTabFragment";
     private static final String RECENT_FRAGMENT = "RecentFragment";
     private static final String POPULAR_FRAGMENT = "PopularFragment";
 
@@ -341,7 +341,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         if (e == null) {
                             if (documentSnapshot.exists()) {
                                 holder.postSaveButton.setImageDrawable(
-                                        context.getResources().getDrawable(R.drawable.ic_action_bookmarked));
+                                        context.getResources().getDrawable(R.drawable.ic_bookmarked));
                                 holder.saveLayout.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -453,6 +453,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         }else{
             holder.followButton.setVisibility(View.VISIBLE);
+            mFollowButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToLogin(context.getResources().getString(R.string.login_to_follow));
+                }
+            });
         }
         if (!coMeth.isConnected()){
             holder.followButton.setOnClickListener(new View.OnClickListener() {

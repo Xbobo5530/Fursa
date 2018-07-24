@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -22,7 +21,6 @@ import android.view.View;
 import android.widget.SearchView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.common.util.CrashUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -237,7 +235,7 @@ ViewCategoryActivity extends AppCompatActivity {
                     if (coMeth.isLoggedIn()) {
                         showProgress(getString(R.string.subscribing_text));
                         userId = coMeth.getUid();
-                        hanldeUserCatSubscription();
+                        handleUserCatSubscription();
                     } else {
                         goToLogin(getString(R.string.log_to_subscribe_text));
                     }
@@ -249,7 +247,7 @@ ViewCategoryActivity extends AppCompatActivity {
         });
     }
 
-    private void hanldeUserCatSubscription() {
+    private void handleUserCatSubscription() {
         final DocumentReference currentCatDb =  coMeth.getDb()
                 .collection(USERS + "/" + userId + "/" + SUBSCRIPTIONS)
                 .document( CATEGORY).collection(CATEGORIES).document(currentCat);
@@ -470,7 +468,6 @@ ViewCategoryActivity extends AppCompatActivity {
 
     private void getUpcomingPosts() {
         Log.d(TAG, "getUpcomingPosts: ");
-
         // today
         Calendar date = new GregorianCalendar();
         date.add(Calendar.MONTH, 2);
@@ -721,7 +718,6 @@ ViewCategoryActivity extends AppCompatActivity {
             if (!postsList.contains(post)) {
                 postsList.add(0, post);
                 usersList.add(0, user);
-//              coMeth.stopLoading(progressDialog, swipeRefresh);
                 Log.d(TAG, "onComplete: added post \n" + post.getTitle() +
                         post.getViews());
             }
@@ -732,9 +728,6 @@ ViewCategoryActivity extends AppCompatActivity {
             if (!postsList.contains(post)) {
                 postsList.add(post);
                 usersList.add(user);
-//              coMeth.stopLoading(progressDialog, swipeRefresh);
-                Log.d(TAG, "onComplete: added post \n" + post.getTitle() +
-                        post.getViews());
             }
         }
         //notify the recycler adapter of the set change
@@ -743,22 +736,12 @@ ViewCategoryActivity extends AppCompatActivity {
         coMeth.stopLoading(progressDialog);
     }
 
-    //show snack
-
-    /**
-     * show snackBar to notify user
-     * @param message the message to notify the user
-     * */
     private void showSnack(String message) {
         Snackbar.make(findViewById(R.id.viewCatLayout),
                 message, Snackbar.LENGTH_LONG)
                 .show();
     }
 
-    /**
-     * go to the login page with a message for the user
-     * @param message the message to display to the user on the login page
-     * */
     private void goToLogin(String message) {
         Intent goToLoginIntent = new Intent(this, LoginActivity.class);
         goToLoginIntent.putExtra("message", message);
