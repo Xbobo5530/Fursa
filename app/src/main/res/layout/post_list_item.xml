@@ -25,6 +25,7 @@
                 android:orientation="vertical">
                 <!--image, username and location-->
                 <LinearLayout
+                    android:id="@+id/postTopLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -132,6 +133,7 @@
 
 
                 <LinearLayout
+                    android:id="@+id/postActionsLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
