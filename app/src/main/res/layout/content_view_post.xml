@@ -16,68 +16,128 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/viewPostActionsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="8dp">
 
-            <Button
-                android:id="@+id/viewPostLikeButton"
-                android:layout_width="60dp"
+            <LinearLayout
+                android:id="@+id/viewPostLikeLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawablePadding="4dp"
-                android:drawableTop="@drawable/ic_action_like_unclicked"
-                android:text="@string/zero_text"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+                android:orientation="vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:id="@+id/viewPostLikeImageView"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_action_like_unclicked" />
+                <TextView
+                    android:id="@+id/viewPostLikeCountText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/like_text"
+                    android:textAlignment="center"
+                    android:textSize="12sp"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
 
-            <Button
-                android:id="@+id/viewPostCommentsButton"
-                android:layout_width="60dp"
+            <LinearLayout
+                android:id="@+id/viewPostCommentLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawablePadding="4dp"
-                android:drawableTop="@drawable/ic_action_comment"
-                android:text="@string/zero_text"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-                android:textColor="@color/black_overlay" />
+                android:orientation="vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:id="@+id/viewPostCommentImageView"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_action_comment" />
+                <TextView
+                    android:id="@+id/viewPostCommentCountText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/comment_text"
+                    android:textAlignment="center"
+                    android:textSize="12sp"
+                    android:layout_gravity="center" />
+            </LinearLayout>
 
-            <Button
-                android:id="@+id/viewPostSaveButton"
-                android:layout_width="60dp"
+            <LinearLayout
+                android:id="@+id/viewPostShareLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawablePadding="4dp"
-                android:drawableTop="@drawable/ic_action_bookmark_outline"
-                android:text="@string/save_text"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-                android:textColor="@color/black_overlay" />
+                android:orientation="vertical"
+                android:padding="12dp">
 
-            <Button
-                android:id="@+id/viewPostShareButton"
-                android:layout_width="60dp"
+                <ImageView
+                    android:id="@+id/viewPostShareImageView"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_action_share" />
+
+                <TextView
+                    android:id="@+id/viewPostShareTextTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/share_text"
+                    android:textAlignment="center"
+                    android:textSize="12sp"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/viewPostSaveLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawablePadding="4dp"
-                android:drawableTop="@drawable/ic_action_share"
-                android:text="@string/share_text"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-                android:textColor="@color/black_overlay"
-                android:textSize="12sp" />
+                android:orientation="vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:id="@+id/viewPostSaveImageView"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_action_bookmark_outline" />
+                <TextView
+                    android:id="@+id/viewPostSaveTextTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save_text"
+                    android:textAlignment="center"
+                    android:textSize="12sp"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
 
-            <Button
-                android:id="@+id/viewPostActivityButton"
-                android:layout_width="60dp"
+            <LinearLayout
+                android:id="@+id/viewPostActivityLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawablePadding="4dp"
-                android:drawableTop="@drawable/ic_action_activity"
-                android:text="@string/zero_text"
-                android:visibility="gone"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-                android:textColor="@color/black_overlay"
-                android:textSize="12sp" />
-
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:visibility="gone">
+                <ImageView
+                    android:id="@+id/viewPostActivityImageView"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_action_activity" />
+                <TextView
+                    android:id="@+id/viewPostActivityTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_text"
+                    android:textColor="@color/views_color"
+                    android:textAlignment="center"
+                    android:textSize="12sp"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
         </LinearLayout>
+
+
         <android.support.constraint.ConstraintLayout
             android:id="@+id/viewPostTitleLayout"
             android:layout_width="match_parent"

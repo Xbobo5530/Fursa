@@ -171,6 +171,7 @@ public class CoMeth {
     public static final String FOLLOW = "follow";
 
     public static final String NEW_FOLLOWER = "new_follower";
+    public static final String LIKES_VAL = "likes";
 
 
     public final String[] catTitle = new String[]{

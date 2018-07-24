@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -237,176 +235,25 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             holder.setPostImage(imageUrl, thumbUrl);
             final String postId = post.PostId;
             String userName = user.getName();
-            String userImageDownloadUri = user.getImage();
+            String userImageUrl = user.getImage();
             handlePostActivity(holder, post);
             holder.postUsernameTextView.setText(userName);
-            coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, userImageDownloadUri,
-                    holder.postUserImageView);
-            holder.postUserImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String postUserId = user.UserId;
-                    openUserPage(postUserId);
-                }
-            });
+            setUserImage(holder, user, userImageUrl);
             handleFollowButton(holder, postUserId);
-
-            //handle date for posts
-            if (post.getTimestamp() != null) {
-                long millis = post.getTimestamp().getTime();
-                String dateString = coMeth.processPostDate(millis);
-                holder.postDateTextView.setText(dateString);
-            }else{
-                holder.postDateTextView.setVisibility(View.GONE);
-            }
+            handlePostDate(holder);
 
             CollectionReference likesRef = coMeth.getDb().collection(
                     POSTS + "/" + postId + "/" + LIKES_COL);
-            //get likes count
-            likesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
-                            if (e == null) {
-                                if (!queryDocumentSnapshots.isEmpty()) {
-                                    int numberOfLikes = queryDocumentSnapshots.size();
-                                    holder.postLikesCount.setText(String.valueOf(numberOfLikes));
-                                } else {
-                                    //post has no likes
-                                    holder.postLikesCount.setText(context.getResources().getString(R.string.like_text));
-                                }
-                            } else {
-                                Log.d(TAG, "onEvent: error " + e.getMessage());
-                            }
-                        }
-                    });
-
-
-            //determine likes by current user
+            handleLikesCount(holder, likesRef);
             if (coMeth.isConnected() && coMeth.isLoggedIn()) {
-                //check post likes
-                likesRef.document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                            @Override
-                            public void onEvent(DocumentSnapshot documentSnapshot,
-                                                FirebaseFirestoreException e) {
-
-                                if (e == null) {
-                                    //update the like button real time
-                                    if (documentSnapshot.exists()) {
-                                        //user has liked
-                                        holder.postLikeButton.setImageDrawable(
-                                                context.getResources().getDrawable(R.drawable.ic_action_liked));
-                                        //set click action for like
-                                        holder.likeLayout.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                unlikePost(postId);
-                                            }
-                                        });
-                                    } else {
-                                        holder.postLikeButton.setImageDrawable(
-                                                context.getResources().getDrawable(R.drawable.ic_action_like_unclicked));
-                                        //set like click action
-                                        holder.likeLayout.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                likePost(postId);
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    Log.d(TAG, "onEvent: error in handling likes " + e.getMessage());
-                                }
-                            }
-                        });
-
-                //check post saves
-                coMeth.getDb().collection(POSTS + "/" + postId + "/" + SAVED_COL)
-                        .document(currentUserId)
-                        .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                            @Override
-                            public void onEvent(DocumentSnapshot documentSnapshot,
-                                                FirebaseFirestoreException e) {
-                                if (e == null) {
-                                    if (documentSnapshot.exists()) {
-                                        holder.postSaveButton.setImageDrawable(
-                                                context.getResources().getDrawable(R.drawable.ic_action_bookmarked));
-                                        holder.saveLayout.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                unSavePost(postId);
-                                            }
-                                        });
-                                    } else {
-                                        holder.postSaveButton.setImageDrawable(
-                                                context.getResources().getDrawable(R.drawable.ic_action_bookmark_outline));
-                                        holder.saveLayout.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                savePost(holder, postId);
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    Log.d(TAG, "onEvent: error handling saved posts " + e.getMessage());
-                                }
-                            }
-                        });
-
+                handlePostLikes(holder, postId, likesRef);
+                handlePostSaves(holder, postId);
             } else {
-                if (!coMeth.isConnected()) {
-                    holder.saveLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            showSnack(context.getResources().getString(R.string.failed_to_connect_text), holder);
-                        }
-                    });
-                    holder.likeLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            showSnack(context.getResources().getString(R.string.failed_to_connect_text), holder);
-                        }
-                    });
-                }
-                if (!coMeth.isLoggedIn()) {
-                    holder.saveLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            goToLogin(context.getResources().getString(R.string.login_to_save_text));
-                        }
-                    });
-                    holder.likeLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            goToLogin(context.getResources().getString(R.string.login_to_like));
-                        }
-                    });
-                }
+                handlePostActionsConnectionException(holder);
+                handlePostActionsLoginException(holder);
             }
-
-            //share post
-            holder.shareLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    sharePost(holder, postsList.get(position));
-                }
-            });
-
-            //count comments
-            coMeth.getDb().collection(POSTS + "/" + postId + "/" + COMMENTS_COLL)
-                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(QuerySnapshot queryDocumentSnapshots,
-                                            FirebaseFirestoreException e) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                int numberOfComments = queryDocumentSnapshots.size();
-                                holder.postCommentCount.setVisibility(View.VISIBLE);
-                                holder.postCommentCount.setText(String.valueOf(numberOfComments));
-                            } else {
-                                holder.postCommentCount.setText(context.getResources().getString(R.string.comment_text));
-                            }
-                        }
-                    });
-
+            handleSharePost(position, holder);
+            handlePostCommentsCount(holder, postId);
             //comment icon click action
             holder.commentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -422,6 +269,178 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 }
             });
         }
+    }
+
+    private void handleSharePost(final int position, @NonNull final ViewHolder holder) {
+        holder.shareLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sharePost(holder, postsList.get(position));
+            }
+        });
+    }
+
+    private void handlePostCommentsCount(@NonNull final ViewHolder holder, String postId) {
+        coMeth.getDb().collection(POSTS + "/" + postId + "/" + COMMENTS_COLL)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots,
+                                        FirebaseFirestoreException e) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            int numberOfComments = queryDocumentSnapshots.size();
+                            holder.postCommentCount.setVisibility(View.VISIBLE);
+                            holder.postCommentCount.setText(String.valueOf(numberOfComments));
+                        } else {
+                            holder.postCommentCount.setText(context.getResources().getString(R.string.comment_text));
+                        }
+                    }
+                });
+    }
+
+    private void handlePostActionsLoginException(@NonNull ViewHolder holder) {
+        if (!coMeth.isLoggedIn()) {
+            holder.saveLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToLogin(context.getResources().getString(R.string.login_to_save_text));
+                }
+            });
+            holder.likeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToLogin(context.getResources().getString(R.string.login_to_like));
+                }
+            });
+        }
+    }
+
+    private void handlePostActionsConnectionException(@NonNull final ViewHolder holder) {
+        if (!coMeth.isConnected()) {
+            holder.saveLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showSnack(context.getResources().getString(R.string.failed_to_connect_text), holder);
+                }
+            });
+            holder.likeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showSnack(context.getResources().getString(R.string.failed_to_connect_text), holder);
+                }
+            });
+        }
+    }
+
+    private void handlePostSaves(@NonNull final ViewHolder holder, final String postId) {
+        coMeth.getDb().collection(POSTS + "/" + postId + "/" + SAVED_COL)
+                .document(currentUserId)
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(DocumentSnapshot documentSnapshot,
+                                        FirebaseFirestoreException e) {
+                        if (e == null) {
+                            if (documentSnapshot.exists()) {
+                                holder.postSaveButton.setImageDrawable(
+                                        context.getResources().getDrawable(R.drawable.ic_action_bookmarked));
+                                holder.saveLayout.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        unSavePost(postId);
+                                    }
+                                });
+                            } else {
+                                holder.postSaveButton.setImageDrawable(
+                                        context.getResources().getDrawable(R.drawable.ic_action_bookmark_outline));
+                                holder.saveLayout.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        savePost(holder, postId);
+                                    }
+                                });
+                            }
+                        } else {
+                            Log.d(TAG, "onEvent: error handling saved posts " + e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    private void handlePostLikes(@NonNull final ViewHolder holder, final String postId, CollectionReference likesRef) {
+        likesRef.document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(DocumentSnapshot documentSnapshot,
+                                        FirebaseFirestoreException e) {
+
+                        if (e == null) {
+                            //update the like button real time
+                            if (documentSnapshot.exists()) {
+                                //user has liked
+                                holder.postLikeButton.setImageDrawable(
+                                        context.getResources().getDrawable(R.drawable.ic_action_liked));
+                                //set click action for like
+                                holder.likeLayout.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        unlikePost(postId);
+                                    }
+                                });
+                            } else {
+                                holder.postLikeButton.setImageDrawable(
+                                        context.getResources().getDrawable(R.drawable.ic_action_like_unclicked));
+                                //set like click action
+                                holder.likeLayout.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        likePost(postId);
+                                    }
+                                });
+                            }
+                        } else {
+                            Log.d(TAG, "onEvent: error in handling likes " + e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    private void handleLikesCount(@NonNull final ViewHolder holder, CollectionReference likesRef) {
+        likesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                        if (e == null) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                int numberOfLikes = queryDocumentSnapshots.size();
+                                holder.postLikesCount.setText(String.valueOf(numberOfLikes));
+                            } else {
+                                //post has no likes
+                                holder.postLikesCount.setText(context.getResources().getString(R.string.like_text));
+                            }
+                        } else {
+                            Log.d(TAG, "onEvent: error " + e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    private void handlePostDate(@NonNull ViewHolder holder) {
+        if (post.getTimestamp() != null) {
+            long millis = post.getTimestamp().getTime();
+            String dateString = coMeth.processPostDate(millis);
+            holder.postDateTextView.setText(dateString);
+        }else{
+            holder.postDateTextView.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUserImage(@NonNull ViewHolder holder, final Users user, String userImageUrl) {
+        coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, userImageUrl,
+                holder.postUserImageView);
+        holder.postUserImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String postUserId = user.UserId;
+                openUserPage(postUserId);
+            }
+        });
     }
 
     private void handleFollowButton(final @NonNull ViewHolder holder, final String postUserId) {
@@ -617,21 +636,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     }
 
     private void showProgress(String message) {
-        Log.d(TAG, "at showProgress\n message is: " + message);
-        //construct the dialog box
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage(message);
         progressDialog.show();
     }
 
-    /**
-     * share the dynamic link
-     *
-     * @param holder       the view holder containing the post
-     * @param postTitle    the post title
-     * @param postDesc     the post description
-     * @param postImageUrl the post image url
-     */
     private void shareDynamicLink(String postUrl, final String postTitle, final String postDesc,
                                   final String postImageUrl, final ViewHolder holder) {
         FirebaseDynamicLinks.getInstance().createDynamicLink()
@@ -675,13 +684,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
     }
 
-    /**
-     * checks if post has an image
-     *
-     * @return String post image download url
-     * if the post has an image
-     * or the default app icon download url if the post has no image
-     */
     private String getImageUrl(String postImageUrl) {
         if (postImageUrl != null) {
             return postImageUrl;
@@ -742,33 +744,21 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    /**
-     * takes user to the login screen
-     *
-     * @param message the message to display to the user on the login screen
-     */
     private void goToLogin(String message) {
         Intent goToLoginIntent = new Intent(context, LoginActivity.class);
         goToLoginIntent.putExtra("message", message);
         context.startActivity(goToLoginIntent);
     }
 
-
     //implement the viewHolder
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        //initiate view
         View mView;
-
-        //initiate elements in the view holder
         private TextView postUsernameTextView;
-//        private CircleImageView postUserImageCircleView;
         private ImageView postUserImageView;
-        private TextView postLikesCount, postCommentCount,
-                postLocationTextView, postDateTextView, descTextView, titleTextView,
-                postSaveText, postShareText, activityTextView;
-        private ImageView postSaveButton, postSharePostButton, postCommentButton,
-                postImageView, postLikeButton;
+        private TextView postLikesCount, postCommentCount, postLocationTextView,
+                postDateTextView, descTextView, titleTextView, activityTextView;
+        private ImageView postSaveButton, postImageView, postLikeButton;
         private CardView adCard, postCardView;
         private LinearLayout activityLayout, likeLayout, saveLayout, commentLayout,
                 shareLayout, topLayout, actionsLayout;
@@ -776,7 +766,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         ViewHolder(View itemView) {
             super(itemView);
-            //use mView to populate other methods
             mView = itemView;
 
             postUsernameTextView = mView.findViewById(R.id.postUsernameTextView);
@@ -786,18 +775,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             postLikesCount = mView.findViewById(R.id.postLikeCountText);
             likeLayout = mView.findViewById(R.id.postLikeLayout);
             postSaveButton = mView.findViewById(R.id.postSaveImageView);
-            postSaveText = mView.findViewById(R.id.postSaveTextTextView);
             saveLayout = mView.findViewById(R.id.postSaveLayout);
-            postSharePostButton = mView.findViewById(R.id.postShareImageView);
             shareLayout = mView.findViewById(R.id.postShareLayout);
             postImageView = mView.findViewById(R.id.postImageView);
-            postCommentButton = mView.findViewById(R.id.postCommentImageView);
             postCommentCount = mView.findViewById(R.id.postCommentCountText);
             commentLayout = mView.findViewById(R.id.postCommentLayout);
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
-            postSaveText = mView.findViewById(R.id.postSaveTextTextView);
-            postShareText = mView.findViewById(R.id.postShareTextTextView);
             titleTextView = mView.findViewById(R.id.postTitleTextView);
             descTextView = mView.findViewById(R.id.postDescTextView);
             postDateTextView = mView.findViewById(R.id.postDateTextView);

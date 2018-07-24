@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -53,14 +54,20 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_COLL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_DOC;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FLAGS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FLAGS_NAME;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.IMAGE_URL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_COL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_UPDATES;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_VAL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MY_POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MY_POSTS_DOC;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS_DOC;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_ID;
@@ -92,8 +99,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private ImageView postImage, userImage;
     private ProgressDialog progressDialog;
     private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags;
-    private Button mLikeButton, mSaveButton,  mCommentsButton, mShareButton, mActivityButton,
-            mContactButton, mLocationButton, mEventDateButton, mEventEndDateButton, mCatsButton,
+    private LinearLayout mLikeButton, mSaveButton,  mCommentsButton, mShareButton, mActivityButton;
+    private Button mContactButton, mLocationButton, mEventDateButton, mEventEndDateButton, mCatsButton,
             mPriceButton, mTagsButton, mTimeButton, mUserButton;
     private int likes, comments;
     private Posts post;
@@ -103,11 +110,11 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_post);
 
-        mLikeButton = findViewById(R.id.viewPostLikeButton);
-        mSaveButton = findViewById(R.id.viewPostSaveButton);
-        mCommentsButton = findViewById(R.id.viewPostCommentsButton);
-        mShareButton = findViewById(R.id.viewPostShareButton);
-        mActivityButton = findViewById(R.id.viewPostActivityButton);
+        mLikeButton = findViewById(R.id.viewPostLikeLayout);
+        mSaveButton = findViewById(R.id.viewPostSaveLayout);
+        mCommentsButton = findViewById(R.id.viewPostCommentLayout);
+        mShareButton = findViewById(R.id.viewPostShareLayout);
+        mActivityButton = findViewById(R.id.viewPostActivityLayout);
 
         mContactButton = findViewById(R.id.viewPostContactButton);
         mLocationButton = findViewById(R.id.viewPostLocationButton);
@@ -204,7 +211,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
 
-            case R.id.viewPostActivityButton:
+            case R.id.viewPostActivityLayout:
                 showPostStats();
                 break;
             case R.id.viewPostLocationButton:
@@ -213,7 +220,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             case R.id.viewPostCatButton:
                 showCats();
                 break;
-            case R.id.viewPostShareButton:
+            case R.id.viewPostShareLayout:
                 sharePost();
                 break;
             case R.id.viewPostImageView:
@@ -369,9 +376,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         dialog.dismiss();
-
                     }
                 })
                 .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
@@ -402,8 +407,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private void getExistingFlags(final Map<String, Object> reportMap) {
         coMeth.getDb()
                 .collection(FLAGS + "/" + POSTS_DOC + "/" + POSTS).document(postId)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -430,11 +434,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 });
     }
 
-    /**
-     * submit the report submitted by user on a spam/ innapriproate post
-     *
-     * @param reportMap Map: the map with the report data
-     * */
     private void submitReport(Map<String, Object> reportMap) {
 
         coMeth.getDb()
@@ -486,8 +485,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         deleteDocReference(postId);
                     }
                 })
-                .setNegativeButton(getString(R.string.cancel_text),
-                        new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -525,7 +523,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
                         Intent delResultIntent =
                                 new Intent(ViewPostActivity.this, MainActivity.class);
-                        delResultIntent.putExtra(CoMeth.ACTION, CoMeth.NOTIFY);
+                        delResultIntent.putExtra(ACTION, CoMeth.NOTIFY);
                         delResultIntent.putExtra(CoMeth.MESSAGE,
                                 getString(R.string.del_success_text));
                         startActivity(delResultIntent);
@@ -893,24 +891,24 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void handleSaveButton(final String currentUserId) {
-        coMeth.getDb()
-                .collection(POSTS + "/" + postId + "/" + SAVES)
-                .document(currentUserId)
-                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        coMeth.getDb().collection(POSTS + "/" + postId + "/" + SAVES)
+                .document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(
                             DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
 
+                        final ImageView saveButton = findViewById(R.id.viewPostSaveImageView);
                         if (e == null) {
-                            //update the save button real time
                             if (documentSnapshot.exists()) {
+                                saveButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_bookmarked));
                                 mSaveButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        unsavePost(currentUserId);
+                                        unSavePost(currentUserId);
                                     }
                                 });
                             } else {
+                                saveButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_bookmark_outline));
                                 mSaveButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -919,6 +917,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 });
                             }
                         }else{
+                            saveButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_bookmark_outline));
                             Log.d(TAG, "onEvent: error on handling save button " +
                                     e.getMessage());
                         }
@@ -934,9 +933,10 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     public void onEvent(DocumentSnapshot documentSnapshot,
                                         FirebaseFirestoreException e) {
 
+                        ImageView likesButton = findViewById(R.id.viewPostLikeImageView);
                         if (e == null) {
-                            //update the like button real time
                             if (documentSnapshot.exists()) {
+                                likesButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_liked));
                                 mLikeButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -944,6 +944,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                     }
                                 });
                             } else {
+                                likesButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_like_unclicked));
                                 mLikeButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -952,6 +953,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 });
                             }
                         }else{
+                            likesButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_like_unclicked));
                             Log.d(TAG, "onEvent: error in handling likes " + e.getMessage());
                         }
                     }
@@ -959,8 +961,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setCommentsCount() {
-        coMeth.getDb()
-                .collection(POSTS + "/" + postId + "/" + COMMENTS_COLL)
+        coMeth.getDb().collection(POSTS + "/" + postId + "/" + COMMENTS_COLL)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(QuerySnapshot queryDocumentSnapshots,
@@ -969,7 +970,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             if (!queryDocumentSnapshots.isEmpty()) {
 
                                 int numberOfComments = queryDocumentSnapshots.size();
-                                mCommentsButton.setText(String.valueOf(numberOfComments));
+                                TextView commentCountTextView = findViewById(R.id.viewPostCommentCountText);
+                                commentCountTextView.setText(String.valueOf(numberOfComments));
                                 comments = numberOfComments;
                                 updatePostComments(comments);
                             }
@@ -982,8 +984,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setLikesCount() {
-        coMeth.getDb()
-                .collection(POSTS + "/" + postId + "/" + LIKES_COL)
+        coMeth.getDb().collection(POSTS + "/" + postId + "/" + LIKES_COL)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(QuerySnapshot queryDocumentSnapshots,
@@ -992,7 +993,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             //check if exits
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 int likes = queryDocumentSnapshots.getDocuments().size();
-                                mLikeButton.setText(String.valueOf(likes));
+                                TextView likesCountTextView = findViewById(R.id.viewPostLikeCountText);
+                                likesCountTextView.setText(String.valueOf(likes));
                                 ViewPostActivity.this.likes = likes;
                                 //update post likes
                                 updatePostLikes(ViewPostActivity.this.likes);
@@ -1029,10 +1031,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         startActivity(openImageIntent);
     }
 
-    /**
-     * update the number of comments on a post
-     * @param comments the number of comments in post
-     */
     private void updatePostComments(int comments) {
         Map<String, Object> commentsMap = new HashMap<>();
         commentsMap.put(COMMENTS_DOC, comments);
@@ -1053,15 +1051,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 });
     }
 
-    /**
-     * update the number of likes of post
-     *
-     * @param likes the number of likes of post
-     */
     private void updatePostLikes(int likes) {
-        //create a Map
         Map<String, Object> likesMap = new HashMap<>();
-        likesMap.put("likes", likes);
+        likesMap.put(LIKES_VAL, likes);
         coMeth.getDb().collection(POSTS).document(postId).update(likesMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -1091,7 +1083,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         showSaveSnack(getString(R.string.added_to_saved_text));
     }
 
-    private void unsavePost(String currentUserId) {
+    private void unSavePost(String currentUserId) {
         coMeth.getDb().collection(POSTS + "/" + postId + "/" + SAVES)
                 .document(currentUserId)
                 .delete();
@@ -1105,8 +1097,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 .document(currentUserId).set(likesMap);
 
         //notify subscribers
-        String notifType = "likes_updates";
-        new Notify().execute(notifType, postId);
+        new Notify().execute(LIKES_UPDATES, postId);
         Log.d(TAG, "onComplete: notification sent");
     }
 
@@ -1125,7 +1116,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void shareDynamicLink(String postUrl) {
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+        FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(postUrl))
                 .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
@@ -1168,13 +1159,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 });
     }
 
-    /**
-     * Checks if the post has an image
-     *
-     * @return String image download url
-     * if post has image returns post image url
-     * else returns the default app icon download url
-     */
     private String getPostImageUrl() {
         if (postImageUri != null) {
             return postImageUri;
@@ -1192,7 +1176,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     showShareNewPostDialog();
                 } else {
                     postId = intent.getStringExtra(POST_ID);
-                    Log.d(TAG, "postId is: " + postId);
                 }
             } else {
                 postId = handleDeepLinks(intent);
@@ -1201,7 +1184,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             goToMain(getString(R.string.something_went_wrong_text));
         }
         populateFields();
-
     }
 
     private void showShareNewPostDialog() {
@@ -1234,7 +1216,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        mActivityButton.setText(String.valueOf(activity));
+                        TextView activityCountTextView = findViewById(R.id.viewPostActivityTextView);
+                        activityCountTextView.setText(String.valueOf(activity));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -1248,8 +1231,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void goToMain(String message) {
         Intent goToMainIntent = new Intent(ViewPostActivity.this, MainActivity.class);
-        goToMainIntent.putExtra(getString(R.string.ACTION_NAME), getString(R.string.notify_value_text));
-        goToMainIntent.putExtra(getString(R.string.MESSAGE_NAME), message);
+        goToMainIntent.putExtra(ACTION, NOTIFY);
+        goToMainIntent.putExtra(MESSAGE, message);
         startActivity(goToMainIntent);
         finish();
     }
@@ -1335,8 +1318,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void sharePost() {
-        Log.d(TAG, "Sharing post");
-        //get post url
         showProgress(getString(R.string.loading_text));
         String postUrl = getResources().getString(R.string.fursa_url_post_head) + postId;
         shareDynamicLink(postUrl);
