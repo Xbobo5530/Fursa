@@ -75,7 +75,7 @@
     <string name="time_view_post_text">Muda</string>
     <string name="user_view_post_text">Mtumiaji</string>
     <string name="login_alert_fragment_text">Ingia</string>
-    <string name="login_to_view_saved_items_alert_fragment_text">Ingia kwenye akaunti kuona machapisho ulio hifadhi</string>
+    <string name="login_to_view_saved_items_text">Ingia kwenye akaunti kuona machapisho ulio hifadhi</string>
     <string name="username_post_placeholder_text">Jina la mtumiaji</string>
     <string name="post_title__post_placeholder_text">Kichwa cha chapisho</string>
     <string name="name_text">Jina</string>

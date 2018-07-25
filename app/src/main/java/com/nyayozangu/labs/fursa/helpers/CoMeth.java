@@ -16,7 +16,9 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 
 import com.bumptech.glide.Glide;
@@ -170,6 +172,7 @@ public class CoMeth{
     public static final String EVENT_DATE = "event_date";
     public static final String NAME = "name";
     public static final String IMAGE = "image";
+    public static final String USER_POSTS = "user_posts";
 
 //    public final String[] catTitle = new String[]{
 //
@@ -651,6 +654,17 @@ public class CoMeth{
             if (swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
             }
+        }
+    }
+
+    public void stopLoading(ProgressBar progressBar) {
+        if (progressBar.getVisibility() == View.VISIBLE){
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+    public void showProgress(ProgressBar progressBar) {
+        if (progressBar.getVisibility() == View.GONE){
+            progressBar.setVisibility(View.VISIBLE);
         }
     }
 

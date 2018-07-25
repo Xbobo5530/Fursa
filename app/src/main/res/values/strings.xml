@@ -88,7 +88,7 @@
     <string name="time_view_post_text" translatable="false">Time</string>
     <string name="user_view_post_text" translatable="false">User</string>
     <string name="login_alert_fragment_text" translatable="false">Login</string>
-    <string name="login_to_view_saved_items_alert_fragment_text" translatable="false">Login to view saved items</string>
+    <string name="login_to_view_saved_items_text" translatable="false">Login to view saved items</string>
     <string name="date_post_placeholder_text" translatable="false">Jan 14 2018</string>
     <string name="username_post_placeholder_text" translatable="false">Username</string>
     <string name="desc_post_placeholder_text" translatable="false">this is random text for the placeholder of the image veia hdod lookd i=too maih intteo iwws</string>
@@ -419,5 +419,7 @@
     <string name="like_text">Like</string>
     <string name="activity_text">Activity</string>
     <string name="welcome_text">Welcome</string>
+    <string name="no_saved_posts_text">You have currently do not have any saved posts, click the save icon on a post to save it here</string>
+    <string name="view_posts_text">View posts</string>
 
 </resources>

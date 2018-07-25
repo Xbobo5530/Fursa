@@ -41,6 +41,7 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.CommentsActivity;
 import com.nyayozangu.labs.fursa.activities.MainActivity;
 import com.nyayozangu.labs.fursa.activities.UserPageActivity;
+import com.nyayozangu.labs.fursa.activities.UserPostsActivity;
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity;
 import com.nyayozangu.labs.fursa.helpers.Notify;
 import com.nyayozangu.labs.fursa.models.Posts;
@@ -93,7 +94,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private static final String TAG = "Sean";
     private static final String VIEW_CAT_ACTIVITY = "ViewCategoryActivity";
-    private static final String SAVED_FRAGMENT = "UpcomingTabFragment";
+    private static final String USER_POST_ACTIVITY = "UserPostsActivity";
     private static final String RECENT_FRAGMENT = "RecentFragment";
     private static final String POPULAR_FRAGMENT = "PopularFragment";
 
@@ -731,16 +732,23 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         //check current class
         switch (className) {
-            case RECENT_FRAGMENT:
-            case POPULAR_FRAGMENT:
+            case USER_POST_ACTIVITY:
+                Snackbar.make(holder.mView.findViewById(R.id.postLayout),
+                        message, Snackbar.LENGTH_LONG)
+                        .setAction(context.getString(R.string.see_list_text),
+                                new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
 
-                Snackbar.make(activity.findViewById(R.id.mainSnack),
-                        message, Snackbar.LENGTH_SHORT)
+                                        Intent goToSavedIntent = new Intent(context, UserPostsActivity.class);
+                                        goToSavedIntent.putExtra(DESTINATION, SAVED_VAL);
+                                        ((UserPostsActivity)context).finish();
+                                        context.startActivity(goToSavedIntent);
+                                    }
+                                })
+                        .setActionTextColor(context.getResources().getColor(R.color.secondaryLightColor))
                         .show();
-                break;
-            case SAVED_FRAGMENT:
-                //do nothing
-                break;
+
             default:
                 Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                         message, Snackbar.LENGTH_LONG)
@@ -749,8 +757,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                                     @Override
                                     public void onClick(View v) {
 
-                                        Intent goToSavedIntent = new Intent(context, MainActivity.class);
-                                        goToSavedIntent.putExtra(ACTION, GOTO);
+                                        Intent goToSavedIntent = new Intent(context, UserPostsActivity.class);
                                         goToSavedIntent.putExtra(DESTINATION, SAVED_VAL);
                                         context.startActivity(goToSavedIntent);
                                     }

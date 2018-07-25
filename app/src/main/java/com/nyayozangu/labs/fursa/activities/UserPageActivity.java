@@ -62,6 +62,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.TIMESTAMP;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID_VAL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_POSTS;
 
 public class UserPageActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -175,7 +176,6 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 Log.d(TAG, "handleIntent: userId is " + userId);
                 populatePage();
                 handleItemVisibility(userId);
-                coMeth.stopLoading(progressDialog);
             } else if (intent.getAction() != null) {
                 userId = handleDeepLink(getIntent());
                 populatePage();
@@ -708,6 +708,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         Intent goToUserPostsIntent = new Intent(
                 UserPageActivity.this, UserPostsActivity.class);
         goToUserPostsIntent.putExtra(USER_ID, userId);
+        goToUserPostsIntent.putExtra(DESTINATION, USER_POSTS);
         goToUserPostsIntent.putExtra(CoMeth.USERNAME, usernameField.getText().toString());
         startActivity(goToUserPostsIntent);
     }

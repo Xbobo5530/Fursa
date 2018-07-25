@@ -78,12 +78,15 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_FOLLOWERS_UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.TWITTER_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final String TAG = "Sean";
 
@@ -100,25 +103,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mainDrawerLayout;
     private NavigationView navigationView;
     private ActionBarDrawerToggle toggle;
-
     private HomeFragment homeFragment;
     private CategoriesFragment categoriesFragment;
     private AlertFragment alertFragment;
     private NotificationsFragment notificationsFragment;
-
     private boolean doubleBackToExitPressedOnce = false;
     private ProgressDialog progressDialog;
-
     public ActionBar actionbar;
     public String hasAcceptedTermsStatus, username;
-
     private ImageView userProfileImage;
     private TextView usernameField;
     private Users user;
-
     private ArrayList<String> catSubsArray;
     private String[] catsListItems;
-
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -149,11 +146,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         categoriesFragment = new CategoriesFragment();
         alertFragment = new AlertFragment();
         notificationsFragment = new NotificationsFragment();
-
         newPostFab = findViewById(R.id.newPostFab);
         mainBottomNav = findViewById(R.id.mainBottomNav);
         mainDrawerLayout = findViewById(R.id.drawer_layout);
-
         catSubsArray = new ArrayList<>();
 
         //handle toolbar
@@ -170,9 +165,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        //handle nav drawer
         navigationView = findViewById(R.id.nav_view);
-
         navigationView.setNavigationItemSelectedListener(this);
         toggle = new ActionBarDrawerToggle(this,mainDrawerLayout, R.string.open_text, R.string.close_text);
         mainDrawerLayout.addDrawerListener(toggle);
@@ -182,13 +175,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             handleNavViewHeader(navigationView);
         }
 
-        //check terms status
         hasAcceptedTermsStatus = CoMeth.FALSE;
         checkHasAcceptedTerms();
-
         handleIntent();
         handleDrawerListeners(navigationView);
-
         handleBottomNavBar();
         newPostFab.setOnClickListener(this);
         if (!coMeth.isConnected(this)) {
@@ -362,13 +352,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(new Intent(this, LoginActivity.class));
     }
 
-    /**
-     * set user data
-     *
-     * @param user  user data
-     * @param usernameField view TextView for username
-     * @param userProfileImage String user image download url
-     */
     private void setUserData(Users user, ImageView userProfileImage, TextView usernameField) {
         userProfileImage.setVisibility(View.VISIBLE);
         if (user.getImage() != null) {
@@ -718,13 +701,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void goToMySavedPosts() {
-        mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
-        HomeFragment homeFragment = new HomeFragment();
-            Bundle args = new Bundle();
-            args.putInt(TAB, 2);
-            homeFragment.setArguments(args);
-            setFragment(homeFragment);
-
+        Intent intent = new Intent(this, UserPostsActivity.class);
+        intent.putExtra(DESTINATION, SAVED_VAL);
+        intent.putExtra(USER_ID, coMeth.getUid());
+        startActivity(intent);
     }
 
     private void goToMyPosts() {

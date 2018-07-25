@@ -1,25 +1,22 @@
 package com.nyayozangu.labs.fursa.activities;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -34,16 +31,19 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.FACEBOOK_DOT_COM;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOOGLE_DOT_COM;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.DESTINATION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MY_POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MY_POSTS_DOC;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_POSTS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_POSTS_DOC;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SUBSCRIPTIONS;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.TWITTER_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_POSTS;
 
 public class UserPostsActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -53,11 +53,11 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
     private FloatingActionButton newPostFab;
     private List<Posts> postsList;
     private List<Users> usersList;
-    private PostsRecyclerAdapter postsRecyclerAdapter;
+    private PostsRecyclerAdapter mAdapter;
     private DocumentSnapshot lastVisiblePost;
     private Boolean isFirstPageFirstLoad = true;
     private ProgressDialog progressDialog;
-    private String userId = null;
+    private String userId = null, currentUserId;
     private RecyclerView mRecyclerView;
 
 
@@ -82,15 +82,15 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
         String className = "UserPostsActivity";
-        postsRecyclerAdapter =
+        mAdapter =
                 new PostsRecyclerAdapter(postsList, usersList, className,
                         Glide.with(this), this);
         coMeth.handlePostsView(
                 UserPostsActivity.this, UserPostsActivity.this, mRecyclerView);
-        mRecyclerView.setAdapter(postsRecyclerAdapter);
+        mRecyclerView.setAdapter(mAdapter);
         newPostFab = findViewById(R.id.userPostsNewPostFab);
 
-        //get intent
+        currentUserId = coMeth.getUid();
         handleIntent();
         if (!coMeth.isConnected(this)){
             coMeth.stopLoading(progressDialog);
@@ -101,34 +101,159 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent();
+    }
+
     private void handleIntent() {
         Intent intent = getIntent();
         if (intent != null) {
-            if (intent.getStringExtra(CoMeth.USER_ID) != null) {
+            if (intent.getStringExtra(DESTINATION) != null){
+                String destination = intent.getStringExtra(DESTINATION);
                 showProgress(getString(R.string.loading_text));
-                userId = intent.getStringExtra(CoMeth.USER_ID);
-                processShowingFab();
-                String currentUser = coMeth.getUid();
-                if (userId.equals(currentUser)) {
-                    Objects.requireNonNull(getSupportActionBar()).setTitle(getString(R.string.my_posts_text));
-                } else {
-                    if (intent.getStringExtra(CoMeth.USERNAME) != null) {
-                        String username = intent.getStringExtra(CoMeth.USERNAME);
-                        String pageTitle = username + "'s posts";
-                        Objects.requireNonNull(getSupportActionBar()).setTitle(pageTitle);
-                    }
+                switch (destination){
+                    case SAVED_VAL:
+                        Log.d(TAG, "handleIntent:  at saved val");
+                        processShowingFab();
+                        Objects.requireNonNull(getSupportActionBar()).setTitle(getString(R.string.my_saved_posts_text));
+                        loadSavedPosts();
+                        break;
+                    case USER_POSTS:
+                        if (intent.getStringExtra(USER_ID) != null) {
+                            userId = intent.getStringExtra(USER_ID);
+                            processShowingFab();
+                            currentUserId = coMeth.getUid();
+                            if (userId.equals(currentUserId)) {
+                                Objects.requireNonNull(getSupportActionBar()).setTitle(getString(R.string.my_posts_text));
+                            } else {
+                                if (intent.getStringExtra(CoMeth.USERNAME) != null) {
+                                    String username = intent.getStringExtra(CoMeth.USERNAME);
+                                    String pageTitle = username + "'s posts";
+                                    Objects.requireNonNull(getSupportActionBar()).setTitle(pageTitle);
+                                }
+                            }
+                            loadUserPosts(userId);
+                        } else {
+                            //intent has no user id
+                            goToMain(getString(R.string.something_went_wrong_text));
+                        }
+                        break;
+                    default:
+                        Log.d(TAG, "handleIntent: get intent at default");
+
                 }
-                loadPosts(userId);
-            } else {
-                //intent has no user id
-                goToMainOnException(getString(R.string.something_went_wrong_text));
             }
+
         }else{
-            goToMainOnException(getString(R.string.something_went_wrong_text));
+            goToMain(getString(R.string.something_went_wrong_text));
         }
     }
 
-    private void loadPosts(final String userId) {
+    private void loadSavedPosts() {
+        if (coMeth.isLoggedIn()) {
+            CollectionReference savedRef = coMeth.getDb().collection(
+                    USERS + "/" + currentUserId + "/" +
+                            SUBSCRIPTIONS + "/" + SAVED_POSTS_DOC + "/" + SAVED_POSTS);
+            savedRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        coMeth.stopLoading(progressDialog);
+                        showActionSnack(getResources().getString(R.string.no_saved_posts_text));
+                    } else {
+                        for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
+                            if (document.getType() == DocumentChange.Type.ADDED) {
+                                String postId = document.getDocument().getId();
+                                getPost(postId);
+                            }
+                        }
+                    }
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG, "onFailure: failed to get saved posts\n" + e.getMessage(), e);
+                            showSnack(getResources().getString(R.string.error_text) + ": " + e.getMessage());
+                        }
+                    });
+        }else{
+            coMeth.stopLoading(progressDialog);
+            goToLogin(getResources().getString(R.string.login_to_view_saved_items_text));
+        }
+    }
+
+    private void goToLogin(String message) {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.putExtra(MESSAGE, message);
+        startActivity(intent);
+        finish();
+    }
+
+    private void showActionSnack(String message) {
+        Snackbar.make(findViewById(R.id.userPostLayout), message, Snackbar.LENGTH_LONG)
+                .setActionTextColor(getResources().getColor(R.color.secondaryLightColor))
+                .setAction(getResources().getString(R.string.view_posts_text), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToMain();
+                    }
+                })
+                .show();
+    }
+
+    private void goToMain() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
+    }
+
+    private void getPost(final String postId) {
+        DocumentReference postRef = coMeth.getDb().collection(POSTS).document(postId);
+        postRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    Posts post = Objects.requireNonNull(documentSnapshot.toObject(Posts.class)).withId(postId);
+                    getPostUser(post);
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "onFailure: failed to get post\n" + e.getMessage(), e);
+                    }
+                });
+    }
+
+    private void getPostUser(final Posts post) {
+        final String userId = post.getUser_id();
+        DocumentReference userRef = coMeth.getDb().collection(USERS).document(userId);
+        userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    Users user = Objects.requireNonNull(documentSnapshot.toObject(Users.class)).withId(userId);
+                    if (!postsList.contains(post)){
+                        postsList.add(post);
+                        usersList.add(user);
+                        mAdapter.notifyDataSetChanged();
+                        coMeth.stopLoading(progressDialog);
+                    }
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "onFailure: failed to get user\n" + e.getMessage(), e);
+                    }
+                });
+    }
+
+    private void loadUserPosts(final String userId) {
         coMeth.getDb()
                 .collection(USERS + "/" + userId + "/" + SUBSCRIPTIONS)
                 .document(MY_POSTS_DOC).collection(MY_POSTS)
@@ -174,13 +299,9 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                             //post exists
                             final Posts post = Objects.requireNonNull(
                                     documentSnapshot.toObject(Posts.class)).withId(postId);
-                            //get the user details
                             getTheUserDetails(post, userId);
 
                         } else {
-                            //post does not exist
-                            //update my posts
-                            //delete my post entry
                             updateMyPosts(userId, postId);
 
                         }
@@ -202,13 +323,11 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            //user exists
-                            //convert user to object
                             Users user = Objects.requireNonNull(
                                     documentSnapshot.toObject(Users.class)).withId(userId);
                             postsList.add(post);
                             usersList.add(user);
-                            postsRecyclerAdapter.notifyDataSetChanged();
+                            mAdapter.notifyDataSetChanged();
                             coMeth.stopLoading(progressDialog);
                             Log.d(TAG, "onSuccess: added post and user");
                         } else {
@@ -245,7 +364,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void processShowingFab() {
-        String currentUserId = coMeth.getUid();
+        currentUserId = coMeth.getUid();
         if (currentUserId != null && currentUserId.equals(userId)) {
             //show fab
             newPostFab.setVisibility(View.VISIBLE);
@@ -254,11 +373,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    /**
-     * open the main activity on exception
-     * @param message a message to show to the user on the main activity
-     */
-    private void goToMainOnException(String message) {
+    private void goToMain(String message) {
         Intent goToMainIntent = new Intent(
                 UserPostsActivity.this, MainActivity.class);
         goToMainIntent.putExtra(ACTION , NOTIFY);
@@ -268,7 +383,6 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void showProgress(String message) {
-        //construct the dialog box
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
         progressDialog.show();
@@ -278,87 +392,15 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.userPostsNewPostFab:
-                //check if user is verified
-                FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                if (Objects.requireNonNull(user).isEmailVerified() ||
-                        Objects.requireNonNull(user.getProviders()).contains(FACEBOOK_DOT_COM ) ||
-                        user.getProviders().contains(TWITTER_DOT_COM ) ||
-                        user.getProviders().contains(GOOGLE_DOT_COM)) {
-                    startActivity(new Intent(
-                            UserPostsActivity.this, CreatePostActivity.class));
-                    finish();
-                } else {
-                    showVerEmailDialog();
-                }
+                startActivity(new Intent(
+                        UserPostsActivity.this, CreatePostActivity.class));
+                finish();
                 break;
-
             case R.id.userPostsToolbar:
                 mRecyclerView.smoothScrollToPosition(0);
                 break;
             default:
                 Log.d(TAG, "onClick: user posts click listener on default");
         }
-    }
-
-    private void showVerEmailDialog() {
-        android.app.AlertDialog.Builder emailVerBuilder =
-                new android.app.AlertDialog.Builder(UserPostsActivity.this);
-        emailVerBuilder.setTitle(R.string.email_ver_text)
-                .setIcon(R.drawable.ic_action_info_grey)
-                .setMessage("You have to verify your email address to create a post.")
-                .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-
-                        //send ver email
-                        FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                        if (user != null) {
-                            String sendEmailMessage = getString(R.string.send_email_text);
-                            showProgress(sendEmailMessage);
-                            sendVerEmail(dialog, user);
-                            //hide progress
-                            coMeth.stopLoading(progressDialog);
-                        }
-
-                    }
-                })
-                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        dialog.dismiss();
-
-                    }
-                })
-                .show();
-    }
-
-    private void sendVerEmail(final DialogInterface dialog, FirebaseUser user) {
-        user.sendEmailVerification()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-
-                            Log.d(TAG, "Email sent.");
-                            dialog.dismiss();
-                            AlertDialog.Builder logoutConfirmEmailBuilder = new AlertDialog.Builder(UserPostsActivity.this);
-                            logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
-                                    .setIcon(R.drawable.ic_action_info_grey)
-                                    .setMessage("A verification email has been sent to your email address.\nLogin after verifying your email to create posts.")
-                                    .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            coMeth.signOut();
-                                            startActivity(new Intent(UserPostsActivity.this, LoginActivity.class));
-                                            finish();
-
-                                        }
-                                    }).show();
-
-                        }
-                    }
-                });
     }
 }

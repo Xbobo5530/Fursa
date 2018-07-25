@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -31,6 +32,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -46,21 +48,23 @@ import com.nyayozangu.labs.fursa.helpers.Notify;
 import com.nyayozangu.labs.fursa.models.Users;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.annotation.Nullable;
+import java.util.Random;
 
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.CATEGORIES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_COLL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_DOC;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.DESTINATION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FLAGS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FLAGS_NAME;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.IMAGE_URL;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_COL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_UPDATES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_VAL;
@@ -71,9 +75,11 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS_DOC;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_ID;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SOURCE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SUBSCRIPTIONS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.TAGS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.TAG_NAME;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.TIMESTAMP;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
@@ -90,6 +96,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     private static final String TAG = "Sean";
     private static final String IS_NEW_POST = "isNewPost";
+    private static final String USER_POST = "user_posts";
+    private static final String POST_CATEGORIES = "post_categories";
+    private static final String POST_TAGS = "post_tags";
     private CoMeth coMeth = new CoMeth();
     private android.support.v7.widget.Toolbar toolbar;
     private ExpandableTextView descTextView;
@@ -98,12 +107,15 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             description = "";
     private ImageView postImage, userImage;
     private ProgressDialog progressDialog;
-    private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags;
+    private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags, relatedConditions;
     private LinearLayout mLikeButton, mSaveButton,  mCommentsButton, mShareButton, mActivityButton;
     private Button mContactButton, mLocationButton, mEventDateButton, mEventEndDateButton, mCatsButton,
             mPriceButton, mTagsButton, mTimeButton, mUserButton;
     private int likes, comments;
     private Posts post;
+    private List<Posts> postsList;
+    private PostsRecyclerAdapter mAdapter;
+    private ProgressBar relatedProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +147,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         catKeys = new ArrayList<>();
         flagsArray = new ArrayList<>();
         reportedItems = new ArrayList<>();
+        relatedConditions = new ArrayList<>();
         reportDetailsString = "";
         tags = new ArrayList<>();
 
@@ -143,7 +156,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         showProgress(getResources().getString(R.string.loading_text));
         checkConnectivity();
         handleBackBehaviour();
-        handleRelatedPosts();
 
         mTagsButton.setOnClickListener(this);
         mActivityButton.setOnClickListener(this);
@@ -156,45 +168,207 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void handleRelatedPosts() {
-        final List<Posts> postsList = new ArrayList<>();
-        List<Users> usersList = new ArrayList<>();
+
         final RecyclerView mRecyclerView = findViewById(R.id.relatedPostsRecyclerView);
-        final PostsRecyclerAdapter mAdapter = new PostsRecyclerAdapter(postsList, usersList, VIEW_POST,
+        final List<Users> usersList = new ArrayList<>();
+        postsList = new ArrayList<>();
+        mAdapter = new PostsRecyclerAdapter(postsList, usersList, VIEW_POST,
                 Glide.with(this), this);
-        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,
-                StaggeredGridLayoutManager.VERTICAL));
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(mAdapter);
-        final ProgressBar mProgressBar = findViewById(R.id.relatedPostsProgressBar);
-        mProgressBar.setVisibility(View.VISIBLE);
-        coMeth.getDb().collection(POSTS).limit(2).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        relatedProgressBar = findViewById(R.id.relatedPostsProgressBar);
+        relatedProgressBar.setVisibility(View.VISIBLE);
+        populateRelatedConditions();
+
+        if (relatedConditions.size() > 0) {
+            Collections.shuffle(relatedConditions);
+            int randomConditionPosition = new Random().nextInt(relatedConditions.size());
+            String randomCondition = relatedConditions.get(randomConditionPosition);
+            switch (randomCondition) {
+                case USER_POST:
+                    Log.d(TAG, "handleRelatedPosts: user posts");
+                    getOtherPostUserPosts();
+                    break;
+                case POST_TAGS:
+                    Log.d(TAG, "handleRelatedPosts: posts tags");
+                    getPostsRelatedBy(POST_TAGS);
+                    break;
+                case POST_CATEGORIES:
+                    Log.d(TAG, "handleRelatedPosts: post categories");
+                    getPostsRelatedBy(POST_CATEGORIES);
+                    break;
+                default:
+                    hideRelatedPostsView();
+//                    getRandomPosts();
+
+            }
+        }else{
+            hideRelatedPostsView();
+//            getRandomPosts();
+        }
+    }
+
+    private void hideRelatedPostsView() {
+        ConstraintLayout relatedPostsView = findViewById(R.id.relatedPostsLayout);
+        relatedPostsView.setVisibility(View.GONE);
+    }
+
+    private void getOtherPostUserPosts() {
+        CollectionReference userPostsRef = coMeth.getDb().collection(
+                USERS + "/" + postUserId + "/" + SUBSCRIPTIONS +
+                        "/" + MY_POSTS_DOC + "/" + MY_POSTS);
+        userPostsRef.limit(2).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e == null) {
-                    assert queryDocumentSnapshots != null;
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        postsList.clear();
-                        for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
-                            if (document.getType() == DocumentChange.Type.ADDED){
-                                String relatedPostId = document.getDocument().getId();
-                                Posts post = document.getDocument().toObject(Posts.class).withId(relatedPostId)
-                                        .withId(relatedPostId);
-                                if (!relatedPostId.equals(postId) && post.getImage_url() != null){
-                                    postsList.add(post);
-                                    mAdapter.notifyDataSetChanged();
-                                    mProgressBar.setVisibility(View.GONE);
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (queryDocumentSnapshots.isEmpty() || queryDocumentSnapshots.size() == 1){
+//                    getRandomPosts();
+                    hideRelatedPostsView();
+                }else{
+                    for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
+                        if (document.getType() == DocumentChange.Type.ADDED){
+                            String postId = document.getDocument().getId();
+                            getPost(postId);
+                        }
+                    }
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "onFailure: failed to get users posts\n" +
+                                e.getMessage(), e);
+                    }
+                });
+    }
+
+    private void getPostsRelatedBy(String condition) {
+        Log.d(TAG, "getPostsRelatedBy: " + condition);
+        switch (condition){
+            case POST_TAGS:
+                ArrayList<String> tags = post.getTags();
+                int randomTagPosition = new Random().nextInt(tags.size());
+                String randomTag = tags.get(randomTagPosition);
+                handleRandomCondition(randomTag, TAGS);
+                break;
+            case POST_CATEGORIES:
+                ArrayList<String> categories = post.getCategories();
+                int randomCategoryPosition = new Random().nextInt(categories.size());
+                String randomCategory = categories.get(randomCategoryPosition);
+                handleRandomCondition(randomCategory, CATEGORIES);
+                break;
+            default:
+                Log.d(TAG, "getPostsRelatedBy: some other condition");
+//                getRandomPosts();
+                hideRelatedPostsView();
+        }
+    }
+
+    private void handleRandomCondition(String randomTag, String mCollection) {
+        Log.d(TAG, "handleRandomCondition: " + mCollection + " is " + randomTag);
+        coMeth.getDb().collection(mCollection).document(randomTag).collection(POSTS).limit(2).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
+                                if (document.getType() == DocumentChange.Type.ADDED) {
+                                    String postId = document.getDocument().getId();
+                                    getPost(postId);
                                 }
                             }
                         }
-                    }else{
-                        mProgressBar.setVisibility(View.GONE);
-                        mRecyclerView.setVisibility(View.GONE);
                     }
-                }else{
-                    Log.w(CoMeth.TAG, "failed to load related posts: " + e.getMessage());
-                    mProgressBar.setVisibility(View.GONE);
-                    mRecyclerView.setVisibility(View.GONE);
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "onFailure: failed to get tagged post\n" +
+                                e.getMessage(), e);
+                    }
+                });
+    }
+
+    private void getPost(final String postId) {
+        coMeth.getDb().collection(POSTS).document(postId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()){
+                            Posts post = Objects.requireNonNull(documentSnapshot.toObject(Posts.class)).withId(postId);
+                            if (!postId.equals(ViewPostActivity.this.postId) && postsList.size() < 3) {
+                                postsList.add(post);
+                                mAdapter.notifyDataSetChanged();
+                                coMeth.stopLoading(relatedProgressBar);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "onFailure: failed to get post\n" + e.getMessage(), e);
+                    }
+                });
+    }
+
+
+
+//    private void getRandomPosts() {
+//        coMeth.getDb().collection(POSTS).limit(5).get().addOnSuccessListener(
+//                new OnSuccessListener<QuerySnapshot>() {
+//            @Override
+//            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                postsList.clear();
+//                for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
+//                    if (document.getType() == DocumentChange.Type.ADDED){
+//
+//                        String relatedPostId = document.getDocument().getId();
+//                        Posts post = document.getDocument().toObject(Posts.class).withId(relatedPostId)
+//                                .withId(relatedPostId);
+//                        if (!relatedPostId.equals(postId) && post.getImage_url() != null){
+//                            List<Posts> tempList = new ArrayList<>();
+//                            tempList.add(post);
+//                            int randSize = new Random().nextInt(5);
+//                            if (tempList.size() == randSize) {
+//                                Collections.shuffle(tempList);
+//                                int ranPostPosition = new Random().nextInt(tempList.size());
+//                                Posts randPost = tempList.get(ranPostPosition);
+//                                String postId = randPost.PostId;
+//                                getPost(postId);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.e(TAG, "onFailure: failed to get related posts\n" +
+//                                e.getMessage(), e);
+//                    }
+//                });
+//    }
+
+    private void populateRelatedConditions() {
+        CollectionReference userPostsRef = coMeth.getDb().collection(
+                USERS + "/" + postUserId + "/" + SUBSCRIPTIONS + "/" + MY_POSTS_DOC + "/" + MY_POSTS);
+        userPostsRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                Log.d(TAG, "onSuccess: related posts postUserId is " + postUserId + "\nuser posts: " + queryDocumentSnapshots.size());
+                if (queryDocumentSnapshots.size() > 1){
+                    relatedConditions.add(USER_POST);
                 }
+                if (post.getCategories() != null && !post.getCategories().isEmpty()) {
+                    relatedConditions.add(POST_CATEGORIES);
+                }
+                if (post.getTags() != null && !post.getTags().isEmpty()) {
+                    relatedConditions.add(POST_TAGS);
+                }
+                Log.d(TAG, "populateRelatedConditions: \nrelated conditions size: " + relatedConditions.size() +
+                        "\nrelated conditions: " + relatedConditions );
             }
         });
     }
@@ -435,8 +609,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void submitReport(Map<String, Object> reportMap) {
 
-        coMeth.getDb()
-                .collection(FLAGS + "/" + POSTS_DOC + "/" + POSTS).document(postId)
+        coMeth.getDb().collection(FLAGS + "/" + POSTS_DOC + "/" + POSTS).document(postId)
                 .set(reportMap)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -594,8 +767,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             setPostImage();
                             handlePostUserField();
                             setCategories();
-
                             coMeth.stopLoading(progressDialog);
+                            handleRelatedPosts();
 
                         } else {
                             coMeth.stopLoading(progressDialog);
@@ -1303,14 +1476,10 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 .setAction(R.string.see_list_text, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        Intent goToSavedIntent = new Intent(
-                                ViewPostActivity.this, MainActivity.class);
-                        goToSavedIntent.putExtra(getString(R.string.ACTION_NAME),
-                                getString(R.string.GOTO_VAL));
-                        goToSavedIntent.putExtra(getString(R.string.DESTINATION_NAME),
-                                getString(R.string.saved_value_text));
-                        startActivity(goToSavedIntent);
+                        Intent intent = new Intent(
+                                ViewPostActivity.this, UserPostsActivity.class);
+                        intent.putExtra(DESTINATION, SAVED_VAL);
+                        startActivity(intent);
                         finish();
                     }
                 })
