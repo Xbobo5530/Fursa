@@ -199,7 +199,7 @@ public class SearchableActivity extends AppCompatActivity {
 
                 catString = catString.concat(
                         coMeth.getCatValue(
-                                (catsArray.get(i)).toString()).toLowerCase() + " ");
+                                (catsArray.get(i)).toString(), this).toLowerCase() + " ");
 
             }
         }

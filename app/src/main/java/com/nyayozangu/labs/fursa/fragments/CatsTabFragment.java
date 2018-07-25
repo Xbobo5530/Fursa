@@ -27,6 +27,7 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.CATEGORY;
 
@@ -38,10 +39,7 @@ public class CatsTabFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-
     private int mLastFirstVisibleItem;
-
-
     public CatsTabFragment() {
         // Required empty public constructor
     }
@@ -94,7 +92,7 @@ public class CatsTabFragment extends Fragment {
         int[] to = {R.id.catGridItemImageView, R.id.catGridItemTextView};
 
         SimpleAdapter simpleAdapter =
-                new SimpleAdapter(getActivity().getBaseContext(),
+                new SimpleAdapter(Objects.requireNonNull(getActivity()).getBaseContext(),
                         aList, R.layout.cat_grid_item_layout, from, to);
         final GridView catGridView = view.findViewById(R.id.catsGridView);
 
@@ -111,7 +109,7 @@ public class CatsTabFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Log.d(TAG, "onItemClick: ");
-                openCat(coMeth.getCatKey(coMeth.catTitle[position]));
+                openCat(coMeth.getCatKey(coMeth.getCatTitle(getContext())[position]));
 
             }
         });
@@ -138,8 +136,6 @@ public class CatsTabFragment extends Fragment {
 
         //handle hiding views on scroll
         catGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
-
-            private int mInitialScroll = 0;
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) { }

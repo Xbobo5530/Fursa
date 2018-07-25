@@ -16,6 +16,7 @@ import com.nyayozangu.labs.fursa.activities.SearchableActivity;
 import com.nyayozangu.labs.fursa.adapters.UsersRecyclerAdapter;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Users;
+import com.twitter.sdk.android.core.models.Search;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class PagesSearchResultsFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    private ProgressBar progressBar;
+    private SearchableActivity mActivity;
 
     private List<Users> usersList;
 
@@ -47,48 +48,32 @@ public class PagesSearchResultsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_pages_search_results, container, false);
 
         RecyclerView pagesSearchFeed = view.findViewById(R.id.pagesSearchRecyclerView);
-        progressBar = view.findViewById(R.id.pagesSearchProgressBar);
-
+        mActivity = (SearchableActivity)getActivity();
         usersList = new ArrayList<>();
-
         pagesRecyclerAdapter = new UsersRecyclerAdapter(usersList, Glide.with(this));
         coMeth.handlePostsView(getContext(), getActivity(), pagesSearchFeed);
-//        pagesSearchFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         pagesSearchFeed.setHasFixedSize(true);
         pagesSearchFeed.setAdapter(pagesRecyclerAdapter);
 
-        if (getActivity() != null) {
-            String searchQuery = ((SearchableActivity) getActivity()).getSearchQuery();
-            Log.d(TAG, "onCreateView: search query is " + searchQuery);
+        if (mActivity != null) {
+            String searchQuery = mActivity.getSearchQuery();
             if (searchQuery != null && !searchQuery.isEmpty())
                 doMySearch(searchQuery.toLowerCase());
-        } else {
-            //alert user when failed to get search query from activity
-
-            ((SearchableActivity) Objects.requireNonNull(getActivity()))
-                    .showSnack(getResources().getString(R.string.something_went_wrong_text));
-        }
-
+        } else { mActivity.showSnack(getResources().getString(R.string.something_went_wrong_text)); }
         return view;
     }
 
     private void doMySearch(String searchQuery) {
         Log.d(TAG, "doMySearch: ");
-        //clear old posts
         usersList.clear();
-        List<Users> mUserList = ((SearchableActivity)
-                Objects.requireNonNull(getActivity())).getUserList();
-        ArrayList<String> userIds = new ArrayList<String>();
+        List<Users> mUserList =mActivity.getUserList();
+        ArrayList<String> userIds = new ArrayList<>();
         for (Users user : mUserList) {
             String userData = user.getName();
-            if (user.getBio() != null) {
-                userData = userData.concat(" " + user.getBio());
-            }
+            if (user.getBio() != null) { userData = userData.concat(" " + user.getBio()); }
             if (userData.toLowerCase().contains(searchQuery)) {
-                Log.d(TAG, "doMySearch: user had search query");
                 String userId = user.UserId;
                 if (!userIds.contains(userId)) {
-                    Log.d(TAG, "doMySearch: userId in not in iserIds");
                     usersList.add(user);
                     pagesRecyclerAdapter.notifyDataSetChanged();
                     userIds.add(userId);

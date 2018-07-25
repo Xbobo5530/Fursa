@@ -6,20 +6,18 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -41,11 +39,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static com.facebook.FacebookSdk.getApplicationContext;
 
-interface CheckConnectionInterface {
-    void checkConnection(boolean result);
-}
+
 
 /**
  * Created by Sean on 4/29/18.
@@ -71,7 +66,7 @@ interface CheckConnectionInterface {
     Please audit all existing usages of java.util.Date when you enable the new behavior. In a future release, the behavior will be changed to the new behavior, so if you do not follow these steps, YOUR APP MAY BREAK.*/
 
 
-public class CoMeth {
+public class CoMeth{
     public static final String TAG = "Sean";
 
     public static final String FACEBOOK_DOT_COM = "facebook.com";
@@ -174,36 +169,49 @@ public class CoMeth {
     public static final String LIKES_VAL = "likes";
     public static final String EVENT_DATE = "event_date";
 
+//    public final String[] catTitle = new String[]{
+//
+//            getApplicationContext().getString(R.string.cat_exhibitions),
+//            context.getResources().getString(R.string.cat_business), context.getResources().getString(R.string.cat_art),
+//            context.getResources().getString(R.string.cat_jobs), context.getResources().getString(R.string.cat_buysell),
+//            context.getResources().getString(R.string.cat_upcoming), context.getResources().getString(R.string.cat_events),
+//            context.getResources().getString(R.string.cat_places), context.getResources().getString(R.string.cat_services),
+//            context.getResources().getString(R.string.cat_education), context.getResources().getString(R.string.cat_queries),
+//            context.getResources().getString(R.string.cat_apps), context.getResources().getString(R.string.cat_groups)
+//
+//    };
 
-    public final String[] catTitle = new String[]{
+    public String[] getCatTitle(Context context){
+        return new String[]{
 
-            getApplicationContext().getString(R.string.cat_exhibitions),
-            getApplicationContext().getResources().getString(R.string.cat_business), getApplicationContext().getResources().getString(R.string.cat_art),
-            getApplicationContext().getResources().getString(R.string.cat_jobs), getApplicationContext().getResources().getString(R.string.cat_buysell),
-            getApplicationContext().getResources().getString(R.string.cat_upcoming), getApplicationContext().getResources().getString(R.string.cat_events),
-            getApplicationContext().getResources().getString(R.string.cat_places), getApplicationContext().getResources().getString(R.string.cat_services),
-            getApplicationContext().getResources().getString(R.string.cat_education), getApplicationContext().getResources().getString(R.string.cat_queries),
-            getApplicationContext().getResources().getString(R.string.cat_apps), getApplicationContext().getResources().getString(R.string.cat_groups)
+                context.getString(R.string.cat_exhibitions),
+                context.getResources().getString(R.string.cat_business), context.getResources().getString(R.string.cat_art),
+                context.getResources().getString(R.string.cat_jobs), context.getResources().getString(R.string.cat_buysell),
+                context.getResources().getString(R.string.cat_upcoming), context.getResources().getString(R.string.cat_events),
+                context.getResources().getString(R.string.cat_places), context.getResources().getString(R.string.cat_services),
+                context.getResources().getString(R.string.cat_education), context.getResources().getString(R.string.cat_queries),
+                context.getResources().getString(R.string.cat_apps), context.getResources().getString(R.string.cat_groups)
+        };
+    }
 
-    };
-    public final String[] categories = new String[]{
+//    public final String[] categories = new String[]{
+//
+//            context.getString(R.string.cat_business),
+//            context.getString(R.string.cat_exhibitions),
+//            context.getResources().getString(R.string.cat_art),
+//            context.getString(R.string.cat_events),
+//            context.getString(R.string.cat_buysell),
+//            context.getString(R.string.cat_education),
+//            context.getString(R.string.cat_jobs),
+//            context.getString(R.string.cat_services),
+//            context.getString(R.string.cat_places),
+//            context.getString(R.string.cat_queries),
+//            context.getResources().getString(R.string.cat_apps),
+//            context.getResources().getString(R.string.cat_groups)
+//
+//
+//    };
 
-            getApplicationContext().getString(R.string.cat_business),
-            getApplicationContext().getString(R.string.cat_exhibitions),
-            getApplicationContext().getResources().getString(R.string.cat_art),
-            getApplicationContext().getString(R.string.cat_events),
-            getApplicationContext().getString(R.string.cat_buysell),
-            getApplicationContext().getString(R.string.cat_education),
-            getApplicationContext().getString(R.string.cat_jobs),
-            getApplicationContext().getString(R.string.cat_services),
-            getApplicationContext().getString(R.string.cat_places),
-            getApplicationContext().getString(R.string.cat_queries),
-            getApplicationContext().getResources().getString(R.string.cat_apps),
-            getApplicationContext().getResources().getString(R.string.cat_groups)
-
-
-    };
-    //public methods
     public final String[] catKeys = new String[]{
 
             "business",
@@ -221,19 +229,50 @@ public class CoMeth {
 
 
     };
-    public final String[] reportList = new String[]{
-            getApplicationContext().getString(R.string.spam_text),
-            getApplicationContext().getString(R.string.inapropriate_text)
-    };
+
+
+
+//    public final String[] reportList = new String[]{
+//            context.getString(R.string.spam_text),
+//            context.getString(R.string.inapropriate_text)
+//    };
+//
+    public String[] getReportList (Context context){
+        return new String[]{
+                context.getString(R.string.spam_text),
+                context.getString(R.string.inapropriate_text)
+        };
+    }
+
     public final String[] reportListKey = new String[]{
             "spam",
             "inappropriate"
     };
+
     private boolean hasInternet;
     public int minVerCode = BuildConfig.VERSION_CODE;
 
     public CoMeth() {
     } //empty constructor
+
+
+    public String[] getCategories(Context context){
+        return new String[]{
+
+                context.getString(R.string.cat_business),
+                context.getString(R.string.cat_exhibitions),
+                context.getResources().getString(R.string.cat_art),
+                context.getString(R.string.cat_events),
+                context.getString(R.string.cat_buysell),
+                context.getString(R.string.cat_education),
+                context.getString(R.string.cat_jobs),
+                context.getString(R.string.cat_services),
+                context.getString(R.string.cat_places),
+                context.getString(R.string.cat_queries),
+                context.getResources().getString(R.string.cat_apps),
+                context.getResources().getString(R.string.cat_groups)
+        };
+    }
 
     //is logged in
     public boolean isLoggedIn() {
@@ -252,11 +291,11 @@ public class CoMeth {
      * @return boolean true if device is connected and has internet
      * false if device can not connet to the internet
      */
-    public boolean isConnected() {
+    public boolean isConnected(Context context) {
 
         //check if there's a connection
         Log.d(TAG, "at isConnected");
-        Context context = getApplicationContext();
+//        Context context = context;
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = null;
@@ -315,12 +354,12 @@ public class CoMeth {
         return FirebaseStorage.getInstance().getReference();
     }
 
-    public void setImage(int placeholderDrawable, String imageUrl, ImageView targetImageView) {
+    public void setImage(int placeholderDrawable, String imageUrl, ImageView targetImageView, Context context) {
         Log.d(TAG, "setImage: no thumb");
         try {
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
-            Glide.with(getApplicationContext())
+            Glide.with(context)
                     .setDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
                     .into(targetImageView);
@@ -329,12 +368,12 @@ public class CoMeth {
         }
     }
 
-    public void setCircleImage(int placeholderDrawable, String imageUrl, ImageView targetImageView) {
+    public void setCircleImage(int placeholderDrawable, String imageUrl, ImageView targetImageView, Context context) {
         Log.d(TAG, "setImage: no thumb");
         try {
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
-            Glide.with(getApplicationContext())
+            Glide.with(context)
                     .setDefaultRequestOptions(placeHolderRequest.circleCrop())
                     .load(imageUrl)
                     .into(targetImageView);
@@ -343,15 +382,14 @@ public class CoMeth {
         }
     }
 
-    public void setImageWithTransition(int placeholderDrawable,
-                                       String imageUrl,
-                                       ImageView targetImageView) {
+    public void setImageWithTransition(int placeholderDrawable, String imageUrl,
+                                       ImageView targetImageView, Context context) {
         Log.d(TAG, "setImage: no thumb");
         try {
 
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
-            Glide.with(getApplicationContext())
+            Glide.with(context)
                     .setDefaultRequestOptions(placeHolderRequest)
                     .load(imageUrl)
                     .transition(withCrossFade())
@@ -462,7 +500,7 @@ public class CoMeth {
 
     }
 
-    public String getCatValue(String catValue) {
+    public String getCatValue(String catValue, Context context) {
 
             /*
             "Featured",
@@ -484,35 +522,35 @@ public class CoMeth {
         switch (catValue) {
 
             case "featured":
-                return getApplicationContext().getString(R.string.cat_featured);
+                return context.getString(R.string.cat_featured);
             case "popular":
-                return getApplicationContext().getString(R.string.cat_popular);
+                return context.getString(R.string.cat_popular);
             case "upcoming":
-                return getApplicationContext().getString(R.string.cat_upcoming);
+                return context.getString(R.string.cat_upcoming);
             case "events":
-                return getApplicationContext().getString(R.string.cat_events);
+                return context.getString(R.string.cat_events);
             case "places":
-                return getApplicationContext().getString(R.string.cat_places);
+                return context.getString(R.string.cat_places);
             case "services":
-                return getApplicationContext().getString(R.string.cat_services);
+                return context.getString(R.string.cat_services);
             case "business":
-                return getApplicationContext().getString(R.string.cat_business);
+                return context.getString(R.string.cat_business);
             case "buysell":
-                return getApplicationContext().getString(R.string.cat_buysell);
+                return context.getString(R.string.cat_buysell);
             case "education":
-                return getApplicationContext().getString(R.string.cat_education);
+                return context.getString(R.string.cat_education);
             case "jobs":
-                return getApplicationContext().getString(R.string.cat_jobs);
+                return context.getString(R.string.cat_jobs);
             case "queries":
-                return getApplicationContext().getString(R.string.cat_queries);
+                return context.getString(R.string.cat_queries);
             case "exhibitions":
-                return getApplicationContext().getString(R.string.cat_exhibitions);
+                return context.getString(R.string.cat_exhibitions);
             case "art":
-                return getApplicationContext().getString(R.string.cat_art);
+                return context.getString(R.string.cat_art);
             case "apps":
-                return getApplicationContext().getString(R.string.cat_apps);
+                return context.getString(R.string.cat_apps);
             case "groups":
-                return getApplicationContext().getString(R.string.cat_groups);
+                return context.getString(R.string.cat_groups);
 
             default:
                 Log.d(TAG, "getCatValue: default");
@@ -522,7 +560,7 @@ public class CoMeth {
     }
 
     // TODO: 6/17/18 code review
-    public String processPostDate(long millis) {
+    public String processPostDate(long millis, Context context) {
 
         //get current date
         long now = new Date().getTime();
@@ -531,42 +569,42 @@ public class CoMeth {
         if (timeLapsed < 1) {
 
             //when less than a min has passed
-            return getApplicationContext().getString(R.string.min_ago_text);
+            return context.getString(R.string.min_ago_text);
 
         } else if (timeLapsed > 1 && timeLapsed < 60) {
 
             //when more than a min but less than an hour has lapsed
-            return String.valueOf(timeLapsed) + " " + getApplicationContext().getString(R.string.mins_ago_text);
+            return String.valueOf(timeLapsed) + " " + context.getString(R.string.mins_ago_text);
 
         } else if (timeLapsed >= 60 && timeLapsed <= 120) {
 
             //when more than an hour, less than 2 has lapsed
-            return getApplicationContext().getString(R.string.hr_ago_text);
+            return context.getString(R.string.hr_ago_text);
 
         } else if (timeLapsed / 60 > 1 && timeLapsed / 60 < 24) {
 
             //when more than n hour, less than a day has lapsed
-            return timeLapsed / 60 + " " + getApplicationContext().getString(R.string.hrs_ago_text);
+            return timeLapsed / 60 + " " + context.getString(R.string.hrs_ago_text);
 
         } else if (timeLapsed / (60 * 24) >= 1 && timeLapsed / (60 * 24) < 2) {
 
             //when a day has lapsed, less than 2 days
-            return getApplicationContext().getResources().getString(R.string.yesterday_text);
+            return context.getResources().getString(R.string.yesterday_text);
 
         } else if (timeLapsed / (60 * 24) >= 2 && timeLapsed / (60 * 24) < 7) {
 
             //when more than 2 days, less than a week has lapsed
-            return timeLapsed / (60 * 24) + " " + getApplicationContext().getString(R.string.day_ago_text);
+            return timeLapsed / (60 * 24) + " " + context.getString(R.string.day_ago_text);
 
         } else if (timeLapsed / (60 * 24 * 7) > 1 && timeLapsed / (60 * 24 * 7) <= 4) {
 
             //when more than a week, less than a month have lapsed
-            return timeLapsed / (60 * 24 * 7) + " " + getApplicationContext().getString(R.string.weeks_ago_text);
+            return timeLapsed / (60 * 24 * 7) + " " + context.getString(R.string.weeks_ago_text);
 
         } else if (timeLapsed / (60 * 24 * 7 * 4) > 1 && timeLapsed / (60 * 24 * 7 * 4) <= 12) {
 
             //when more than a month, less than a year has lapsed
-            return timeLapsed / (60 * 24 * 7 * 4) + " " + getApplicationContext().getString(R.string.months_ago_text);
+            return timeLapsed / (60 * 24 * 7 * 4) + " " + context.getString(R.string.months_ago_text);
 
         } else {
 

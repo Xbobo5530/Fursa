@@ -86,7 +86,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     private RecyclerView commentsRecyclerView;
     private CommentsRecyclerAdapter commentsRecyclerAdapter;
     private List<Comments> commentsList;
-    private CoMeth coMeth = new CoMeth();;
+    private CoMeth coMeth = new CoMeth();
     private ProgressDialog progressDialog;
 
     private String postId;
@@ -151,7 +151,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void checkConnection() {
-        if (!coMeth.isConnected()) {
+        if (!coMeth.isConnected(this)) {
             coMeth.stopLoading(progressDialog);
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
@@ -197,13 +197,10 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                         finish();
                     }
                 }else {
-                    //uncaught exception
                     if (intent == null){
                         goToMain(getResources().getString(R.string.something_went_wrong_text));
                     }
-                    //intent has no source
-                    //intent from notifications panel
-                    if (Objects.requireNonNull(intent).getStringExtra(SOURCE) == null){
+                    if (intent != null &&intent.getStringExtra(SOURCE) == null){
                         goToMain();
                     }
                 }
@@ -223,14 +220,14 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            //post exists
-                            //create post object
                             Posts post = documentSnapshot.toObject(Posts.class);
-                            int views = post.getViews();
-                            String postUserId = post.getUser_id();
-                            if (!coMeth.isLoggedIn() ||
-                                    (coMeth.isLoggedIn() && !coMeth.getUid().equals(postUserId))) {
-                                addNewView(views, postId);
+                            if (post != null) {
+                                int views = post.getViews();
+                                String postUserId = post.getUser_id();
+                                if (!coMeth.isLoggedIn() ||
+                                        (coMeth.isLoggedIn() && !coMeth.getUid().equals(postUserId))) {
+                                    addNewView(views, postId);
+                                }
                             }
                         } else {
                             //post does not exist
@@ -301,54 +298,36 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void postComment() {
-        //check for email verification
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        boolean emailVerified = Objects.requireNonNull(user).isEmailVerified();
-        if (emailVerified
-                || Objects.requireNonNull(user.getProviders()).contains(FACEBOOK_DOT_COM)
-                || user.getProviders().contains(TWITTER_DOT_COM)
-                || user.getProviders().contains(GOOGLE_DOT_COM)) {
-
-            //get user comment
-            if (!chatField.getText().toString().trim().isEmpty()) {
-
-                //show progress
-                showProgress(getString(R.string.posting_comment_text));
-                final String comment = chatField.getText().toString().trim();
-
-                //add new comment
-                final Map<String, Object> commentsMap = new HashMap<>();
-                commentsMap.put(TIMESTAMP, FieldValue.serverTimestamp());
-                commentsMap.put(CoMeth.COMMENT, comment);
-                commentsMap.put(USER_ID_VAL, currentUserId);
-                //post a comment
-                coMeth.getDb().collection(POSTS + "/" + postId + "/" + COMMENTS_COLL)
-                        .add(commentsMap)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-
-                                FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                new Notify().execute(COMMENT_UPDATES, postId);
-                                coMeth.stopLoading(progressDialog);
-                                addCommentRef();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "onFailure: failed to post comment\n" +
-                                        e.getMessage());
-                                showSnack(getResources().getString(R.string.failed_to_comment_text)
-                                        + ": " + e.getMessage());
-                            }
-                        });
-                chatField.setText("");
-            }
-        } else {
-            //user has not verified email
-            showVerEmailDialog();
+        if (!chatField.getText().toString().trim().isEmpty()) {
+            showProgress(getString(R.string.posting_comment_text));
+            final String comment = chatField.getText().toString().trim();
+            final Map<String, Object> commentsMap = new HashMap<>();
+            commentsMap.put(TIMESTAMP, FieldValue.serverTimestamp());
+            commentsMap.put(CoMeth.COMMENT, comment);
+            commentsMap.put(USER_ID_VAL, currentUserId);
+            coMeth.getDb().collection(POSTS + "/" + postId + "/" + COMMENTS_COLL)
+                    .add(commentsMap)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                            new Notify().execute(COMMENT_UPDATES, postId);
+                            coMeth.stopLoading(progressDialog);
+                            addCommentRef();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to post comment\n" +
+                                    e.getMessage());
+                            showSnack(getResources().getString(R.string.failed_to_comment_text)
+                                    + ": " + e.getMessage());
+                        }
+                    });
+            chatField.setText("");
         }
+
     }
 
     private void setUserDetails() {
@@ -367,10 +346,10 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                 String profileThumbUrl = user.getThumb();
                                 if (profileThumbUrl != null){
                                     coMeth.setCircleImage(R.drawable.ic_action_person_placeholder,
-                                            profileThumbUrl, currentUserImage);
+                                            profileThumbUrl, currentUserImage, CommentsActivity.this);
                                 }else if (profileImageUrl != null){
                                     coMeth.setCircleImage(R.drawable.ic_action_person_placeholder,
-                                            profileImageUrl, currentUserImage);
+                                            profileImageUrl, currentUserImage, CommentsActivity.this);
                                 }else{
                                     currentUserImage.setImageDrawable(getResources()
                                             .getDrawable(R.drawable.ic_action_person_placeholder));
@@ -387,8 +366,6 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setPostDetails() {
-        //set post details
-        //access posts and get post user id
         coMeth.getDb().collection(POSTS).document(postId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -403,8 +380,15 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                     goToUserPage(postUserId);
                                 }
                             });
-                            String postTitle = post.getTitle();
-                            postTitleField.setText(postTitle);
+                            String title = post.getTitle();
+                            String desc = post.getDesc();
+                            if (title != null){
+                                postTitleField.setText(title);
+                            }else{
+                                if (desc != null){
+                                    postTitleField.setText(desc);
+                                }
+                            }
                             getUserData(postUserId);
                         } else {
                             goToMain(getString(R.string.post_not_found_text));
@@ -434,11 +418,11 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                             String userThumbDownloadUrl = user.getThumb();
                             if (userThumbDownloadUrl != null) {
                                 coMeth.setCircleImage(R.drawable.ic_action_person_placeholder,
-                                        userThumbDownloadUrl, postUserImage);
+                                        userThumbDownloadUrl, postUserImage, CommentsActivity.this);
                             } else {
                                 coMeth.setCircleImage(
                                         R.drawable.ic_action_person_placeholder, userImageDownloadUrl,
-                                        postUserImage);
+                                        postUserImage, CommentsActivity.this);
                             }
                         } else {
                             //user does not exist
@@ -499,7 +483,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setSubscribeIconStatus(Menu menu) {
-        if (coMeth.isConnected()) {
+        if (coMeth.isConnected(this)) {
             if (coMeth.isLoggedIn()) {
                 currentUserId = coMeth.getUid();
 
@@ -516,10 +500,12 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                                     Log.d(TAG, "onEvent: error on set subscribed icon "
                                             + e.getMessage());
                                 } else {
-                                    if (queryDocumentSnapshots.isEmpty()) {
-                                        subscribeButton.setIcon(R.drawable.ic_action_subscribe);
-                                    } else {
-                                        subscribeButton.setIcon(R.drawable.ic_action_subscribed);
+                                    if (queryDocumentSnapshots != null) {
+                                        if (queryDocumentSnapshots.isEmpty()) {
+                                            subscribeButton.setIcon(R.drawable.ic_action_subscribe);
+                                        } else {
+                                            subscribeButton.setIcon(R.drawable.ic_action_subscribed);
+                                        }
                                     }
                                 }
                             }
@@ -547,9 +533,6 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
         return true;
     }
 
-    /**
-     * subscribe current user to post comments
-     */
     private void subscribe() {
         if (coMeth.isLoggedIn()) {
             postDocRef.get()
@@ -602,9 +585,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
         finish();
     }
 
-
     private void showProgress(String message) {
-        //construct the dialog box
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(message);
         progressDialog.show();
@@ -615,83 +596,11 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                 message, Snackbar.LENGTH_LONG).show();
     }
 
-    private void showVerEmailDialog() {
-        android.app.AlertDialog.Builder emailVerBuilder =
-                new android.app.AlertDialog.Builder(CommentsActivity.this);
-        emailVerBuilder.setTitle(R.string.email_ver_text)
-                .setIcon(R.drawable.ic_action_info_grey)
-                .setMessage(R.string.verify_to_comment_text)
-                .setPositiveButton("Resend Email", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-
-                        //send ver email
-                        FirebaseUser user = coMeth.getAuth().getCurrentUser();
-                        //show progress
-                        String sendEmailMessage = getString(R.string.send_email_text);
-                        showProgress(sendEmailMessage);
-                        sendVerEmail(dialog, user);
-                        //hide progress
-                        progressDialog.dismiss();
-
-                    }
-                })
-                .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        dialog.dismiss();
-
-                    }
-                })
-                .show();
-    }
-
-    private void sendVerEmail(final DialogInterface dialog, FirebaseUser user) {
-        user.sendEmailVerification()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-
-                            Log.d(TAG, "Email sent.");
-                            //inform user email is sent
-                            //close the
-                            dialog.dismiss();
-                            AlertDialog.Builder logoutConfirmEmailBuilder =
-                                    new AlertDialog.Builder(CommentsActivity.this);
-                            logoutConfirmEmailBuilder.setTitle(getString(R.string.email_ver_text))
-                                    .setIcon(R.drawable.ic_action_info_grey)
-                                    .setMessage(R.string.verification_email_message_text)
-                                    .setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            //log use out
-                                            //take user to login screen
-                                            coMeth.signOut();
-                                            startActivity(
-                                                    new Intent(CommentsActivity.this,
-                                                            LoginActivity.class));
-                                            finish();
-
-                                        }
-                                    }).show();
-
-                        }
-                    }
-                });
-    }
-
     @Override
     public void onClick(View v) {
 
         switch (v.getId()) {
-
-            case R.id.commentsPostTitleTextView:
-                goToPost();
-                break;
-            case R.id.commentsPostUsernameTextView:
+            case R.id.commentpostDetailsConstraintLayout:
                 goToPost();
                 break;
             case R.id.commentsCurrentUserImageView:

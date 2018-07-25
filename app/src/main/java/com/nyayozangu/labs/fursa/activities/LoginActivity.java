@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa.activities;
 
+import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,8 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
-
-import com.facebook.CallbackManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -82,7 +81,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void handleViewsVisibility() {
-        if (!coMeth.isConnected()) {
+        if (!coMeth.isConnected(this)) {
             googleSignInButton.setVisibility(View.GONE);
             twitterLoginButton.setVisibility(View.GONE);
             loginAlertTextView.setText(getString(R.string.failed_to_connect_text));
@@ -104,8 +103,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void handleToolbar(Toolbar toolbar) {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getString(R.string.login_text));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.login_text));
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -326,18 +328,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Snackbar.make(findViewById(R.id.login_activity_layout),
                 "Google Play Services error.", Snackbar.LENGTH_SHORT).show();
-
-    }
-
-    private void hideKeyBoard() {
-
-        Log.d(TAG, "hideKeyBoard: ");
-        try {
-            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        } catch (Exception e) {
-            Log.d(TAG, "onClick: exception on hiding keyboard " + e.getMessage());
-        }
 
     }
 }

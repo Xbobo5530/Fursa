@@ -180,7 +180,7 @@ public class Notify extends AsyncTask<String, String, Void> {
         JSONObject info = new JSONObject();
         //pass the currentUserIt
         CoMeth coMeth = new CoMeth();
-        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+        if (coMeth.isLoggedIn()) {
             info.put("userId", coMeth.getUid());
         }
 

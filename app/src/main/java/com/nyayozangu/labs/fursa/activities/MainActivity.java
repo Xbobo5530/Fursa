@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final String UPDATES = "UPDATES";
     private static final String TAB = "tab";
-    private CoMeth coMeth = new CoMeth();
+    private CoMeth  coMeth = new CoMeth();
 
     public FloatingActionButton getNewPostFab() {
         return newPostFab;
@@ -141,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         //subscribe to app updates
         handleSubscriptions();
 
@@ -192,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         handleBottomNavBar();
         newPostFab.setOnClickListener(this);
-        if (!coMeth.isConnected()) {
+        if (!coMeth.isConnected(this)) {
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
     }
@@ -369,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //set image
             coMeth.setImageWithTransition(R.drawable.appiconshadow,
                     userImageDownloadUri,
-                    userProfileImage);
+                    userProfileImage, this);
             //set username
             usernameField.setText(username);
         } else {
@@ -878,10 +877,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void handleNewPostFab(){
-        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+        if (coMeth.isConnected(this) && coMeth.isLoggedIn()) {
             goToCreatePost();
         } else {
-            if (!coMeth.isConnected()) showSnack(getResources().getString(R.string.failed_to_connect_text));
+            if (!coMeth.isConnected(this)) showSnack(getResources().getString(R.string.failed_to_connect_text));
             if (!coMeth.isLoggedIn()) goToLogin(getString(R.string.login_to_post_text));
         }
     }

@@ -112,7 +112,7 @@ public class AccountActivity extends AppCompatActivity {
                             userNameField.setText(name);
                             userBioField.setText(bio);
                             coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, image,
-                                    setupImage);
+                                    setupImage, AccountActivity.this);
                             userImageUri = Uri.parse(image);
                         }else{
                             //new user
@@ -138,7 +138,8 @@ public class AccountActivity extends AppCompatActivity {
                                 //update the imageUrl
                                 imageUrl = photoUrl;
                                 try {
-                                    coMeth.setCircleImage(R.drawable.appiconshadow, photoUrl, setupImage);
+                                    coMeth.setCircleImage(R.drawable.appiconshadow, photoUrl,
+                                            setupImage, AccountActivity.this);
                                 } catch (Exception e) {
                                     Log.d(TAG, "onComplete: failed to set photo from login\n" +
                                             "error is: " + e.getMessage());

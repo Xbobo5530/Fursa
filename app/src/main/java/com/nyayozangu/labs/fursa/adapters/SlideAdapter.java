@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
@@ -22,7 +23,7 @@ public class SlideAdapter extends PagerAdapter {
      * the content of the sliderView
      */
     //Arrays
-    public int[] slide_images = {
+    private int[] slide_images = {
             R.drawable.appic,
             R.drawable.share,
             R.drawable.party,
@@ -32,7 +33,7 @@ public class SlideAdapter extends PagerAdapter {
             R.drawable.services,
             R.drawable.help
     };
-    public String[] slide_headings = {
+    private String[] slide_headings = {
             "FURSA",
             "SHARING",
             "EVENTS",
@@ -42,7 +43,7 @@ public class SlideAdapter extends PagerAdapter {
             "SERVICES",
             "GET HELP"
     };
-    public String[] slide_descriptions = {
+    private String[] slide_descriptions = {
             "Welcome to Fursa, \nA place to share experiences and opportunities.",
 
             "We all have something to share,\nsee what opportunities everyone is sharing\nand be apart of the conversation.",
@@ -78,6 +79,7 @@ public class SlideAdapter extends PagerAdapter {
         return view == object;
     }
 
+    @NonNull
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         try {
@@ -103,7 +105,7 @@ public class SlideAdapter extends PagerAdapter {
     }
 
     @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
+    public void destroyItem(@NonNull ViewGroup container, int position, Object object) {
 
         container.removeView((ConstraintLayout) object);
 

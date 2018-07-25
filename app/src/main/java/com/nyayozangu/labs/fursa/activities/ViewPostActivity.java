@@ -87,15 +87,15 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     // TODO: 6/7/18 run an algorythim to delete all post photos that have no posts
     // TODO: 6/14/18 for view reward notifications use viewsRewardPostId as topic
 
-    // TODO: 7/24/18 remove title
 
     private static final String TAG = "Sean";
     private static final String IS_NEW_POST = "isNewPost";
     private CoMeth coMeth = new CoMeth();
     private android.support.v7.widget.Toolbar toolbar;
     private ExpandableTextView descTextView;
-    private TextView titleTextView, mToTextView;
-    private String postUserId, currentUserId, postId, reportDetailsString, postImageUri;
+    private TextView mToTextView;
+    private String postUserId, currentUserId, postId, reportDetailsString, postImageUri,
+            description = "";
     private ImageView postImage, userImage;
     private ProgressDialog progressDialog;
     private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags;
@@ -126,7 +126,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         mTimeButton = findViewById(R.id.viewPostTimeButton);
         mCatsButton = findViewById(R.id.viewPostCatButton);
 
-        titleTextView = findViewById(R.id.viewPostTitleTextView);
         descTextView = findViewById(R.id.viewPostDescTextView);
         postImage = findViewById(R.id.viewPostImageView);
         userImage = findViewById(R.id.viewPostUserImageView);
@@ -201,7 +200,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void checkConnectivity() {
-        if (!coMeth.isConnected()) {
+        if (!coMeth.isConnected(this)) {
             coMeth.stopLoading(progressDialog);
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
@@ -251,7 +250,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         MenuItem postStats = menu.findItem(R.id.postStatsMenuItem);
         MenuItem promotePost = menu.findItem(R.id.promoteMenuItem);
 
-        if (coMeth.isConnected()) {
+        if (coMeth.isConnected(this)) {
             if (coMeth.isLoggedIn()) {
                 currentUserId = new CoMeth().getUid();
 
@@ -362,7 +361,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         final AlertDialog.Builder reportBuilder = new AlertDialog.Builder(ViewPostActivity.this);
         reportBuilder.setTitle(getString(R.string.report_text))
                 .setIcon(R.drawable.ic_action_red_flag)
-                .setMultiChoiceItems(coMeth.reportList, null, new DialogInterface.OnMultiChoiceClickListener() {
+                .setMultiChoiceItems(coMeth.getReportList(this), null, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 
@@ -383,7 +382,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
 
-                        if (coMeth.isConnected()) {
+                        if (coMeth.isConnected(ViewPostActivity.this)) {
                             showProgress(getString(R.string.submitting));
                             //create report details string
                             for (String item : reportedItems) {
@@ -564,7 +563,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         });
         setLikesCount();
         setCommentsCount();
-        if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+        if (coMeth.isConnected(this) && coMeth.isLoggedIn()) {
             final String currentUserId = coMeth.getUid();
             handleLikeButton(currentUserId);
             handleSaveButton(currentUserId);
@@ -583,8 +582,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             Log.d(TAG, "Post  exist");
                             post = Objects.requireNonNull(
                                     documentSnapshot.toObject(Posts.class)).withId(postId);
-
-                            setTitle();
                             setDesc();
                             updateViews();
                             handleActivityButtonVisibility();
@@ -643,7 +640,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             ArrayList<String> categories = new ArrayList<>();
             for (int i = 0; i < catKeys.size(); i++) {
                 //go through catKeys and get values
-                String catValue = coMeth.getCatValue(catKeys.get(i));
+                String catValue = coMeth.getCatValue(catKeys.get(i), this);
                 categories.add(catValue);
             }
             catArray.clear();
@@ -679,7 +676,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 try {
 
                                     coMeth.setCircleImage(R.drawable.ic_action_person_placeholder,
-                                            userThumbDwnUrl, userImage);
+                                            userThumbDwnUrl, userImage, ViewPostActivity.this);
                                 } catch (Exception e) {
                                     Log.d(TAG, "onSuccess: failed to load post image\n" +
                                             e.getMessage());
@@ -690,7 +687,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 String userImageDwnUrl = user.getImage();
                                 try {
                                     coMeth.setCircleImage(R.drawable.ic_action_person_placeholder,
-                                            userImageDwnUrl, userImage);
+                                            userImageDwnUrl, userImage, ViewPostActivity.this);
                                 } catch (Exception e) {
                                     Log.d(TAG, "onSuccess: failed to set post image\n" +
                                             e.getMessage());
@@ -743,7 +740,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private void setTime() {
         if (post.getTimestamp() != null) {
             long millis = post.getTimestamp().getTime();
-            String dateString = coMeth.processPostDate(millis);
+            String dateString = coMeth.processPostDate(millis, this);
             String date = getString(R.string.posted_text) + ":\n" + dateString;
             mTimeButton.setText(date);
         }
@@ -837,29 +834,32 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private void setTitle() {
-        String title = post.getTitle();
-        if (title != null){
-            titleTextView.setVisibility(View.VISIBLE);
-            titleTextView.setText(title);
-            Objects.requireNonNull(getSupportActionBar()).setTitle(title);
-        }else{
-            titleTextView.setVisibility(View.GONE);
-        }
-    }
-
     private void setDesc() {
+        String title = post.getTitle();
         String desc = post.getDesc();
-        if (desc != null){
-            descTextView.setVisibility(View.VISIBLE);
-            descTextView.setText(desc);
+        if (title != null){
+            description = description.concat(title);
+            if (desc != null){
+                description = description.concat("\n" + desc);
+                descTextView.setText(description);
+                descTextView.setVisibility(View.VISIBLE);
+            }else{
+                descTextView.setText(description);
+                descTextView.setVisibility(View.VISIBLE);
+            }
         }else{
-            descTextView.setVisibility(View.GONE);
+            if (desc != null){
+                description = description.concat(desc);
+                descTextView.setText(description);
+                descTextView.setVisibility(View.VISIBLE);
+            }else{
+                descTextView.setVisibility(View.GONE);
+            }
         }
     }
 
     private void handleButtonClickExceptions() {
-        if (!coMeth.isConnected()) {
+        if (!coMeth.isConnected(this)) {
             //save button
             mShareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1125,8 +1125,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         .build())
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
-                                .setTitle(titleTextView.getText().toString())
-                                .setDescription(descTextView.getText().toString())
+                                .setDescription(getDescription())
                                 .setImageUrl(Uri.parse(getPostImageUrl()))
                                 .build())
                 .buildShortDynamicLink()
@@ -1138,8 +1137,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             Log.d(TAG, "onComplete: short link is: " + shortLink);
 
                             //show share dialog
-                            String postTitle = titleTextView.getText().toString();
-                            String fullShareMsg = postTitle + "\n" +
+                            String postDescription = description.substring(50);
+                            String fullShareMsg = postDescription + "\n" +
                                     shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");
@@ -1157,6 +1156,14 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         }
                     }
                 });
+    }
+
+    private String getDescription() {
+        if (description != null && !description.isEmpty()){
+            return description;
+        }else{
+            return getResources().getString(R.string.sharing_opp_text);
+        }
     }
 
     private String getPostImageUrl() {

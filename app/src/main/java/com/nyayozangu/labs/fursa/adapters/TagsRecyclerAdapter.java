@@ -23,17 +23,11 @@ public class TagsRecyclerAdapter extends
         RecyclerView.Adapter<TagsRecyclerAdapter.ViewHolder> {
 
     private static final String TAG = "Sean";
-    public List<Tags> tagsList;
+    private List<Tags> tagsList;
     public Context context;
-    //common methods
-    private CoMeth coMeth = new CoMeth();
-
     public TagsRecyclerAdapter(List<Tags> tagsList) {
-
         //store received posts
         this.tagsList = tagsList;
-//        this.tagId = tagId;
-
     }
 
     @NonNull
@@ -45,13 +39,11 @@ public class TagsRecyclerAdapter extends
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.tags_tab_list_item, parent, false);
         context = parent.getContext();
-
         return new TagsRecyclerAdapter.ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
 
         Log.d(TAG, "onBindViewHolder: tags recycler adapter");
         //get tags
@@ -86,7 +78,7 @@ public class TagsRecyclerAdapter extends
         private ConstraintLayout tagsItemView;
         private TextView tagTitleView, postCountView;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
             tagsItemView = mView.findViewById(R.id.tagsTabItemView);
@@ -98,7 +90,7 @@ public class TagsRecyclerAdapter extends
             tagTitleView.setText(title);
         }
 
-        public void setPostCount(int count) {
+        void setPostCount(int count) {
             String postCountText;
             if (count == 1) {
                 postCountText = count + " " + context.getResources().getString(R.string.post_text);

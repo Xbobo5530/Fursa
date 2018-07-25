@@ -47,8 +47,6 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 
 public class UserPostsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    // TODO: 4/17/18 add delete post feature
-
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
 
@@ -94,7 +92,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
 
         //get intent
         handleIntent();
-        if (!coMeth.isConnected()){
+        if (!coMeth.isConnected(this)){
             coMeth.stopLoading(progressDialog);
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
@@ -139,16 +137,18 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
                                         @Nullable FirebaseFirestoreException e) {
                         if (e == null) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                //create a for loop to check for document changes
-                                for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                    //check if an item is added
-                                    if (doc.getType() == DocumentChange.Type.ADDED) {
+                            if (queryDocumentSnapshots != null) {
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    //create a for loop to check for document changes
+                                    for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                        //check if an item is added
+                                        if (doc.getType() == DocumentChange.Type.ADDED) {
 
-                                        final String postId = doc.getDocument().getId();
-                                        //retrieve post from database
-                                        retrievePost(postId, userId);
+                                            final String postId = doc.getDocument().getId();
+                                            //retrieve post from database
+                                            retrievePost(postId, userId);
 
+                                        }
                                     }
                                 }
                             }
@@ -172,7 +172,8 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             //post exists
-                            final Posts post = documentSnapshot.toObject(Posts.class).withId(postId);
+                            final Posts post = Objects.requireNonNull(
+                                    documentSnapshot.toObject(Posts.class)).withId(postId);
                             //get the user details
                             getTheUserDetails(post, userId);
 
@@ -203,7 +204,8 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                         if (documentSnapshot.exists()) {
                             //user exists
                             //convert user to object
-                            Users user = documentSnapshot.toObject(Users.class).withId(userId);
+                            Users user = Objects.requireNonNull(
+                                    documentSnapshot.toObject(Users.class)).withId(userId);
                             postsList.add(post);
                             usersList.add(user);
                             postsRecyclerAdapter.notifyDataSetChanged();

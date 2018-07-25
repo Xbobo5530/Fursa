@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -27,7 +26,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -121,14 +119,13 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     private Button descButton, categoriesButton, contactButton, locationButton,
             eventDateButton, eventEndDateButton, paymentButton;
     private Uri postImageUri;
-    private EditText postTitleEditText;
-    private String title, desc, postId,
+    private String desc, postId,
             imageText = "", imageLabels = "",
             downloadUri, downloadThumbUri,
             contactName,contactPhone, contactEmail,
             currentUserId, price;
     private Place postPlace = null;
-    private View contactDialogView;
+    private View contactDialogView, descDialogView;
     private ArrayList<String> contactDetails, catsStringsArray, locationArray, cats, tags;
     private Date eventDate, eventEndDate;
     private ArrayList<Integer> mSelectedCats;
@@ -160,7 +157,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         createPostImageView = findViewById(R.id.createPostImageView);
         Button submitButton = findViewById(R.id.createPostSubmitButton);
         FloatingActionButton editImageFAB = findViewById(R.id.createPostEditImageFab);
-        postTitleEditText = findViewById(R.id.createPostTileEditText);
 
         mSelectedCats = new ArrayList<>();
         catsStringsArray = new ArrayList<>();
@@ -208,49 +204,50 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void handleSubmitPostClick() {
-        if (coMeth.isConnected()) {
+        if (coMeth.isConnected(this)) {
             //start submitting
             desc = descButton.getText().toString().trim();
-            title = postTitleEditText.getText().toString().trim();
             //check if description field is empty
-            if (!TextUtils.isEmpty(desc) && !TextUtils.isEmpty(title)) {
+            if (!TextUtils.isEmpty(desc)) {
                 showProgress(getString(R.string.submitting));
                 handleSubmitPost();
             } else {
-
-                if (postImageUri != null || !title.isEmpty() || !desc.isEmpty()) {
-                    //post has image
-                    //alert user post has no details
-                    AlertDialog.Builder noDetailsBuilder =
-                            new AlertDialog.Builder(CreatePostActivity.this);
-                    noDetailsBuilder.setTitle(getResources().getString(R.string.warning_text))
-                            .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
-                            .setMessage(getString(R.string.submit_no_details_text) + "\n" +
-                                    getString(R.string.are_u_sure_submit_post_text))
-                            .setPositiveButton(getString(R.string.edit_post_text),
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    })
-                            .setNegativeButton(getString(R.string.proceed_text),
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            handleSubmitPost();
-                                        }
-                                    })
-                            .setCancelable(false)
-                            .show();
-                }else{
-                    showSnack(getString(R.string.enter_post_details_text));
-                }
+                handleSubmitImageWithoutDesc();
             }
         } else {
             //notify user is not connected and cant post
             showSnack(getString(R.string.failed_to_connect_text));
+        }
+    }
 
+    private void handleSubmitImageWithoutDesc() {
+        if (postImageUri != null || !desc.isEmpty()) {
+            //post has image
+            //alert user post has no details
+            AlertDialog.Builder noDetailsBuilder =
+                    new AlertDialog.Builder(CreatePostActivity.this);
+            noDetailsBuilder.setTitle(getResources().getString(R.string.warning_text))
+                    .setIcon(getResources().getDrawable(R.drawable.ic_action_red_alert))
+                    .setMessage(getString(R.string.submit_no_details_text) + "\n" +
+                            getString(R.string.are_u_sure_submit_post_text))
+                    .setPositiveButton(getString(R.string.edit_post_text),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                    .setNegativeButton(getString(R.string.proceed_text),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    handleSubmitPost();
+                                }
+                            })
+                    .setCancelable(false)
+                    .show();
+        }else{
+            showSnack(getString(R.string.enter_post_details_text));
         }
     }
 
@@ -349,7 +346,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 new AlertDialog.Builder(CreatePostActivity.this);
         catPickerBuilder.setTitle(getString(R.string.categories_text))
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_cat_light))
-                .setMultiChoiceItems(coMeth.categories, null, new DialogInterface.OnMultiChoiceClickListener() {
+                .setMultiChoiceItems(coMeth.getCategories(this), null,
+                        new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 
@@ -365,8 +363,10 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     public void onClick(DialogInterface dialog, int which) {
                         String catsString = "";
                         for (int i = 0; i < mSelectedCats.size(); i++) {
-                            catsString = catsString.concat(coMeth.categories[mSelectedCats.get(i)] + "\n");
-                            catsStringsArray.add(coMeth.getCatKey(coMeth.categories[mSelectedCats.get(i)]));
+                            catsString = catsString.concat(coMeth.getCategories(
+                                    CreatePostActivity.this)[mSelectedCats.get(i)] + "\n");
+                            catsStringsArray.add(coMeth.getCatKey(coMeth.getCategories(
+                                    CreatePostActivity.this)[mSelectedCats.get(i)]));
                         }
                         categoriesButton.setText(catsString.trim());
                     }
@@ -383,6 +383,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         catPickerBuilder.show();
     }
 
+    // TODO: 7/24/18 replace the desc dialog box with a new vew
     private void showContactDialog() {
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
         contactDialogView = inflater.inflate(R.layout.contact_alert_dialog_content_layout, null);
@@ -411,11 +412,9 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     }
                 })
                 .setNegativeButton(
-                        getResources().getString(R.string.cancel_text),
-                        new DialogInterface.OnClickListener() {
+                        getResources().getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // user clicks cancel
                                 dialog.cancel();
                             }
                         })
@@ -428,36 +427,32 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void showDescDialog() {
-        //crate a dialog tha twill have a
+        LayoutInflater inflater = LayoutInflater.from(this);
+        descDialogView = inflater.inflate(R.layout.desc_dialog_content_layout, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
-        builder.setTitle(R.string.post_desc_text)
-                .setIcon(R.drawable.ic_action_descritption);
-        //construct the view
-        final EditText input = new EditText(CreatePostActivity.this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-
-        builder.setView(input);
-        if (!descButton.getText().toString().isEmpty()) {
-            input.setText(descButton.getText().toString());
+        final EditText descField = descDialogView.findViewById(R.id.descDialogEditText);
+        if (desc != null && !desc.isEmpty()) {
+            descField.setText(desc);
         }
-        builder.setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
+        builder.setTitle(R.string.post_desc_text)
+                .setIcon(R.drawable.ic_action_descritption)
+                .setView(descDialogView)
+                .setPositiveButton(getString(R.string.done_text), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                desc = input.getText().toString().trim();
+
+                desc = descField.getText().toString().trim();
                 descButton.setText(desc);
             }
-        })
+                })
                 .setNegativeButton(getString(R.string.cancel_text), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
                 })
-                .setCancelable(false);
-        builder.show();
+                .setCancelable(false)
+                .show();
     }
 
     @Override
@@ -588,11 +583,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         finish();
     }
 
-    /**
-     * processed the contact details
-     *
-     * @param dialog the contact details alert dialog
-     */
     private void processContactDetails(DialogInterface dialog) {
 
         String contactDetails;
@@ -601,14 +591,9 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
             dialog.cancel();
 
         } else {
-
-            //at least one field is filled
             if (!contactName.isEmpty()) {
-                //name is not empty
                 if (!contactPhone.isEmpty()) {
-                    //name and phone are not empty
                     if (!contactEmail.isEmpty()) {
-                        //has name, phone and email
                         contactDetails = contactName + "\n" +
                                 contactPhone + "\n" +
                                 contactEmail;
@@ -652,34 +637,21 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
     private void handlePostWithoutImage() {
         final Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
-
         if (!isEditPost()) {
-            //create new post
             coMeth.getDb().collection(POSTS).add(postMap)
                     .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentReference> task) {
-
-                            //check if posting is successful
                             if (task.isSuccessful()) {
-
-                                //notify users subscribed to cats
                                 notifyNewPostCatsUpdates(catsStringsArray);
-                                Log.d(TAG, "onComplete: posted post without image");
                                 String currentPostId = task.getResult().getId();
                                 FirebaseMessaging.getInstance().subscribeToTopic(currentPostId);
-                                //update my posts
                                 updateMyPosts(currentPostId);
-                                //get postId
                                 final String newPostId = task.getResult().getId();
-                                Log.d(TAG, "onComplete: new post id " + newPostId);
                                 updateTagsOnDB(newPostId, postMap);
                                 updateCatsOnDB(newPostId, postMap);
-                                //notify user that post is ready to share
-                                //subscribe user to post ready topic
                                 newPostNotif(true, newPostId);
                                 notifyFollowers(newPostId);
-
                             } else {
 
                                 Log.d(TAG, "onComplete: " + task.getException());
@@ -696,13 +668,9 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-
-                            //check if posting is successful
                             if (task.isSuccessful()) {
-                                //update post result
                                 notifyNewPostCatsUpdates(catsStringsArray);
                                 Log.d(TAG, "onComplete: posted post without image");
-                                //subscribe current user to post comments
                                 FirebaseMessaging.getInstance().subscribeToTopic(postId);
                                 //update tags on db
                                 updateTagsOnDB(postId, postMap);
@@ -710,13 +678,10 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                 newPostNotif(true, postId);
                                 notifyFollowers(postId);
                             } else {
-                                //posting failed
                                 String errorMessage =
                                         Objects.requireNonNull(task.getException()).getMessage();
                                 newPostNotif(false, errorMessage);
-
                             }
-
                         }
                     });
         }
@@ -727,12 +692,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         new Notify().execute(FOLLOWER_POST, mTopic, newPostId);
     }
 
-    /**
-     * send a notification on new post when post is ready
-     *
-     * @param metaData the post id of the submitted post when post is successful
-     *                 and error message when post failed
-     */
     private void newPostNotif(boolean isSuccess, String metaData) {
         String postReadyTopic = NEW_POST_UPDATES + currentUserId;
         FirebaseMessaging.getInstance().subscribeToTopic(postReadyTopic);
@@ -747,7 +706,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void updateTagsOnDB(final String newPostId, Map<String, Object> postMap) {
-        final DocumentReference tagDoc = coMeth.getDb().collection(CoMeth.TAGS).document(title);
         //update tags on db
         if (postMap.get(TAGS_VAL) != null) {
             //cycle through the tags and add them to the tags list
@@ -756,6 +714,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 //create tagsMap
                 final Map<String, Object> tagsMap = new HashMap<>();
                 tagsMap.put(TITLE, title);
+                final DocumentReference tagDoc = coMeth.getDb().collection(TAGS).document(title);
                 tagDoc.update(tagsMap)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -785,7 +744,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                         });
                             }
                         });
-
             }
         }
     }
@@ -793,7 +751,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     private void updatePostsOnTags(final String title, final String newPostId) {
         final DocumentReference newPostDoc = coMeth.getDb()
                 .collection(TAGS + "/" + title + "/" + POSTS).document(newPostId);
-        Log.d(TAG, "updatePostsOnTags: ");
         final Map<String, Object> tagsPostMap = new HashMap<>();
         tagsPostMap.put(TIMESTAMP, FieldValue.serverTimestamp());
         newPostDoc.update(tagsPostMap)
@@ -885,11 +842,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
-    /**
-     * Update the post details when editing a post
-     *
-     * @param postMap a Map with all the post details
-     */
+
     private void updatePostDetails(final Map<String, Object> postMap) {
         coMeth.getDb().collection(POSTS).document(postId).update(postMap)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -921,11 +874,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 });
     }
 
-    /**
-     * create a new post
-     *
-     * @param postMap a Map containing the details of the post
-     */
     private void createNewPost(final Map<String, Object> postMap) {
         coMeth.getDb().collection(POSTS).add(postMap)
                 .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -1033,10 +981,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         finish();
     }
 
-    /**
-     * adds the current post to the list of current user's posts
-     * @param currentPostId the user Id of the current user creating a post
-     * */
     private void updateMyPosts(String currentPostId) {
         //create map with timestamp
         Map<String, Object> myPostMap = new HashMap<>();
@@ -1060,11 +1004,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 });
     }
 
-    /**
-     * sends notification to all the users subscribed to the post categories
-     *
-     * @param catsStringsArray an ArrayList<String> containing  the post categories
-     * */
     private void notifyNewPostCatsUpdates(ArrayList<String> catsStringsArray) {
         //send notifications to all users subscribed to cats in catStringArray
         for (int i = 0; i < catsStringsArray.size(); i++) {
@@ -1075,12 +1014,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    /**
-     * creates a map of the post details
-     * @param downloadThumbUri the download url to the post thumbnail
-     * @param downloadUri the download url to the post image
-     * @return Map a Map containing all the post details
-     * */
     @NonNull
     private Map<String, Object> handleMap(String downloadThumbUri, String downloadUri) {
 
@@ -1099,7 +1032,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
             postMap.put("image_text", imageText);
         }
 
-        postMap.put(TITLE , title);
         postMap.put(DESC, desc);
         postMap.put(USER_ID_VAL , currentUserId);
 
@@ -1144,7 +1076,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
         // TODO: 6/1/18 account for then # is in word (not begging or end)
         //create tags
-        String titleDesc = (title + " " + desc).replaceAll("\\s+", " ");
+        String titleDesc = (desc).replaceAll("\\s+", " ");
         if (titleDesc.contains("#")) {
             Log.d(TAG, "handleMap: has #");
             int hashPos = titleDesc.indexOf("#");
@@ -1289,78 +1221,85 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
                     //set items
                     Posts post = task.getResult().toObject(Posts.class);
-                    String title = Objects.requireNonNull(post).getTitle();
-                    postTitleEditText.setText(title);
-                    String desc = Objects.requireNonNull(task.getResult().get(DESC)).toString();
-                    descButton.setText(desc);
+                    if  (post != null) {
+                        String title = post.getTitle();
+                        String desc = post.getDesc();
+                        String description = title + "\n" + desc;
+                        descButton.setText(description);
 
-                    if (post.getImage_url() != null) {
-                        String imageUrl = post.getImage_url();
-                        String thumbUrl = post.getThumb_url();
-                        try {
-                            coMeth.setImage(R.drawable.appiconshadow, imageUrl, thumbUrl,
-                                    createPostImageView, Glide.with(CreatePostActivity.this));
-                        } catch (Exception e) {
-                            Log.d(TAG, "onComplete: failed to set create image");
+                        if (post.getImage_url() != null) {
+                            String imageUrl = post.getImage_url();
+                            String thumbUrl = post.getThumb_url();
+                            try {
+                                coMeth.setImage(R.drawable.appiconshadow, imageUrl, thumbUrl,
+                                        createPostImageView, Glide.with(CreatePostActivity.this));
+                            } catch (Exception e) {
+                                Log.d(TAG, "onComplete: failed to set create image");
+                            }
+                            //update the imageUrl
+                            downloadUri = imageUrl;
+                            downloadThumbUri = thumbUrl;
                         }
-                        //update the imageUrl
-                        downloadUri = imageUrl;
-                        downloadThumbUri = thumbUrl;
-                    }
 
-                    //set categories
-                    if (post.getCategories() != null) {
+                        //set categories
+                        if (post.getCategories() != null) {
 
-                        ArrayList catsArray = (ArrayList) task.getResult().get("categories");
-                        Log.d(TAG, "onComplete: \n catsArray on edit is: " + catsArray);
-                        String catsString = "";
-                        for (int i = 0; i < catsArray.size(); i++) {
-                            catsString = catsString.concat(
-                                    coMeth.getCatValue(catsArray.get(i).toString()) + "\n");
+                            ArrayList catsArray = (ArrayList) task.getResult().get("categories");
+                            Log.d(TAG, "onComplete: \n catsArray on edit is: " + catsArray);
+                            String catsString = "";
+                            for (int i = 0; i < catsArray.size(); i++) {
+                                catsString = catsString.concat(
+                                        coMeth.getCatValue(catsArray.get(i).toString(),
+                                                CreatePostActivity.this) + "\n");
+                            }
+                            //set cat string
+                            categoriesButton.setText(catsString.trim());
+                            Log.d(TAG, "onComplete: \n catString is: " + catsString);
                         }
-                        //set cat string
-                        categoriesButton.setText(catsString.trim());
-                        Log.d(TAG, "onComplete: \n catString is: " + catsString);
-                    }
-                    //set contact details
-                    if (post.getContact_details() != null) {
-                        ArrayList contactArray = (ArrayList) task.getResult().get("contact_details");
-                        String contactString = "";
-                        for (int i = 0; i < contactArray.size(); i++) {
-                            contactString = contactString.concat(contactArray.get(i).toString() + "\n");
+                        //set contact details
+                        if (post.getContact_details() != null) {
+                            ArrayList contactArray = (ArrayList) task.getResult().get("contact_details");
+                            if (contactArray != null) {
+                                String contactString = "";
+                                for (int i = 0; i < contactArray.size(); i++) {
+                                    contactString = contactString.concat(contactArray.get(i).toString() + "\n");
+                                }
+                                contactButton.setText(contactString.trim());
+                            }
                         }
-                        contactButton.setText(contactString.trim());
-                    }
-                    //set location
-                    if (post.getLocation() != null) {
-                        ArrayList locationArray = (ArrayList) task.getResult().get("location");
-                        String locationString = "";
-                        for (int i = 0; i < locationArray.size(); i++) {
-                            locationString = locationString
-                                    .concat(locationArray.get(i).toString() + "\n");
+                        //set location
+                        if (post.getLocation() != null) {
+                            ArrayList locationArray = (ArrayList) task.getResult().get("location");
+                            if (locationArray != null) {
+                                String locationString = "";
+                                for (int i = 0; i < locationArray.size(); i++) {
+                                    locationString = locationString
+                                            .concat(locationArray.get(i).toString() + "\n");
+                                }
+                                locationButton.setText(locationString.trim());
+                            }
                         }
-                        locationButton.setText(locationString.trim());
-                    }
 
-                    //set event date
-                    if (post.getEvent_date() != null) {
-                        long eventDate = post.getEvent_date().getTime();
-                        String eventDateString =
-                                DateFormat.format("EEE, MMM d, 20yy", new Date(eventDate)).toString();
-                        eventDateButton.setText(eventDateString);
+                        //set event date
+                        if (post.getEvent_date() != null) {
+                            long eventDate = post.getEvent_date().getTime();
+                            String eventDateString =
+                                    DateFormat.format("EEE, MMM d, 20yy", new Date(eventDate)).toString();
+                            eventDateButton.setText(eventDateString);
+                        }
+                        if (post.getEvent_end_date() != null) {
+                            long eventEndDate = post.getEvent_date().getTime();
+                            String eventEndDateString =
+                                    DateFormat.format("EEE, MMM d, 20yy", new Date(eventEndDate)).toString();
+                            eventEndDateButton.setText(eventEndDateString);
+                        }
+                        //set price
+                        String price = post.getPrice();
+                        if (price != null) {
+                            paymentButton.setText(price);
+                        }
                     }
-                    if (post.getEvent_end_date() != null) {
-                        long eventEndDate = post.getEvent_date().getTime();
-                        String eventEndDateString =
-                                DateFormat.format("EEE, MMM d, 20yy", new Date(eventEndDate)).toString();
-                        eventEndDateButton.setText(eventEndDateString);
-                    }
-                    //set price
-                    if (post.getPrice() != null) {
-                        String price = task.getResult().get(PRICE).toString();
-                        paymentButton.setText(price);
-                    }
-                    coMeth.stopLoading(progressDialog, null);
+                    coMeth.stopLoading(progressDialog);
                 } else {
                     //post does not exist
                     Log.d(TAG, "onComplete: post does not exist" + task.getException());
@@ -1375,7 +1314,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
             }
         });
     }
-
 
     //when the image is selected by user
     @Override

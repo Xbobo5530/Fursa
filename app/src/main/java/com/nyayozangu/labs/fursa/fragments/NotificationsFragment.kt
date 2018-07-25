@@ -39,26 +39,25 @@ class NotificationsFragment : Fragment() {
                 inflater.inflate(R.layout.fragment_notifications, container, false)
         val notifRecyclerView = view.findViewById<RecyclerView>(R.id.notifRecyclerView)
         coMeth.handlePostsView(context, activity, notifRecyclerView)
-        notificationsList = ArrayList<Notifications>()
+        notificationsList = ArrayList()
         adapter = NotificationsRecyclerAdapter(notificationsList, this.context!!)
         notifRecyclerView.adapter = adapter
 
-        mProgressBar = view.findViewById<ProgressBar>(R.id.notifsProgressBar)
-        val userId = coMeth.uid
+        mProgressBar = view.findViewById(R.id.notifsProgressBar)
 
-        if (!coMeth.isConnected) showSnack(resources.getString(R.string.failed_to_connect_text))
+        if (!coMeth.isConnected(context)) showSnack(resources.getString(R.string.failed_to_connect_text))
         loadNotifications()
 
         val newPostFab = activity?.findViewById<FloatingActionButton>(R.id.newPostFab)
         newPostFab?.setImageDrawable(view.resources.getDrawable(R.drawable.ic_clear_white))
-        newPostFab?.setOnClickListener(View.OnClickListener {
+        newPostFab?.setOnClickListener {
             for (notification in notificationsList) {
                 if (notification.status == 0) {
                     coMeth.updateNotificationStatus(notification, coMeth.uid)
                 }
             }
             loadNotifications()
-        })
+        }
 
         return view
     }

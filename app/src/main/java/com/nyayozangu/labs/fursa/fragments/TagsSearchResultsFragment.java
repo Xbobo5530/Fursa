@@ -43,9 +43,8 @@ public class TagsSearchResultsFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tags_search_results, container, false);
@@ -100,13 +99,15 @@ public class TagsSearchResultsFragment extends Fragment {
                                             // tags with no posts are deleted
                                             //convert snapshot to object
                                             Tags tag = documentSnapshot.toObject(Tags.class);
-                                            String tagTitle = tag.getTitle();
-                                            if (!tagTitles.contains(tagTitle)) {
-                                                tagsList.add(tag);
-                                                tagsRecyclerAdapter.notifyDataSetChanged();
-                                                tagTitles.add(tagTitle);
-                                                if (progressBar.getVisibility() == View.VISIBLE) {
-                                                    progressBar.setVisibility(View.GONE);
+                                            if (tag != null) {
+                                                String tagTitle = tag.getTitle();
+                                                if (!tagTitles.contains(tagTitle)) {
+                                                    tagsList.add(tag);
+                                                    tagsRecyclerAdapter.notifyDataSetChanged();
+                                                    tagTitles.add(tagTitle);
+                                                    if (progressBar.getVisibility() == View.VISIBLE) {
+                                                        progressBar.setVisibility(View.GONE);
+                                                    }
                                                 }
                                             }
                                         }
@@ -128,9 +129,7 @@ public class TagsSearchResultsFragment extends Fragment {
 
 
         //get post list
-        coMeth.getDb()
-                .collection(CoMeth.TAGS)
-                .get()
+        coMeth.getDb().collection(CoMeth.TAGS).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

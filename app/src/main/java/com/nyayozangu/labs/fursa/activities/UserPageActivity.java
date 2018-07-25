@@ -160,7 +160,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void checkConnectivity() {
-        if (!coMeth.isConnected()) {
+        if (!coMeth.isConnected(this)) {
             coMeth.stopLoading(progressDialog);
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
@@ -425,7 +425,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
      */
     private void setImage(final String userImageUrl) {
         coMeth.setCircleImage(R.drawable.ic_action_person_placeholder,
-                userImageUrl, userImageView);
+                userImageUrl, userImageView, this);
         userImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -442,7 +442,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
 
         switch (v.getId()) {
             case R.id.userPagePostsButton:
-                if (coMeth.isConnected())
+                if (coMeth.isConnected(this))
                 { goToUserPosts(); }
                 else { showSnack(getResources().getString(R.string.failed_to_connect_text)); }
                 break;
@@ -652,21 +652,21 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         String profileUrl = getResources().getString(R.string.fursa_url_profile_head) + userId;
         final String fullShareMsg = getBio();
 
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                        .setLink(Uri.parse(profileUrl))
-                        .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
-                        .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                                .setMinimumVersion(coMeth.minVerCode)
-                                .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
+        FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse(profileUrl))
+                .setDynamicLinkDomain(getString(R.string.dynamic_link_domain))
+                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
+                        .setMinimumVersion(coMeth.minVerCode)
+                        .setFallbackUrl(Uri.parse(getString(R.string.playstore_url)))
+                        .build())
+                .setSocialMetaTagParameters(
+                        new DynamicLink.SocialMetaTagParameters.Builder()
+                                .setTitle(usernameField.getText().toString())
+                                .setDescription(getBio())
+                                .setImageUrl(Uri.parse(getProfileImageUrl()))
                                 .build())
-                        .setSocialMetaTagParameters(
-                                new DynamicLink.SocialMetaTagParameters.Builder()
-                                        .setTitle(usernameField.getText().toString())
-                                        .setDescription(getBio())
-                                        .setImageUrl(Uri.parse(getProfileImageUrl()))
-                                        .build())
-                        .buildShortDynamicLink()
-                        .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                .buildShortDynamicLink()
+                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
                             @Override
                             public void onComplete(@NonNull Task<ShortDynamicLink> task) {
                                 if (task.isSuccessful()) {
@@ -686,13 +686,9 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                     showSnack(getString(R.string.failed_to_share_text) + " profile");
                                 }
                             }
-                        });
+                });
     }
 
-    /**
-     * get the user bio
-     * @return bio: String the bio of the user
-     */
     private String getBio() {
         if (userBioField.getText().toString().isEmpty()) {
             //bio is empty

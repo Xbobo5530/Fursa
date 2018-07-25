@@ -195,18 +195,28 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     openPost(post.PostId);
                 }
             });
-            if (post.getTitle() != null) {
-                holder.titleTextView.setText(post.getTitle());
-                holder.titleTextView.setVisibility(View.VISIBLE);
-            }else{
-                holder.titleTextView.setVisibility(View.GONE);
+            String title = post.getTitle();
+            String desc = post.getDesc();
+            String description = "";
+            if (title != null){
+                description = description.concat(title);
+                if (desc != null){
+                    description = description.concat("\n" + desc);
+                    holder.descTextView.setText(description);
+                    holder.descTextView.setVisibility(View.VISIBLE);
+                }
+            }else {
+                if (desc != null) {
+                    description = description.concat("\n" + desc);
+                    holder.descTextView.setText(description);
+                    holder.descTextView.setVisibility(View.VISIBLE);
+                }else {
+                    holder.descTextView.setVisibility(View.GONE);
+                }
             }
-            // TODO: 7/24/18 remove post title
-
             //hide views
             holder.actionsLayout.setVisibility(View.GONE);
             holder.topLayout.setVisibility(View.GONE);
-            holder.descTextView.setVisibility(View.GONE);
             holder.adCard.setVisibility(View.GONE);
             holder.postDateTextView.setVisibility(View.GONE);
 
@@ -224,7 +234,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             final Users user = usersList.get(position);
             String title = post.getTitle();
             String desc = post.getDesc();
-            holder.setPostBasicData(title, desc);
+            String description = title + "\n" + desc;
+            holder.setPostBasicData(description);
             ArrayList locationArray = post.getLocation();
             holder.setPostLocation(locationArray);
             currentUserId = coMeth.getUid();
@@ -245,7 +256,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             CollectionReference likesRef = coMeth.getDb().collection(
                     POSTS + "/" + postId + "/" + LIKES_COL);
             handleLikesCount(holder, likesRef);
-            if (coMeth.isConnected() && coMeth.isLoggedIn()) {
+            if (coMeth.isConnected(context) && coMeth.isLoggedIn()) {
                 handlePostLikes(holder, postId, likesRef);
                 handlePostSaves(holder, postId);
             } else {
@@ -315,7 +326,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     }
 
     private void handlePostActionsConnectionException(@NonNull final ViewHolder holder) {
-        if (!coMeth.isConnected()) {
+        if (!coMeth.isConnected(context)) {
             holder.saveLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -424,7 +435,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void handlePostDate(@NonNull ViewHolder holder) {
         if (post.getTimestamp() != null) {
             long millis = post.getTimestamp().getTime();
-            String dateString = coMeth.processPostDate(millis);
+            String dateString = coMeth.processPostDate(millis, context);
             holder.postDateTextView.setText(dateString);
         }else{
             holder.postDateTextView.setVisibility(View.GONE);
@@ -433,7 +444,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     private void setUserImage(@NonNull ViewHolder holder, final Users user, String userImageUrl) {
         coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, userImageUrl,
-                holder.postUserImageView);
+                holder.postUserImageView, context);
         holder.postUserImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -460,7 +471,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 }
             });
         }
-        if (!coMeth.isConnected()){
+        if (!coMeth.isConnected(context)){
             holder.followButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -763,7 +774,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         private TextView postUsernameTextView;
         private ImageView postUserImageView;
         private TextView postLikesCount, postCommentCount, postLocationTextView,
-                postDateTextView, descTextView, titleTextView, activityTextView;
+                postDateTextView, descTextView, activityTextView;
         private ImageView postSaveButton, postImageView, postLikeButton;
         private CardView adCard, postCardView;
         private LinearLayout activityLayout, likeLayout, saveLayout, commentLayout,
@@ -788,7 +799,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             commentLayout = mView.findViewById(R.id.postCommentLayout);
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
-            titleTextView = mView.findViewById(R.id.postTitleTextView);
             descTextView = mView.findViewById(R.id.postDescTextView);
             postDateTextView = mView.findViewById(R.id.postDateTextView);
             activityTextView = mView.findViewById(R.id.postActivityTextView);
@@ -834,13 +844,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             adCard.setVisibility(View.VISIBLE);
         }
 
-        void setPostBasicData(String title, String desc) {
-            if (title != null){
-                titleTextView.setVisibility(View.VISIBLE);
-                titleTextView.setText(title);
-            }else{
-                titleTextView.setVisibility(View.GONE);
-            }
+        void setPostBasicData(String desc) {
             if (desc != null){
                 descTextView.setVisibility(View.VISIBLE);
                 descTextView.setText(desc);

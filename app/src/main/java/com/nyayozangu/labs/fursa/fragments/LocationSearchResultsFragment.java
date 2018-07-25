@@ -29,7 +29,7 @@ public class LocationSearchResultsFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    private ProgressBar progressBar;
+    private SearchableActivity mActivity;
     //retrieve posts
     private List<Posts> postsList;
     private List<Users> usersList;
@@ -49,7 +49,7 @@ public class LocationSearchResultsFragment extends Fragment {
 
         //initialize
         RecyclerView locationSearchFeed = view.findViewById(R.id.locationSearchRecyclerView);
-        progressBar = view.findViewById(R.id.locationSearchProgressBar);
+        mActivity = (SearchableActivity)getActivity();
 
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
@@ -62,16 +62,11 @@ public class LocationSearchResultsFragment extends Fragment {
         locationSearchFeed.setAdapter(imageSearchRecyclerAdapter);
 
         //get search query
-        if (getActivity() != null) {
-            String searchQuery = ((SearchableActivity) getActivity()).getSearchQuery();
-            Log.d(TAG, "onCreateView: search query is " + searchQuery);
-            if (searchQuery != null && !searchQuery.isEmpty())
-                doMySearch(searchQuery.toLowerCase());
+        if (mActivity != null) {
+            String searchQuery = mActivity.getSearchQuery();
+            if (searchQuery != null && !searchQuery.isEmpty()) doMySearch(searchQuery.toLowerCase());
         } else {
-            //alert user when failed to get search query from activity
-
-            ((SearchableActivity) Objects.requireNonNull(getActivity()))
-                    .showSnack(getResources().getString(R.string.something_went_wrong_text));
+            mActivity.showSnack(getResources().getString(R.string.something_went_wrong_text));
         }
 
         return view;
@@ -80,36 +75,27 @@ public class LocationSearchResultsFragment extends Fragment {
 
     private void doMySearch(String searchQuery) {
         Log.d(TAG, "doMySearch: ");
-
         //clear old posts
         postsList.clear();
         usersList.clear();
-        List<Posts> mPostList = ((SearchableActivity) getActivity()).getPostList();
-        List<Users> mUserList = ((SearchableActivity) getActivity()).getUserList();
-        Log.d(TAG, "doMySearch: \nmPostList size is " + mPostList.size() +
-                "\nmUserList is " + mUserList.size());
-        for (Posts post : mPostList) {
-
-            if (post.getLocation() != null && !post.getLocation().isEmpty()) {
-                Log.d(TAG, "doMySearch: location is not null");
-                String locString = "";
-                for (String loc : post.getLocation()) {
-                    Log.d(TAG, "doMySearch: creating loc  string");
-                    locString = locString.concat(" " + loc);
-                }
-                if (locString.toLowerCase().contains(searchQuery)) {
-                    Log.d(TAG, "doMySearch: image meta data is " + locString);
-                    if (!postsList.contains(post)) {
-                        Log.d(TAG, "doMySearch: image meta has query");
-                        postsList.add(post);
-                        usersList.add(mUserList.get(mPostList.indexOf(post)));
-                        imageSearchRecyclerAdapter.notifyDataSetChanged();
+        if (mActivity != null) {
+            List<Posts> mPostList = mActivity.getPostList();
+            List<Users> mUserList = mActivity.getUserList();
+            for (Posts post : mPostList) {
+                if (post.getLocation() != null && !post.getLocation().isEmpty()) {
+                    String locString = "";
+                    for (String loc : post.getLocation()) {
+                        locString = locString.concat(" " + loc);
                     }
-
+                    if (locString.toLowerCase().contains(searchQuery)) {
+                        if (!postsList.contains(post)) {
+                            postsList.add(post);
+                            usersList.add(mUserList.get(mPostList.indexOf(post)));
+                            imageSearchRecyclerAdapter.notifyDataSetChanged();
+                        }
+                    }
                 }
             }
         }
-
     }
-
 }

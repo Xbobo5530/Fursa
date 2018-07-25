@@ -140,7 +140,7 @@ public class CommentsRecyclerAdapter extends
         public void setImage(String imageUrl) {
             if (imageUrl != null) {
                 coMeth.setCircleImage(R.drawable.ic_action_person_placeholder,
-                        imageUrl, userImageView);
+                        imageUrl, userImageView, context);
             } else {
                 userImageView.setImageDrawable(context.getResources()
                         .getDrawable(R.drawable.ic_action_person_placeholder));

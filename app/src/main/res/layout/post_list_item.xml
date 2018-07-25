@@ -103,20 +103,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/postUserImageCircleImageView"
                     app:srcCompat="@color/colorWhite" />
 
-
-                <TextView
-                    android:id="@+id/postTitleTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/title_text"
-                    android:maxLength="100"
-                    android:maxLines="2"
-                    android:textAllCaps="false"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
                 <TextView
                     android:id="@+id/postDescTextView"
                     android:layout_width="match_parent"

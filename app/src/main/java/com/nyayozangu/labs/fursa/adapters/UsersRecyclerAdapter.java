@@ -64,11 +64,14 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
                 holder.bioField.setVisibility(View.GONE);
             }
             if (thumbUrl != null){
-                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, thumbUrl, userImageView);
+                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, thumbUrl,
+                        userImageView, context);
             } else if (imageUrl != null){
-                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, imageUrl, userImageView);
+                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, imageUrl,
+                        userImageView,context);
             }else{
-                userImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                userImageView.setImageDrawable(
+                        context.getResources().getDrawable(R.drawable.ic_action_person_placeholder));
             }
             //set click listener to user item view
             final String userId = user.UserId;

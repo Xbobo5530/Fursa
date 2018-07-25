@@ -41,8 +41,6 @@ public class TagsTabFragment extends Fragment {
     private RecyclerView tagsRecyclerView;
     private TagsRecyclerAdapter tagsRecyclerAdapter;
 
-    //progress
-    private ProgressDialog progressDialog;
     private ProgressBar progressBar;
 
     public TagsTabFragment() {
@@ -50,7 +48,7 @@ public class TagsTabFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_tags_tab, container, false);
@@ -68,9 +66,7 @@ public class TagsTabFragment extends Fragment {
 //        showProgress(getResources().getString(R.string.loading_text));
         progressBar = view.findViewById(R.id.tagTabsProgressBar);
         progressBar.setVisibility(View.VISIBLE);
-        coMeth.getDb()
-                .collection(CoMeth.TAGS)
-                .orderBy("post_count", Query.Direction.DESCENDING)
+        coMeth.getDb().collection(CoMeth.TAGS).orderBy("post_count", Query.Direction.DESCENDING)
                 .limit(30)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -83,7 +79,6 @@ public class TagsTabFragment extends Fragment {
                                     Tags tag = doc.getDocument().toObject(Tags.class);
                                     tagsList.add(tag);
                                     tagsRecyclerAdapter.notifyDataSetChanged();
-//                                    coMeth.stopLoading(progressDialog);
                                     progressBar.setVisibility(View.GONE);
                                     Log.d(TAG, "onEvent: added");
                                 }
@@ -119,25 +114,9 @@ public class TagsTabFragment extends Fragment {
         return view;
     }
 
-
-
     private void showSnack(String message) {
-        try {
-            Snackbar.make(getActivity().findViewById(R.id.mainSnack),
+            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(R.id.mainSnack),
                     message, Snackbar.LENGTH_LONG).show();
-        } catch (NullPointerException nullE) {
-            Log.d(TAG, "showSnack: null at tags frag snack\n" + nullE.getMessage());
-        }
-
-    }
-
-    //show progress
-    private void showProgress(String message) {
-        Log.d(TAG, "at showProgress\n message is: " + message);
-        //construct the dialog box
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(message);
-        progressDialog.show();
     }
 
 }

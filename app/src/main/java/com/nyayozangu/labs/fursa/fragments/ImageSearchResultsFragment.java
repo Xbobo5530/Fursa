@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.fragments;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -29,9 +30,9 @@ public class ImageSearchResultsFragment extends Fragment {
 
     private static final String TAG = "Sean";
     private CoMeth coMeth = new CoMeth();
-    private ProgressBar progressBar;
     private List<Posts> postsList;
     private List<Users> usersList;
+    private SearchableActivity mActivity;
 
     private PostsRecyclerAdapter imageSearchRecyclerAdapter;
 
@@ -48,9 +49,9 @@ public class ImageSearchResultsFragment extends Fragment {
 
         //initialize
         RecyclerView imageSearchFeed = view.findViewById(R.id.imageSearchRecyclerView);
-        progressBar = view.findViewById(R.id.imageSearchProgressBar);
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
+        mActivity = ((SearchableActivity)getActivity());
 
         String className = "SearchableActivity";
         imageSearchRecyclerAdapter = new PostsRecyclerAdapter(postsList, usersList, className,
@@ -60,48 +61,38 @@ public class ImageSearchResultsFragment extends Fragment {
         imageSearchFeed.setAdapter(imageSearchRecyclerAdapter);
 
         //get search query
-        if (getActivity() != null) {
-            String searchQuery = ((SearchableActivity) getActivity()).getSearchQuery();
+        if (mActivity != null) {
+            String searchQuery = mActivity.getSearchQuery();
             Log.d(TAG, "onCreateView: search query is " + searchQuery);
             if (searchQuery != null && !searchQuery.isEmpty())
                 doMySearch(searchQuery.toLowerCase());
         } else {
             //alert user when failed to get search query from activity
-
-            ((SearchableActivity) Objects.requireNonNull(getActivity()))
-                    .showSnack(getResources().getString(R.string.something_went_wrong_text));
+            mActivity.showSnack(getResources().getString(R.string.something_went_wrong_text));
         }
         return view;
     }
 
     private void doMySearch(String searchQuery) {
-        Log.d(TAG, "doMySearch: ");
-        //show loading
-//        showProgress(getResources().getString(R.string.loading_text));
-        //clear old posts
         postsList.clear();
         usersList.clear();
-        List<Posts> mPostList = ((SearchableActivity) getActivity()).getPostList();
-        List<Users> mUserList = ((SearchableActivity) getActivity()).getUserList();
-        Log.d(TAG, "doMySearch: \nmPostlist size is " + mPostList.size() +
-                "\nmUserList is " + mUserList.size());
-        for (Posts post : mPostList) {
-            String imageMetaData = "";
-            if (post.getImage_labels() != null) {
-                imageMetaData = imageMetaData.concat(post.getImage_labels());
-                Log.d(TAG, "doMySearch: psot has image labels " + imageMetaData);
-            }
-            if (post.getImage_text() != null) {
-                imageMetaData = imageMetaData.concat(" " + post.getImage_text());
-                Log.d(TAG, "doMySearch: post has image text " + imageMetaData);
-            }
-            if (imageMetaData.toLowerCase().contains(searchQuery)) {
-                Log.d(TAG, "doMySearch: iamge meta data is " + imageMetaData);
-                if (!postsList.contains(post)) {
-                    Log.d(TAG, "doMySearch: image meta has query");
-                    postsList.add(post);
-                    usersList.add(mUserList.get(mPostList.indexOf(post)));
-                    imageSearchRecyclerAdapter.notifyDataSetChanged();
+        if (mActivity != null) {
+            List<Posts> mPostList = mActivity.getPostList();
+            List<Users> mUserList = mActivity.getUserList();
+            for (Posts post : mPostList) {
+                String imageMetaData = "";
+                if (post.getImage_labels() != null) {
+                    imageMetaData = imageMetaData.concat(post.getImage_labels());
+                }
+                if (post.getImage_text() != null) {
+                    imageMetaData = imageMetaData.concat(" " + post.getImage_text());
+                }
+                if (imageMetaData.toLowerCase().contains(searchQuery)) {
+                    if (!postsList.contains(post)) {
+                        postsList.add(post);
+                        usersList.add(mUserList.get(mPostList.indexOf(post)));
+                        imageSearchRecyclerAdapter.notifyDataSetChanged();
+                    }
                 }
             }
         }

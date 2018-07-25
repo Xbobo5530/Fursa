@@ -88,7 +88,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="?android:attr/detailsElementBackground"
-        android:backgroundTint="?android:attr/detailsElementBackground"
         android:elevation="@dimen/fab_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
