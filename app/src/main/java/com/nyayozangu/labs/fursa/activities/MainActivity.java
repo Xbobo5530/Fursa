@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public FloatingActionButton newPostFab;
     public BottomNavigationView mainBottomNav;
     private DrawerLayout mainDrawerLayout;
+    private NavigationView navigationView;
     private ActionBarDrawerToggle toggle;
 
     private HomeFragment homeFragment;
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         //handle nav drawer
-        final NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
 
         navigationView.setNavigationItemSelectedListener(this);
         toggle = new ActionBarDrawerToggle(this,mainDrawerLayout, R.string.open_text, R.string.close_text);
@@ -188,12 +189,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         handleIntent();
         handleDrawerListeners(navigationView);
 
-
         handleBottomNavBar();
         newPostFab.setOnClickListener(this);
         if (!coMeth.isConnected(this)) {
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handleDrawerListeners(navigationView);
     }
 
     private void handleSubscriptions() {
@@ -251,9 +257,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }else{
                 handleNavViewHeader(navigationView);
             }
-
             loginButton.setTitle(getResources().getString(R.string.logout_text));
             loginButton.setIcon(getResources().getDrawable(R.drawable.ic_action_logout));
+            myProfileButton.setVisible(true);
+            myPostsButton.setVisible(true);
+            mySavesButton.setVisible(true);
+            mySubsButton.setVisible(true);
         }else{
             handleNavViewHeader(navigationView);
             loginButton.setTitle(getResources().getString(R.string.login_text));

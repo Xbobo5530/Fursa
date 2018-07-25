@@ -3,6 +3,7 @@ package com.nyayozangu.labs.fursa.activities;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -22,11 +23,17 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.TwitterAuthProvider;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.twitter.sdk.android.core.Callback;
@@ -39,7 +46,16 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.IMAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.NAME;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.TIMESTAMP;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -178,9 +194,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
-                String photoUrl = account.getPhotoUrl().toString();
-
-                firebaseAuthWithGoogle(account, photoUrl);
+                if (account != null)
+                    firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed
                 Log.e(TAG, "Google Sign In failed.");
@@ -190,66 +205,51 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         }
 
-        // Pass the activity result back to the Facebook SDK
-//        mCallbackManager.onActivityResult(requestCode, resultCode, data);
-
         // Pass the activity result to the Twitter login button.
         twitterLoginButton.onActivityResult(requestCode, resultCode, data);
-
     }
 
-
-    //handle result for facebook sign in
-//    private void handleFacebookAccessToken(AccessToken token) {
-//        Log.d(TAG, "handleFacebookAccessToken:" + token);
-//
-//        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-//        coMeth.getAuth()
-//                .signInWithCredential(credential)
-//                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<AuthResult> task) {
-//                        if (task.isSuccessful()) {
-//                            // Sign in success, update UI with the signed-in user's information
-//                            Log.d(TAG, "signInWithCredential:success");
-//                            FirebaseUser user = coMeth.getAuth().getCurrentUser();
-//                            goToAccSettings();
-//                        } else {
-//                            // If sign in fails, display a message to the user.
-//                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-//                            Snackbar.make(findViewById(R.id.login_activity_layout),
-//                                    "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-//                        }
-//
-//                    }
-//                });
-//    }
-
     //handle result for twitter sign in
-    private void handleTwitterSession(TwitterSession session) {
+    private void handleTwitterSession(final TwitterSession session) {
         Log.d(TAG, "handleTwitterSession:" + session);
-        AuthCredential credential = TwitterAuthProvider.getCredential(
+        final AuthCredential credential = TwitterAuthProvider.getCredential(
                 session.getAuthToken().token,
                 session.getAuthToken().secret);
-        //get twitter profile photo
-//        long userId = session.getUserId();
-//        final String photoUrl = "http://twitter.com/api/users/profile_image/" + userId + "?size=normal";
-//        Log.d(TAG, "handleTwitterSession: photoUrl is: " + photoUrl);
 
         //show progress
         showProgress(getResources().getString(R.string.loading_text));
-        coMeth.getAuth()
-                .signInWithCredential(credential)
+        coMeth.getAuth().signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            //stop loading
-                            coMeth.stopLoading(progressDialog);
-                            //take user to acc settings after
-                            goToAccSettings();
+
+                            final String uid = task.getResult().getUser().getUid();
+
+                            coMeth.getDb().collection(USERS).document(uid).get()
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if (documentSnapshot.exists()){
+                                                coMeth.stopLoading(progressDialog);
+                                                finish();
+                                            }else{
+                                                String name = session.getUserName();
+                                                addUserToDb(uid, name, null);
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "onFailure: failed to check user " +
+                                                    e.getMessage(), e );
+                                            showSnack(getResources().getString(R.string.error_text)
+                                                    + ": " + e.getMessage());
+                                        }
+                                    });
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -262,20 +262,19 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 });
     }
 
-    //go to accounts page
+    /*//go to accounts page
     private void goToAccSettings() {
         startActivity(new Intent(LoginActivity.this, AccountActivity.class));
         finish();
-    }
+    }*/
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct, final String photoUrl) {
+    private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
 
         //show progress
         showProgress(getResources().getString(R.string.loading_text));
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        coMeth.getAuth()
-                .signInWithCredential(credential)
+        coMeth.getAuth().signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -283,11 +282,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             // Sign in success, update UI with the signed-in user's information
 
                             Log.d(TAG, "signInWithCredential:success");
-                            //stop loading
-                            coMeth.stopLoading(progressDialog);
-                            //go to acc settings
-                            goToAccSettings(photoUrl);
-
+                            final String uid = task.getResult().getUser().getUid();
+                            //check if user exists
+                            checkIfUserExists(uid, acct);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -300,16 +297,68 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 });
     }
 
-    private void goToAccSettings(String photoUrl) {
-        Intent goToAccSettings = new Intent(
-                LoginActivity.this, AccountActivity.class);
-        if (photoUrl != null) {
-            goToAccSettings.putExtra("photoUrl", photoUrl);
-        }
-        startActivity(goToAccSettings);
-        finish();
+    private void checkIfUserExists(final String uid, final GoogleSignInAccount acct) {
+        coMeth.getDb().collection(USERS).document(uid).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    coMeth.stopLoading(progressDialog);
+                    finish();
+                } else{
+                    String name = acct.getDisplayName();
+                    Uri photoUrl = acct.getPhotoUrl();
+                    if (name == null){
+                        String email = acct.getEmail();
+                        assert email != null; // TODO: 7/25/18 recheck email nullable
+                        name = email.substring(email.indexOf("@") - 1);
+                        checkPhoto(name, photoUrl, uid);
+                    }else{
+                        checkPhoto(name, photoUrl, uid);
+                    }
+                }
+            }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "onFailure: failed to check user\n" +
+                                e.getMessage());
+                        showSnack(getResources().getString(R.string.error_text) +
+                                ": " + e.getMessage());
+                    }
+                });
     }
 
+    private void checkPhoto(String name, Uri photoUrl, String uid) {
+        if (photoUrl != null) {
+            addUserToDb(uid, name, photoUrl.toString());
+        }else{
+            addUserToDb(uid, name, null);
+        }
+    }
+
+    private void addUserToDb(@NonNull String uid, @NonNull final String name, String imageUrl) {
+        Map<String, Object> newUserMap = new HashMap<>();
+        newUserMap.put(NAME, name);
+        if (imageUrl != null) {
+            newUserMap.put(IMAGE, imageUrl);
+        }
+        newUserMap.put(TIMESTAMP, FieldValue.serverTimestamp());
+        coMeth.getDb().collection(USERS).document(uid)
+            .set(newUserMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    String welcomeMessage = getResources().getString(R.string.welcome_text) + " " + name;
+                    intent.putExtra(ACTION, NOTIFY);
+                    intent.putExtra(MESSAGE, welcomeMessage);
+                    coMeth.stopLoading(progressDialog);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+    }
 
     private void showProgress(String message) {
         Log.d(TAG, "at showProgress\n message is: " + message);

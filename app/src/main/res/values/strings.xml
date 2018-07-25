@@ -418,5 +418,6 @@
     <string name="is_now_following_text">is now following you</string>
     <string name="like_text">Like</string>
     <string name="activity_text">Activity</string>
+    <string name="welcome_text">Welcome</string>
 
 </resources>

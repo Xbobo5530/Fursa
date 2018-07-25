@@ -58,7 +58,6 @@ public class AccountActivity extends AppCompatActivity {
     private ImageView setupImage;
     private Uri userImageUri = null, userThumbUri = null;
     private EditText userNameField, userBioField;
-    private Button saveButton;
     private boolean imageIsChanged = false;
     private ProgressDialog progressDialog;
     private String userName, userBio, imageUrl, userId;
@@ -71,7 +70,7 @@ public class AccountActivity extends AppCompatActivity {
         //initiate elements
         setupImage = findViewById(R.id.setupImageCircleImageView);
         userNameField = findViewById(R.id.accNameEditText);
-        saveButton = findViewById(R.id.accSaveButton);
+        Button saveButton = findViewById(R.id.accSaveButton);
         FloatingActionButton editImageFab = findViewById(R.id.accEditFab);
         userBioField = findViewById(R.id.accSettingAboutEditText);
         Toolbar toolbar = findViewById(R.id.accountSettingsToolbar);
@@ -356,14 +355,10 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         //store data to db
-        coMeth.getDb()
-                .collection("Users")
-                .document(userId)
-                .set(usersMap)
+        coMeth.getDb().collection("Users").document(userId).set(usersMap)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-
                 if (task.isSuccessful()) {
                     //task successful
                     //go to main activity, go to feed
@@ -375,7 +370,6 @@ public class AccountActivity extends AppCompatActivity {
                     String errorMessage = task.getException().getMessage();
                     Snackbar.make(findViewById(R.id.account_layout),
                             "Database error: " + errorMessage, Snackbar.LENGTH_SHORT).show();
-
                 }
             }
         });

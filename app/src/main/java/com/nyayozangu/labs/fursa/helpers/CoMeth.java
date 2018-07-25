@@ -168,6 +168,8 @@ public class CoMeth{
     public static final String NEW_FOLLOWER = "new_follower";
     public static final String LIKES_VAL = "likes";
     public static final String EVENT_DATE = "event_date";
+    public static final String NAME = "name";
+    public static final String IMAGE = "image";
 
 //    public final String[] catTitle = new String[]{
 //
