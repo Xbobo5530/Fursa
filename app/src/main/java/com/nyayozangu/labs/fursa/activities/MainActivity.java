@@ -84,6 +84,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.TWITTER_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_POSTS;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -710,6 +711,7 @@ public class MainActivity extends AppCompatActivity implements
     private void goToMyPosts() {
         Intent goToUserPostsIntent = new Intent(
                 MainActivity.this, UserPostsActivity.class);
+        goToUserPostsIntent.putExtra(DESTINATION, USER_POSTS);
         goToUserPostsIntent.putExtra(CoMeth.USER_ID, coMeth.getUid());
         goToUserPostsIntent.putExtra(CoMeth.USERNAME, username);
         startActivity(goToUserPostsIntent);

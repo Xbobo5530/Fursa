@@ -1284,6 +1284,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         .build())
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
+                                .setTitle(getResources().getString(R.string.app_name))
                                 .setDescription(getDescription())
                                 .setImageUrl(Uri.parse(getPostImageUrl()))
                                 .build())
@@ -1296,8 +1297,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             Log.d(TAG, "onComplete: short link is: " + shortLink);
 
                             //show share dialog
-                            String postDescription = description.substring(50);
-                            String fullShareMsg = postDescription + "\n" +
+                            String fullShareMsg = getDescription().substring(30) + "\n" +
                                     shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");
@@ -1319,7 +1319,11 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     private String getDescription() {
         if (description != null && !description.isEmpty()){
-            return description;
+            if (description.length() >= 80){
+                return description.substring(80);
+            }else {
+                return description;
+            }
         }else{
             return getResources().getString(R.string.sharing_opp_text);
         }

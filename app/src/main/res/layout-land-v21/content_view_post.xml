@@ -25,10 +25,11 @@
 
             <LinearLayout
                 android:id="@+id/viewPostLikeLayout"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="12dp"
+                android:layout_weight="1">
                 <ImageView
                     android:id="@+id/viewPostLikeImageView"
                     android:layout_width="28dp"
@@ -47,10 +48,11 @@
 
             <LinearLayout
                 android:id="@+id/viewPostCommentLayout"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="12dp"
+                android:layout_weight="1">
                 <ImageView
                     android:id="@+id/viewPostCommentImageView"
                     android:layout_width="28dp"
@@ -69,7 +71,8 @@
 
             <LinearLayout
                 android:id="@+id/viewPostShareLayout"
-                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="12dp">
@@ -93,7 +96,8 @@
 
             <LinearLayout
                 android:id="@+id/viewPostSaveLayout"
-                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="12dp">
@@ -115,7 +119,8 @@
 
             <LinearLayout
                 android:id="@+id/viewPostActivityLayout"
-                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="12dp"

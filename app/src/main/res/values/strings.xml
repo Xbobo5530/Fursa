@@ -222,11 +222,10 @@
     <string name="UPDATE_INFO">
         Thank you for updating.
         \nNew in this version:
-        \n- A brand new design across the app for better navigation and user experience
-        \n- An all new notification center to track comments and other notifications
-        \n- A new home page with a 'Recent', 'Popular' and 'Saved' section
-        \n- A new start date and end date for events
-        \n- Added pinch-to-zoom on when viewing images
+        \n- You can now follow other users and get updates on their posts
+        \n- Reduced the size of the download file
+        \n- A new post Recommendation and an Upcoming events section
+        \n- Faster load times and improved stability
         \nHope you enjoy your experience with Fursa!
     </string>
     <string name="close_text">Close</string>

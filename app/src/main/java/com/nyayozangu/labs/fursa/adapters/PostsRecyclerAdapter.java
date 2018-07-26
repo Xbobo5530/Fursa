@@ -161,12 +161,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         FirebaseFirestore.getInstance().collection(POSTS)
                 .document(post.PostId)
                 .update(feedViewMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "onSuccess: feed views updated");
-                    }
-                })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
@@ -179,7 +173,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     @Override
     public void onViewRecycled(@NonNull ViewHolder holder) {
         super.onViewRecycled(holder);
-        Log.d(TAG, "onViewRecycled: view is recycled clearing images");
         glide.clear(holder.postImageView);
     }
 
@@ -264,7 +257,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 handlePostActionsConnectionException(holder);
                 handlePostActionsLoginException(holder);
             }
-            handleSharePost(position, holder);
+            handleSharePost(position, holder, description);
             handlePostCommentsCount(holder, postId);
             //comment icon click action
             holder.commentLayout.setOnClickListener(new View.OnClickListener() {
@@ -283,11 +276,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void handleSharePost(final int position, @NonNull final ViewHolder holder) {
+    private void handleSharePost(final int position, @NonNull final ViewHolder holder, final String description) {
         holder.shareLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sharePost(holder, postsList.get(position));
+                sharePost(holder, postsList.get(position), description);
             }
         });
     }
@@ -525,7 +518,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     @Override
                     public void onSuccess(Void aVoid) {
                         addFollowRef(holder, postUserId);
-                        Log.d(TAG, "onSuccess: followed added");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -548,7 +540,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "onSuccess: following ref added to current user");
                         subscribeToUser(postUserId);
                         notifyFollow(postUserId);
                     }
@@ -580,7 +571,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         if (coMeth.isLoggedIn() && coMeth.getUid().equals(post.getUser_id())){
             holder.activityLayout.setVisibility(View.VISIBLE);
             int activityCount = post.getActivity();
-            holder.activityTextView.setText(String.valueOf(activityCount));
+            if (activityCount > 0) {
+                holder.activityTextView.setText(String.valueOf(activityCount));
+            }else{
+                holder.activityTextView.setText(context.getResources().getString(R.string.activity_text));
+            }
         }else{
             holder.activityLayout.setVisibility(View.GONE);
         }
@@ -641,16 +636,25 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .delete();
     }
 
-    private void sharePost(final @NonNull ViewHolder holder, Posts post) {
+    private void sharePost(final @NonNull ViewHolder holder, Posts post, String description) {
         showProgress(context.getString(R.string.loading_text));
         //create post url
         String postId = post.PostId;
         String postUrl = context.getResources().getString(R.string.fursa_url_post_head) + postId;
-        String title = post.getTitle();
-        String desc = post.getDesc();
         String imageUrl = post.getImage_url();
-        Log.d(TAG, "sharePost: title is: " + title);
-        shareDynamicLink(postUrl, title, desc, imageUrl, holder);
+        shareDynamicLink(postUrl, description, imageUrl, holder);
+    }
+
+    private String getDescription(String description){
+        if (description != null && !description.isEmpty()){
+            if (description.length() >= 80){
+                return description.substring(80);
+            }else {
+                return description;
+            }
+        }else{
+            return context.getResources().getString(R.string.sharing_opp_text);
+        }
     }
 
     private void showProgress(String message) {
@@ -659,7 +663,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         progressDialog.show();
     }
 
-    private void shareDynamicLink(String postUrl, final String postTitle, final String postDesc,
+    private void shareDynamicLink(String postUrl, final String description,
                                   final String postImageUrl, final ViewHolder holder) {
         FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(postUrl))
@@ -670,8 +674,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         .build())
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
-                                .setTitle(postTitle)
-                                .setDescription(postDesc)
+                                .setTitle(context.getResources().getString(R.string.app_name))
+                                .setDescription(getDescription(description))
                                 .setImageUrl(Uri.parse(getImageUrl(postImageUrl)))
                                 .build())
                 .buildShortDynamicLink()
@@ -683,15 +687,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                             Log.d(TAG, "onComplete: short link is: " + shortLink);
 
                             //show share dialog
-                            String fullShareMsg = postTitle + "\n" + shortLink;
+                            String fullShareMsg = getDescription(description) + "\n" + shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");
-                            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
-                                    context.getResources().getString(R.string.app_name));
+                            shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.app_name));
                             shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
                             coMeth.stopLoading(progressDialog);
-                            context.startActivity(Intent.createChooser(shareIntent,
-                                    context.getResources().getString(R.string.share_with_text)));
+                            context.startActivity(Intent.createChooser(shareIntent, context.getResources().getString(R.string.share_with_text)));
                         } else {
                             Log.d(TAG, "onComplete: \ncreating short link task failed\n" +
                                     task.getException());
@@ -852,7 +854,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
 
         void setPostBasicData(String desc) {
-            if (desc != null){
+            if (desc != null && !desc.isEmpty()){
                 descTextView.setVisibility(View.VISIBLE);
                 descTextView.setText(desc);
             }else{
