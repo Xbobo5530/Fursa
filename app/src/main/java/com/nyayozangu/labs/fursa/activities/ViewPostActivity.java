@@ -297,44 +297,6 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
 
-
-//    private void getRandomPosts() {
-//        coMeth.getDb().collection(POSTS).limit(5).get().addOnSuccessListener(
-//                new OnSuccessListener<QuerySnapshot>() {
-//            @Override
-//            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-//                postsList.clear();
-//                for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
-//                    if (document.getType() == DocumentChange.Type.ADDED){
-//
-//                        String relatedPostId = document.getDocument().getId();
-//                        Posts post = document.getDocument().toObject(Posts.class).withId(relatedPostId)
-//                                .withId(relatedPostId);
-//                        if (!relatedPostId.equals(postId) && post.getImage_url() != null){
-//                            List<Posts> tempList = new ArrayList<>();
-//                            tempList.add(post);
-//                            int randSize = new Random().nextInt(5);
-//                            if (tempList.size() == randSize) {
-//                                Collections.shuffle(tempList);
-//                                int ranPostPosition = new Random().nextInt(tempList.size());
-//                                Posts randPost = tempList.get(ranPostPosition);
-//                                String postId = randPost.PostId;
-//                                getPost(postId);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.e(TAG, "onFailure: failed to get related posts\n" +
-//                                e.getMessage(), e);
-//                    }
-//                });
-//    }
-
     private void populateRelatedConditions() {
         CollectionReference userPostsRef = coMeth.getDb().collection(
                 USERS + "/" + postUserId + "/" + SUBSCRIPTIONS + "/" + MY_POSTS_DOC + "/" + MY_POSTS);

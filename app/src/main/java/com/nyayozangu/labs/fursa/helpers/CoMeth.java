@@ -96,9 +96,19 @@ public class CoMeth{
     public static final String TIMESTAMP = "timestamp";
 
     //cats values and names
-    public static final String FEATURED = "Featured";
-    public static final String POPULAR = "Popular";
-    public static final String EXHIBITIONS = "Exhibitions";
+    public static final String EXHIBITIONS = "exhibitions";
+    public static final String EVENTS = "events";
+    public static final String PLACES = "places";
+    public static final String SERVICES = "services";
+    public static final String BUSINESS = "business";
+    public static final String BUY_AND_SELL = "buysell";
+    public static final String EDUCATION = "education";
+    public static final String JOBS = "jobs";
+    public static final String QUERIES = "queries";
+    public static final String DISCUSSIONS = "discussions";
+    public static final String ART = "art";
+    public static final String APPS = "apps";
+    public static final String GROUPS = "groups";
 
 
     //intent actions and keys
@@ -191,24 +201,6 @@ public class CoMeth{
                 context.getResources().getString(R.string.cat_queries)
         };
     }
-
-//    public final String[] catKeys = new String[]{
-//
-//            "business",
-//            "exhibitions",
-//            "art",
-//            "events",
-//            "buysell",
-//            "education",
-//            "jobs",
-//            "services",
-//            "places",
-//            "queries",
-//            "apps",
-//            "groups"
-//
-//
-//    };
 
     public String[] getReportList (Context context){
         return new String[]{
@@ -343,29 +335,29 @@ public class CoMeth{
         switch (catValue) {
             // TODO: 6/17/18 replace strings with static vals
             case "Events":
-                return "events";
+                return EVENTS;
             case "Places":
-                return "places";
+                return PLACES;
             case "Services":
-                return "services";
+                return SERVICES;
             case "Business":
-                return "business";
+                return BUSINESS;
             case "Buy and sell":
-                return "buysell";
+                return BUY_AND_SELL;
             case "Education":
-                return "education";
+                return EDUCATION;
             case "Jobs":
-                return "jobs";
+                return JOBS;
             case "Discussions":
-                return "queries";
+                return QUERIES;
             case "Exhibitions":
-                return "exhibitions";
+                return EXHIBITIONS;
             case "Art":
-                return "art";
+                return ART;
             case "Apps":
-                return "apps";
+                return APPS;
             case "Groups":
-                return "groups";
+                return GROUPS;
 
             //handle swahili items
             case "Matukio":

@@ -37,6 +37,17 @@
 
     <include layout="@layout/content_view_category" />
 
+    <ProgressBar
+        android:id="@+id/catProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:indeterminate="true"
+        android:layout_gravity="bottom"/>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/subscribeCatFab"
         android:layout_width="wrap_content"
