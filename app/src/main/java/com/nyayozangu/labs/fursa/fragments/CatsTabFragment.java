@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.fragments;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -46,7 +47,7 @@ public class CatsTabFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_cats_tab, container, false);
@@ -54,13 +55,18 @@ public class CatsTabFragment extends Fragment {
 
         final String[] catTitle = new String[]{
 
+                getResources().getString(R.string.cat_business),
+                getResources().getString(R.string.cat_jobs),
+                getResources().getString(R.string.cat_education),
+                getResources().getString(R.string.cat_art),
+                getResources().getString(R.string.cat_buysell),
                 getString(R.string.cat_exhibitions),
-                getResources().getString(R.string.cat_business), getResources().getString(R.string.cat_art),
-                getResources().getString(R.string.cat_jobs), getResources().getString(R.string.cat_buysell),
-                getResources().getString(R.string.cat_upcoming), getResources().getString(R.string.cat_events),
-                getResources().getString(R.string.cat_places), getResources().getString(R.string.cat_services),
-                getResources().getString(R.string.cat_education), getResources().getString(R.string.cat_queries),
-                getResources().getString(R.string.cat_apps), getResources().getString(R.string.cat_groups)
+                getResources().getString(R.string.cat_places),
+                getResources().getString(R.string.cat_events),
+                getResources().getString(R.string.cat_services),
+                getResources().getString(R.string.cat_apps),
+                getResources().getString(R.string.cat_groups),
+                getResources().getString(R.string.cat_queries)
 
         };
 
@@ -68,13 +74,18 @@ public class CatsTabFragment extends Fragment {
         int catImages[] = {
 
 //                R.drawable.featured,
-                R.drawable.exhibitions, R.drawable.business,
-                R.drawable.art, R.drawable.jobs,
-                R.drawable.buysell, R.drawable.upcoming,
-                R.drawable.events, R.drawable.places,
-                R.drawable.services, R.drawable.school,
-                R.drawable.discussions, R.drawable.apps,
-                R.drawable.groups
+                R.drawable.business,
+                R.drawable.jobs,
+                R.drawable.school,
+                R.drawable.art,
+                R.drawable.buysell,
+                R.drawable.exhibitions,
+                R.drawable.places,
+                R.drawable.events,
+                R.drawable.services,
+                R.drawable.apps,
+                R.drawable.groups,
+                R.drawable.discussions
 
         };
 
@@ -115,23 +126,22 @@ public class CatsTabFragment extends Fragment {
         });
 
         // handle the re-selecting the categories tab on the main bottom navigation on MainActivity
-        try {
-            ((MainActivity) getActivity()).mainBottomNav.setOnNavigationItemReselectedListener(
-                    new BottomNavigationView.OnNavigationItemReselectedListener() {
-                        @Override
-                        public void onNavigationItemReselected(@NonNull MenuItem item) {
-                            switch (item.getItemId()) {
-                                case R.id.bottomNavCatItem:
-                                    catGridView.smoothScrollToPosition(0);
-                                    break;
-                                default:
-                                    Log.d(TAG, "onNavigationItemReselected: " +
-                                            "at default cat fragment on reselect");
+        MainActivity mainActivity = (MainActivity)getActivity();
+        if (mainActivity != null) {
+            mainActivity.mainBottomNav.setOnNavigationItemReselectedListener(
+                        new BottomNavigationView.OnNavigationItemReselectedListener() {
+                            @Override
+                            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                                switch (item.getItemId()) {
+                                    case R.id.bottomNavCatItem:
+                                        catGridView.smoothScrollToPosition(0);
+                                        break;
+                                    default:
+                                        Log.d(TAG, "onNavigationItemReselected: " +
+                                                "at default cat fragment on reselect");
+                                }
                             }
-                        }
-                    });
-        } catch (NullPointerException e) {
-            Log.d(TAG, "onCreateView: null on reselect cats tab\n" + e.getMessage());
+                        });
         }
 
         //handle hiding views on scroll
@@ -158,24 +168,12 @@ public class CatsTabFragment extends Fragment {
         return view;
     }
 
-    /**
-     * open the view category page
-     *
-     * @param catKey the category key to be passed to the view category page
-     */
     private void openCat(String catKey) {
         Intent openCatIntent = new Intent(getContext(), ViewCategoryActivity.class);
         openCatIntent.putExtra(CATEGORY, catKey);
         startActivity(openCatIntent);
     }
 
-    /**
-     * calculate the width of the device to determine the number of rows
-     *
-     * @param context the context containing the view
-     * @param cell    the view of the grid view
-     * @return the number of rows to display
-     */
     public int measureCellWidth(Context context, View cell) {
 
         // We need a fake parent

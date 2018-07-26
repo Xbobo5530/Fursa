@@ -174,74 +174,42 @@ public class CoMeth{
     public static final String IMAGE = "image";
     public static final String USER_POSTS = "user_posts";
 
-//    public final String[] catTitle = new String[]{
-//
-//            getApplicationContext().getString(R.string.cat_exhibitions),
-//            context.getResources().getString(R.string.cat_business), context.getResources().getString(R.string.cat_art),
-//            context.getResources().getString(R.string.cat_jobs), context.getResources().getString(R.string.cat_buysell),
-//            context.getResources().getString(R.string.cat_upcoming), context.getResources().getString(R.string.cat_events),
-//            context.getResources().getString(R.string.cat_places), context.getResources().getString(R.string.cat_services),
-//            context.getResources().getString(R.string.cat_education), context.getResources().getString(R.string.cat_queries),
-//            context.getResources().getString(R.string.cat_apps), context.getResources().getString(R.string.cat_groups)
-//
-//    };
-
     public String[] getCatTitle(Context context){
         return new String[]{
 
+                context.getResources().getString(R.string.cat_business),
+                context.getResources().getString(R.string.cat_jobs),
+                context.getResources().getString(R.string.cat_education),
+                context.getResources().getString(R.string.cat_art),
+                context.getResources().getString(R.string.cat_buysell),
                 context.getString(R.string.cat_exhibitions),
-                context.getResources().getString(R.string.cat_business), context.getResources().getString(R.string.cat_art),
-                context.getResources().getString(R.string.cat_jobs), context.getResources().getString(R.string.cat_buysell),
-                context.getResources().getString(R.string.cat_upcoming), context.getResources().getString(R.string.cat_events),
-                context.getResources().getString(R.string.cat_places), context.getResources().getString(R.string.cat_services),
-                context.getResources().getString(R.string.cat_education), context.getResources().getString(R.string.cat_queries),
-                context.getResources().getString(R.string.cat_apps), context.getResources().getString(R.string.cat_groups)
+                context.getResources().getString(R.string.cat_places),
+                context.getResources().getString(R.string.cat_events),
+                context.getResources().getString(R.string.cat_services),
+                context.getResources().getString(R.string.cat_apps),
+                context.getResources().getString(R.string.cat_groups),
+                context.getResources().getString(R.string.cat_queries)
         };
     }
 
-//    public final String[] categories = new String[]{
+//    public final String[] catKeys = new String[]{
 //
-//            context.getString(R.string.cat_business),
-//            context.getString(R.string.cat_exhibitions),
-//            context.getResources().getString(R.string.cat_art),
-//            context.getString(R.string.cat_events),
-//            context.getString(R.string.cat_buysell),
-//            context.getString(R.string.cat_education),
-//            context.getString(R.string.cat_jobs),
-//            context.getString(R.string.cat_services),
-//            context.getString(R.string.cat_places),
-//            context.getString(R.string.cat_queries),
-//            context.getResources().getString(R.string.cat_apps),
-//            context.getResources().getString(R.string.cat_groups)
+//            "business",
+//            "exhibitions",
+//            "art",
+//            "events",
+//            "buysell",
+//            "education",
+//            "jobs",
+//            "services",
+//            "places",
+//            "queries",
+//            "apps",
+//            "groups"
 //
 //
 //    };
 
-    public final String[] catKeys = new String[]{
-
-            "business",
-            "exhibitions",
-            "art",
-            "events",
-            "buysell",
-            "education",
-            "jobs",
-            "services",
-            "places",
-            "queries",
-            "apps",
-            "groups"
-
-
-    };
-
-
-
-//    public final String[] reportList = new String[]{
-//            context.getString(R.string.spam_text),
-//            context.getString(R.string.inapropriate_text)
-//    };
-//
     public String[] getReportList (Context context){
         return new String[]{
                 context.getString(R.string.spam_text),
@@ -254,11 +222,8 @@ public class CoMeth{
             "inappropriate"
     };
 
-    private boolean hasInternet;
     public int minVerCode = BuildConfig.VERSION_CODE;
-
-    public CoMeth() {
-    } //empty constructor
+    public CoMeth() { } //empty constructor
 
 
     public String[] getCategories(Context context){
@@ -281,66 +246,23 @@ public class CoMeth{
 
     //is logged in
     public boolean isLoggedIn() {
-        //firebase auth
         FirebaseAuth mAuth;
-        //initialize Firebase
         mAuth = FirebaseAuth.getInstance();
-        //determine if user is logged in
         return mAuth.getCurrentUser() != null;
     }
 
-    /**
-     * Checks for the connection status
-     * if the device has a connection
-     * and the connection is active
-     * @return boolean true if device is connected and has internet
-     * false if device can not connet to the internet
-     */
     public boolean isConnected(Context context) {
-
-        //check if there's a connection
-        Log.d(TAG, "at isConnected");
-//        Context context = context;
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = null;
         if (cm != null) {
             activeNetwork = cm.getActiveNetworkInfo();
         }
-
-
-        // TODO: 5/9/18 check if connection has internet
-
-        /*CheckInternetTask task = new CheckInternetTask(new CheckConnectionInterface() {
-            @Override
-            public void checkConnection(boolean result) {
-                //check connection status
-                Log.d(TAG, "checkConnection: \nresult is: " + result);
-                hasInternet = result;
-                Log.d(TAG, "checkConnection: has internet: " + hasInternet);
-            }
-        });
-        task.execute();
-
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        Log.d(TAG, "isConnected: " +
-                "\nisConnected: " + isConnected +
-                "\nhasInternet: " + hasInternet);*/
-
-
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting() /*&& hasInternet*/;
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
     }
 
-    /**
-     * A method to get the Firestore database
-     *
-     * @return a FirebaseFirestore instance
-     */
-    public FirebaseFirestore getDb() {
-        // Access a Cloud Firestore instance from your Activity
-        return FirebaseFirestore.getInstance();
-    }
+    public FirebaseFirestore getDb() { return FirebaseFirestore.getInstance(); }
 
     public FirebaseAuth getAuth() {
         return FirebaseAuth.getInstance();
@@ -350,31 +272,14 @@ public class CoMeth{
         return this.getAuth().getUid();
     }
 
-    public void signOut() {
-        this.getAuth().signOut();
-
-    }
+    public void signOut() { this.getAuth().signOut(); }
 
     public StorageReference getStorageRef() {
         return FirebaseStorage.getInstance().getReference();
     }
 
-    public void setImage(int placeholderDrawable, String imageUrl, ImageView targetImageView, Context context) {
-        Log.d(TAG, "setImage: no thumb");
-        try {
-            RequestOptions placeHolderRequest = new RequestOptions();
-            placeHolderRequest.placeholder(placeholderDrawable);
-            Glide.with(context)
-                    .setDefaultRequestOptions(placeHolderRequest)
-                    .load(imageUrl)
-                    .into(targetImageView);
-        } catch (Exception e) {
-            Log.d(TAG, "setImage: error " + e.getMessage());
-        }
-    }
-
-    public void setCircleImage(int placeholderDrawable, String imageUrl, ImageView targetImageView, Context context) {
-        Log.d(TAG, "setImage: no thumb");
+    public void setCircleImage(int placeholderDrawable, String imageUrl,
+                               ImageView targetImageView, Context context) {
         try {
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
@@ -389,7 +294,6 @@ public class CoMeth{
 
     public void setImageWithTransition(int placeholderDrawable, String imageUrl,
                                        ImageView targetImageView, Context context) {
-        Log.d(TAG, "setImage: no thumb");
         try {
 
             RequestOptions placeHolderRequest = new RequestOptions();
@@ -422,7 +326,6 @@ public class CoMeth{
 
     public void setImage(int placeholderDrawable, String imageUrl, String thumbUrl,
                          ImageView targetImageView, RequestManager glide) {
-        Log.d(TAG, "setImage: with thumb");
         try {
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
@@ -439,12 +342,6 @@ public class CoMeth{
 
         switch (catValue) {
             // TODO: 6/17/18 replace strings with static vals
-            case FEATURED:
-                return "featured";
-            case "Popular":
-                return "popular";
-            case "Up Coming":
-                return "upcoming";
             case "Events":
                 return "events";
             case "Places":
@@ -471,12 +368,6 @@ public class CoMeth{
                 return "groups";
 
             //handle swahili items
-            case "Spesheli":
-                return "featured";
-            case "Mchapisho maarufu":
-                return "popular";
-            case "Zifuatazo":
-                return "upcoming";
             case "Matukio":
                 return "events";
             case "Maeneo":
@@ -508,9 +399,6 @@ public class CoMeth{
     public String getCatValue(String catValue, Context context) {
 
             /*
-            "Featured",
-            "Popular",
-            "UpComing",
             "Events",
             "Places",
             "Services",
@@ -526,12 +414,6 @@ public class CoMeth{
         //return value for key
         switch (catValue) {
 
-            case "featured":
-                return context.getString(R.string.cat_featured);
-            case "popular":
-                return context.getString(R.string.cat_popular);
-            case "upcoming":
-                return context.getString(R.string.cat_upcoming);
             case "events":
                 return context.getString(R.string.cat_events);
             case "places":
@@ -556,7 +438,6 @@ public class CoMeth{
                 return context.getString(R.string.cat_apps);
             case "groups":
                 return context.getString(R.string.cat_groups);
-
             default:
                 Log.d(TAG, "getCatValue: default");
                 return "";
@@ -572,48 +453,22 @@ public class CoMeth{
         long timeLapsed = (now - millis) / (1000 * 60);
         //minutes ago
         if (timeLapsed < 1) {
-
-            //when less than a min has passed
             return context.getString(R.string.min_ago_text);
-
         } else if (timeLapsed > 1 && timeLapsed < 60) {
-
-            //when more than a min but less than an hour has lapsed
             return String.valueOf(timeLapsed) + " " + context.getString(R.string.mins_ago_text);
-
         } else if (timeLapsed >= 60 && timeLapsed <= 120) {
-
-            //when more than an hour, less than 2 has lapsed
             return context.getString(R.string.hr_ago_text);
-
         } else if (timeLapsed / 60 > 1 && timeLapsed / 60 < 24) {
-
-            //when more than n hour, less than a day has lapsed
             return timeLapsed / 60 + " " + context.getString(R.string.hrs_ago_text);
-
         } else if (timeLapsed / (60 * 24) >= 1 && timeLapsed / (60 * 24) < 2) {
-
-            //when a day has lapsed, less than 2 days
             return context.getResources().getString(R.string.yesterday_text);
-
         } else if (timeLapsed / (60 * 24) >= 2 && timeLapsed / (60 * 24) < 7) {
-
-            //when more than 2 days, less than a week has lapsed
             return timeLapsed / (60 * 24) + " " + context.getString(R.string.day_ago_text);
-
         } else if (timeLapsed / (60 * 24 * 7) > 1 && timeLapsed / (60 * 24 * 7) <= 4) {
-
-            //when more than a week, less than a month have lapsed
             return timeLapsed / (60 * 24 * 7) + " " + context.getString(R.string.weeks_ago_text);
-
         } else if (timeLapsed / (60 * 24 * 7 * 4) > 1 && timeLapsed / (60 * 24 * 7 * 4) <= 12) {
-
-            //when more than a month, less than a year has lapsed
             return timeLapsed / (60 * 24 * 7 * 4) + " " + context.getString(R.string.months_ago_text);
-
         } else {
-
-            //when more than a year has lapsed
             return DateFormat.format("EEE, MMM d, 20yy\nh:mm a", new Date(millis)).toString();
         }
     }
@@ -621,15 +476,12 @@ public class CoMeth{
     public void stopLoading(ProgressDialog progressDialog,
                             SwipeRefreshLayout swipeRefreshLayout) {
 
-        Log.d(TAG, "stopLoading: stopping");
         if (progressDialog != null) {
-
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
         }
         if (swipeRefreshLayout != null) {
-
             if (swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -637,10 +489,7 @@ public class CoMeth{
     }
 
     public void stopLoading(ProgressDialog progressDialog) {
-
-        Log.d(TAG, "stopLoading: stopping");
         if (progressDialog != null) {
-
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
@@ -648,9 +497,7 @@ public class CoMeth{
     }
 
     public void stopLoading(SwipeRefreshLayout swipeRefreshLayout) {
-
         if (swipeRefreshLayout != null) {
-
             if (swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -689,12 +536,6 @@ public class CoMeth{
                 });
     }
 
-    /**
-     * checks if device screen is small, normal, large or large and sets posts
-     * @param activity     the activity the posts are shown in
-     * @param context      the context the posts are displayed
-     * @param recyclerView the recycler view to alter
-     */
     public void handlePostsView(Context context, Activity activity, RecyclerView recyclerView) {
 
         Log.d(TAG, "handlePostsView: ");
@@ -716,42 +557,4 @@ public class CoMeth{
         }
     }
 }
-
-/*class CheckInternetTask extends AsyncTask<Void, Void, Boolean> {
-
-    private static final String TAG = "Sean";
-    private CheckConnectionInterface mListener;
-    private HttpURLConnection urlc = null;
-
-    public CheckInternetTask(CheckConnectionInterface mListener) {
-        this.mListener = mListener;
-    }
-
-    @Override
-    protected Boolean doInBackground(Void... voids) {
-
-        Log.d(TAG, "doInBackground: ");
-        try {
-            urlc = (HttpURLConnection) (new URL("http://google.com").openConnection());
-            urlc.setRequestProperty("User-Agent", "Test");
-            urlc.setRequestProperty("Connection", "close");
-            urlc.setConnectTimeout(1500);
-            urlc.connect();
-            Log.d(TAG, "doInBackground: \nurlc.getResponseCode() == 200 " + (urlc.getResponseCode() == 200));
-            Log.d(TAG, "doInBackground: used the return inside");
-            return urlc.getResponseCode() == 200;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Log.d(TAG, "doInBackground: used the return outside");
-        return false;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean result) {
-        Log.d(TAG, "onPostExecute: ");
-        if (mListener != null)
-            mListener.checkConnection(result);
-    }
-}*/
 

@@ -172,52 +172,31 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         final RecyclerView mRecyclerView = findViewById(R.id.relatedPostsRecyclerView);
         final List<Users> usersList = new ArrayList<>();
         postsList = new ArrayList<>();
+        postsList.clear();
         mAdapter = new PostsRecyclerAdapter(postsList, usersList, VIEW_POST,
                 Glide.with(this), this);
-        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(
+                2, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(mAdapter);
         relatedProgressBar = findViewById(R.id.relatedPostsProgressBar);
         relatedProgressBar.setVisibility(View.VISIBLE);
         populateRelatedConditions();
-
-        if (relatedConditions.size() > 0) {
-            Collections.shuffle(relatedConditions);
-            int randomConditionPosition = new Random().nextInt(relatedConditions.size());
-            String randomCondition = relatedConditions.get(randomConditionPosition);
-            switch (randomCondition) {
-                case USER_POST:
-                    Log.d(TAG, "handleRelatedPosts: user posts");
-                    getOtherPostUserPosts();
-                    break;
-                case POST_TAGS:
-                    Log.d(TAG, "handleRelatedPosts: posts tags");
-                    getPostsRelatedBy(POST_TAGS);
-                    break;
-                case POST_CATEGORIES:
-                    Log.d(TAG, "handleRelatedPosts: post categories");
-                    getPostsRelatedBy(POST_CATEGORIES);
-                    break;
-                default:
-                    hideRelatedPostsView();
-//                    getRandomPosts();
-
-            }
-        }else{
-            hideRelatedPostsView();
-//            getRandomPosts();
-        }
     }
 
     private void hideRelatedPostsView() {
         ConstraintLayout relatedPostsView = findViewById(R.id.relatedPostsLayout);
         relatedPostsView.setVisibility(View.GONE);
     }
+    private void showRelatedPostsView() {
+        ConstraintLayout relatedPostsView = findViewById(R.id.relatedPostsLayout);
+        relatedPostsView.setVisibility(View.VISIBLE);
+    }
 
     private void getOtherPostUserPosts() {
-        CollectionReference userPostsRef = coMeth.getDb().collection(
-                USERS + "/" + postUserId + "/" + SUBSCRIPTIONS +
-                        "/" + MY_POSTS_DOC + "/" + MY_POSTS);
-        userPostsRef.limit(2).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        CollectionReference
+                userPostsRef = coMeth.getDb().collection(USERS + "/" + postUserId + "/" +
+                SUBSCRIPTIONS + "/" + MY_POSTS_DOC + "/" + MY_POSTS);
+        userPostsRef.limit(5).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (queryDocumentSnapshots.isEmpty() || queryDocumentSnapshots.size() == 1){
@@ -238,6 +217,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "onFailure: failed to get users posts\n" +
                                 e.getMessage(), e);
+                        hideRelatedPostsView();
                     }
                 });
     }
@@ -266,7 +246,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void handleRandomCondition(String randomTag, String mCollection) {
         Log.d(TAG, "handleRandomCondition: " + mCollection + " is " + randomTag);
-        coMeth.getDb().collection(mCollection).document(randomTag).collection(POSTS).limit(2).get()
+        coMeth.getDb().collection(mCollection).document(randomTag).collection(POSTS).limit(5).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -285,18 +265,21 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "onFailure: failed to get tagged post\n" +
                                 e.getMessage(), e);
+                        hideRelatedPostsView();
                     }
                 });
     }
 
     private void getPost(final String postId) {
+        showRelatedPostsView();
         coMeth.getDb().collection(POSTS).document(postId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()){
                             Posts post = Objects.requireNonNull(documentSnapshot.toObject(Posts.class)).withId(postId);
-                            if (!postId.equals(ViewPostActivity.this.postId) && postsList.size() < 3) {
+                            if (!postId.equals(ViewPostActivity.this.postId) &&
+                                    postsList.size() <= 1/* only get 2 posts */) {
                                 postsList.add(post);
                                 mAdapter.notifyDataSetChanged();
                                 coMeth.stopLoading(relatedProgressBar);
@@ -308,6 +291,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "onFailure: failed to get post\n" + e.getMessage(), e);
+                        hideRelatedPostsView();
                     }
                 });
     }
@@ -359,18 +343,58 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 Log.d(TAG, "onSuccess: related posts postUserId is " + postUserId + "\nuser posts: " + queryDocumentSnapshots.size());
                 if (queryDocumentSnapshots.size() > 1){
+                    Log.d("related", "onSuccess: user has " + queryDocumentSnapshots.size() + " posts");
                     relatedConditions.add(USER_POST);
                 }
                 if (post.getCategories() != null && !post.getCategories().isEmpty()) {
+                    Log.d("related", "onSuccess: categories are " + post.getCategories());
                     relatedConditions.add(POST_CATEGORIES);
                 }
                 if (post.getTags() != null && !post.getTags().isEmpty()) {
+                    Log.d("related", "onSuccess: tags are " + post.getTags());
                     relatedConditions.add(POST_TAGS);
                 }
                 Log.d(TAG, "populateRelatedConditions: \nrelated conditions size: " + relatedConditions.size() +
                         "\nrelated conditions: " + relatedConditions );
+
+                processRelatedConditions();
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "onFailure: failed to get user posts for related " + e.getMessage(), e);
+                hideRelatedPostsView();
             }
         });
+    }
+
+    private void processRelatedConditions() {
+        if (relatedConditions.size() > 0) {
+            Collections.shuffle(relatedConditions);
+            int randomConditionPosition = new Random().nextInt(relatedConditions.size());
+            String randomCondition = relatedConditions.get(randomConditionPosition);
+            switch (randomCondition) {
+                case USER_POST:
+                    Log.d(TAG, "handleRelatedPosts: related random condition is user posts");
+                    getOtherPostUserPosts();
+                    break;
+                case POST_TAGS:
+                    Log.d(TAG, "handleRelatedPosts: related random condition is posts tags");
+                    getPostsRelatedBy(POST_TAGS);
+                    break;
+                case POST_CATEGORIES:
+                    Log.d(TAG, "handleRelatedPosts: related random random condition is post categories");
+                    getPostsRelatedBy(POST_CATEGORIES);
+                    break;
+                default:
+                    hideRelatedPostsView();
+//                    getRandomPosts();
+            }
+        }else{
+            hideRelatedPostsView();
+//            getRandomPosts();
+        }
     }
 
     private void checkConnectivity() {

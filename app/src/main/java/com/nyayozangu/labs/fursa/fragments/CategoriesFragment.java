@@ -3,6 +3,7 @@ package com.nyayozangu.labs.fursa.fragments;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -29,11 +30,7 @@ import java.util.Objects;
  */
 public class CategoriesFragment extends Fragment {
 
-    private static final String TAG = "Sean";
-    private CoMeth coMeth = new CoMeth();
     public TabLayout catsTabsLayout;
-    private ProgressDialog progressDialog;
-
     private int[] tabIcons = {
             R.drawable.ic_categories_white,
             R.drawable.ic_action_tags_white
@@ -44,9 +41,8 @@ public class CategoriesFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
 
         ViewPager catsViewPager = view.findViewById(R.id.catsViewPager);
@@ -54,16 +50,17 @@ public class CategoriesFragment extends Fragment {
         catsTabsLayout = view.findViewById(R.id.catsTabsLayout);
         catsTabsLayout.setupWithViewPager(catsViewPager);
         setupTabIcons();
-
-        FloatingActionButton newPostFab = ((MainActivity)
-                Objects.requireNonNull(getActivity())).getNewPostFab();
-        newPostFab.setImageResource(R.drawable.ic_action_add_white);
-        newPostFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity)getActivity()).handleNewPostFab();
-            }
-        });
+        final MainActivity mainActivity = (MainActivity)getActivity();
+        if (mainActivity != null) {
+            FloatingActionButton newPostFab = mainActivity.getNewPostFab();
+            newPostFab.setImageResource(R.drawable.ic_action_add_white);
+            newPostFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mainActivity.handleNewPostFab();
+                }
+            });
+        }
 
         return view;
     }
@@ -79,10 +76,8 @@ public class CategoriesFragment extends Fragment {
         try {
             catsTabsLayout.getTabAt(0).setIcon(tabIcons[0]);
             catsTabsLayout.getTabAt(1).setIcon(tabIcons[1]);
-        } catch (NullPointerException setIconNull) {
-            Log.d(CoMeth.TAG, "setupTabIcons: failed to set tab icons\n" + setIconNull.getMessage());
+        } catch (NullPointerException e) {
+            Log.d(CoMeth.TAG, "setupTabIcons: failed to set tab icons\n" + e.getMessage());
         }
     }
-
-
 }
