@@ -78,8 +78,8 @@ dependencies {
     //expandable text view
     compile 'com.ms-square:expandableTextView:0.1.4'
     //mlkit
-    implementation 'com.google.firebase:firebase-ml-vision:16.0.0'
-    implementation 'com.google.firebase:firebase-ml-vision-image-label-model:15.0.0'
+//    implementation 'com.google.firebase:firebase-ml-vision:16.0.0'
+//    implementation 'com.google.firebase:firebase-ml-vision-image-label-model:15.0.0'
     //dynamic links
     implementation 'com.google.firebase:firebase-invites:15.0.1'
     //multi dex

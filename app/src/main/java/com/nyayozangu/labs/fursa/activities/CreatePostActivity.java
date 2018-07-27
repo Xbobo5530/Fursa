@@ -43,13 +43,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.label.FirebaseVisionLabel;
-import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetector;
-import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetectorOptions;
-import com.google.firebase.ml.vision.text.FirebaseVisionText;
-import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
+
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
@@ -107,8 +101,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
     private static final String LOCATION = "location";
-
-
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     //for file compression
     Bitmap compressedImageFile;
@@ -120,12 +112,12 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
             eventDateButton, eventEndDateButton, paymentButton;
     private Uri postImageUri;
     private String desc, postId,
-            imageText = "", imageLabels = "",
+//            imageText = "", imageLabels = "",
             downloadUri, downloadThumbUri,
             contactName,contactPhone, contactEmail,
             currentUserId, price;
     private Place postPlace = null;
-    private View contactDialogView, descDialogView;
+    private View contactDialogView;
     private ArrayList<String> contactDetails, catsStringsArray, locationArray, cats, tags;
     private Date eventDate, eventEndDate;
     private ArrayList<Integer> mSelectedCats;
@@ -428,7 +420,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
     private void showDescDialog() {
         LayoutInflater inflater = LayoutInflater.from(this);
-        descDialogView = inflater.inflate(R.layout.desc_dialog_content_layout, null);
+        View descDialogView = inflater.inflate(R.layout.desc_dialog_content_layout, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(CreatePostActivity.this);
         final EditText descField = descDialogView.findViewById(R.id.descDialogEditText);
         if (desc != null && !desc.isEmpty()) {
@@ -785,7 +777,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
 
                         //get download url
-                        downloadUri = task.getResult().getDownloadUrl().toString();
+//                        downloadUri = task.getResult().getDownloadUrl().toString();
+                        downloadUri = task.getResult().getUploadSessionUri().toString();
                         //handle results after attempting to upload
                         if (task.isSuccessful()) {
                             //upload complete
@@ -826,7 +819,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
+//                        downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
+                        downloadThumbUri = taskSnapshot.getUploadSessionUri().toString();
                         Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
                         if (!isEditPost()) {
                             createNewPost(postMap);
@@ -1025,12 +1019,12 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         if (downloadThumbUri != null) {
             postMap.put("thumb_url", downloadThumbUri);
         }
-        if (!imageLabels.isEmpty()) {
-            postMap.put("image_labels", imageLabels);
-        }
-        if (!imageText.isEmpty()) {
-            postMap.put("image_text", imageText);
-        }
+//        if (!imageLabels.isEmpty()) {
+//            postMap.put("image_labels", imageLabels);
+//        }
+//        if (!imageText.isEmpty()) {
+//            postMap.put("image_text", imageText);
+//        }
 
         postMap.put(DESC, desc);
         postMap.put(USER_ID_VAL , currentUserId);
@@ -1328,7 +1322,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 postImageUri = result.getUri();
                 createPostImageView.setImageURI(postImageUri);
                 //process image tags
-                processMLImage(postImageUri);
+//                processMLImage(postImageUri);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 //handle errors
@@ -1355,90 +1349,86 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    /**
-     * extract data from
-     *
-     * @param postImageUri image Uri
-     */
-    private void processMLImage(Uri postImageUri) {
-        Log.d(TAG, "processMLImage: ");
-        FirebaseVisionImage image = null;
-        try {
-            image = FirebaseVisionImage.fromFilePath(CreatePostActivity.this, postImageUri);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d(TAG, "processMLImage: e" + e.getMessage());
-        }
 
-        //initiate text detector
-        FirebaseVisionTextDetector textDetector = FirebaseVision.getInstance()
-                .getVisionTextDetector();
-        if (image != null) {
-            Task<FirebaseVisionText> result =
-                    textDetector.detectInImage(image)
-                            .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-                                @Override
-                                public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                                    // Task completed successfully
-                                    for (FirebaseVisionText.Block block : firebaseVisionText.getBlocks()) {
-                                        Rect boundingBox = block.getBoundingBox();
-                                        Point[] cornerPoints = block.getCornerPoints();
-                                        String text = block.getText();
-                                        String cleanText = text.replaceAll("\\P{L}+", " ");
-                                        imageText = imageText.concat(cleanText);
-                                        Log.d(TAG, "onSuccess: \n text is: " + text +
-                                                "\nclean text is: " + cleanText);
-                                        // TODO: 5/24/18 continue text handling
-                                    }
-
-                                }
-                            }).addOnFailureListener(
-                            new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    // Task failed with an exception
-                                    Log.d(TAG, "onFailure: e: " + e.getMessage());
-                                }
-                            });
-        }
-
-        //initiate image labeling
-        FirebaseVisionLabelDetector labelDetector = FirebaseVision.getInstance()
-                .getVisionLabelDetector();
-        FirebaseVisionLabelDetectorOptions options =
-                new FirebaseVisionLabelDetectorOptions.Builder()
-                        .setConfidenceThreshold(0.8f)
-                        .build();
-        if (image != null) {
-
-            Task<List<FirebaseVisionLabel>> result =
-                    labelDetector.detectInImage(image)
-                            .addOnSuccessListener(
-                                    new OnSuccessListener<List<FirebaseVisionLabel>>() {
-                                        @Override
-                                        public void onSuccess(List<FirebaseVisionLabel> labels) {
-                                            // Task completed successfully
-                                            for (FirebaseVisionLabel label : labels) {
-                                                String labelText = label.getLabel();
-                                                imageLabels = imageLabels.concat(labelText + " ");
-                                                String entityId = label.getEntityId();
-                                                float confidence = label.getConfidence();
-                                            }
-
-                                        }
-                                    })
-                            .addOnFailureListener(
-                                    new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "onFailure: " +
-                                                    "\nfailed to get labels off image: "
-                                                    + e.getMessage());
-                                        }
-                                    });
-
-        }
-    }
+//    private void processMLImage(Uri postImageUri) {
+//        Log.d(TAG, "processMLImage: ");
+//        FirebaseVisionImage image = null;
+//        try {
+//            image = FirebaseVisionImage.fromFilePath(CreatePostActivity.this, postImageUri);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            Log.d(TAG, "processMLImage: e" + e.getMessage());
+//        }
+//
+//        //initiate text detector
+//        FirebaseVisionTextDetector textDetector = FirebaseVision.getInstance()
+//                .getVisionTextDetector();
+//        if (image != null) {
+//            Task<FirebaseVisionText> result =
+//                    textDetector.detectInImage(image)
+//                            .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+//                                @Override
+//                                public void onSuccess(FirebaseVisionText firebaseVisionText) {
+//                                    // Task completed successfully
+//                                    for (FirebaseVisionText.Block block : firebaseVisionText.getBlocks()) {
+//                                        Rect boundingBox = block.getBoundingBox();
+//                                        Point[] cornerPoints = block.getCornerPoints();
+//                                        String text = block.getText();
+//                                        String cleanText = text.replaceAll("\\P{L}+", " ");
+//                                        imageText = imageText.concat(cleanText);
+//                                        Log.d(TAG, "onSuccess: \n text is: " + text +
+//                                                "\nclean text is: " + cleanText);
+//                                        // TODO: 5/24/18 continue text handling
+//                                    }
+//
+//                                }
+//                            }).addOnFailureListener(
+//                            new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    // Task failed with an exception
+//                                    Log.d(TAG, "onFailure: e: " + e.getMessage());
+//                                }
+//                            });
+//        }
+//
+//        //initiate image labeling
+//        FirebaseVisionLabelDetector labelDetector = FirebaseVision.getInstance()
+//                .getVisionLabelDetector();
+//        FirebaseVisionLabelDetectorOptions options =
+//                new FirebaseVisionLabelDetectorOptions.Builder()
+//                        .setConfidenceThreshold(0.8f)
+//                        .build();
+//        if (image != null) {
+//
+//            Task<List<FirebaseVisionLabel>> result =
+//                    labelDetector.detectInImage(image)
+//                            .addOnSuccessListener(
+//                                    new OnSuccessListener<List<FirebaseVisionLabel>>() {
+//                                        @Override
+//                                        public void onSuccess(List<FirebaseVisionLabel> labels) {
+//                                            // Task completed successfully
+//                                            for (FirebaseVisionLabel label : labels) {
+//                                                String labelText = label.getLabel();
+//                                                imageLabels = imageLabels.concat(labelText + " ");
+//                                                String entityId = label.getEntityId();
+//                                                float confidence = label.getConfidence();
+//                                            }
+//
+//                                        }
+//                                    })
+//                            .addOnFailureListener(
+//                                    new OnFailureListener() {
+//                                        @Override
+//                                        public void onFailure(@NonNull Exception e) {
+//                                            Log.d(TAG, "onFailure: " +
+//                                                    "\nfailed to get labels off image: "
+//                                                    + e.getMessage());
+//                                        }
+//                                    });
+//
+//        }
+//    }
 
     private void showProgress(String message) {
         progressDialog = new ProgressDialog(CreatePostActivity.this);

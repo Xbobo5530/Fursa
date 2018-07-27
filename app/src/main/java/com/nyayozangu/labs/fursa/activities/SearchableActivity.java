@@ -41,7 +41,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.models.Posts;
 import com.nyayozangu.labs.fursa.fragments.AllSearchResultsFragment;
-import com.nyayozangu.labs.fursa.fragments.ImageSearchResultsFragment;
 import com.nyayozangu.labs.fursa.fragments.LocationSearchResultsFragment;
 import com.nyayozangu.labs.fursa.fragments.PagesSearchResultsFragment;
 import com.nyayozangu.labs.fursa.fragments.TagsSearchResultsFragment;
@@ -70,7 +69,7 @@ public class SearchableActivity extends AppCompatActivity {
     private static final String TAGS = "Tags";
     private static final String PAGES = "Pages";
     private static final String LOCATION = "Location";
-    private static final String IMAGES = "Images";
+//    private static final String IMAGES = "Images";
     //common methods
     private CoMeth coMeth = new CoMeth();
     public String searchQuery;
@@ -423,7 +422,7 @@ public class SearchableActivity extends AppCompatActivity {
             tabsLayout.getTabAt(1).setIcon(tabIcons[1]);
             tabsLayout.getTabAt(2).setIcon(tabIcons[2]);
             tabsLayout.getTabAt(3).setIcon(tabIcons[3]);
-            tabsLayout.getTabAt(4).setIcon(tabIcons[4]);
+//            tabsLayout.getTabAt(4).setIcon(tabIcons[4]);
         }catch (NullPointerException setIconNull){
             Log.d(TAG, "setupTabIcons: failed to set tab icons\n" + setIconNull.getMessage());
         }
@@ -437,7 +436,7 @@ public class SearchableActivity extends AppCompatActivity {
         adapter.addFragment(new TagsSearchResultsFragment(), TAGS);
         adapter.addFragment(new PagesSearchResultsFragment(), PAGES);
         adapter.addFragment(new LocationSearchResultsFragment(), LOCATION);
-        adapter.addFragment(new ImageSearchResultsFragment(), IMAGES);
+//        adapter.addFragment(new ImageSearchResultsFragment(), IMAGES);
         searchViewPager.setAdapter(adapter);
     }
 

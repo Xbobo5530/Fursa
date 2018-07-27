@@ -328,8 +328,10 @@ public class AccountActivity extends AppCompatActivity {
         //check if the task is null
         if (uploadTaskSnapshot != null) {
             //new image uri
-            downloadUri = task.getResult().getDownloadUrl();
-            downloadThumbUri = uploadTaskSnapshot.getDownloadUrl();
+//            downloadUri = task.getResult().getDownloadUrl();
+            downloadUri = task.getResult().getUploadSessionUri();
+//            downloadThumbUri = uploadTaskSnapshot.getDownloadUrl();
+            downloadThumbUri = uploadTaskSnapshot.getUploadSessionUri();
         } else {
             //image uri has not changed
             downloadUri = userImageUri;
