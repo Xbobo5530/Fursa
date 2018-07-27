@@ -39,7 +39,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.CommentsActivity;
-import com.nyayozangu.labs.fursa.activities.MainActivity;
 import com.nyayozangu.labs.fursa.activities.UserPageActivity;
 import com.nyayozangu.labs.fursa.activities.UserPostsActivity;
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity;
@@ -58,13 +57,11 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_COLL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.DESTINATION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FOLLOWERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FOLLOWERS_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FOLLOWING;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOTO;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_COL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_FOLLOWERS_UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
@@ -110,7 +107,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private ProgressDialog progressDialog;
     private CoMeth coMeth = new CoMeth();
 
-    //empty constructor for receiving the posts
     public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList, String className,
                                 RequestManager glide, Activity activity) {
         this.postsList = postsList;
@@ -125,7 +121,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     public PostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                                               int viewType) {
 
-        //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
@@ -135,7 +130,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder,
                                  int position) {
-//        holder = mHolder;
         loadPostContent(position, holder);
     }
 
@@ -191,23 +185,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             });
             String title = post.getTitle();
             String desc = post.getDesc();
-            String description = "";
-            if (title != null){
-                description = description.concat(title);
-                if (desc != null){
-                    description = description.concat("\n" + desc);
-                    holder.descTextView.setText(description);
-                    holder.descTextView.setVisibility(View.VISIBLE);
-                }
-            }else {
-                if (desc != null) {
-                    description = description.concat("\n" + desc);
-                    holder.descTextView.setText(description);
-                    holder.descTextView.setVisibility(View.VISIBLE);
-                }else {
-                    holder.descTextView.setVisibility(View.GONE);
-                }
-            }
+            setDescription(holder, title, desc);
             //hide views
             holder.actionsLayout.setVisibility(View.GONE);
             holder.topLayout.setVisibility(View.GONE);
@@ -228,8 +206,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             final Users user = usersList.get(position);
             String title = post.getTitle();
             String desc = post.getDesc();
-            String description = title + "\n" + desc;
-            holder.setPostBasicData(description);
+            String description = getDescription(title, desc);
+//            holder.setPostBasicData(description);
+            setDescription(holder, title, desc);
             ArrayList locationArray = post.getLocation();
             holder.setPostLocation(locationArray);
             currentUserId = coMeth.getUid();
@@ -273,6 +252,26 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     openPost(postId);
                 }
             });
+        }
+    }
+
+    private void setDescription(@NonNull ViewHolder holder, String title, String desc) {
+        String description = "";
+        if (title != null && !title.isEmpty()){
+            description = description.concat(title);
+            if (desc != null && !desc.isEmpty()){
+                description = description.concat("\n" + desc);
+                holder.descTextView.setText(description);
+                holder.descTextView.setVisibility(View.VISIBLE);
+            }
+        }else {
+            if (desc != null && !desc.isEmpty()) {
+                description = description.concat(desc);
+                holder.descTextView.setText(description);
+                holder.descTextView.setVisibility(View.VISIBLE);
+            }else {
+                holder.descTextView.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -645,10 +644,28 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         shareDynamicLink(postUrl, description, imageUrl, holder);
     }
 
-    private String getDescription(String description){
+    private String getDescription(String title, String desc){
+        String description = "";
+        if (title != null && !title.isEmpty()){
+            description = description.concat(title);
+            if (desc != null && !desc.isEmpty()){
+                return description.concat("\n" + desc);
+            } else {
+                return "";
+            }
+        }else {
+            if (desc != null && !desc.isEmpty()) {
+                return  description.concat(desc);
+            }else{
+                return "";
+            }
+        }
+    }
+
+    private String getShareDescription(String description){
         if (description != null && !description.isEmpty()){
-            if (description.length() >= 80){
-                return description.substring(80);
+            if (description.length() >= 150){
+                return description.substring(0, 150);
             }else {
                 return description;
             }
@@ -674,8 +691,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         .build())
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
-                                .setTitle(context.getResources().getString(R.string.app_name))
-                                .setDescription(getDescription(description))
+                                .setTitle(getSharedTitle(description))
+                                .setDescription(getShareDescription(description))
                                 .setImageUrl(Uri.parse(getImageUrl(postImageUrl)))
                                 .build())
                 .buildShortDynamicLink()
@@ -684,10 +701,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     public void onComplete(@NonNull Task<ShortDynamicLink> task) {
                         if (task.isSuccessful()) {
                             Uri shortLink = task.getResult().getShortLink();
-                            Log.d(TAG, "onComplete: short link is: " + shortLink);
-
                             //show share dialog
-                            String fullShareMsg = getDescription(description) + "\n" + shortLink;
+                            String fullShareMsg = getShareDescription(description) + "\n" + shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");
                             shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.app_name));
@@ -702,6 +717,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                         }
                     }
                 });
+    }
+
+    @NonNull
+    private String getSharedTitle(String description) {
+        if (getShareDescription(description).contains("\n")){
+            return getShareDescription(description).substring(0,
+                    getShareDescription(description).indexOf("\n"));
+        }else{
+            return getShareDescription(description);
+        }
     }
 
     private String getImageUrl(String postImageUrl) {
@@ -851,15 +876,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                     .build();
             adView.loadAd(adRequest);
             adCard.setVisibility(View.VISIBLE);
-        }
-
-        void setPostBasicData(String desc) {
-            if (desc != null && !desc.isEmpty()){
-                descTextView.setVisibility(View.VISIBLE);
-                descTextView.setText(desc);
-            }else{
-                descTextView.setVisibility(View.GONE);
-            }
         }
     }
 

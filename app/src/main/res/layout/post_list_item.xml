@@ -41,7 +41,7 @@
                         app:srcCompat="@drawable/ic_action_person_placeholder" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_gravity="center"
@@ -80,7 +80,7 @@
                     <Button
                         android:id="@+id/postFollowButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="25dp"
                         android:text="@string/follow_text"
                         android:textColor="@color/primaryTextColor"
                         android:textAllCaps="false"

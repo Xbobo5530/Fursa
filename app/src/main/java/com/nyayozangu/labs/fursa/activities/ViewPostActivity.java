@@ -996,9 +996,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private void setDesc() {
         String title = post.getTitle();
         String desc = post.getDesc();
-        if (title != null){
+        if (title != null && !title.isEmpty()){
             description = description.concat(title);
-            if (desc != null){
+            if (desc != null && !desc.isEmpty()){
                 description = description.concat("\n" + desc);
                 descTextView.setText(description);
                 descTextView.setVisibility(View.VISIBLE);
@@ -1007,7 +1007,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 descTextView.setVisibility(View.VISIBLE);
             }
         }else{
-            if (desc != null){
+            if (desc != null && !desc.isEmpty()){
                 description = description.concat(desc);
                 descTextView.setText(description);
                 descTextView.setVisibility(View.VISIBLE);
@@ -1284,7 +1284,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         .build())
                 .setSocialMetaTagParameters(
                         new DynamicLink.SocialMetaTagParameters.Builder()
-                                .setTitle(getResources().getString(R.string.app_name))
+                                .setTitle(getSharedTitle())
                                 .setDescription(getDescription())
                                 .setImageUrl(Uri.parse(getPostImageUrl()))
                                 .build())
@@ -1297,7 +1297,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             Log.d(TAG, "onComplete: short link is: " + shortLink);
 
                             //show share dialog
-                            String fullShareMsg = getDescription().substring(30) + "\n" +
+                            String fullShareMsg = getDescription() + "\n" +
                                     shortLink;
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");
@@ -1317,10 +1317,19 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 });
     }
 
+    @NonNull
+    private String getSharedTitle() {
+        if (getDescription().contains("\n")){
+            return getDescription().substring(0, getDescription().indexOf("\n"));
+        }else {
+            return getDescription();
+        }
+    }
+
     private String getDescription() {
         if (description != null && !description.isEmpty()){
-            if (description.length() >= 80){
-                return description.substring(80);
+            if (description.length() >= 150){
+                return description.substring(0, 150);
             }else {
                 return description;
             }
