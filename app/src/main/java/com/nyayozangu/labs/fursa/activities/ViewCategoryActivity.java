@@ -314,13 +314,13 @@ ViewCategoryActivity extends AppCompatActivity {
                         if (!postsList.contains(post)) {
                             postsList.add(0,post);
                             usersList.add(0,user);
-                            mAdapter.notifyDataSetChanged();
+                            mAdapter.notifyItemInserted(postsList.size() - 1);
                         }
                     }else{
                         if (!postsList.contains(post)) {
                             postsList.add(post);
                             usersList.add(user);
-                            mAdapter.notifyDataSetChanged();
+                            mAdapter.notifyItemInserted(postsList.size() - 1);
                         }
                     }
                     coMeth.stopLoading(mProgressBar);

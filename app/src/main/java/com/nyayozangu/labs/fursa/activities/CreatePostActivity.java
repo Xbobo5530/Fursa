@@ -777,8 +777,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
 
                         //get download url
-//                        downloadUri = task.getResult().getDownloadUrl().toString();
-                        downloadUri = task.getResult().getUploadSessionUri().toString();
+                        downloadUri = task.getResult().getDownloadUrl().toString();
+//                        downloadUri = task.getResult().getUploadSessionUri().toString();
                         //handle results after attempting to upload
                         if (task.isSuccessful()) {
                             //upload complete
@@ -819,8 +819,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                        downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
-                        downloadThumbUri = taskSnapshot.getUploadSessionUri().toString();
+                        downloadThumbUri = taskSnapshot.getDownloadUrl().toString();
+//                        downloadThumbUri = taskSnapshot.getUploadSessionUri().toString();
                         Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
                         if (!isEditPost()) {
                             createNewPost(postMap);

@@ -113,15 +113,16 @@ class RecommendedTabFragment : Fragment() {
                             if (user != null) {
                                 usersList.add(0, user)
                                 postsList.add(0, post)
+                                adapter.notifyItemInserted(postsList.size - 1)
                             }
                         } else {
                             if (user != null) {
                                 usersList.add(user)
                                 postsList.add(post)
+                                adapter.notifyItemInserted(postsList.size - 1)
                             }
-                            adapter.notifyDataSetChanged()
-                            mProgressBar.visibility = View.GONE
                         }
+                        mProgressBar.visibility = View.GONE
                     }
                 }
                 .addOnFailureListener {

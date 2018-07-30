@@ -239,7 +239,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                     if (!postsList.contains(post)){
                         postsList.add(post);
                         usersList.add(user);
-                        mAdapter.notifyDataSetChanged();
+                        mAdapter.notifyItemInserted(postsList.size() - 1);
                         coMeth.stopLoading(progressDialog);
                     }
                 }
@@ -327,7 +327,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                                     documentSnapshot.toObject(Users.class)).withId(userId);
                             postsList.add(post);
                             usersList.add(user);
-                            mAdapter.notifyDataSetChanged();
+                            mAdapter.notifyItemInserted(postsList.size() - 1);
                             coMeth.stopLoading(progressDialog);
                             Log.d(TAG, "onSuccess: added post and user");
                         } else {

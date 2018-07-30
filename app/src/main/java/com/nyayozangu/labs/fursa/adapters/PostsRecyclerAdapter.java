@@ -87,13 +87,13 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.VIEW_POST;
 
 public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
 
-    // TODO: 6/14/18 add an impressions field for posts viewed on feed
 
     private static final String TAG = "Sean";
     private static final String VIEW_CAT_ACTIVITY = "ViewCategoryActivity";
     private static final String USER_POST_ACTIVITY = "UserPostsActivity";
     private static final String RECENT_FRAGMENT = "RecentFragment";
     private static final String POPULAR_FRAGMENT = "PopularFragment";
+    // TODO: 7/30/18 add two fields for view types Posts and Ads
 
     //member variables for storing posts
     public List<Posts> postsList;
@@ -121,6 +121,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     public PostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                                               int viewType) {
 
+        // TODO: 7/30/18 return a view holder based on the view type
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.post_list_item, parent, false);
         context = parent.getContext();
@@ -173,6 +174,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     private void loadPostContent(final int position, @NonNull final ViewHolder holder) {
 
         post = postsList.get(position);
+        final String postId = post.PostId;
 
         if (className.equals(VIEW_POST)){
             holder.setPostImage(post.getImage_url(), post.thumb_url);
@@ -180,7 +182,13 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             holder.postImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    openPost(post.PostId);
+                    openPost(postId);
+                }
+            });
+            holder.postCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openPost(postId);
                 }
             });
             String title = post.getTitle();
@@ -217,7 +225,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             final String imageUrl = post.getImage_url();
             String thumbUrl = post.getThumb_url();
             holder.setPostImage(imageUrl, thumbUrl);
-            final String postId = post.PostId;
             String userName = user.getName();
             String userImageUrl = user.getImage();
             handlePostActivity(holder, post);
@@ -801,8 +808,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         context.startActivity(goToLoginIntent);
     }
 
-    //implement the viewHolder
+    // TODO: 7/30/18 add a new view holder for the ads card
     class ViewHolder extends RecyclerView.ViewHolder {
+
+        // TODO: 7/30/18 create a build method taht will be called o bing view holder
+
+        // TODO: 7/30/18 move the corresponding methods down to the view holder
 
         View mView;
         private TextView postUsernameTextView;

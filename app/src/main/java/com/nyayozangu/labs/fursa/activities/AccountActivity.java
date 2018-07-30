@@ -330,8 +330,8 @@ public class AccountActivity extends AppCompatActivity {
             //new image uri
 //            downloadUri = task.getResult().getDownloadUrl();
             downloadUri = task.getResult().getUploadSessionUri();
-//            downloadThumbUri = uploadTaskSnapshot.getDownloadUrl();
-            downloadThumbUri = uploadTaskSnapshot.getUploadSessionUri();
+            downloadThumbUri = uploadTaskSnapshot.getDownloadUrl();
+//            downloadThumbUri = uploadTaskSnapshot.getUploadSessionUri();
         } else {
             //image uri has not changed
             downloadUri = userImageUri;
@@ -357,7 +357,7 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         //store data to db
-        coMeth.getDb().collection("Users").document(userId).set(usersMap)
+        coMeth.getDb().collection(USERS).document(userId).set(usersMap)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

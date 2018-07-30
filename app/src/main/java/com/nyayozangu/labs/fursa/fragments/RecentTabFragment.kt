@@ -115,13 +115,13 @@ class RecentTabFragment : Fragment() {
                             if (user != null) {
                                 usersList.add(0, user)
                                 postsList.add(0, post)
-                                adapter.notifyDataSetChanged()
+                                adapter.notifyItemInserted(postsList.size - 1)
                             }
                         } else {
                             if (user != null) {
                                 usersList.add(user)
                                 postsList.add(post)
-                                adapter.notifyDataSetChanged()
+                                adapter.notifyItemInserted(postsList.size - 1)
                             }
                         }
                         mProgressBar.visibility = View.GONE
