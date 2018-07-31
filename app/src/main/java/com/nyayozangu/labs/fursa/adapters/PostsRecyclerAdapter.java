@@ -67,6 +67,8 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.LIKES_COL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_FOLLOWERS_UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_ID;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_TYPE_AD;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_TYPE_POST;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_COL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_POSTS_DOC;
@@ -138,14 +140,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         post = postsList.get(position);
         switch (holder.getItemViewType()){
             case VIEW_TYPE_POST:
-//                Posts post = postsList.get(position);
-//                Users user = usersList.get(position);
                 ((PostViewHolder)holder).build(position, className);
                 break;
             case VIEW_TYPE_AD:
@@ -167,14 +166,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
 
-        Random random = new Random();
-        int randNum = random.nextInt((((position + 10) - position) + 1)) + position;
-        if (position == randNum && (className.equals(RECENT_FRAGMENT) ||
-                (className.equals(POPULAR_FRAGMENT) ||
-                        className.equals(VIEW_CAT_ACTIVITY)))) {
-            return VIEW_TYPE_AD;
-        } else {
-            return VIEW_TYPE_POST;
+        post = postsList.get(position);
+        int postType = post.getPost_type();
+        switch (postType){
+            case POST_TYPE_POST:
+                return VIEW_TYPE_POST;
+            case POST_TYPE_AD:
+                return VIEW_TYPE_AD;
+            default:
+                Log.w(TAG, "getItemViewType: post type error\npost type is: " + postType);
+                return 0; //default stat
         }
     }
 
@@ -910,9 +911,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         }
 
         void build(){
-            AdRequest adRequest = new AdRequest.Builder()
 //                    .addTestDevice("CD3E657857E4EEBE754743B250DCAB5E")
-                    .build();
+            AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd(adRequest);
         }
     }

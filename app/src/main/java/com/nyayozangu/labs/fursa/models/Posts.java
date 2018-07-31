@@ -32,7 +32,7 @@ public class Posts extends com.nyayozangu.labs.fursa.models.PostId {
     public String user_id, image_url, thumb_url, desc, title, price, image_text, image_labels;
     public ArrayList<String> location, contact_details, categories, tags;
     public Date timestamp, event_date, event_end_date;
-    public int likes, comments, views, activity, feed_views;
+    public int likes, comments, views, activity, feed_views, post_type;
 
     //empty constructor
     public Posts() {
@@ -43,7 +43,7 @@ public class Posts extends com.nyayozangu.labs.fursa.models.PostId {
                  String image_text, String desc, String title, String price,
                  Date timestamp, Date event_date, Date event_end_date,
                  ArrayList<String> categories, ArrayList<String> contact_details,
-                 ArrayList<String> location, ArrayList<String> tags, int likes, int comments, int views, int activity, int feed_views) {
+                 ArrayList<String> location, ArrayList<String> tags, int likes, int comments, int views, int activity, int feed_views, int post_type) {
         this.user_id = user_id;
         this.image_url = image_url;
         this.thumb_url = thumb_url;
@@ -65,7 +65,16 @@ public class Posts extends com.nyayozangu.labs.fursa.models.PostId {
         this.views = views;
         this.activity = activity;
         this.feed_views = feed_views;
+        this.post_type = post_type;
 
+    }
+
+    public int getPost_type() {
+        return post_type;
+    }
+
+    public void setPost_type(int post_type) {
+        this.post_type = post_type;
     }
 
     public Date getEvent_end_date() {

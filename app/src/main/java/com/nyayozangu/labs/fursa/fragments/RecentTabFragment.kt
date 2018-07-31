@@ -38,6 +38,7 @@ class RecentTabFragment : Fragment() {
     private lateinit var lastVisiblePost: DocumentSnapshot
     private lateinit var adapter: PostsRecyclerAdapter
     private lateinit var mProgressBar: ProgressBar
+    private var randomPosition = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -89,13 +90,15 @@ class RecentTabFragment : Fragment() {
                         postsList.clear()
                         usersList.clear()
 
+                        randomPosition = coMeth.generateRandomInt()
+                        Log.d(TAG, "random ad position is $randomPosition")
+
                         for (document in querySnapshot.documentChanges) {
                             if (document.type == DocumentChange.Type.ADDED) {
                                 val postId = document.document.id
                                 val post = document.document
                                         .toObject(Posts::class.java).withId<Posts>(postId)
                                 val postUserId = post.user_id
-                                //get user data
                                 getUserData(postUserId, post)
                             }
                         }
@@ -104,6 +107,14 @@ class RecentTabFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun addAd() {
+        val post = Posts()
+        post.post_type = POST_TYPE_AD
+        postsList.add(post)
+        adapter.notifyItemInserted(postsList.size - 1)
+        Log.d(TAG, "ad post is added")
     }
 
     private fun getUserData(postUserId: String, post: Posts) {
@@ -124,6 +135,9 @@ class RecentTabFragment : Fragment() {
                                 adapter.notifyItemInserted(postsList.size - 1)
                             }
                         }
+                        if (randomPosition == postsList.size) {
+                            addAd()
+                        }
                         mProgressBar.visibility = View.GONE
                     }
                 }
@@ -142,6 +156,8 @@ class RecentTabFragment : Fragment() {
             if (firebaseFirestoreException == null) {
                 if (!querySnapshot?.isEmpty!!) {
                     lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
+                    randomPosition = coMeth.generateRandomInt()
+
                     for (document in querySnapshot.documentChanges) {
                         if (document.type == DocumentChange.Type.ADDED) {
                             val postId = document.document.id

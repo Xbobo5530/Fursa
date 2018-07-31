@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
@@ -183,6 +184,8 @@ public class CoMeth{
     public static final String NAME = "name";
     public static final String IMAGE = "image";
     public static final String USER_POSTS = "user_posts";
+    public static final int POST_TYPE_POST = 0;
+    public static final int POST_TYPE_AD = 1;
 
     public String[] getCatTitle(Context context){
         return new String[]{
@@ -547,6 +550,10 @@ public class CoMeth{
             recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
         }
+    }
+
+    public int generateRandomInt() {
+        return new Random().nextInt(9);
     }
 }
 

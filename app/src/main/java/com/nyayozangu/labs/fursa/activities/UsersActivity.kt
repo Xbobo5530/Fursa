@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.content_users.*
 
 class UsersActivity: AppCompatActivity() {
 
+    //todo  handle the progress bar
     private val coMeth: CoMeth = CoMeth()
     private lateinit var mAdapter: UsersRecyclerAdapter
     private val usersList: MutableList<Users> = ArrayList()
