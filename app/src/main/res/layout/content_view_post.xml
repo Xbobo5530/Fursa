@@ -303,7 +303,6 @@
             android:id="@+id/viewPostTagsButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autoLink="all"
             android:background="@android:color/transparent"
             android:drawableStart="@drawable/ic_action_tags"
             android:drawablePadding="18dp"

@@ -215,7 +215,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             String title = post.getTitle();
             String desc = post.getDesc();
             String description = getDescription(title, desc);
-//            holder.setPostBasicData(description);
             setDescription(holder, title, desc);
             ArrayList locationArray = post.getLocation();
             holder.setPostLocation(locationArray);

@@ -1,9 +1,6 @@
 package com.nyayozangu.labs.fursa.activities;
 
 import android.app.ProgressDialog;
-import android.app.SearchManager;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,7 +17,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,7 +34,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
@@ -48,7 +43,6 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Users;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +68,8 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.PLACES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SERVICES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SUBSCRIPTIONS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.TAGS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.TAG_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.TIMESTAMP;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 
@@ -97,33 +93,39 @@ ViewCategoryActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private ProgressBar mProgressBar;
     private ActionBar actionBar;
-    CollectionReference catPostsRef;
+    private CollectionReference catPostsRef;
+    private CollectionReference tagPostRef;
+    private boolean isCats = false;
+    private boolean isTags = false;
+
+    private Intent intent;
 
     @Override
     protected void onNewIntent(Intent intent) {
         handleIntent();
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.view_cat_toolbar_menu, menu);
         //handle search
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.viewCatSearchMenuItem).getActionView();
-        if (searchManager != null) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(
-                    new ComponentName(this, SearchableActivity.class)));
-            searchView.setQueryHint(getResources().getString(R.string.search_hint));
-        }
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchView searchView = (SearchView) menu.findItem(R.id.viewCatSearchMenuItem).getActionView();
+//        if (searchManager != null) {
+//            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//            searchView.setSearchableInfo(searchManager.getSearchableInfo(
+//                    new ComponentName(this, SearchableActivity.class)));
+//            searchView.setQueryHint(getResources().getString(R.string.search_hint));
+//        }
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        goToMain();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        goToMain();
+//    }
 
     private void goToMain() {
         Intent goToMainIntent = new Intent(
@@ -210,16 +212,16 @@ ViewCategoryActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToMain();
+//                goToMain();
+                finish();
             }
         });
 
         mRecyclerView = findViewById(R.id.catRecyclerView);
+        mProgressBar = findViewById(R.id.catProgressBar);
+        subscribeFab = findViewById(R.id.subscribeCatFab);
         postsList = new ArrayList<>();
         usersList = new ArrayList<>();
-
-        mProgressBar = findViewById(R.id.catProgressBar);
-
         String className = "ViewCategoryActivity";
         mAdapter = new PostsRecyclerAdapter(postsList, usersList, className,
                 Glide.with(this), this);
@@ -233,7 +235,6 @@ ViewCategoryActivity extends AppCompatActivity {
             }
         });
         handleIntent();
-        subscribeFab = findViewById(R.id.subscribeCatFab);
         coMeth.showProgress(mProgressBar);
         handleSubFab();
         handleScrolling();
@@ -246,13 +247,47 @@ ViewCategoryActivity extends AppCompatActivity {
                 super.onScrolled(recyclerView, dx, dy);
                 Boolean reachedBottom = !mRecyclerView.canScrollVertically(1);
                 if (reachedBottom){
-                    loadMorePosts();
+                    if (isCats) {
+                        loadMoreCatPosts();
+                    }
+                    if (isTags){
+                        loadMoreTagPosts();
+                    }
                 }
             }
         });
     }
 
-    private void loadMorePosts() {
+    private void loadMoreTagPosts() {
+        coMeth.showProgress(mProgressBar);
+        tagPostRef.orderBy(TIMESTAMP, Query.Direction.DESCENDING).startAfter(lastVisiblePost)
+                .limit(10).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (!queryDocumentSnapshots.isEmpty()){
+                    lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() -1);
+                    for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()){
+                        if (documentChange.getType() == DocumentChange.Type.ADDED){
+                            String postId = documentChange.getDocument().getId();
+                            getPost(postId);
+                        }
+                    }
+                }
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "onFailure: failed to get tag posts\n" + e.getMessage());
+                String errorMessage = getResources().getString(R.string.error_text) + ": " + e.getMessage();
+                coMeth.stopLoading(mProgressBar);
+                showSnack(errorMessage);
+            }
+        });
+
+    }
+
+    private void loadMoreCatPosts() {
         coMeth.showProgress(mProgressBar);
         Query nextQuery = catPostsRef.orderBy(TIMESTAMP, Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
@@ -336,31 +371,46 @@ ViewCategoryActivity extends AppCompatActivity {
     }
 
     private void handleSubFab() {
-        if (coMeth.isConnected(this)) {
-            if (coMeth.isLoggedIn()) {
-                setFab();
-            }
-        } else {
-            coMeth.stopLoading(progressDialog);
-            showNoActionSnack(getString(R.string.failed_to_connect_text));
-        }
-        subscribeFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (coMeth.isConnected(ViewCategoryActivity.this)) {
-                    if (coMeth.isLoggedIn()) {
-                        showProgress(getString(R.string.subscribing_text));
-                        userId = coMeth.getUid();
-                        handleUserCatSubscription();
-                    } else {
-                        goToLogin(getString(R.string.log_to_subscribe_text));
-                    }
-                } else {
-                    coMeth.stopLoading(progressDialog);
-                    showNoActionSnack(getString(R.string.failed_to_connect_text));
+        if (isCats) {
+            if (coMeth.isConnected(this)) {
+                if (coMeth.isLoggedIn()) {
+                    setFab();
                 }
+            } else {
+                coMeth.stopLoading(progressDialog);
+                showNoActionSnack(getString(R.string.failed_to_connect_text));
             }
-        });
+            subscribeFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (coMeth.isConnected(ViewCategoryActivity.this)) {
+                        if (coMeth.isLoggedIn()) {
+                            showProgress(getString(R.string.subscribing_text));
+                            userId = coMeth.getUid();
+                            handleUserCatSubscription();
+                        } else {
+                            goToLogin(getString(R.string.log_to_subscribe_text));
+                        }
+                    } else {
+                        coMeth.stopLoading(progressDialog);
+                        showNoActionSnack(getString(R.string.failed_to_connect_text));
+                    }
+                }
+            });
+        }else{
+            subscribeFab.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem shareButton = menu.findItem(R.id.viewCatShareMenuItem);
+        if (isTags){
+            shareButton.setVisible(false);
+        }else {
+            shareButton.setVisible(true);
+        }
+        return true;
     }
 
     private void handleUserCatSubscription() {
@@ -419,27 +469,99 @@ ViewCategoryActivity extends AppCompatActivity {
 
 
     private void handleIntent() {
-        Intent intent = getIntent();
+        intent = getIntent();
         if (intent != null) {
-            if (intent.getStringExtra(CATEGORY) != null) {
+            String category = intent.getStringExtra(CATEGORY);
+            String tag = intent.getStringExtra(TAG_VAL);
+            if (category != null) {
+                isCats = true;
+                isTags = false;
                 currentCat = intent.getStringExtra(CATEGORY);
                 catPostsRef = coMeth.getDb().collection(CATEGORIES + "/" + currentCat + "/" + POSTS);
-                loadPosts();
+                loadCatPosts(catPostsRef);
                 setCurrentCat(currentCat);
+            } else if (tag != null){
+                isTags = true;
+                isCats = false;
+                tagPostRef = coMeth.getDb().collection(TAGS).document(tag).collection(POSTS);
+                loadTagPosts(tagPostRef);
+                actionBar.setTitle("#" + tag);
             } else {
                 //intent is from deep link
-                currentCat = handleDeepLink(getIntent());
+                currentCat = handleDeepLink();
                 setCurrentCat(currentCat);
                 catPostsRef = coMeth.getDb().collection(CATEGORIES + "/" + currentCat + "/" + POSTS);
-                loadPosts();
+                loadCatPosts(catPostsRef);
             }
         }else{
             goToMain();
         }
     }
 
-    private String handleDeepLink(Intent intent) {
+    private void loadTagPosts(final CollectionReference tagRef) {
+        tagRef.orderBy(TIMESTAMP, Query.Direction.ASCENDING).limit(10)
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()){
+                                lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                if (isFirstPageFirstLoad){
+                                    postsList.clear();
+                                    usersList.clear();
 
+                                    for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
+                                        if (document.getType() == DocumentChange.Type.ADDED){
+                                            String postId = document.getDocument().getId();
+                                            getPost(postId);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "onFailure: failed to get tag posts\n" + e.getMessage(), e);
+                    }
+                });
+    }
+
+    private void loadCatPosts(CollectionReference catPostsRef) {
+        catPostsRef.orderBy(TIMESTAMP, Query.Direction.ASCENDING).limit(10)
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                    if (isFirstPageFirstLoad) {
+                        postsList.clear();
+                        usersList.clear();
+
+                        for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
+                            if (document.getType() == DocumentChange.Type.ADDED) {
+                                String postId = document.getDocument().getId();
+                                getPost(postId);
+                            }
+                        }
+                    }
+                    isFirstPageFirstLoad = false;
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        String errorMessage = getResources().getString(R.string.error_text) + ": " + e.getMessage();
+                        Log.d(TAG, "onFailure: failed to get post ids from cats\n" +
+                                e.getMessage());
+                        coMeth.stopLoading(mProgressBar);
+                        showSnack(errorMessage);
+                    }
+                });
+    }
+
+    private String handleDeepLink() {
         String appLinkAction = intent.getAction();
         Uri appLinkData = intent.getData();
         if (Intent.ACTION_VIEW.equals(appLinkAction) && appLinkData != null) {
@@ -453,9 +575,7 @@ ViewCategoryActivity extends AppCompatActivity {
 
     private void setCurrentCat(String category) {
         if (category != null) {
-            Log.d(TAG, "cat is: " + category);
             if (actionBar != null) {
-
                 switch (category) {
                     case EVENTS:
                         actionBar.setTitle(getString(R.string.cat_events));
@@ -500,43 +620,7 @@ ViewCategoryActivity extends AppCompatActivity {
         }
     }
 
-    private void loadPosts() {
-        Query firstQuery = catPostsRef.orderBy(TIMESTAMP, Query.Direction.ASCENDING).limit(10);
-        firstQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                Log.d(TAG, "onSuccess: loading posts");
-                if (!queryDocumentSnapshots.isEmpty()) {
-                    lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                    if (isFirstPageFirstLoad) {
-                        postsList.clear();
-                        usersList.clear();
-
-                        for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
-                            if (document.getType() == DocumentChange.Type.ADDED) {
-                                String postId = document.getDocument().getId();
-                                getPost(postId);
-                            }
-                        }
-                    }
-                    isFirstPageFirstLoad = false;
-                }
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        String errorMessage = getResources().getString(R.string.error_text) + ": " + e.getMessage();
-                        Log.d(TAG, "onFailure: failed to get post ids from cats\n" +
-                                e.getMessage());
-                        coMeth.stopLoading(mProgressBar);
-                        showSnack(errorMessage);
-                    }
-                });
-    }
-
     private void setFab() {
-
         userId = coMeth.getUid();
         //check if user is subscribed
         coMeth.getDb().collection(USERS + "/" + userId + "/" + SUBSCRIPTIONS)

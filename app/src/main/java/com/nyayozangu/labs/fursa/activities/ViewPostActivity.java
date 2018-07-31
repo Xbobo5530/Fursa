@@ -660,8 +660,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         //delete post reference on user subs
                         coMeth.getDb().collection(USERS + "/" + currentUserId + "/" +
                                 SUBSCRIPTIONS + "/" + MY_POSTS_DOC + "/" + MY_POSTS)
-                                .document(postId)
-                                .delete()
+                                .document(postId).delete()
                                 .addOnSuccessListener(
                                         new OnSuccessListener<Void>() {
                                             @Override
@@ -1174,10 +1173,10 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 .setItems(tags.toArray(new String[0]), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent searchTagIntent = new Intent(
-                                ViewPostActivity.this, SearchableActivity.class);
-                        searchTagIntent.putExtra(TAG_NAME, tags.get(which));
-                        startActivity(searchTagIntent);
+                        Intent tagIntent = new Intent(
+                                ViewPostActivity.this, ViewCategoryActivity.class);
+                        tagIntent.putExtra(TAG_NAME, tags.get(which));
+                        startActivity(tagIntent);
                     }
                 })
                 .show();

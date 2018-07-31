@@ -3,15 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/commentSearchMenuItem"
-        android:actionViewClass="android.widget.SearchView"
-        android:icon="@drawable/ic_search_black_24dp"
-        android:title="Search"
-        android:visible="false"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/comSubMenuItem"
         android:icon="@drawable/ic_action_subscribe"
-        android:title="Subscribe"
+        android:title="@string/subscribe_text"
         app:showAsAction="always" />
 </menu>

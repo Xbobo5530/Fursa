@@ -31,8 +31,8 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorWhite"
                 android:theme="@style/ThemeOverlay.AppCompat.Light"
-                app:layout_scrollFlags="scroll|enterAlways"
-                app:menu="@menu/main_toolbar" />
+                app:layout_scrollFlags="scroll|enterAlways" />
+            <!--app:menu="@menu/main_toolbar"-->
         </android.support.design.widget.AppBarLayout>
 
         <android.support.design.widget.CoordinatorLayout

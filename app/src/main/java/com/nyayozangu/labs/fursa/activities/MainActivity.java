@@ -412,20 +412,20 @@ public class MainActivity extends AppCompatActivity implements
                 .show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_toolbar, menu);
-
-        //handle search
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.searchMainToolbarMenuItem).getActionView();
-        searchView.setSearchableInfo(Objects.requireNonNull(searchManager).getSearchableInfo(getComponentName()));
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(
-                new ComponentName(this, SearchableActivity.class)));
-        searchView.setQueryHint(getResources().getString(R.string.search_hint));
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.main_toolbar, menu);
+//
+//        //handle search
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchView searchView = (SearchView) menu.findItem(R.id.searchMainToolbarMenuItem).getActionView();
+//        searchView.setSearchableInfo(Objects.requireNonNull(searchManager).getSearchableInfo(getComponentName()));
+//        searchView.setSearchableInfo(searchManager.getSearchableInfo(
+//                new ComponentName(this, SearchableActivity.class)));
+//        searchView.setQueryHint(getResources().getString(R.string.search_hint));
+//        return true;
+//    }
 
     private void viewTermsAndConditions() {
         String url = CoMeth.TERMS_URL;
@@ -751,7 +751,6 @@ public class MainActivity extends AppCompatActivity implements
                     .requestIdToken(getString(R.string.default_web_client_id))
                     .requestEmail()
                     .build();
-            // TODO: 6/17/18 this is not working; signing out google users from google acc
             GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
             mGoogleSignInClient.signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override

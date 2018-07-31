@@ -2,19 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/viewCatSearchMenuItem"
-        android:icon="@drawable/ic_search_black_24dp"
-        android:title="@string/search_text"
-        app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="ifRoom" />
+    <!--<item-->
+        <!--android:id="@+id/viewCatSearchMenuItem"-->
+        <!--android:icon="@drawable/ic_search_black_24dp"-->
+        <!--android:title="@string/search_text"-->
+        <!--app:actionViewClass="android.widget.SearchView"-->
+        <!--app:showAsAction="ifRoom" />-->
     <item
         android:id="@+id/viewCatShareMenuItem"
         android:textAllCaps="false"
         android:title="@string/share_text"
         app:showAsAction="always" />
-    <!--<item
-        android:id="@+id/viewCatDetailsMenuItem"
-        android:title="@string/view_details_text" />-->
 
 </menu>

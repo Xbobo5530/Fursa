@@ -90,7 +90,6 @@ public class CoMeth{
     public static final String MY_POSTS_DOC = "my_posts";
     public static final String SAVED_POSTS_DOC = "saved_posts";
 
-
     public static final String CATEGORIES_VAL = "categories";
 
     public static final String TIMESTAMP = "timestamp";
@@ -169,6 +168,7 @@ public class CoMeth{
     public static final String VIEW_POST = "viewPostActivity";
     public static final String COMMENT = "comment";
     public static final String POST_ID_VAL = "post_id";
+    public static final String TAG_VAL = "tag";
     public static final String FOLLOWERS = "Followers";
     public static final String FOLLOWING = "Following";
     public static final String FOLLOWERS_VAL = "followers";

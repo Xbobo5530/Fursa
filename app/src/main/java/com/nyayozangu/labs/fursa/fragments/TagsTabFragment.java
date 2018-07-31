@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.fragments;
 
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,17 +31,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class TagsTabFragment extends Fragment {
 
     private static final String TAG = "Sean";
+    private static final String POST_COUNT = "post_count";
     private CoMeth coMeth = new CoMeth();
     private List<Tags> tagsList;
     private RecyclerView tagsRecyclerView;
     private TagsRecyclerAdapter tagsRecyclerAdapter;
-
     private ProgressBar progressBar;
 
     public TagsTabFragment() {
@@ -57,30 +55,21 @@ public class TagsTabFragment extends Fragment {
         tagsList = new ArrayList<>();
         tagsRecyclerAdapter = new TagsRecyclerAdapter(tagsList);
         coMeth.handlePostsView(getContext(), getActivity(), tagsRecyclerView);
-//        tagsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         tagsRecyclerView.setHasFixedSize(true);
         tagsRecyclerView.setAdapter(tagsRecyclerAdapter);
-
-        //show loading
-
-//        showProgress(getResources().getString(R.string.loading_text));
         progressBar = view.findViewById(R.id.tagTabsProgressBar);
-        progressBar.setVisibility(View.VISIBLE);
-        coMeth.getDb().collection(CoMeth.TAGS).orderBy("post_count", Query.Direction.DESCENDING)
-                .limit(30)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        coMeth.showProgress(progressBar);
+        coMeth.getDb().collection(CoMeth.TAGS).orderBy(POST_COUNT, Query.Direction.DESCENDING)
+                .limit(30).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                Log.d(TAG, "onEvent: adding tag to tagList");
                                 if (doc.getType() == DocumentChange.Type.ADDED) {
                                     Tags tag = doc.getDocument().toObject(Tags.class);
                                     tagsList.add(tag);
                                     tagsRecyclerAdapter.notifyDataSetChanged();
-                                    progressBar.setVisibility(View.GONE);
-                                    Log.d(TAG, "onEvent: added");
+                                    coMeth.stopLoading(progressBar);
                                 }
                             }
                         }
@@ -95,21 +84,22 @@ public class TagsTabFragment extends Fragment {
                     }
                 });
 
-        //handle reselect tab
-        ((MainActivity) Objects.requireNonNull(getActivity())).mainBottomNav
-                .setOnNavigationItemReselectedListener(
-                        new BottomNavigationView.OnNavigationItemReselectedListener() {
-                            @Override
-                            public void onNavigationItemReselected(@NonNull MenuItem item) {
-                                switch (item.getItemId()) {
-                                    case R.id.bottomNavCatItem:
-                                        tagsRecyclerView.smoothScrollToPosition(0);
-                                        break;
-                                    default:
-                                        Log.d(TAG, "onNavigationItemReselected: at default");
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (mainActivity != null) {
+           mainActivity.mainBottomNav.setOnNavigationItemReselectedListener(
+                            new BottomNavigationView.OnNavigationItemReselectedListener() {
+                                @Override
+                                public void onNavigationItemReselected(@NonNull MenuItem item) {
+                                    switch (item.getItemId()) {
+                                        case R.id.bottomNavCatItem:
+                                            tagsRecyclerView.smoothScrollToPosition(0);
+                                            break;
+                                        default:
+                                            Log.d(TAG, "onNavigationItemReselected: at default");
+                                    }
                                 }
-                            }
-                        });
+                            });
+        }
 
         return view;
     }

@@ -12,11 +12,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.activities.SearchableActivity;
+import com.nyayozangu.labs.fursa.activities.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Tags;
 
 import java.util.List;
+
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.TAG_VAL;
 
 
 public class TagsRecyclerAdapter extends
@@ -33,7 +35,6 @@ public class TagsRecyclerAdapter extends
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.d(TAG, "onCreateViewHolder: ");
 
         //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext())
@@ -45,7 +46,6 @@ public class TagsRecyclerAdapter extends
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        Log.d(TAG, "onBindViewHolder: tags recycler adapter");
         //get tags
         final String title = tagsList.get(position).getTitle();
         int postCount = tagsList.get(position).getPost_count();
@@ -57,9 +57,9 @@ public class TagsRecyclerAdapter extends
             @Override
             public void onClick(View v) {
 
-                Intent goSearchTagIntent = new Intent(context, SearchableActivity.class);
-                goSearchTagIntent.putExtra(context.getResources().getString(R.string.TAG_NAME), title);
-                context.startActivity(goSearchTagIntent);
+                Intent tagIntent = new Intent(context, ViewCategoryActivity.class);
+                tagIntent.putExtra(TAG_VAL, title);
+                context.startActivity(tagIntent);
             }
         });
 
