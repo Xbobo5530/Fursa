@@ -258,6 +258,7 @@ ViewCategoryActivity extends AppCompatActivity {
         });
     }
 
+    // TODO: 7/31/18 check why tags posts duplicate themselves
     private void loadMoreTagPosts() {
         coMeth.showProgress(mProgressBar);
         tagPostRef.orderBy(TIMESTAMP, Query.Direction.DESCENDING).startAfter(lastVisiblePost)

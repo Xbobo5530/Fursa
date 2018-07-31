@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/postLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -9,15 +8,19 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <android.support.v7.widget.CardView
-        android:id="@+id/postCardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp">
+            android:id="@+id/postCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -34,30 +37,30 @@
                         android:id="@+id/postUserImageImageView"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
+                        android:layout_gravity="center"
                         android:layout_marginBottom="8dp"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
-                        android:layout_gravity="center"
                         app:srcCompat="@drawable/ic_action_person_placeholder" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
                         android:layout_gravity="center"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/postUsernameTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:layout_marginEnd="8dp"
                             android:layout_marginStart="8dp"
                             android:maxLength="20"
                             android:maxLines="1"
                             android:text="@string/username_post_placeholder_text"
-                            android:textStyle="bold"
-                            android:layout_gravity="center" />
+                            android:textStyle="bold" />
 
 
                         <TextView
@@ -81,15 +84,15 @@
                         android:id="@+id/postFollowButton"
                         android:layout_width="wrap_content"
                         android:layout_height="25dp"
-                        android:text="@string/follow_text"
-                        android:textColor="@color/primaryTextColor"
-                        android:textAllCaps="false"
-                        android:background="@drawable/follow_button_shape"
                         android:layout_gravity="center"
+                        android:layout_marginBottom="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:visibility="gone"/>
+                        android:background="@drawable/follow_button_shape"
+                        android:text="@string/follow_text"
+                        android:textAllCaps="false"
+                        android:textColor="@color/primaryTextColor"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <ImageView
@@ -128,20 +131,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="8dp">
+
                         <ImageView
                             android:id="@+id/postLikeImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_action_like_unclicked" />
+
                         <TextView
                             android:id="@+id/postLikeCountText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:text="@string/like_text"
                             android:textAlignment="center"
-                            android:textSize="12sp"
-                            android:layout_gravity="center"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -150,20 +155,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="8dp">
+
                         <ImageView
                             android:id="@+id/postCommentImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_action_comment" />
+
                         <TextView
                             android:id="@+id/postCommentCountText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:text="@string/comment_text"
                             android:textAlignment="center"
-                            android:textSize="12sp"
-                            android:layout_gravity="center" />
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -184,10 +191,10 @@
                             android:id="@+id/postShareTextTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:text="@string/share_text"
                             android:textAlignment="center"
-                            android:textSize="12sp"
-                            android:layout_gravity="center"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -196,20 +203,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="8dp">
+
                         <ImageView
                             android:id="@+id/postSaveImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_action_bookmark_outline" />
+
                         <TextView
                             android:id="@+id/postSaveTextTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:text="@string/save_text"
                             android:textAlignment="center"
-                            android:textSize="12sp"
-                            android:layout_gravity="center"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -218,24 +227,27 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="8dp">
+
                         <ImageView
                             android:id="@+id/postActivityImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_action_activity" />
+
                         <TextView
                             android:id="@+id/postActivityTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:text="@string/activity_text"
-                            android:textColor="@color/views_color"
                             android:textAlignment="center"
-                            android:textSize="12sp"
-                            android:layout_gravity="center"/>
+                            android:textColor="@color/views_color"
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                 </LinearLayout>
+
                 <TextView
                     android:id="@+id/postDateTextView"
                     android:layout_width="wrap_content"
@@ -260,55 +272,55 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/postCardView" />
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/adCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:visibility="visible">
+        <!--<android.support.v7.widget.CardView-->
+            <!--android:id="@+id/adCard"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="8dp"-->
+            <!--android:layout_marginEnd="8dp"-->
+            <!--android:layout_marginStart="8dp"-->
+            <!--android:visibility="visible">-->
 
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/sponsoredLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+        <!--<android.support.constraint.ConstraintLayout-->
+        <!--android:id="@+id/sponsoredLayout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
 
-                <TextView
-                    android:id="@+id/sponsoredTextView"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
-                    android:padding="4dp"
-                    android:text="@string/sponsored_text"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold|italic"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+        <!--<TextView-->
+        <!--android:id="@+id/sponsoredTextView"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@color/colorPrimary"-->
+        <!--android:padding="4dp"-->
+        <!--android:text="@string/sponsored_text"-->
+        <!--android:textColor="@android:color/white"-->
+        <!--android:textSize="18sp"-->
+        <!--android:textStyle="bold|italic"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="parent" />-->
 
-                <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/adView"
-                    android:layout_width="300dp"
-                    android:layout_height="254dp"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="32dp"
-                    ads:adSize="MEDIUM_RECTANGLE"
-                    ads:adUnitId="ca-app-pub-6180360542591636/5341130287"
-                    ads:layout_constraintTop_toBottomOf="@+id/sponsoredTextView"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+        <!--<com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/adView"-->
+        <!--android:layout_width="300dp"-->
+        <!--android:layout_height="254dp"-->
+        <!--android:layout_marginBottom="16dp"-->
+        <!--android:layout_marginEnd="8dp"-->
+        <!--android:layout_marginStart="8dp"-->
+        <!--android:layout_marginTop="32dp"-->
+        <!--ads:adSize="MEDIUM_RECTANGLE"-->
+        <!--ads:adUnitId="ca-app-pub-6180360542591636/5341130287"-->
+        <!--ads:layout_constraintTop_toBottomOf="@+id/sponsoredTextView"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent" />-->
 
-            </android.support.constraint.ConstraintLayout>
+        <!--</android.support.constraint.ConstraintLayout>-->
 
-            <!--test: ca-app-pub-3940256099942544/6300978111-->
-            <!--ca-app-pub-6180360542591636/5341130287-->
+        <!--&lt;!&ndash;test: ca-app-pub-3940256099942544/6300978111&ndash;&gt;-->
+        <!--&lt;!&ndash;ca-app-pub-6180360542591636/5341130287&ndash;&gt;-->
 
-        </android.support.v7.widget.CardView>
+        <!--</android.support.v7.widget.CardView>-->
 
     </LinearLayout>
 

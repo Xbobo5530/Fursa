@@ -47,6 +47,7 @@ import com.nyayozangu.labs.fursa.models.Posts;
 import com.nyayozangu.labs.fursa.activities.LoginActivity;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Users;
+import com.twitter.sdk.android.core.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +78,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.TIMESTAMP;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID_VAL;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.VIEW_POST;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.CLASS_NAME_VIEW_POST;
 
 /**
  * Created by Sean on 4/4/18.
@@ -85,15 +86,16 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.VIEW_POST;
  * Adapter class for the Recycler view
  */
 
-public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
+public class PostsRecyclerAdapter extends RecyclerView.Adapter {
 
 
     private static final String TAG = "Sean";
+    private static final int VIEW_TYPE_POST = 0;
+    private static final int VIEW_TYPE_AD = 1;
     private static final String VIEW_CAT_ACTIVITY = "ViewCategoryActivity";
     private static final String USER_POST_ACTIVITY = "UserPostsActivity";
     private static final String RECENT_FRAGMENT = "RecentFragment";
     private static final String POPULAR_FRAGMENT = "PopularFragment";
-    // TODO: 7/30/18 add two fields for view types Posts and Ads
 
     //member variables for storing posts
     public List<Posts> postsList;
@@ -118,20 +120,38 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     @NonNull
     @Override
-    public PostsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                                              int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        // TODO: 7/30/18 return a view holder based on the view type
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.post_list_item, parent, false);
-        context = parent.getContext();
-        return new ViewHolder(view);
+        switch (viewType){
+            case VIEW_TYPE_POST:
+                View postView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.post_list_item, parent, false);
+                context = parent.getContext();
+                return new PostViewHolder(postView);
+            case VIEW_TYPE_AD:
+                View adView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.ad_list_item, parent, false);
+                context = parent.getContext();
+                return new AdViewHolder(adView);
+            default:
+                return null;
+        }
     }
 
+
     @Override
-    public void onBindViewHolder(@NonNull final PostsRecyclerAdapter.ViewHolder holder,
-                                 int position) {
-        loadPostContent(position, holder);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        post = postsList.get(position);
+        switch (holder.getItemViewType()){
+            case VIEW_TYPE_POST:
+//                Posts post = postsList.get(position);
+//                Users user = usersList.get(position);
+                ((PostViewHolder)holder).build(position, className);
+                break;
+            case VIEW_TYPE_AD:
+                ((AdViewHolder)holder).build();
+                break;
+        }
     }
 
     @Override
@@ -146,7 +166,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
     @Override
     public int getItemViewType(int position) {
-        return position;
+
+        Random random = new Random();
+        int randNum = random.nextInt((((position + 10) - position) + 1)) + position;
+        if (position == randNum && (className.equals(RECENT_FRAGMENT) ||
+                (className.equals(POPULAR_FRAGMENT) ||
+                        className.equals(VIEW_CAT_ACTIVITY)))) {
+            return VIEW_TYPE_AD;
+        } else {
+            return VIEW_TYPE_POST;
+        }
     }
 
     static void updateFeedViews(Posts post) {
@@ -165,103 +194,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
     }
 
+
     @Override
-    public void onViewRecycled(@NonNull ViewHolder holder) {
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
-        glide.clear(holder.postImageView);
-    }
-
-    private void loadPostContent(final int position, @NonNull final ViewHolder holder) {
-
-        post = postsList.get(position);
-        final String postId = post.PostId;
-
-        if (className.equals(VIEW_POST)){
-            holder.setPostImage(post.getImage_url(), post.thumb_url);
-            holder.postImageView.setVisibility(View.VISIBLE);
-            holder.postImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openPost(postId);
-                }
-            });
-            holder.postCardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openPost(postId);
-                }
-            });
-            String title = post.getTitle();
-            String desc = post.getDesc();
-            setDescription(holder, title, desc);
-            //hide views
-            holder.actionsLayout.setVisibility(View.GONE);
-            holder.topLayout.setVisibility(View.GONE);
-            holder.adCard.setVisibility(View.GONE);
-            holder.postDateTextView.setVisibility(View.GONE);
-
-        }else {
-            Random random = new Random();
-            int randNum = random.nextInt((((position + 10) - position) + 1)) + position;
-            if (position == randNum && (className.equals(RECENT_FRAGMENT) ||
-                            (className.equals(POPULAR_FRAGMENT) ||
-                                    className.equals(VIEW_CAT_ACTIVITY)))) {
-                holder.setAd();
-            } else {
-                holder.adCard.setVisibility(View.GONE);
-            }
-
-            final Users user = usersList.get(position);
-            String title = post.getTitle();
-            String desc = post.getDesc();
-            String description = getDescription(title, desc);
-            setDescription(holder, title, desc);
-            ArrayList locationArray = post.getLocation();
-            holder.setPostLocation(locationArray);
-            currentUserId = coMeth.getUid();
-            String postUserId = post.getUser_id();
-            new UpdatePostActivityTask().execute();
-            final String imageUrl = post.getImage_url();
-            String thumbUrl = post.getThumb_url();
-            holder.setPostImage(imageUrl, thumbUrl);
-            String userName = user.getName();
-            String userImageUrl = user.getImage();
-            handlePostActivity(holder, post);
-            holder.postUsernameTextView.setText(userName);
-            setUserImage(holder, user, userImageUrl);
-            handleFollowButton(holder, postUserId);
-            handlePostDate(holder);
-
-            CollectionReference likesRef = coMeth.getDb().collection(
-                    POSTS + "/" + postId + "/" + LIKES_COL);
-            handleLikesCount(holder, likesRef);
-            if (coMeth.isConnected(context) && coMeth.isLoggedIn()) {
-                handlePostLikes(holder, postId, likesRef);
-                handlePostSaves(holder, postId);
-            } else {
-                handlePostActionsConnectionException(holder);
-                handlePostActionsLoginException(holder);
-            }
-            handleSharePost(position, holder, description);
-            handlePostCommentsCount(holder, postId);
-            //comment icon click action
-            holder.commentLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openComments(postId);
-                }
-            });
-
-            holder.postCardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openPost(postId);
-                }
-            });
+        if (holder.getItemViewType() == VIEW_TYPE_POST){
+            glide.clear(((PostViewHolder)holder).postImageView);
         }
     }
 
-    private void setDescription(@NonNull ViewHolder holder, String title, String desc) {
+    private void setDescription(@NonNull PostViewHolder holder, String title, String desc) {
         String description = "";
         if (title != null && !title.isEmpty()){
             description = description.concat(title);
@@ -281,16 +223,16 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void handleSharePost(final int position, @NonNull final ViewHolder holder, final String description) {
+    private void handleSharePost(final Posts post, @NonNull final PostViewHolder holder, final String description) {
         holder.shareLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sharePost(holder, postsList.get(position), description);
+                sharePost(holder, post, description);
             }
         });
     }
 
-    private void handlePostCommentsCount(@NonNull final ViewHolder holder, String postId) {
+    private void handlePostCommentsCount(@NonNull final PostViewHolder holder, String postId) {
         coMeth.getDb().collection(POSTS + "/" + postId + "/" + COMMENTS_COLL)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -307,7 +249,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
     }
 
-    private void handlePostActionsLoginException(@NonNull ViewHolder holder) {
+    private void handlePostActionsLoginException(@NonNull PostViewHolder holder) {
         if (!coMeth.isLoggedIn()) {
             holder.saveLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -324,7 +266,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void handlePostActionsConnectionException(@NonNull final ViewHolder holder) {
+    private void handlePostActionsConnectionException(@NonNull final PostViewHolder holder) {
         if (!coMeth.isConnected(context)) {
             holder.saveLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -341,7 +283,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void handlePostSaves(@NonNull final ViewHolder holder, final String postId) {
+    private void handlePostSaves(@NonNull final PostViewHolder holder, final String postId) {
         coMeth.getDb().collection(POSTS + "/" + postId + "/" + SAVED_COL)
                 .document(currentUserId)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -375,7 +317,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
     }
 
-    private void handlePostLikes(@NonNull final ViewHolder holder, final String postId, CollectionReference likesRef) {
+    private void handlePostLikes(@NonNull final PostViewHolder holder, final String postId, CollectionReference likesRef) {
         likesRef.document(currentUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot,
@@ -412,7 +354,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
     }
 
-    private void handleLikesCount(@NonNull final ViewHolder holder, CollectionReference likesRef) {
+    private void handleLikesCount(@NonNull final PostViewHolder holder, CollectionReference likesRef) {
         likesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -431,7 +373,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
     }
 
-    private void handlePostDate(@NonNull ViewHolder holder) {
+    private void handlePostDate(@NonNull PostViewHolder holder) {
         if (post.getTimestamp() != null) {
             long millis = post.getTimestamp().getTime();
             String dateString = coMeth.processPostDate(millis, context);
@@ -441,7 +383,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void setUserImage(@NonNull ViewHolder holder, final Users user, String userImageUrl) {
+    private void setUserImage(@NonNull PostViewHolder holder, final Users user, String userImageUrl) {
         coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, userImageUrl,
                 holder.postUserImageView, context);
         holder.postUserImageView.setOnClickListener(new View.OnClickListener() {
@@ -453,7 +395,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
     }
 
-    private void handleFollowButton(final @NonNull ViewHolder holder, final String postUserId) {
+    private void handleFollowButton(final @NonNull PostViewHolder holder, final String postUserId) {
         final Button mFollowButton = holder.followButton;
         if (coMeth.isLoggedIn()){
             if (postUserId.equals(currentUserId)){
@@ -480,7 +422,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void checkUserStatus(@NonNull final ViewHolder holder, final String postUserId, final Button mFollowButton) {
+    private void checkUserStatus(@NonNull final PostViewHolder holder, final String postUserId, final Button mFollowButton) {
         CollectionReference followingRef = coMeth.getDb().collection(
                 USERS + "/" + currentUserId + "/" + FOLLOWING);
         followingRef.document(postUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -512,7 +454,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         });
     }
 
-    private void followUser(final @NonNull ViewHolder holder, final String postUserId) {
+    private void followUser(final @NonNull PostViewHolder holder, final String postUserId) {
         Map<String, Object> followerMap = new HashMap<>();
         followerMap.put(TIMESTAMP, FieldValue.serverTimestamp());
         followerMap.put(USER_ID_VAL, currentUserId);
@@ -535,7 +477,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 });
     }
 
-    private void addFollowRef(final @NonNull ViewHolder holder, final String postUserId) {
+    private void addFollowRef(final @NonNull PostViewHolder holder, final String postUserId) {
         Map<String, Object> followingMap = new HashMap<>();
         followingMap.put(USER_ID_VAL, postUserId);
         followingMap.put(TIMESTAMP, FieldValue.serverTimestamp());
@@ -572,7 +514,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     }
 
 
-    private void handlePostActivity(final @NonNull ViewHolder holder, Posts post) {
+    private void handlePostActivity(final @NonNull PostViewHolder holder, Posts post) {
         if (coMeth.isLoggedIn() && coMeth.getUid().equals(post.getUser_id())){
             holder.activityLayout.setVisibility(View.VISIBLE);
             int activityCount = post.getActivity();
@@ -614,7 +556,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .delete();
     }
 
-    private void savePost(final @NonNull ViewHolder holder, String postId) {
+    private void savePost(final @NonNull PostViewHolder holder, String postId) {
         Map<String, Object> savesMap = new HashMap<>();
         savesMap.put(CoMeth.TIMESTAMP, FieldValue.serverTimestamp());
         //save new post
@@ -641,7 +583,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
                 .delete();
     }
 
-    private void sharePost(final @NonNull ViewHolder holder, Posts post, String description) {
+    private void sharePost(final @NonNull PostViewHolder holder, Posts post, String description) {
         showProgress(context.getString(R.string.loading_text));
         //create post url
         String postId = post.PostId;
@@ -687,7 +629,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     }
 
     private void shareDynamicLink(String postUrl, final String description,
-                                  final String postImageUrl, final ViewHolder holder) {
+                                  final String postImageUrl, final PostViewHolder holder) {
         FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(postUrl))
                 .setDynamicLinkDomain(context.getString(R.string.dynamic_link_domain))
@@ -744,7 +686,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
     }
 
     private void openPost(String postId) {
-        if (className.equals(VIEW_POST)){
+        if (className.equals(CLASS_NAME_VIEW_POST)){
             ((ViewPostActivity)context).finish();
             Intent openPostIntent = new Intent(context, ViewPostActivity.class);
             openPostIntent.putExtra(POST_ID, postId);
@@ -756,12 +698,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         }
     }
 
-    private void showSnack(String message, final @NonNull ViewHolder holder) {
+    private void showSnack(String message, final @NonNull PostViewHolder holder) {
         Snackbar.make(holder.mView.findViewById(R.id.postLayout),
                 message, Snackbar.LENGTH_LONG).show();
     }
 
-    private void showSaveSnack(String message, final @NonNull ViewHolder holder) {
+    private void showSaveSnack(String message, final @NonNull PostViewHolder holder) {
 
         //check current class
         switch (className) {
@@ -807,12 +749,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         context.startActivity(goToLoginIntent);
     }
 
-    // TODO: 7/30/18 add a new view holder for the ads card
-    class ViewHolder extends RecyclerView.ViewHolder {
-
-        // TODO: 7/30/18 create a build method taht will be called o bing view holder
-
-        // TODO: 7/30/18 move the corresponding methods down to the view holder
+    class PostViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
         private TextView postUsernameTextView;
@@ -820,12 +757,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         private TextView postLikesCount, postCommentCount, postLocationTextView,
                 postDateTextView, descTextView, activityTextView;
         private ImageView postSaveButton, postImageView, postLikeButton;
-        private CardView adCard, postCardView;
+        private CardView postCardView;
         private LinearLayout activityLayout, likeLayout, saveLayout, commentLayout,
                 shareLayout, topLayout, actionsLayout;
         private Button followButton;
 
-        ViewHolder(View itemView) {
+        PostViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
 
@@ -852,7 +789,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             topLayout = mView.findViewById(R.id.postTopLayout);
             actionsLayout = mView.findViewById(R.id.postActionsLayout);
 
-            adCard = mView.findViewById(R.id.adCard);
         }
         //retrieve the image
         void setPostImage(final String imageDownloadUrl, final String thumbDownloadUrl) {
@@ -865,11 +801,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         }
 
-        void setPostLocation(ArrayList locationArray) {
+        void setPostLocation(ArrayList<String> locationArray) {
             if (locationArray != null) {
                 String locationString = "";
                 for (int i = 0; i < locationArray.size(); i++) {
-                    locationString = locationString.concat(locationArray.get(i).toString() + "\n");
+                    locationString = locationString.concat(locationArray.get(i) + "\n");
                 }
                 postLocationTextView.setText(locationString.trim());
             } else {
@@ -877,15 +813,108 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
             }
         }
 
-        //set ad
-        void setAd() {
-            Log.d(TAG, "setAd: ");
-            AdView adView = mView.findViewById(R.id.adView);
+        public void build(int position, String className) {
+            //check class name
+            switch (className){
+                case CLASS_NAME_VIEW_POST:
+                   handlePostInViewPost(post);
+                   break;
+               default:
+                   Users user = usersList.get(position);
+                   handleNormalPost(post, user);
+            }
+        }
+
+        private void handleNormalPost(Posts post, Users user) {
+
+            String title = post.getTitle();
+            String desc = post.getDesc();
+            String description = getDescription(title, desc);
+            setDescription(this, title, desc);
+            ArrayList<String> locationArray = post.getLocation();
+            setPostLocation(locationArray);
+            currentUserId = coMeth.getUid();
+            String postUserId = post.getUser_id();
+            final String imageUrl = post.getImage_url();
+            String thumbUrl = post.getThumb_url();
+            setPostImage(imageUrl, thumbUrl);
+            String userName = user.getName();
+            String userImageUrl = user.getImage();
+            handlePostActivity(this, post);
+            postUsernameTextView.setText(userName);
+            setUserImage(this, user, userImageUrl);
+            handleFollowButton(this, postUserId);
+            handlePostDate(this);
+
+            final String postId = post.PostId;
+            CollectionReference likesRef = coMeth.getDb().collection(
+                    POSTS + "/" + postId + "/" + LIKES_COL);
+            handleLikesCount(this, likesRef);
+            if (coMeth.isConnected(context) && coMeth.isLoggedIn()) {
+                handlePostLikes(this, postId, likesRef);
+                handlePostSaves(this, postId);
+            } else {
+                handlePostActionsConnectionException(this);
+                handlePostActionsLoginException(this);
+            }
+            handleSharePost(post, this, description);
+            handlePostCommentsCount(this, postId);
+            commentLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openComments(postId);
+                }
+            });
+            postCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openPost(postId);
+                }
+            });
+            new UpdatePostActivityTask().execute();
+        }
+
+        private void handlePostInViewPost(Posts post) {
+            setPostImage(post.getImage_url(), post.thumb_url);
+            postImageView.setVisibility(View.VISIBLE);
+            final String postId = post.PostId;
+            postImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openPost(postId);
+                }
+            });
+            postCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openPost(postId);
+                }
+            });
+            String title = post.getTitle();
+            String desc = post.getDesc();
+            setDescription(this, title, desc);
+            //hide views
+            actionsLayout.setVisibility(View.GONE);
+            topLayout.setVisibility(View.GONE);
+            postDateTextView.setVisibility(View.GONE);
+        }
+    }
+
+    class AdViewHolder extends RecyclerView.ViewHolder {
+
+        private AdView adView;
+
+        AdViewHolder(View itemView) {
+            super(itemView);
+            adView = itemView.findViewById(R.id.adView);
+
+        }
+
+        void build(){
             AdRequest adRequest = new AdRequest.Builder()
 //                    .addTestDevice("CD3E657857E4EEBE754743B250DCAB5E")
                     .build();
             adView.loadAd(adRequest);
-            adCard.setVisibility(View.VISIBLE);
         }
     }
 
@@ -893,7 +922,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Log.d(TAG, "doInBackground: post is " + post.getTitle());
             updateFeedViews(post);
             return null;
         }

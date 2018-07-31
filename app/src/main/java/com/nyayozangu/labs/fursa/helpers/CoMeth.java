@@ -165,7 +165,7 @@ public class CoMeth{
     public static final String SAVED_COL = "Saves";
     public static final String TAGS_VAL = "tags";
     public static final String POSTS_VAL = "posts";
-    public static final String VIEW_POST = "viewPostActivity";
+    public static final String CLASS_NAME_VIEW_POST = "viewPostActivity";
     public static final String COMMENT = "comment";
     public static final String POST_ID_VAL = "post_id";
     public static final String TAG_VAL = "tag";

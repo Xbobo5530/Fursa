@@ -48,7 +48,6 @@ import com.nyayozangu.labs.fursa.helpers.Notify;
 import com.nyayozangu.labs.fursa.models.Users;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -84,7 +83,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.TAG_NAME;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.TIMESTAMP;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.VIEW_POST;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.CLASS_NAME_VIEW_POST;
 
 public class ViewPostActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -173,7 +172,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         final List<Users> usersList = new ArrayList<>();
         postsList = new ArrayList<>();
         postsList.clear();
-        mAdapter = new PostsRecyclerAdapter(postsList, usersList, VIEW_POST,
+        mAdapter = new PostsRecyclerAdapter(postsList, usersList, CLASS_NAME_VIEW_POST,
                 Glide.with(this), this);
         mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(
                 2, StaggeredGridLayoutManager.VERTICAL));
@@ -1269,7 +1268,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         Intent commentsIntent = new Intent(
                 ViewPostActivity.this, CommentsActivity.class);
         commentsIntent.putExtra(POST_ID, postId);
-        commentsIntent.putExtra(SOURCE, VIEW_POST);
+        commentsIntent.putExtra(SOURCE, CLASS_NAME_VIEW_POST);
         startActivity(commentsIntent);
     }
 
