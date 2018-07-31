@@ -834,15 +834,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
             ArrayList<String> locationArray = post.getLocation();
             setPostLocation(locationArray);
             currentUserId = coMeth.getUid();
-            String postUserId = post.getUser_id();
-            final String imageUrl = post.getImage_url();
+            String imageUrl = post.getImage_url();
             String thumbUrl = post.getThumb_url();
             setPostImage(imageUrl, thumbUrl);
-            String userName = user.getName();
-            String userImageUrl = user.getImage();
             handlePostActivity(this, post);
-            postUsernameTextView.setText(userName);
+            postUsernameTextView.setText(user.getName());
+            String userImageUrl = user.getImage();
             setUserImage(this, user, userImageUrl);
+            String postUserId = post.getUser_id();
             handleFollowButton(this, postUserId);
             handlePostDate(this);
 
