@@ -190,7 +190,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
                 // create a user reference,
                 currentUserId = coMeth.getUid();
                 if (currentUserId.equals(userId)){
-                    mFollowButton.setVisibility(View.VISIBLE);
+                    mFollowButton.setVisibility(View.GONE);
                 }else{
                     DocumentReference userRef = coMeth.getDb()
                             .collection(USERS + "/" + userId + "/" + FOLLOWERS).document(currentUserId);

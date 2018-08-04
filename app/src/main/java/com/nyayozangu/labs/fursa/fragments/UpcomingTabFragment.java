@@ -177,25 +177,15 @@ public class UpcomingTabFragment extends Fragment {
             if (document.getType() == DocumentChange.Type.ADDED){
                 String postId = document.getDocument().getId();
                 Post post = document.getDocument().toObject(Post.class).withId(postId);
-                Date eventDate = post.getEvent_date();
-                Date eventEndDate = post.getEvent_end_date();
+                Date eventDate = post.getEvent_date().toDate();
+                Date eventEndDate = post.getEvent_end_date().toDate();
                 Log.d(TAG, "filterUpcomingPosts: \nevent date is: " + eventDate + "\nend date is: " + eventEndDate + "\ntoday is: " + today);
-                if (eventDate != null || eventEndDate != null){
 
-                    long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
-                    Date mEventDate = new Date(post.getEvent_date().getTime() - twoThouNineHundYears);
-
-                    if (eventEndDate == null){
-                        if (mEventDate.after(today)){
-                            getUserDetails(post);
-                        }
-                    }else{
-                        //end date is not null
-                        Date mEventEndDate = new Date(post.getEvent_end_date().getTime() - twoThouNineHundYears);
-                        if (today.before(mEventEndDate)){
-                            getUserDetails(post);
-                        }
-                    }
+                long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
+                Date mEventDate = new Date(post.getEvent_date().toDate().getTime() - twoThouNineHundYears);
+                Date mEventEndDate = new Date(post.getEvent_end_date().toDate().getTime() - twoThouNineHundYears);
+                if (today.after(mEventDate) || today.before(mEventEndDate)) {
+                    getUserDetails(post);
                 }
             }
         }

@@ -484,9 +484,9 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                 if (post.getContact_details() != null)
                                     contactDetails = post.getContact_details();
                                 if (post.getEvent_date() != null)
-                                    eventDate = post.getEvent_date();
+                                    eventDate = post.getEvent_date().toDate();
                                 if (post.getEvent_end_date() != null){
-                                    eventEndDate = post.getEvent_end_date();
+                                    eventEndDate = post.getEvent_end_date().toDate();
                                 }
                                 if (post.getPrice() != null)
                                     price = post.getPrice();
@@ -1273,13 +1273,13 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
                         //set event date
                         if (post.getEvent_date() != null) {
-                            long eventDate = post.getEvent_date().getTime();
+                            long eventDate = post.getEvent_date().toDate().getTime();
                             String eventDateString =
                                     DateFormat.format("EEE, MMM d, 20yy", new Date(eventDate)).toString();
                             eventDateButton.setText(eventDateString);
                         }
                         if (post.getEvent_end_date() != null) {
-                            long eventEndDate = post.getEvent_date().getTime();
+                            long eventEndDate = post.getEvent_date().toDate().getTime();
                             String eventEndDateString =
                                     DateFormat.format("EEE, MMM d, 20yy", new Date(eventEndDate)).toString();
                             eventEndDateButton.setText(eventEndDateString);
@@ -1345,87 +1345,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
             }
         }
     }
-
-
-//    private void processMLImage(Uri postImageUri) {
-//        Log.d(TAG, "processMLImage: ");
-//        FirebaseVisionImage image = null;
-//        try {
-//            image = FirebaseVisionImage.fromFilePath(CreatePostActivity.this, postImageUri);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            Log.d(TAG, "processMLImage: e" + e.getMessage());
-//        }
-//
-//        //initiate text detector
-//        FirebaseVisionTextDetector textDetector = FirebaseVision.getInstance()
-//                .getVisionTextDetector();
-//        if (image != null) {
-//            Task<FirebaseVisionText> result =
-//                    textDetector.detectInImage(image)
-//                            .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-//                                @Override
-//                                public void onSuccess(FirebaseVisionText firebaseVisionText) {
-//                                    // Task completed successfully
-//                                    for (FirebaseVisionText.Block block : firebaseVisionText.getBlocks()) {
-//                                        Rect boundingBox = block.getBoundingBox();
-//                                        Point[] cornerPoints = block.getCornerPoints();
-//                                        String text = block.getText();
-//                                        String cleanText = text.replaceAll("\\P{L}+", " ");
-//                                        imageText = imageText.concat(cleanText);
-//                                        Log.d(TAG, "onSuccess: \n text is: " + text +
-//                                                "\nclean text is: " + cleanText);
-//                                        // TODO: 5/24/18 continue text handling
-//                                    }
-//
-//                                }
-//                            }).addOnFailureListener(
-//                            new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    // Task failed with an exception
-//                                    Log.d(TAG, "onFailure: e: " + e.getMessage());
-//                                }
-//                            });
-//        }
-//
-//        //initiate image labeling
-//        FirebaseVisionLabelDetector labelDetector = FirebaseVision.getInstance()
-//                .getVisionLabelDetector();
-//        FirebaseVisionLabelDetectorOptions options =
-//                new FirebaseVisionLabelDetectorOptions.Builder()
-//                        .setConfidenceThreshold(0.8f)
-//                        .build();
-//        if (image != null) {
-//
-//            Task<List<FirebaseVisionLabel>> result =
-//                    labelDetector.detectInImage(image)
-//                            .addOnSuccessListener(
-//                                    new OnSuccessListener<List<FirebaseVisionLabel>>() {
-//                                        @Override
-//                                        public void onSuccess(List<FirebaseVisionLabel> labels) {
-//                                            // Task completed successfully
-//                                            for (FirebaseVisionLabel label : labels) {
-//                                                String labelText = label.getLabel();
-//                                                imageLabels = imageLabels.concat(labelText + " ");
-//                                                String entityId = label.getEntityId();
-//                                                float confidence = label.getConfidence();
-//                                            }
-//
-//                                        }
-//                                    })
-//                            .addOnFailureListener(
-//                                    new OnFailureListener() {
-//                                        @Override
-//                                        public void onFailure(@NonNull Exception e) {
-//                                            Log.d(TAG, "onFailure: " +
-//                                                    "\nfailed to get labels off image: "
-//                                                    + e.getMessage());
-//                                        }
-//                                    });
-//
-//        }
-//    }
 
     private void showProgress(String message) {
         progressDialog = new ProgressDialog(CreatePostActivity.this);

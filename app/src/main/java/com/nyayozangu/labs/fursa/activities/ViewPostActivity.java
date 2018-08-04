@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
@@ -896,7 +897,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void setTime() {
         if (post.getTimestamp() != null) {
-            long millis = post.getTimestamp().getTime();
+            long millis = post.getTimestamp().toDate().getTime();
             String dateString = coMeth.processPostDate(millis, this);
             String date = getString(R.string.posted_text) + ":\n" + dateString;
             mTimeButton.setText(date);
@@ -905,7 +906,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void setEventDate() {
         if (post.getEvent_date() != null) {
-            long eventDate = post.getEvent_date().getTime();
+            long eventDate = post.getEvent_date().toDate().getTime();
             String eventDateString = DateFormat.format("EEE, MMM d, 20yy",
                     new Date(eventDate)).toString();
             mEventDateButton.setText(eventDateString);
@@ -913,7 +914,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             mEventDateButton.setVisibility(View.GONE);
         }
         if (post.getEvent_end_date() != null){
-            long eventEndDate = post.getEvent_end_date().getTime();
+            long eventEndDate = post.getEvent_end_date().toDate().getTime();
             String eventDateString = DateFormat.format("EEE, MMM d, 20yy",
                     new Date(eventEndDate)).toString();
             mEventEndDateButton.setText(eventDateString);

@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.nyayozangu.labs.fursa.BuildConfig;
@@ -75,8 +76,8 @@ public class CoMeth{
     //collections
     public static final String CATEGORIES = "Category";
     public static final String TAGS = "Tags";
-    public static final String POSTS = "Post";
-    public static final String USERS = "User";
+    public static final String POSTS = "Posts";
+    public static final String USERS = "Users";
     public static final String MY_POSTS = "MyPosts";
     public static final String SAVED_POSTS = "SavedPosts";
     public static final String SUBSCRIPTIONS = "Subscriptions";
@@ -253,7 +254,15 @@ public class CoMeth{
 
     }
 
-    public FirebaseFirestore getDb() { return FirebaseFirestore.getInstance(); }
+    public FirebaseFirestore getDb() {
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build();
+        firestore.setFirestoreSettings(settings);
+        return  firestore;
+    }
 
     public FirebaseAuth getAuth() {
         return FirebaseAuth.getInstance();

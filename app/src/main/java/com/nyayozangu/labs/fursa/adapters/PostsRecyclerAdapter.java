@@ -87,9 +87,9 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.CLASS_NAME_VIEW_POST;
  */
 
 public class PostsRecyclerAdapter extends RecyclerView.Adapter {
+    
 
-
-    private static final String TAG = "Sean";
+    private static final String TAG = "PostsRecyclerAdapter";
     private static final int VIEW_TYPE_POST = 0;
     private static final int VIEW_TYPE_AD = 1;
     private static final String VIEW_CAT_ACTIVITY = "ViewCategoryActivity";
@@ -116,6 +116,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         this.className = className;
         this.glide = glide;
         this.activity = activity;
+        Log.d(TAG, "PostsRecyclerAdapter: ");
     }
 
     @NonNull
@@ -140,6 +141,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        Log.d(TAG, "onBindViewHolder: ");
         post = postsList.get(position);
         switch (holder.getItemViewType()){
             case VIEW_TYPE_POST:
@@ -374,7 +376,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
 
     private void handlePostDate(@NonNull PostViewHolder holder) {
         if (post.getTimestamp() != null) {
-            long millis = post.getTimestamp().getTime();
+            long millis = post.getTimestamp().toDate().getTime();
             String dateString = coMeth.processPostDate(millis, context);
             holder.postDateTextView.setText(dateString);
         }else{

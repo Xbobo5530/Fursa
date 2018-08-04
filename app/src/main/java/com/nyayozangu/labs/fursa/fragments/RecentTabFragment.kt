@@ -22,11 +22,9 @@ import com.nyayozangu.labs.fursa.models.Post
 import com.nyayozangu.labs.fursa.models.User
 
 private const val RECENT_FRAGMENT = "RecentFragment"
+private const val TAG = "RecentFragment"
 
-/**
- * A simple [Fragment] subclass.
- *
- */
+
 class RecentTabFragment : Fragment() {
 
     private var postsList: MutableList<Post> = ArrayList()
@@ -35,8 +33,8 @@ class RecentTabFragment : Fragment() {
     private var isFirstPageFirstLoad = true
     private lateinit var lastVisiblePost: DocumentSnapshot
     private lateinit var adapter: PostsRecyclerAdapter
-    private lateinit var mProgressBar: ProgressBar
     private var randomPosition = 0
+    private lateinit var mProgressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -47,14 +45,10 @@ class RecentTabFragment : Fragment() {
                 RECENT_FRAGMENT, Glide.with(this), activity)
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
-
         mProgressBar = view.findViewById(R.id.recentProgressBar)
-        mProgressBar.visibility = View.VISIBLE
+        coMeth.showProgress(mProgressBar)
         handleScrolling(mRecyclerView)
-        val firstQuery = coMeth.db.collection(POSTS)
-                .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .limit(10)
-        loadPosts(firstQuery)
+        loadPosts()
         handleBottomNavReselect(mRecyclerView)
 
         return view
@@ -79,30 +73,40 @@ class RecentTabFragment : Fragment() {
         })
     }
 
-    private fun loadPosts(firstQuery: com.google.firebase.firestore.Query) {
+    private fun loadPosts() {
+        val firstQuery = coMeth.db.collection(POSTS)
+                .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(10)
         firstQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
             if (firebaseFirestoreException == null) {
-                if (!querySnapshot?.isEmpty!!) {
-                    if (isFirstPageFirstLoad) {
-                        lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
-                        postsList.clear()
-                        usersList.clear()
+                if  (querySnapshot != null) {
+                    if (!querySnapshot.isEmpty) {
+                        if (isFirstPageFirstLoad) {
+                            lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
+                            postsList.clear()
+                            usersList.clear()
 
-                        randomPosition = coMeth.generateRandomInt()
-                        Log.d(TAG, "random ad position is $randomPosition")
+                            randomPosition = coMeth.generateRandomInt()
+                            Log.d(TAG, "random ad position is $randomPosition")
 
-                        for (document in querySnapshot.documentChanges) {
-                            if (document.type == DocumentChange.Type.ADDED) {
-                                val postId = document.document.id
-                                val post = document.document
-                                        .toObject(Post::class.java).withId<Post>(postId)
-                                val postUserId = post.user_id
-                                getUserData(postUserId, post)
+                            for (document in querySnapshot.documentChanges) {
+                                if (document.type == DocumentChange.Type.ADDED) {
+                                    val postId = document.document.id
+                                    val post = document.document
+                                            .toObject(Post::class.java).withId<Post>(postId)
+                                    val postUserId = post.user_id
+                                    getUserData(postUserId, post)
+                                }
                             }
                         }
+                        isFirstPageFirstLoad = false
                     }
-                    isFirstPageFirstLoad = false
+                }else{
+                    Log.e(TAG, "returned null query")
                 }
+            }else{
+                Log.e(TAG, "Failed to load posts: ${firebaseFirestoreException.message}")
+//                val errorMessage = "${resources.getString(R.string.error_text)}: ${firebaseFirestoreException.message}"
             }
         }
     }
@@ -146,7 +150,7 @@ class RecentTabFragment : Fragment() {
     }
 
     private fun loadMorePosts() {
-        mProgressBar.visibility = View.VISIBLE
+        coMeth.showProgress(mProgressBar)
         val nextQuery = coMeth.db.collection(POSTS)
                 .orderBy(TIMESTAMP, Query.Direction.DESCENDING).startAfter(lastVisiblePost)
                 .limit(10)
