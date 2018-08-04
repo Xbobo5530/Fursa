@@ -43,17 +43,15 @@ import com.nyayozangu.labs.fursa.activities.UserPageActivity;
 import com.nyayozangu.labs.fursa.activities.UserPostsActivity;
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity;
 import com.nyayozangu.labs.fursa.helpers.Notify;
-import com.nyayozangu.labs.fursa.models.Posts;
+import com.nyayozangu.labs.fursa.models.Post;
 import com.nyayozangu.labs.fursa.activities.LoginActivity;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
-import com.nyayozangu.labs.fursa.models.Users;
-import com.twitter.sdk.android.core.models.User;
+import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.annotation.Nullable;
 
@@ -100,18 +98,18 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     private static final String POPULAR_FRAGMENT = "PopularFragment";
 
     //member variables for storing posts
-    public List<Posts> postsList;
-    public List<Users> usersList;
+    public List<Post> postsList;
+    public List<User> usersList;
     public Context context;
     public Activity activity;
     public RequestManager glide;
-    public static Posts post;
+    public static Post post;
     private String currentUserId;
     private String className;
     private ProgressDialog progressDialog;
     private CoMeth coMeth = new CoMeth();
 
-    public PostsRecyclerAdapter(List<Posts> postsList, List<Users> usersList, String className,
+    public PostsRecyclerAdapter(List<Post> postsList, List<User> usersList, String className,
                                 RequestManager glide, Activity activity) {
         this.postsList = postsList;
         this.usersList = usersList;
@@ -179,7 +177,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    static void updateFeedViews(Posts post) {
+    static void updateFeedViews(Post post) {
         Map<String, Object> feedViewMap = new HashMap<>();
         int feedViews = post.getFeed_views() + 1;
         feedViewMap.put("feed_views", feedViews);
@@ -224,7 +222,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private void handleSharePost(final Posts post, @NonNull final PostViewHolder holder, final String description) {
+    private void handleSharePost(final Post post, @NonNull final PostViewHolder holder, final String description) {
         holder.shareLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -384,7 +382,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private void setUserImage(@NonNull PostViewHolder holder, final Users user, String userImageUrl) {
+    private void setUserImage(@NonNull PostViewHolder holder, final User user, String userImageUrl) {
         coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, userImageUrl,
                 holder.postUserImageView, context);
         holder.postUserImageView.setOnClickListener(new View.OnClickListener() {
@@ -515,7 +513,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     }
 
 
-    private void handlePostActivity(final @NonNull PostViewHolder holder, Posts post) {
+    private void handlePostActivity(final @NonNull PostViewHolder holder, Post post) {
         if (coMeth.isLoggedIn() && coMeth.getUid().equals(post.getUser_id())){
             holder.activityLayout.setVisibility(View.VISIBLE);
             int activityCount = post.getActivity();
@@ -584,7 +582,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
                 .delete();
     }
 
-    private void sharePost(final @NonNull PostViewHolder holder, Posts post, String description) {
+    private void sharePost(final @NonNull PostViewHolder holder, Post post, String description) {
         showProgress(context.getString(R.string.loading_text));
         //create post url
         String postId = post.PostId;
@@ -821,12 +819,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
                    handlePostInViewPost(post);
                    break;
                default:
-                   Users user = usersList.get(position);
+                   User user = usersList.get(position);
                    handleNormalPost(post, user);
             }
         }
 
-        private void handleNormalPost(Posts post, Users user) {
+        private void handleNormalPost(Post post, User user) {
 
             String title = post.getTitle();
             String desc = post.getDesc();
@@ -874,7 +872,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
             new UpdatePostActivityTask().execute();
         }
 
-        private void handlePostInViewPost(Posts post) {
+        private void handlePostInViewPost(Post post) {
             setPostImage(post.getImage_url(), post.thumb_url);
             postImageView.setVisibility(View.VISIBLE);
             final String postId = post.PostId;

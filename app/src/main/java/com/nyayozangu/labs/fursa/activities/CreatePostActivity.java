@@ -5,8 +5,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,7 +45,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
-import com.nyayozangu.labs.fursa.models.Posts;
+import com.nyayozangu.labs.fursa.models.Post;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.helpers.Notify;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -61,7 +59,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -474,7 +471,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
                             if (task.getResult().exists()) {
 
-                                Posts post = task.getResult().toObject(Posts.class);
+                                Post post = task.getResult().toObject(Post.class);
                                 assert post != null;
                                 if (post.getImage_url() != null)
                                     downloadUri = post.getImage_url();
@@ -1214,7 +1211,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 if (task.isSuccessful() && task.getResult().exists()) {
 
                     //set items
-                    Posts post = task.getResult().toObject(Posts.class);
+                    Post post = task.getResult().toObject(Post.class);
                     if  (post != null) {
                         String title = post.getTitle();
                         String desc = post.getDesc();

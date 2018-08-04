@@ -1,6 +1,5 @@
 package com.nyayozangu.labs.fursa.adapters;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -20,9 +19,8 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.UserPageActivity;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Comments;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -82,7 +80,7 @@ public class CommentsRecyclerAdapter extends
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            Users user = documentSnapshot.toObject(Users.class);
+                            User user = documentSnapshot.toObject(User.class);
                             assert user != null;
                             String username = user.getName();
                             holder.setUsername(username);

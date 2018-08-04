@@ -14,30 +14,20 @@ public class ViewImageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_view_image);
         mContentView = findViewById(R.id.fullscreen_content);
         handleIntent();
-
     }
 
     private void handleIntent() {
-
         if (getIntent() != null) {
-
-//            Log.d(TAG, "handleIntent: intent is now null");
-            String downloadImageUrl = getIntent().getStringExtra(
-                    getResources().getString(R.string.view_image_intent_name));
+            String downloadImageUrl = getIntent().getStringExtra(getResources().getString(R.string.view_image_intent_name));
             setImage(downloadImageUrl);
         }
-
     }
 
     private void setImage(String downloadUrl) {
-
         CoMeth coMeth = new CoMeth();
-        coMeth.setImageWithTransition(R.drawable.appiconshadow,
-                downloadUrl, mContentView, this);
-
+        coMeth.setImageWithTransition(R.drawable.appiconshadow, downloadUrl, mContentView, this);
     }
 }

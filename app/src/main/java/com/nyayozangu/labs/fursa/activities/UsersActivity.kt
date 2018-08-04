@@ -11,7 +11,7 @@ import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.adapters.UsersRecyclerAdapter
 import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.*
-import com.nyayozangu.labs.fursa.models.Users
+import com.nyayozangu.labs.fursa.models.User
 import kotlinx.android.synthetic.main.activity_users.*
 import kotlinx.android.synthetic.main.content_users.*
 
@@ -20,7 +20,7 @@ class UsersActivity: AppCompatActivity() {
     //todo  handle the progress bar
     private val coMeth: CoMeth = CoMeth()
     private lateinit var mAdapter: UsersRecyclerAdapter
-    private val usersList: MutableList<Users> = ArrayList()
+    private val usersList: MutableList<User> = ArrayList()
     private lateinit var userId: String
     private lateinit var destination: String
     private lateinit var actionBar: ActionBar
@@ -37,15 +37,13 @@ class UsersActivity: AppCompatActivity() {
         coMeth.handlePostsView(this, this, usersRecyclerView)
         usersRecyclerView.adapter = mAdapter
 
-        val  followRef: CollectionReference = coMeth.db.collection(
-                "$USERS/$userId/$destination")
+        val  followRef: CollectionReference = coMeth.db.collection("$USERS/$userId/$destination")
         loadUsers(followRef)
-
     }
 
     private fun handleToolBar() {
         setSupportActionBar(usersToolbar)
-        actionBar = this.supportActionBar!! // check this
+        actionBar = this.supportActionBar!!
         actionBar.setDisplayHomeAsUpEnabled(true)
         usersToolbar.setNavigationOnClickListener { finish() }
         usersToolbar.setOnClickListener { _ ->
@@ -63,7 +61,7 @@ class UsersActivity: AppCompatActivity() {
                         val userRef = coMeth.db.collection(USERS).document(userId)
                         userRef.get().addOnSuccessListener {
                             if (it.exists()){
-                                val user = it.toObject(Users::class.java)!!.withId<Users>(userId)
+                                val user = it.toObject(User::class.java)!!.withId<User>(userId)
                                 usersList.add(user)
                                 mAdapter.notifyDataSetChanged()
                                 coMeth.stopLoading(mProgressDialog)

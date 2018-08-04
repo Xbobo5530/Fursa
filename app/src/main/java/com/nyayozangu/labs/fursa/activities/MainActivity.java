@@ -1,9 +1,7 @@
 package com.nyayozangu.labs.fursa.activities;
 
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,21 +28,16 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
@@ -62,25 +55,21 @@ import com.nyayozangu.labs.fursa.fragments.CategoriesFragment;
 import com.nyayozangu.labs.fursa.fragments.HomeFragment;
 import com.nyayozangu.labs.fursa.fragments.NotificationsFragment;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
-import com.nyayozangu.labs.fursa.models.Categories;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.Category;
+import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.CATEGORIES_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.DESTINATION;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.FACEBOOK_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOOGLE_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOTO;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_FOLLOWERS_UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_VAL;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.TWITTER_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
@@ -114,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements
     public String hasAcceptedTermsStatus, username;
     private ImageView userProfileImage;
     private TextView usernameField;
-    private Users user;
+    private User user;
     private ArrayList<String> catSubsArray;
     private String[] catsListItems;
 
@@ -308,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (documentSnapshot.exists()) {
-                                user = documentSnapshot.toObject(Users.class);
+                                user = documentSnapshot.toObject(User.class);
                                 assert user != null;
                                 setUserData(user, userProfileImage, usernameField);
                             } else {
@@ -353,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements
         startActivity(new Intent(this, LoginActivity.class));
     }
 
-    private void setUserData(Users user, ImageView userProfileImage, TextView usernameField) {
+    private void setUserData(User user, ImageView userProfileImage, TextView usernameField) {
         userProfileImage.setVisibility(View.VISIBLE);
         if (user.getImage() != null) {
             String userImageDownloadUri = user.getImage();
@@ -643,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements
     private void showCatsDialog(QuerySnapshot queryDocumentSnapshots) {
         for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
             if (doc.getType() == DocumentChange.Type.ADDED) {
-                Categories cat = doc.getDocument().toObject(Categories.class);
+                Category cat = doc.getDocument().toObject(Category.class);
                 //add cat to list
                 catSubsArray.add(cat.getValue());
             }

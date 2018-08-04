@@ -13,10 +13,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -34,8 +32,8 @@ import com.nyayozangu.labs.fursa.activities.ViewCategoryActivity;
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Comments;
-import com.nyayozangu.labs.fursa.models.Posts;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.Post;
+import com.nyayozangu.labs.fursa.models.User;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -230,14 +228,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
-                    Posts post = documentSnapshot.toObject(Posts.class);
+                    Post post = documentSnapshot.toObject(Post.class);
                     String newPostUserId = Objects.requireNonNull(post).getUser_id();
                     DocumentReference postUserRef = coMeth.getDb().collection(USERS).document(newPostUserId);
                     postUserRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (documentSnapshot.exists()) {
-                                Users user = documentSnapshot.toObject(Users.class);
+                                User user = documentSnapshot.toObject(User.class);
                                 assert user != null;
                                 String username = user.getName();
                                 String messageBody = username + " " + getString(R.string.has_new_post_text);
@@ -290,7 +288,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
-                    Users follower = documentSnapshot.toObject(Users.class);
+                    User follower = documentSnapshot.toObject(User.class);
                     assert follower != null;
                     String name = follower.getName();
                     String followerImageUrl = follower.getImage();
@@ -416,7 +414,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
-                    Users user = documentSnapshot.toObject(Users.class);
+                    User user = documentSnapshot.toObject(User.class);
                     String username = Objects.requireNonNull(user).getName();
                     String image = user.getImage();
                     buildNotif(title, username + "\n" + latestComment, image, notifId);

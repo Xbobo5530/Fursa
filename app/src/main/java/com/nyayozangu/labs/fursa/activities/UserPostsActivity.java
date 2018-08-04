@@ -23,9 +23,10 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter;
-import com.nyayozangu.labs.fursa.models.Posts;
+import com.nyayozangu.labs.fursa.models.Post;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.User;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -51,8 +52,8 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
     private CoMeth coMeth = new CoMeth();
 
     private FloatingActionButton newPostFab;
-    private List<Posts> postsList;
-    private List<Users> usersList;
+    private List<Post> postsList;
+    private List<User> usersList;
     private PostsRecyclerAdapter mAdapter;
     private DocumentSnapshot lastVisiblePost;
     private Boolean isFirstPageFirstLoad = true;
@@ -215,7 +216,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
-                    Posts post = Objects.requireNonNull(documentSnapshot.toObject(Posts.class)).withId(postId);
+                    Post post = Objects.requireNonNull(documentSnapshot.toObject(Post.class)).withId(postId);
                     getPostUser(post);
                 }
             }
@@ -228,14 +229,14 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                 });
     }
 
-    private void getPostUser(final Posts post) {
+    private void getPostUser(final Post post) {
         final String userId = post.getUser_id();
         DocumentReference userRef = coMeth.getDb().collection(USERS).document(userId);
         userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
-                    Users user = Objects.requireNonNull(documentSnapshot.toObject(Users.class)).withId(userId);
+                    User user = Objects.requireNonNull(documentSnapshot.toObject(User.class)).withId(userId);
                     if (!postsList.contains(post)){
                         postsList.add(post);
                         usersList.add(user);
@@ -297,8 +298,8 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             //post exists
-                            final Posts post = Objects.requireNonNull(
-                                    documentSnapshot.toObject(Posts.class)).withId(postId);
+                            final Post post = Objects.requireNonNull(
+                                    documentSnapshot.toObject(Post.class)).withId(postId);
                             getTheUserDetails(post, userId);
 
                         } else {
@@ -316,15 +317,15 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                 });
     }
 
-    private void getTheUserDetails(final Posts post, final String userId) {
+    private void getTheUserDetails(final Post post, final String userId) {
         coMeth.getDb()
                 .collection(USERS).document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            Users user = Objects.requireNonNull(
-                                    documentSnapshot.toObject(Users.class)).withId(userId);
+                            User user = Objects.requireNonNull(
+                                    documentSnapshot.toObject(User.class)).withId(userId);
                             postsList.add(post);
                             usersList.add(user);
                             mAdapter.notifyItemInserted(postsList.size() - 1);

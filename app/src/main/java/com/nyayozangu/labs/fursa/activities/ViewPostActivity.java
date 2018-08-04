@@ -42,10 +42,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter;
-import com.nyayozangu.labs.fursa.models.Posts;
+import com.nyayozangu.labs.fursa.models.Post;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.helpers.Notify;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,8 +111,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private Button mContactButton, mLocationButton, mEventDateButton, mEventEndDateButton, mCatsButton,
             mPriceButton, mTagsButton, mTimeButton, mUserButton;
     private int likes, comments;
-    private Posts post;
-    private List<Posts> postsList;
+    private Post post;
+    private List<Post> postsList;
     private PostsRecyclerAdapter mAdapter;
     private ProgressBar relatedProgressBar;
 
@@ -169,7 +169,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private void handleRelatedPosts() {
 
         final RecyclerView mRecyclerView = findViewById(R.id.relatedPostsRecyclerView);
-        final List<Users> usersList = new ArrayList<>();
+        final List<User> usersList = new ArrayList<>();
         postsList = new ArrayList<>();
         postsList.clear();
         mAdapter = new PostsRecyclerAdapter(postsList, usersList, CLASS_NAME_VIEW_POST,
@@ -276,7 +276,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()){
-                            Posts post = Objects.requireNonNull(documentSnapshot.toObject(Posts.class)).withId(postId);
+                            Post post = Objects.requireNonNull(documentSnapshot.toObject(Post.class)).withId(postId);
                             if (!postId.equals(ViewPostActivity.this.postId) &&
                                     postsList.size() <= 1/* only get 2 posts */) {
                                 postsList.add(post);
@@ -738,7 +738,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                             //post exists
                             Log.d(TAG, "Post  exist");
                             post = Objects.requireNonNull(
-                                    documentSnapshot.toObject(Posts.class)).withId(postId);
+                                    documentSnapshot.toObject(Post.class)).withId(postId);
                             setDesc();
                             updateViews();
                             handleActivityButtonVisibility();
@@ -824,7 +824,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             //user exists
-                            Users user = documentSnapshot.toObject(Users.class);
+                            User user = documentSnapshot.toObject(User.class);
                             //user exists
                             assert user != null;
                             if (user.getThumb() != null) {

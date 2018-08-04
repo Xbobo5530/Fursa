@@ -34,7 +34,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.User;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -102,7 +102,7 @@ public class AccountActivity extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()){
                             //retrieve data
-                            Users user = documentSnapshot.toObject(Users.class);
+                            User user = documentSnapshot.toObject(User.class);
                             assert user != null;
                             String name = user.getName();
                             String bio = user.getBio();

@@ -38,9 +38,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter;
-import com.nyayozangu.labs.fursa.models.Posts;
+import com.nyayozangu.labs.fursa.models.Post;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,8 +83,8 @@ ViewCategoryActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private FloatingActionButton subscribeFab;
-    private List<Posts> postsList;
-    private List<Users> usersList;
+    private List<Post> postsList;
+    private List<User> usersList;
     private CoMeth coMeth = new CoMeth();
     private PostsRecyclerAdapter mAdapter;
     private DocumentSnapshot lastVisiblePost;
@@ -324,7 +324,7 @@ ViewCategoryActivity extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
-                    Posts post = Objects.requireNonNull(documentSnapshot.toObject(Posts.class)).withId(postId);
+                    Post post = Objects.requireNonNull(documentSnapshot.toObject(Post.class)).withId(postId);
                     getUserDetails(post);
                 }
             }
@@ -337,14 +337,14 @@ ViewCategoryActivity extends AppCompatActivity {
                 });
     }
 
-    private void getUserDetails(final Posts post) {
+    private void getUserDetails(final Post post) {
         final String userId = post.getUser_id();
         DocumentReference userRef = coMeth.getDb().collection(USERS).document(userId);
         userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
-                    Users user = Objects.requireNonNull(documentSnapshot.toObject(Users.class)).withId(userId);
+                    User user = Objects.requireNonNull(documentSnapshot.toObject(User.class)).withId(userId);
 
                     if (isFirstPageFirstLoad) {
                         if (!postsList.contains(post)) {

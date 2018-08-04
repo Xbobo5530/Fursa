@@ -39,7 +39,6 @@ public class Notify extends AsyncTask<String, String, Void> {
 
     private static final String TAG = "Sean";
     private static final String API_KEY = "key=AAAAx83bavk:APA91bHl_bttQCZ9UtkPMnBdz6VIjXj-4BD6S3ZDcUL20153ns6a2Aep0BdU_f0tP5pkeIyEivOyuebqmplIVt1-bhRNtgxQD_SqcmdhBM5DaJg6v0e59gyTvNSkt0RcN9WmgzSTJCtq";
-    private String token;
 
     // TODO: 5/19/18 handle strings with string resources
     @Override
@@ -50,7 +49,7 @@ public class Notify extends AsyncTask<String, String, Void> {
         //initialize contents
         String topic = "/topics/";
 
-        token = FirebaseInstanceId.getInstance().getToken();
+        String token = FirebaseInstanceId.getInstance().getToken();
 
         try {
 
@@ -211,14 +210,14 @@ public class Notify extends AsyncTask<String, String, Void> {
                 break;
 
             case CATS:
-                info.put(TITLE, "New Posts on Categories you follow");
+                info.put(TITLE, "New Post on Category you follow");
                 info.put(MESSAGE, "Check out new posts on the categories you follow");
                 info.put(NOTIF_TYPE, CATEGORIES_UPDATES);
                 info.put(EXTRA, extraInfo);
                 break;
 
             case FOLLOWER_POST:
-                info.put(TITLE, "New Posts people you are following");
+                info.put(TITLE, "New Post people you are following");
                 info.put(MESSAGE, "Someone you are following has published a new post");
                 info.put(NOTIF_TYPE, FOLLOWER_POST);
                 info.put(EXTRA, extraInfo);

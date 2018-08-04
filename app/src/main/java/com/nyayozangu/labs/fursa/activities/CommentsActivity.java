@@ -1,13 +1,11 @@
 package com.nyayozangu.labs.fursa.activities;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,14 +19,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.flags.IFlagProvider;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -41,10 +33,10 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.adapters.CommentsRecyclerAdapter;
 import com.nyayozangu.labs.fursa.models.Comments;
-import com.nyayozangu.labs.fursa.models.Posts;
+import com.nyayozangu.labs.fursa.models.Post;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.helpers.Notify;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,8 +50,6 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_COLL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENTS_DOC;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.COMMENT_UPDATES;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.DESTINATION;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.FACEBOOK_DOT_COM;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOOGLE_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOTO;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS_VAL;
@@ -70,7 +60,6 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_ID_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SOURCE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SUBSCRIPTIONS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.TIMESTAMP;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.TWITTER_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID_VAL;
 
@@ -220,7 +209,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            Posts post = documentSnapshot.toObject(Posts.class);
+                            Post post = documentSnapshot.toObject(Post.class);
                             if (post != null) {
                                 int views = post.getViews();
                                 String postUserId = post.getUser_id();
@@ -341,7 +330,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                         if (e == null) {
                             if (documentSnapshot.exists()) {
                                 //user exists
-                                Users user = documentSnapshot.toObject(Users.class);
+                                User user = documentSnapshot.toObject(User.class);
                                 String profileImageUrl = Objects.requireNonNull(user).getImage();
                                 String profileThumbUrl = user.getThumb();
                                 if (profileThumbUrl != null){
@@ -371,7 +360,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            Posts post = documentSnapshot.toObject(Posts.class);
+                            Post post = documentSnapshot.toObject(Post.class);
                             assert post != null;
                             final String postUserId = post.getUser_id();
                             postUserImage.setOnClickListener(new View.OnClickListener() {
@@ -410,7 +399,7 @@ public class CommentsActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            Users user = documentSnapshot.toObject(Users.class);
+                            User user = documentSnapshot.toObject(User.class);
                             String username = Objects.requireNonNull(user).getName();
                             postUsernameField.setText(username);
                             //set user image

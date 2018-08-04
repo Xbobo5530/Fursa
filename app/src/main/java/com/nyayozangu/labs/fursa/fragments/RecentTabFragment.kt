@@ -3,8 +3,6 @@ package com.nyayozangu.labs.fursa.fragments
 
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -20,8 +18,8 @@ import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter
 import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.*
-import com.nyayozangu.labs.fursa.models.Posts
-import com.nyayozangu.labs.fursa.models.Users
+import com.nyayozangu.labs.fursa.models.Post
+import com.nyayozangu.labs.fursa.models.User
 
 private const val RECENT_FRAGMENT = "RecentFragment"
 
@@ -31,8 +29,8 @@ private const val RECENT_FRAGMENT = "RecentFragment"
  */
 class RecentTabFragment : Fragment() {
 
-    private var postsList: MutableList<Posts> = ArrayList()
-    private var usersList: MutableList<Users> = ArrayList()
+    private var postsList: MutableList<Post> = ArrayList()
+    private var usersList: MutableList<User> = ArrayList()
     private val coMeth: CoMeth = CoMeth()
     private var isFirstPageFirstLoad = true
     private lateinit var lastVisiblePost: DocumentSnapshot
@@ -97,7 +95,7 @@ class RecentTabFragment : Fragment() {
                             if (document.type == DocumentChange.Type.ADDED) {
                                 val postId = document.document.id
                                 val post = document.document
-                                        .toObject(Posts::class.java).withId<Posts>(postId)
+                                        .toObject(Post::class.java).withId<Post>(postId)
                                 val postUserId = post.user_id
                                 getUserData(postUserId, post)
                             }
@@ -110,18 +108,19 @@ class RecentTabFragment : Fragment() {
     }
 
     private fun addAd() {
-        val post = Posts()
+        val post = Post()
         post.post_type = POST_TYPE_AD
         postsList.add(post)
+        usersList.add(User())
         adapter.notifyItemInserted(postsList.size - 1)
         Log.d(TAG, "ad post is added")
     }
 
-    private fun getUserData(postUserId: String, post: Posts) {
+    private fun getUserData(postUserId: String, post: Post) {
         coMeth.db.collection(USERS).document(postUserId).get()
                 .addOnSuccessListener {
                     if (it.exists()) {
-                        val user = it.toObject(Users::class.java)?.withId<Users>(postUserId)
+                        val user = it.toObject(User::class.java)?.withId<User>(postUserId)
                         if (isFirstPageFirstLoad) {
                             if (user != null) {
                                 usersList.add(0, user)
@@ -162,7 +161,7 @@ class RecentTabFragment : Fragment() {
                         if (document.type == DocumentChange.Type.ADDED) {
                             val postId = document.document.id
                             val post = document.document
-                                    .toObject(Posts::class.java).withId<Posts>(postId)
+                                    .toObject(Post::class.java).withId<Post>(postId)
                             val postUserId = post.user_id
                             getUserData(postUserId, post)
                         }

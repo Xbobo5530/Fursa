@@ -17,8 +17,8 @@ import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter
 import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS
 import com.nyayozangu.labs.fursa.helpers.CoMeth.USERS
-import com.nyayozangu.labs.fursa.models.Posts
-import com.nyayozangu.labs.fursa.models.Users
+import com.nyayozangu.labs.fursa.models.Post
+import com.nyayozangu.labs.fursa.models.User
 
 private const val POPULAR_FRAGMENT = "PopularFragment"
 /**
@@ -27,8 +27,8 @@ private const val POPULAR_FRAGMENT = "PopularFragment"
  */
 class RecommendedTabFragment : Fragment() {
 
-    private var postsList: MutableList<Posts> = ArrayList()
-    private var usersList: MutableList<Users> = ArrayList()
+    private var postsList: MutableList<Post> = ArrayList()
+    private var usersList: MutableList<User> = ArrayList()
     private val coMeth: CoMeth = CoMeth()
     private var isFirstPageFirstLoad = true
     private lateinit var lastVisiblePost: DocumentSnapshot
@@ -92,7 +92,7 @@ class RecommendedTabFragment : Fragment() {
                             if (document.type == DocumentChange.Type.ADDED) {
                                 val postId = document.document.id
                                 val post = document.document
-                                        .toObject(Posts::class.java).withId<Posts>(postId)
+                                        .toObject(Post::class.java).withId<Post>(postId)
                                 val postUserId = post.user_id
                                 getUserData(postUserId, post)
                             }
@@ -104,11 +104,11 @@ class RecommendedTabFragment : Fragment() {
         }
     }
 
-    private fun getUserData(postUserId: String, post: Posts) {
+    private fun getUserData(postUserId: String, post: Post) {
         coMeth.db.collection(USERS).document(postUserId).get()
                 .addOnSuccessListener {
                     if (it.exists()) {
-                        val user = it.toObject(Users::class.java)?.withId<Users>(postUserId)
+                        val user = it.toObject(User::class.java)?.withId<User>(postUserId)
                         if (isFirstPageFirstLoad && !postsList.contains(post)) {
                             if (user != null) {
                                 usersList.add(0, user)
@@ -142,7 +142,7 @@ class RecommendedTabFragment : Fragment() {
                         if (document.type == DocumentChange.Type.ADDED) {
                             val postId = document.document.id
                             val post = document.document
-                                    .toObject(Posts::class.java).withId<Posts>(postId)
+                                    .toObject(Post::class.java).withId<Post>(postId)
                             val postUserId = post.user_id
                             getUserData(postUserId, post)
                         }

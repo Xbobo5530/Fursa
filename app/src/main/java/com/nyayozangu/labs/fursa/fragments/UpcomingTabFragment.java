@@ -25,9 +25,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.MainActivity;
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter;
-import com.nyayozangu.labs.fursa.models.Posts;
+import com.nyayozangu.labs.fursa.models.Post;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,8 +51,8 @@ public class UpcomingTabFragment extends Fragment {
     private static final String TAG = "Sean";
     private static final String UPCOMING_FRAGMENT = "UpcomingTabFragment";
     private CoMeth coMeth = new CoMeth();
-    private List<Posts> postsList;
-    private List<Users> usersList;
+    private List<Post> postsList;
+    private List<User> usersList;
     private PostsRecyclerAdapter mAdapter;
     private DocumentSnapshot lastVisiblePost;
     private Boolean isFirstPageFirstLoad = true;
@@ -176,7 +176,7 @@ public class UpcomingTabFragment extends Fragment {
         for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
             if (document.getType() == DocumentChange.Type.ADDED){
                 String postId = document.getDocument().getId();
-                Posts post = document.getDocument().toObject(Posts.class).withId(postId);
+                Post post = document.getDocument().toObject(Post.class).withId(postId);
                 Date eventDate = post.getEvent_date();
                 Date eventEndDate = post.getEvent_end_date();
                 Log.d(TAG, "filterUpcomingPosts: \nevent date is: " + eventDate + "\nend date is: " + eventEndDate + "\ntoday is: " + today);
@@ -201,14 +201,14 @@ public class UpcomingTabFragment extends Fragment {
         }
     }
 
-    private void getUserDetails(final Posts post) {
+    private void getUserDetails(final Post post) {
         final String userId = post.getUser_id();
         DocumentReference postUserRef = coMeth.getDb().collection(USERS).document(userId);
         postUserRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
-                    Users user = Objects.requireNonNull(documentSnapshot.toObject(Users.class)).withId(userId);
+                    User user = Objects.requireNonNull(documentSnapshot.toObject(User.class)).withId(userId);
                     if (!postsList.contains(post)) {
                         if (isFirstPageFirstLoad) {
                             usersList.add(0, user);

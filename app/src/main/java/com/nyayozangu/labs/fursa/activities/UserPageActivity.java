@@ -38,7 +38,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.helpers.Notify;
-import com.nyayozangu.labs.fursa.models.Users;
+import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -314,7 +314,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            Users user = documentSnapshot.toObject(Users.class);
+                            User user = documentSnapshot.toObject(User.class);
                             String username = Objects.requireNonNull(user).getName();
                             actionBar.setTitle(username);
                             usernameField.setText(username);

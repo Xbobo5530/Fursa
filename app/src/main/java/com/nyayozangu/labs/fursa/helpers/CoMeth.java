@@ -6,9 +6,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,11 +31,9 @@ import com.google.firebase.storage.StorageReference;
 import com.nyayozangu.labs.fursa.BuildConfig;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.models.Notifications;
-import com.nyayozangu.labs.fursa.models.Posts;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -77,10 +73,10 @@ public class CoMeth{
     public static final String TWITTER_DOT_COM = "twitter.com";
 
     //collections
-    public static final String CATEGORIES = "Categories";
+    public static final String CATEGORIES = "Category";
     public static final String TAGS = "Tags";
-    public static final String POSTS = "Posts";
-    public static final String USERS = "Users";
+    public static final String POSTS = "Post";
+    public static final String USERS = "User";
     public static final String MY_POSTS = "MyPosts";
     public static final String SAVED_POSTS = "SavedPosts";
     public static final String SUBSCRIPTIONS = "Subscriptions";
@@ -304,7 +300,6 @@ public class CoMeth{
     }
     public void setImageWithTransition(int placeholderDrawable, String imageUrl, String thumbUrl,
                                        ImageView mImageView, RequestManager mGlide) {
-        Log.d(TAG, "setImage: with thumb");
         try {
             RequestOptions placeHolderRequest = new RequestOptions();
             placeHolderRequest.placeholder(placeholderDrawable);
