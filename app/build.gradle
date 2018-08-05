@@ -89,7 +89,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     //ads
     implementation 'com.google.firebase:firebase-ads:15.0.1'
-    compile 'com.jsibbold:zoomage:1.1.0'
+    implementation 'com.jsibbold:zoomage:1.1.0'
 
 
 }
