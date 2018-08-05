@@ -18,14 +18,12 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.MainActivity;
-import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter;
-import com.nyayozangu.labs.fursa.models.Post;
+import com.nyayozangu.labs.fursa.adapters.UsersRecyclerAdapter;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.User;
 
@@ -36,31 +34,23 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Objects;
 
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.EVENT_DATE;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class UpcomingTabFragment extends Fragment {
+public class UsersTabFragment extends Fragment {
 
-    // TODO: 7/24/18 continue with this mess
-
-    private static final String TAG = "Sean";
-    private static final String UPCOMING_FRAGMENT = "UpcomingTabFragment";
+    private static final String TAG = "UsersTabFragment";
     private CoMeth coMeth = new CoMeth();
-    private List<Post> postsList;
     private List<User> usersList;
-    private PostsRecyclerAdapter mAdapter;
-    private DocumentSnapshot lastVisiblePost;
+    private UsersRecyclerAdapter mAdapter;
+    private DocumentSnapshot lastVisibleUser;
     private Boolean isFirstPageFirstLoad = true;
     private ProgressBar progressBar;
-    private Date today = new Date();
-    private Calendar date = new GregorianCalendar();
 
-    public UpcomingTabFragment() {
+    public UsersTabFragment() {
         // Required empty public constructor
     }
 
@@ -68,23 +58,16 @@ public class UpcomingTabFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_up_coming_tab, container, false);
+        View view = inflater.inflate(R.layout.fragment_people, container, false);
 
         final RecyclerView mRecyclerView = view.findViewById(R.id.upcomingPostRecyclerView);
         progressBar = view.findViewById(R.id.savedProgressBar);
-        postsList = new ArrayList<>();
         usersList = new ArrayList<>();
-        mAdapter = new PostsRecyclerAdapter(postsList, usersList, UPCOMING_FRAGMENT,
-                Glide.with(this), getActivity());
+        mAdapter = new UsersRecyclerAdapter(usersList, Glide.with(this));
         coMeth.handlePostsView(getContext(), getActivity(), mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
         handleScrolling(mRecyclerView);
-        date.add(Calendar.MONTH, 2);
-        Query firstQuery = coMeth.getDb().collection(POSTS)
-                .orderBy(EVENT_DATE, Query.Direction.DESCENDING)
-                .whereGreaterThan(EVENT_DATE, date.getTime())
-                .limit(10);
-        loadPosts(firstQuery);
+        loadUsers();
         handleBottomNavReSelect(mRecyclerView);
         return view;
     }
@@ -115,25 +98,31 @@ public class UpcomingTabFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 Boolean reachedBottom = !mRecyclerView.canScrollVertically(1);
                 if (reachedBottom){
-                    loadMorePosts();
+                    loadMoreUsers();
                 }
             }
         });
 
     }
 
-    private void loadMorePosts() {
-        showProgress();
-        Query nextQuery = coMeth.getDb().collection(POSTS)
-                .orderBy(EVENT_DATE, Query.Direction.DESCENDING)
-                .whereGreaterThan(EVENT_DATE, date.getTime()).startAfter(lastVisiblePost).limit(10);
+    private void loadMoreUsers() {
+        coMeth.showProgress(progressBar);
+        Query nextQuery = coMeth.getDb().collection(USERS).startAfter(lastVisibleUser).limit(10);
         nextQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (!queryDocumentSnapshots.isEmpty()){
-                    lastVisiblePost = queryDocumentSnapshots.getDocuments()
+                    lastVisibleUser = queryDocumentSnapshots.getDocuments()
                             .get(queryDocumentSnapshots.getDocuments().size() - 1);
-                    filterUpcomingPosts(queryDocumentSnapshots);
+                    usersList.clear();
+
+                    for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()){
+                        if (documentChange.getType() == DocumentChange.Type.ADDED){
+                            String userId = documentChange.getDocument().getId();
+                            User user = documentChange.getDocument().toObject(User.class).withId(userId);
+                            addUser(user);
+                        }
+                    }
                 }
             }
         })
@@ -146,16 +135,38 @@ public class UpcomingTabFragment extends Fragment {
                 });
     }
 
-    private void loadPosts(final Query query) {
-        showProgress();
-        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+    private void addUser(User user) {
+        if (!usersList.contains(user)) {
+            if (isFirstPageFirstLoad) {
+                usersList.add(0, user);
+                mAdapter.notifyItemInserted(usersList.size() - 1);
+            }else{
+                usersList.add(user);
+                mAdapter.notifyItemInserted(usersList.size() - 1);
+            }
+            coMeth.stopLoading(progressBar);
+        }
+    }
+
+    private void loadUsers() {
+        coMeth.showProgress(progressBar);
+        Query firstQuery = coMeth.getDb().collection(USERS).limit(10);
+        firstQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (!queryDocumentSnapshots.isEmpty()){
                     if (isFirstPageFirstLoad) {
-                        lastVisiblePost = queryDocumentSnapshots.getDocuments().get(
+                        lastVisibleUser = queryDocumentSnapshots.getDocuments().get(
                                 queryDocumentSnapshots.getDocuments().size() - 1);
-                        filterUpcomingPosts(queryDocumentSnapshots);
+                        usersList.clear();
+
+                        for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()){
+                            if (documentChange.getType() == DocumentChange.Type.ADDED){
+                                String userId = documentChange.getDocument().getId();
+                                User user = documentChange.getDocument().toObject(User.class).withId(userId);
+                                addUser(user);
+                            }
+                        }
                     }
                     isFirstPageFirstLoad = false;
                 }
@@ -168,72 +179,6 @@ public class UpcomingTabFragment extends Fragment {
                         showSnack(getResources().getString(R.string.error_text) + ": " + e.getMessage());
                     }
                 });
-    }
-
-    private void filterUpcomingPosts(@NonNull QuerySnapshot queryDocumentSnapshots) {
-        postsList.clear();
-        usersList.clear();
-        for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
-            if (document.getType() == DocumentChange.Type.ADDED){
-                String postId = document.getDocument().getId();
-                Post post = document.getDocument().toObject(Post.class).withId(postId);
-                Date eventDate = post.getEvent_date().toDate();
-                Date eventEndDate = post.getEvent_end_date().toDate();
-                Log.d(TAG, "filterUpcomingPosts: \nevent date is: " + eventDate + "\nend date is: " + eventEndDate + "\ntoday is: " + today);
-
-                long twoThouNineHundYears = new Date(1970, 0, 0).getTime();
-                Date mEventDate = new Date(post.getEvent_date().toDate().getTime() - twoThouNineHundYears);
-                Date mEventEndDate = new Date(post.getEvent_end_date().toDate().getTime() - twoThouNineHundYears);
-                if (today.after(mEventDate) || today.before(mEventEndDate)) {
-                    getUserDetails(post);
-                }
-            }
-        }
-    }
-
-    private void getUserDetails(final Post post) {
-        final String userId = post.getUser_id();
-        DocumentReference postUserRef = coMeth.getDb().collection(USERS).document(userId);
-        postUserRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()){
-                    User user = Objects.requireNonNull(documentSnapshot.toObject(User.class)).withId(userId);
-                    if (!postsList.contains(post)) {
-                        if (isFirstPageFirstLoad) {
-                            usersList.add(0, user);
-                            postsList.add(0, post);
-                            mAdapter.notifyItemInserted(postsList.size() - 1);
-                        } else {
-                            usersList.add(user);
-                            postsList.add(post);
-                            mAdapter.notifyItemInserted(postsList.size() - 1);
-                        }
-                    }
-                }
-                stopLoading();
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "onFailure: failed to get upcoming post user details\n" +
-                                e.getMessage());
-                        showSnack(getResources().getString(R.string.error_text) + ": " + e.getMessage());
-                    }
-                });
-    }
-
-    private void showProgress() {
-        if (progressBar.getVisibility() != View.VISIBLE){
-            progressBar.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void stopLoading(){
-        if (progressBar.getVisibility() != View.GONE){
-            progressBar.setVisibility(View.GONE);
-        }
     }
 
     private void showSnack(String message) {

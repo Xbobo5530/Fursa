@@ -24,13 +24,13 @@ import java.util.Objects;
  */
 public class HomeFragment extends Fragment {
 
-    private static final String TAG = "sean";
+    private static final String TAG = "HomeFragment";
     public TabLayout mTabsLayout;
     ViewPager mViewPager;
     private int[] tabIcons = {
             R.drawable.ic_recent,
             R.drawable.ic_recomended_light,
-            R.drawable.ic_upcoming_light
+            R.drawable.ic_users_light
     };
 
     public HomeFragment() { }
@@ -47,8 +47,7 @@ public class HomeFragment extends Fragment {
         mTabsLayout.setupWithViewPager(mViewPager);
         setupTabIcons();
 
-        FloatingActionButton newPostFab = ((MainActivity)
-                Objects.requireNonNull(getActivity())).getNewPostFab();
+        FloatingActionButton newPostFab = ((MainActivity) Objects.requireNonNull(getActivity())).getNewPostFab();
         newPostFab.setImageResource(R.drawable.ic_action_add_white);
         newPostFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,14 +56,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        Bundle args = getArguments();
-        int tab;
-        if (args != null) {
-            tab = args.getInt("tab");
-            Log.d(TAG, "onCreateView: tab is " + tab);
-            selectPage(2);
-        }
-
         return view;
     }
 
@@ -72,7 +63,7 @@ public class HomeFragment extends Fragment {
         ViewPagerAdapter mAdapter = new ViewPagerAdapter(getChildFragmentManager());
         mAdapter.addFragment(new RecentTabFragment(), getResources().getString(R.string.recent_text));
         mAdapter.addFragment(new RecommendedTabFragment(), getResources().getString(R.string.recommended_text));
-        mAdapter.addFragment(new UpcomingTabFragment(), getResources().getString(R.string.cat_upcoming));
+        mAdapter.addFragment(new UsersTabFragment(), getResources().getString(R.string.people_text));
         mViewPager.setAdapter(mAdapter);
     }
 
@@ -83,14 +74,6 @@ public class HomeFragment extends Fragment {
             Objects.requireNonNull(mTabsLayout.getTabAt(2)).setIcon(tabIcons[2]);
         } catch (NullPointerException setIconNull) {
             Log.d(CoMeth.TAG, "setupTabIcons: failed to set tab icons\n" + setIconNull.getMessage());
-        }
-    }
-    public void selectPage(int pageIndex){
-        try {
-            mTabsLayout.setScrollPosition(pageIndex, 0f, true);
-            mViewPager.setCurrentItem(pageIndex);
-        }catch (NullPointerException tabIsNull){
-            Log.d(CoMeth.TAG, "selectPage: tab is null\n" + tabIsNull.getMessage());
         }
     }
 }

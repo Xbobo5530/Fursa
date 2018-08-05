@@ -46,7 +46,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID_VAL;
 
 public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.ViewHolder> implements View.OnClickListener{
 
-    private static final String TAG = "Sean";
+    private static final String TAG = "UsersRecyclerAdapter";
     private List<User> usersList;
     public Context context;
     public RequestManager glide;
@@ -76,7 +76,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
         mHolder = holder;
         currentUserId = coMeth.getUid();
         if (user != null) {
-            userId = user.UserId;
+            userId = usersList.get(position).UserId;
             holder.setUserDetails(user);
             holder.handleFollowButtonVisibility();
             holder.pageItemView.setOnClickListener(this);
@@ -90,9 +90,20 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     }
 
     @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
+    }
+
+    @Override
     public int getItemCount() {
         return usersList.size();
     }
+
+    @Override
+    public void setHasStableIds(boolean hasStableIds) {
+        super.setHasStableIds(hasStableIds);
+    }
+
 
     private void goToUserPage(String userId) {
         Intent intent = new Intent(context, UserPageActivity.class);

@@ -422,5 +422,6 @@
     <string name="no_saved_posts_text">You have currently do not have any saved posts, click the save icon on a post to save it here</string>
     <string name="view_posts_text">View posts</string>
     <string name="subscribe_text">Subscribe</string>
+    <string name="people_text">People</string>
 
 </resources>
