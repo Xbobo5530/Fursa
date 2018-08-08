@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-ads:15.0.1'
     implementation 'com.jsibbold:zoomage:1.1.0'
     implementation "org.jetbrains.anko:anko-commons:0.10.4"
-    implementation 'com.pesapal.android:pesapalandroid:1.0.5'
+//    implementation 'com.pesapal.android:pesapalandroid:1.0.5'
 
 
 }

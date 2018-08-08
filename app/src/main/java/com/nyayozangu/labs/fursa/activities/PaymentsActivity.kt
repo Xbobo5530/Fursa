@@ -26,37 +26,37 @@ class PaymentsActivity : AppCompatActivity() {
         actionBar?.title = resources.getString(R.string.title_activity_payments)
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
-        payButton.setOnClickListener{
-
-            val payment = Payment().apply {
-                amount = 100.00
-                account = "2"
-                description = "test_payment"
-                email = "admin@nyayoangu.com"
-                currency = "TZS"
-                firstName = "Paul"
-                lastName = "Sean"
-                phoneNumber = "0713810803"
-            }
-            val cn = ComponentName(this, "com.pesapal.pesapalandroid.PesapalPayActivity")
-            val intent = Intent().setComponent(cn)
-            intent.putExtra("payment", payment)
-            startActivityForResult(intent, PAYMENT_ACTIVITY_REQUEST_CODE)
-        }
-
-        paymentSettingsButton.setOnClickListener{
-            val cn = ComponentName(this, "com.pesapal.pesapalandroid.PesapalSettingsActivity")
-            val intent = Intent().setComponent(cn)
-            intent.putExtra("pkg", "com.pesapal")
-            startActivityForResult(intent, SETTINGS_ACTIVITY_REQUEST_CODE)
-        }
+//        payButton.setOnClickListener{
+//
+//            val payment = Payment().apply {
+//                amount = 100.00
+//                account = "2"
+//                description = "test_payment"
+//                email = "admin@nyayoangu.com"
+//                currency = "TZS"
+//                firstName = "Paul"
+//                lastName = "Sean"
+//                phoneNumber = "0713810803"
+//            }
+//            val cn = ComponentName(this, "com.pesapal.pesapalandroid.PesapalPayActivity")
+//            val intent = Intent().setComponent(cn)
+//            intent.putExtra("payment", payment)
+//            startActivityForResult(intent, PAYMENT_ACTIVITY_REQUEST_CODE)
+//        }
+//
+//        paymentSettingsButton.setOnClickListener{
+//            val cn = ComponentName(this, "com.pesapal.pesapalandroid.PesapalSettingsActivity")
+//            val intent = Intent().setComponent(cn)
+//            intent.putExtra("pkg", "com.pesapal")
+//            startActivityForResult(intent, SETTINGS_ACTIVITY_REQUEST_CODE)
+//        }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            SETTINGS_ACTIVITY_REQUEST_CODE -> Log.d(TAG, "returned from settings")
-            PAYMENT_ACTIVITY_REQUEST_CODE -> Log.d(TAG, "returned from payments")
-        }
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        when (requestCode) {
+//            SETTINGS_ACTIVITY_REQUEST_CODE -> Log.d(TAG, "returned from settings")
+//            PAYMENT_ACTIVITY_REQUEST_CODE -> Log.d(TAG, "returned from payments")
+//        }
+//    }
 }
