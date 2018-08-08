@@ -152,6 +152,7 @@ public class CoMeth{
     public static final String TERMS = "terms";
     public static final String TERMS_URL = "http://fursa.nyayozangu.com/privacy_policy/";
     public static final String FALSE = "false";
+    public static final String TRUE = "true";
     public static final String COMMENTS_COLL = "Comments";
     public static final String COMMENTS_DOC = "comments";
     public static final String CATEGORY = "category";
@@ -185,6 +186,7 @@ public class CoMeth{
     public static final int POST_TYPE_AD = 1;
     public static final int NOTIFICATION_STATUS_UNREAD = 0;
     public static final int NOTIFICATION_STATUS_READ = 1;
+    public static final String CREDIT = "credit";
 
     public String[] getCatTitle(Context context){
         return new String[]{

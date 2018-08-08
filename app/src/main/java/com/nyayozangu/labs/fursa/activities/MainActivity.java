@@ -44,8 +44,10 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -60,9 +62,14 @@ import com.nyayozangu.labs.fursa.models.Category;
 import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.CATEGORIES_VAL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.CREDIT;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.DESTINATION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOOGLE_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOTO;
@@ -74,6 +81,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATION_STATUS_UNREA
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_VAL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.STATUS;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.TRUE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
@@ -83,9 +91,9 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final String TAG = "MainActivity";
-
     private static final String UPDATES = "UPDATES";
-    private static final String TAB = "tab";
+    private static final int DAILY_VISIT_CREDIT = 2;
+    private static final String LAST_DAILY_CREDIT_UPDATE_AT = "last_daily_credit_update_at";
     private CoMeth  coMeth = new CoMeth();
 
     public FloatingActionButton getNewPostFab() {
@@ -901,4 +909,84 @@ public class MainActivity extends AppCompatActivity implements
             });
         }
     }
+
+    // TODO: 8/9/18 test credit
+    private void updateDailyCredit(){
+        //check if is logged in
+        if (coMeth.isLoggedIn()){
+            final DocumentReference currentUserRef = coMeth.getDb().collection(USERS).document(coMeth.getUid());
+            currentUserRef.get().addOnSuccessListener(
+                    new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot != null && documentSnapshot.exists()){
+                                User user = documentSnapshot.toObject(User.class);
+                                if (user != null){
+                                    Date lastCreditUpdate = user.getLast_daily_credit_update_at().toDate();
+                                    Date today = new Date();
+                                    boolean sholdUpdateCredit = true;
+                                    // TODO: 8/9/18 figure out how to check if the two dates are on the same day
+                                    if (sholdUpdateCredit){
+                                        Map<String, Object> creditMap = new HashMap<>();
+                                        creditMap.put(CREDIT, DAILY_VISIT_CREDIT);
+                                        creditMap.put(LAST_DAILY_CREDIT_UPDATE_AT, FieldValue.serverTimestamp());
+                                        currentUserRef.update(creditMap).addOnSuccessListener(
+                                                new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        showUpdateCreditSuccessDialog();
+                                                    }
+                                                }
+                                        )
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w(TAG, "onFailure: failed t update daily credit\n" +
+                                                                e.getMessage(), e);
+                                                    }
+                                                });
+                                    }
+                                }
+                            }
+                        }
+                    }
+            )
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "onFailure: failed to get user\n" + e.getMessage(), e);
+                        }
+                    });
+        }
+        //check is has opened app today
+        //update credit
+    }
+
+    private void showUpdateCreditSuccessDialog() {
+        AlertDialog.Builder updateCreditBuilder = new AlertDialog.Builder(this);
+        String message = "Congratulations, you just received" + " " +
+                DAILY_VISIT_CREDIT + " " + "credit(s) for visiting today\n" +
+                "You can use your credits to get more free posts and promote your posts" + "\n" +
+                "come again tomorrow for more";
+        updateCreditBuilder.setTitle(R.string.daily_cedit)
+                .setMessage(message)
+                .setIcon(getResources().getDrawable(R.drawable.ic_credit))
+                .setPositiveButton(getString(R.string.ok_text),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                .setNegativeButton(getString(R.string.view_my_profile_text),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                goToUserPage();
+                            }
+                        })
+                .show();
+
+    }
+
 }

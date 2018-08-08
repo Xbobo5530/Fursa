@@ -3,13 +3,13 @@ package com.nyayozangu.labs.fursa.activities
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.nyayozangu.labs.fursa.R
-import com.pesapal.pesapalandroid.PesapalPayActivity
+//import com.pesapal.pesapalandroid.PesapalPayActivity
 import kotlinx.android.synthetic.main.activity_payments.*
 import org.jetbrains.anko.startActivity
 import android.content.Intent
 import android.content.ComponentName
 import android.util.Log
-import com.pesapal.pesapalandroid.data.Payment
+//import com.pesapal.pesapalandroid.data.Payment
 import org.jetbrains.anko.startActivityForResult
 
 const val SETTINGS_ACTIVITY_REQUEST_CODE = 1

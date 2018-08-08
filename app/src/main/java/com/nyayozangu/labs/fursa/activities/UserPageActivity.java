@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,7 +43,6 @@ import com.nyayozangu.labs.fursa.models.User;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -66,12 +66,13 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_POSTS;
 
 public class UserPageActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String TAG = "Sean";
+    private static final String TAG = "UserPageActivity";
     private CoMeth coMeth = new CoMeth();
 
-    private TextView usernameField, userBioField;
+    private TextView usernameField, userBioField, creditCountView;
     private ImageView userImageView;
     private Button postsButton, followButton, followersButton, followingButton;
+    private LinearLayout creditLayout;
     private String userId, userImageUrl, currentUserId;
     private ProgressDialog progressDialog;
     private Toolbar toolbar;
@@ -96,6 +97,8 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         followersButton = findViewById(R.id.userPageFollowersButton);
         followingButton = findViewById(R.id.userPageFollowingButton);
         followButton = findViewById(R.id.userPageFollowButton);
+        creditLayout = findViewById(R.id.userPageCreditLayout);
+        creditCountView = findViewById(R.id.userPageCreditCountTextView);
         toolbar = findViewById(R.id.userPageToolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
@@ -245,8 +248,10 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     private void handleItemVisibility(String userId) {
         if (coMeth.isLoggedIn() && userId.equals(currentUserId)) {
             followButton.setVisibility(View.GONE);
+            creditLayout.setVisibility(View.VISIBLE);
         } else {
             followButton.setVisibility(View.VISIBLE);
+            creditLayout.setVisibility(View.GONE);
         }
     }
 
@@ -315,28 +320,32 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             User user = documentSnapshot.toObject(User.class);
-                            String username = Objects.requireNonNull(user).getName();
-                            actionBar.setTitle(username);
-                            usernameField.setText(username);
-                            String postsButtonText = "View " + username + "\'s posts";
-                            postsButton.setText(postsButtonText);
-                            String bio = user.getBio();
-                            userBioField.setText(bio);
-                            userImageUrl = null;
-                            if (user.getThumb() != null) {
-                                userImageUrl = user.getThumb();
-                                setImage(userImageUrl);
-                            } else if (user.getImage() != null) {
-                                userImageUrl = user.getImage();
-                                setImage(userImageUrl);
-                            } else {
-                                userImageView.setImageDrawable(getResources().getDrawable(
-                                                R.drawable.ic_action_person_placeholder));
+                            if (user != null) {
+                                String username = user.getName();
+                                actionBar.setTitle(username);
+                                usernameField.setText(username);
+                                String postsButtonText = "View " + username + "\'s posts";
+                                postsButton.setText(postsButtonText);
+                                String bio = user.getBio();
+                                userBioField.setText(bio);
+                                userImageUrl = null;
+                                if (user.getThumb() != null) {
+                                    userImageUrl = user.getThumb();
+                                    setImage(userImageUrl);
+                                } else if (user.getImage() != null) {
+                                    userImageUrl = user.getImage();
+                                    setImage(userImageUrl);
+                                } else {
+                                    userImageView.setImageDrawable(getResources().getDrawable(
+                                            R.drawable.ic_action_person_placeholder));
+                                }
+                                handlePostsCount();
+                                handleFCounts(followersRef, followersButton, FOLLOWERS);
+                                handleFCounts(followingRef, followingButton, FOLLOWING);
+                                int credit = user.getCredit();
+                                creditCountView.setText(String.valueOf(credit));
+                                coMeth.stopLoading(progressDialog);
                             }
-                            handlePostsCount();
-                            handleFCounts(followersRef, followersButton, FOLLOWERS);
-                            handleFCounts(followingRef, followingButton, FOLLOWING);
-                            coMeth.stopLoading(progressDialog);
                         } else {
                             coMeth.stopLoading(progressDialog);
                             goToMain(getString(R.string.user_not_found_text));

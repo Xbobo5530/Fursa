@@ -48,6 +48,7 @@ import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.models.Post;
 import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.helpers.Notify;
+import com.nyayozangu.labs.fursa.models.User;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -66,6 +67,7 @@ import java.util.UUID;
 import id.zelory.compressor.Compressor;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.ACTION;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.CATEGORIES;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.CREDIT;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.DESC;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FAIL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.FOLLOWERS_VAL;
@@ -98,7 +100,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     private static final String END_DATE = "end_date";
     private static final String LOCATION = "location";
     private static final int DAILY_POSTS_LIMIT = 3;
-    int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    private int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    private int POST_COST_CREDIT = 1;
     //for file compression
     private Bitmap compressedImageFile;
     private CoMeth coMeth = new CoMeth();
@@ -530,7 +533,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                 quotaAlertBuilder.setTitle(R.string.daily_limited_text)
                                         .setIcon(getResources().getDrawable(R.drawable.ic_action_quota))
                                         .setMessage(getResources().getString(R.string.you_have_reached_daily_limit_text) +
-                                                "\nWould you like pay for more posts?")
+                                                "\nWould you like use your credit to get more posts?")
                                         .setPositiveButton(getResources().getString(R.string.ok_text),
                                                 new DialogInterface.OnClickListener() {
                                                     @Override
@@ -540,13 +543,16 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                                         //// TODO: 6/8/18 replace replacement code
                                                         dialog.dismiss();
                                                         goToMain();
-                                                        // check if user has points in account,
+                                                        // check if user has credit in account,
                                                         // if has apoints,
-                                                        // check if points are enough for new post,
+                                                        // check if credit are enough for new post,
                                                         // if enough, post,
                                                         // if user does not have enough point prompt payments,
                                                         // TODO: 8/6/18 check the daily quota when at main before entering create post
 //                                                        startActivity(new Intent(CreatePostActivity.this, PaymentsActivity.class));
+
+                                                        handleQuotaExceeded();
+
                                                     }
                                                 })
                                         .show();
@@ -572,6 +578,113 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                 e.getMessage());
                     }
                 });
+    }
+
+    private void handleQuotaExceeded() {
+        //using credit to pay for more posts
+        //get users current credit
+        showProgress(getString(R.string.loading_text));
+        final DocumentReference currentUserRef =  coMeth.getDb().collection(USERS).document(currentUserId);
+        currentUserRef.get().addOnSuccessListener(
+                new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User user = documentSnapshot.toObject(User.class);
+                if (user != null) {
+                    int userCredit = user.getCredit();
+                    if (userCredit >= POST_COST_CREDIT){
+                        //deduct credit
+                        final int newCreditAmount = userCredit - POST_COST_CREDIT;
+                        Map<String, Object> creditMap = new HashMap<>();
+                        creditMap.put(CREDIT, newCreditAmount);
+                        currentUserRef.update(creditMap).addOnSuccessListener(
+                                new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                new SubmitPostTask().execute();
+                                coMeth.stopLoading(progressDialog);
+                                showCreditDeductedDialog(newCreditAmount);
+                            }
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "onFailure: failed to update credit\n" +
+                                                e.getMessage(), e);
+                                        coMeth.stopLoading(progressDialog);
+                                        showSnack(getString(R.string.error_text) + ": " + e.getMessage());
+                                    }
+                                });
+
+                    }else{
+                        //insufficient credit
+                        AlertDialog.Builder insufficientCreditBuilder =
+                                new AlertDialog.Builder(CreatePostActivity.this);
+                        /*String message = getString(R.string.insufficient_credit_message) + "\n"
+                                + getString(R.string.buy_more_credit_text);*/
+                        String message = getString(R.string.insufficient_credit_message) + "\n" +
+                                "Try again tomorrow";
+                        insufficientCreditBuilder.setTitle(R.string.insufficient_credit_text)
+                                .setMessage(message)
+                                .setIcon(getResources().getDrawable(R.drawable.ic_action_payment))
+                                .setPositiveButton(getString(R.string.ok_text),
+                                        new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        finish();
+                                    }
+                                })
+
+                                /*
+
+                                .setPositiveButton(getString(R.string.buy_credit_text),
+                                        new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // TODO: 8/9/18 goto to payments page
+                                    }
+                                })
+                                .setNegativeButton(getString(R.string.cancel_text),
+                                        new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })*/
+                                .show();
+                    }
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "onFailure: failed to get current user for handle quota exceeded\n" +
+                                e.getMessage(), e);
+                        coMeth.stopLoading(progressDialog);
+                        showSnack(getString(R.string.error_text) + ": " + e.getMessage());
+                    }
+                });
+    }
+
+    private void showCreditDeductedDialog(int creditAmount) {
+        AlertDialog.Builder creditDeductedBuilder = new AlertDialog.Builder(this);
+        String message = POST_COST_CREDIT + getString(R.string.credit_deducted_message) +
+                "\n" + getString(R.string.new_credit_text) + " " + creditAmount;
+        creditDeductedBuilder.setTitle(R.string.credit_deducted_text)
+                .setMessage(message)
+                .setIcon(getResources().getDrawable(R.drawable.ic_action_info_grey))
+                .setPositiveButton(getString(R.string.ok_text),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        goToMain(getString(R.string.post_will_be_available_text));
+                    }
+                })
+                .setCancelable(false)
+                .show();
     }
 
 
