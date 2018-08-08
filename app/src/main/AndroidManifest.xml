@@ -17,16 +17,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="asset_statements"
             android:resource="@string/asset_statements" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDhaspaApHTdZF05YKL8zmA2medxahQwRs" />
-        <!--<meta-data-->
-            <!--android:name="com.google.firebase.ml.vision.DEPENDENCIES"-->
-            <!--android:value="text|label" />-->
+        <!-- <meta-data -->
+        <!-- android:name="com.google.firebase.ml.vision.DEPENDENCIES" -->
+        <!-- android:value="text|label" /> -->
 
         <activity
             android:name=".activities.MainActivity"
@@ -40,9 +39,9 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
 
-            <!--<meta-data-->
-                <!--android:name="android.app.searchable"-->
-                <!--android:value=".SearchableActivity" />-->
+            <!-- <meta-data -->
+            <!-- android:name="android.app.searchable" -->
+            <!-- android:value=".SearchableActivity" /> -->
         </activity>
         <activity
             android:name=".activities.LoginActivity"
@@ -60,10 +59,8 @@
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
                     android:host="fursa.nyayozangu.com"
                     android:pathPattern="/post/.*"
@@ -78,16 +75,12 @@
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="image/*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
@@ -96,7 +89,6 @@
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
-
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
@@ -114,10 +106,8 @@
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
                     android:host="fursa.nyayozangu.com"
                     android:pathPattern="/category/.*"
@@ -129,7 +119,6 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_my_posts"
             android:theme="@style/AppTheme" />
-
         <service android:name=".services.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -140,14 +129,14 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_notification" />
-
-        <meta-data android:name="firebase_messaging_auto_init_enabled"
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
             android:value="false" />
-        <meta-data android:name="firebase_analytics_collection_enabled"
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
             android:value="false" />
 
         <activity
@@ -158,10 +147,8 @@
         <activity android:name=".activities.UserPageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
                     android:host="fursa.nyayozangu.com"
                     android:pathPattern="/profile/.*"
@@ -171,7 +158,15 @@
         <activity
             android:name=".activities.UsersActivity"
             android:label="@string/title_activity_users"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activities.PaymentsActivity"
+            android:label="@string/title_activity_payments"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="com.pesapal.pesapalandroid.MERCHANT_ID"
+                android:value="2" />
+        </activity>
     </application>
 
 </manifest>

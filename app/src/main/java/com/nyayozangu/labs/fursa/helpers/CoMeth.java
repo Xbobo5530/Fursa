@@ -183,6 +183,8 @@ public class CoMeth{
     public static final String USER_POSTS = "user_posts";
     public static final int POST_TYPE_POST = 0;
     public static final int POST_TYPE_AD = 1;
+    public static final int NOTIFICATION_STATUS_UNREAD = 0;
+    public static final int NOTIFICATION_STATUS_READ = 1;
 
     public String[] getCatTitle(Context context){
         return new String[]{

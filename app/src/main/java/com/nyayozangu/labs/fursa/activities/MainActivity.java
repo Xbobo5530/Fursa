@@ -42,6 +42,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -67,9 +68,12 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOOGLE_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOTO;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_FOLLOWERS_UPDATE;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS_VAL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATION_STATUS_UNREAD;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_VAL;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.STATUS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.UPDATE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
@@ -78,7 +82,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_POSTS;
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
-    private static final String TAG = "Sean";
+    private static final String TAG = "MainActivity";
 
     private static final String UPDATES = "UPDATES";
     private static final String TAB = "tab";
@@ -174,6 +178,8 @@ public class MainActivity extends AppCompatActivity implements
         if (!coMeth.isConnected(this)) {
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
+
+        checkNotifications();
     }
 
     @Override
@@ -861,6 +867,38 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             if (!coMeth.isConnected(this)) showSnack(getResources().getString(R.string.failed_to_connect_text));
             if (!coMeth.isLoggedIn()) goToLogin(getString(R.string.login_to_post_text));
+        }
+    }
+
+    // check if user is logged in,
+    // get user's notifications,
+    // check for unopened notifications,
+    // chanve notification icon
+
+    private void checkNotifications(){
+        if (coMeth.isLoggedIn()){
+            CollectionReference userNotificationRef = coMeth.getDb().collection(coMeth.getUid() + "/" + NOTIFICATIONS);
+            userNotificationRef.whereEqualTo(STATUS, NOTIFICATION_STATUS_UNREAD).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots,
+                                    @javax.annotation.Nullable FirebaseFirestoreException e) {
+                    if (e == null){
+                        Menu bottomNavMenu = mainBottomNav.getMenu();
+                        MenuItem notificationsMenuItem = bottomNavMenu.findItem(R.id.bottomNavNotificationsItem);
+                        if (queryDocumentSnapshots != null) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                //user has unread notifications
+                                notificationsMenuItem.setIcon(getResources().getDrawable(R.drawable.ic_notification_dot));
+                            } else {
+                                notificationsMenuItem.setIcon(getResources().getDrawable(R.drawable.ic_notifications_dark));
+                            }
+                        }
+                    }else{
+                        Log.w(TAG, "onFailure: failed to check user notifications\n" +
+                                e.getMessage(), e);
+                    }
+                }
+            });
         }
     }
 }

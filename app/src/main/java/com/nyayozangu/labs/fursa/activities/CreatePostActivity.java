@@ -88,9 +88,8 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID_VAL;
 public class CreatePostActivity extends AppCompatActivity implements View.OnClickListener {
 
     // TODO: 6/14/18 add multiple images upload
-    // TODO: 7/24/18 remove title
 
-    private static final String TAG = "Sean";
+    private static final String TAG = "CreatePostActivity";
     private static final String EDIT_POST = "editPost";
     private static final String PRICE = "price";
     private static final String EVENT_DATE = "event_date";
@@ -98,9 +97,10 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
     private static final String LOCATION = "location";
+    private static final int DAILY_POSTS_LIMIT = 3;
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     //for file compression
-    Bitmap compressedImageFile;
+    private Bitmap compressedImageFile;
     private CoMeth coMeth = new CoMeth();
 
     private ImageView createPostImageView;
@@ -281,7 +281,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-
                                 switch (dateType){
                                     case START_DATE:
                                         eventDate = new Date(year, month, dayOfMonth);
@@ -504,6 +503,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void checkUserPostDailyQuota() {
+        Log.d(TAG, "checkUserPostDailyQuota: userId is " + coMeth.getUid());
 
         // today
         Calendar date = new GregorianCalendar();
@@ -512,26 +512,25 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         date.set(Calendar.MINUTE, 0);
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
-        Log.d(TAG, "onClick: date is " + date + "\ndate in millis is: " +
-                date.getTimeInMillis());
+        Log.d(TAG, "onClick: date is " + date + "\ndate in millis is: " + date.getTimeInMillis());
         CollectionReference myPostsRef = coMeth.getDb().collection(USERS + "/" +
                 currentUserId + "/" + SUBSCRIPTIONS + "/" + MY_POSTS_DOC + "/" + MY_POSTS);
-        myPostsRef.whereGreaterThan(TIMESTAMP, date.getTime())
-                .get()
+        myPostsRef.whereGreaterThan(TIMESTAMP, date.getTime()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         Log.d(TAG, "onSuccess: got documents");
                         if (!queryDocumentSnapshots.isEmpty()) {
                             int todayPostCount = queryDocumentSnapshots.size();
+                            Log.d(TAG, "onSuccess: today's posts are: " + todayPostCount);
                             coMeth.stopLoading(progressDialog);
-                            if (todayPostCount > 10) {
+                            if (todayPostCount > DAILY_POSTS_LIMIT) {
                                 AlertDialog.Builder quotaAlertBuilder =
                                         new AlertDialog.Builder(CreatePostActivity.this);
                                 quotaAlertBuilder.setTitle(R.string.daily_limited_text)
                                         .setIcon(getResources().getDrawable(R.drawable.ic_action_quota))
-                                        .setMessage(getResources().getString(R.string.you_have_reached_daily_limit_text)  /* +
-                                                "\nWould you like pay for more posts?"*/)
+                                        .setMessage(getResources().getString(R.string.you_have_reached_daily_limit_text) +
+                                                "\nWould you like pay for more posts?")
                                         .setPositiveButton(getResources().getString(R.string.ok_text),
                                                 new DialogInterface.OnClickListener() {
                                                     @Override
@@ -541,15 +540,24 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                                         //// TODO: 6/8/18 replace replacement code
                                                         dialog.dismiss();
                                                         goToMain();
+                                                        // check if user has points in account,
+                                                        // if has apoints,
+                                                        // check if points are enough for new post,
+                                                        // if enough, post,
+                                                        // if user does not have enough point prompt payments,
+                                                        // TODO: 8/6/18 check the daily quota when at main before entering create post
+//                                                        startActivity(new Intent(CreatePostActivity.this, PaymentsActivity.class));
                                                     }
                                                 })
                                         .show();
                             } else {
+                                Log.d(TAG, "onSuccess: has not reached cap");
                                 new SubmitPostTask().execute();
                                 coMeth.stopLoading(progressDialog);
                                 goToMain(getString(R.string.post_will_be_available_text));
                             }
                         } else {
+                            Log.d(TAG, "onSuccess: has not reached cap, query is empty");
                             //has not reached cap
                             new SubmitPostTask().execute();
                             coMeth.stopLoading(progressDialog);
@@ -1349,7 +1357,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     private void showProgress(String message) {
         progressDialog = new ProgressDialog(CreatePostActivity.this);
         progressDialog.setMessage(message);
-        progressDialog.setCancelable(false);
+        // TODO: 8/6/18 remember the submit option
+//        progressDialog.setCancelable(false);
         progressDialog.show();
     }
 

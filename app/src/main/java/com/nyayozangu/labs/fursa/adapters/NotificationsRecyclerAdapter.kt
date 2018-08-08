@@ -41,7 +41,7 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
         val message = notification.message
         val notifType = notification.notif_type
         val extra = notification.extra
-        val notifId = notification.notif_id
+//        val notifId = notification.notif_id
         val status = notification.status
 
         holder.setData(title, message, status)
@@ -49,79 +49,56 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
         setImage(mImage, notifType, status)
         val notifButton =
                 holder.itemView.findViewById<ConstraintLayout>(R.id.notifItemLayout)
-        hanldeItemClick(notifButton, notification, notifType, holder, extra, title, message)
+        handleItemClick(notifButton, notification, notifType, extra, title, message)
     }
 
-    private fun hanldeItemClick(notifButton: ConstraintLayout,
-                                notification: Notifications,
-                                notifType: String?,
-                                holder: ViewHolder,
-                                extra: String?,
-                                title: String,
-                                message: String) {
-        notifButton.setOnClickListener(View.OnClickListener {
+    private fun handleItemClick(notificationButton: ConstraintLayout, notification: Notifications,
+                                notificationType: String?, extra: String?, title: String, message: String) {
+        notificationButton.setOnClickListener {
             coMeth.updateNotificationStatus(notification, coMeth.uid)
-            when (notifType) {
-                COMMENT_UPDATES -> openCommentsNotif(holder, extra)
-                CATEGORIES_UPDATES -> openCatsNotif(extra)
-                LIKES_UPDATES -> openPostNotif(extra)
-                NEW_POST_UPDATES -> openPostNotif(extra)
-                FOLLOWER_POST -> openPostNotif(extra)
+            when (notificationType) {
+                COMMENT_UPDATES -> openCommentsNotification(extra)
+                CATEGORIES_UPDATES -> openCatsNotification(extra)
+                LIKES_UPDATES -> openPostNotification(extra)
+                NEW_POST_UPDATES -> openPostNotification(extra)
+                FOLLOWER_POST -> openPostNotification(extra)
                 NEW_FOLLOWERS_UPDATE -> openUserPage(extra)
                 else -> {
                     openNofitDialog(title, message)
                 }
             }
-        })
+        }
     }
 
-    private fun setImage(mImage: ImageView, notifType: String?, status: Int?) {
+    private fun setImage(mImageView: ImageView, notificationType: String?, status: Int?) {
 
-        when (notifType) {
-            COMMENT_UPDATES -> if (status == 0) {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_comments_green))
-            } else {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_action_comment))
+        when (notificationType) {
+            COMMENT_UPDATES -> when(status){
+                NOTIFICATION_STATUS_UNREAD -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_comments_green))
+                NOTIFICATION_STATUS_READ -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_action_comment))
             }
-            CATEGORIES_UPDATES -> if (status == 0) {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_notif_active_red))
-            } else {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_action_notifications))
+            CATEGORIES_UPDATES -> when(status){
+                NOTIFICATION_STATUS_UNREAD -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_notif_active_red))
+                NOTIFICATION_STATUS_READ -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_action_notifications))
             }
-            LIKES_UPDATES -> if (status == 0) {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_action_liked))
-            } else {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_action_like_unclicked))
+            LIKES_UPDATES -> when(status){
+                NOTIFICATION_STATUS_UNREAD -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_action_liked))
+                NOTIFICATION_STATUS_READ -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_action_like_unclicked))
             }
-            NEW_POST_UPDATES -> if (status == 0) {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_action_new_post_notif))
-            } else {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_new_post_update_dark))
+            NEW_POST_UPDATES -> when (status){
+                NOTIFICATION_STATUS_UNREAD -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_action_new_post_notif))
+                NOTIFICATION_STATUS_READ -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_new_post_update_dark))
             }
-            FOLLOWER_POST -> if (status == 0) {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_follower_post_active))
-            } else {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_follower_post))
+            FOLLOWER_POST -> when(status){
+                NOTIFICATION_STATUS_UNREAD -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_follower_post_active))
+                NOTIFICATION_STATUS_READ -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_follower_post))
             }
-            NEW_FOLLOWERS_UPDATE -> if (status == 0) {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_new_follower_update_active))
-            } else {
-                mImage.setImageDrawable(
-                        context.resources.getDrawable(R.drawable.ic_new_follower_update))
+            NEW_FOLLOWERS_UPDATE -> when(status){
+                NOTIFICATION_STATUS_UNREAD -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_new_follower_update_active))
+                NOTIFICATION_STATUS_READ -> mImageView.setImageDrawable(context.resources.getDrawable(R.drawable.ic_new_follower_update))
             }
             else -> {
-                mImage.setImageDrawable(
+                mImageView.setImageDrawable(
                         context.resources.getDrawable(R.drawable.ic_action_notifications))
             }
         }
@@ -138,7 +115,7 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
                 .show()
     }
 
-    private fun openPostNotif(postId: String?) {
+    private fun openPostNotification(postId: String?) {
         val openLikedPostIntent = Intent(context, ViewPostActivity::class.java)
         openLikedPostIntent.putExtra(POST_ID, postId)
         context.startActivity(openLikedPostIntent)
@@ -150,13 +127,13 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
         context.startActivity(openFollowerPageIntent)
     }
 
-    private fun openCatsNotif(cat: String?) {
+    private fun openCatsNotification(cat: String?) {
         val openCatsIntent = Intent(context, ViewCategoryActivity::class.java)
         openCatsIntent.putExtra(CATEGORY, cat)
         context.startActivity(openCatsIntent)
     }
 
-    private fun openCommentsNotif(holder: ViewHolder, postId: String?) {
+    private fun openCommentsNotification(postId: String?) {
         val openCommentsIntent = Intent(context, CommentsActivity::class.java)
         openCommentsIntent.putExtra(POST_ID, postId)
         openCommentsIntent.putExtra(SOURCE, NOTIFICATIONS_VAL)
@@ -167,13 +144,13 @@ class NotificationsRecyclerAdapter(private val notificationsList: List<Notificat
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val notifImage = itemView.findViewById<ImageView>(R.id.notifImageView)
+//        val notifImage = itemView.findViewById<ImageView>(R.id.notifImageView)
 
         fun setData(title: String, message: String, status: Int?) {
             itemView.findViewById<TextView>(R.id.notifTitleTextView).text = title
             itemView.findViewById<TextView>(R.id.notifDescTextView).text = message
             val notifLayout = itemView.findViewById<ConstraintLayout>(R.id.notifItemLayout)
-            if (status == 0) { // 0 is unread
+            if (status == NOTIFICATION_STATUS_UNREAD) { // 0 is unread
                 notifLayout.setBackgroundColor(ContextCompat.getColor(itemView.context,
                         R.color.colorWhite))
             } else {
