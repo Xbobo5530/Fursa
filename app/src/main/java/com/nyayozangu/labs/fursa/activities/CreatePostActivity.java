@@ -622,7 +622,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                 new AlertDialog.Builder(CreatePostActivity.this);
                         /*String message = getString(R.string.insufficient_credit_message) + "\n"
                                 + getString(R.string.buy_more_credit_text);*/
-                        String message = getString(R.string.insufficient_credit_message) + "\n" +
+                        String message = getString(R.string.insufficient_credit_message_for_post) + "\n" +
                                 "Try again tomorrow";
                         insufficientCreditBuilder.setTitle(R.string.insufficient_credit_text)
                                 .setMessage(message)

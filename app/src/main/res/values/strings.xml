@@ -336,7 +336,7 @@
     <string name="people_text">People</string>
     <string name="title_activity_payments">PaymentsActivity</string>
     <string name="insufficient_credit_text">Insufficient credit</string>
-    <string name="insufficient_credit_message">You have insufficient credit to create a new post today.</string>
+    <string name="insufficient_credit_message_for_post">You have insufficient credit to create a new post today.</string>
     <string name="buy_more_credit_text">Would you like to buy more credit?</string>
     <string name="buy_credit_text">Buy credit</string>
     <string name="credit_deducted_text">Credit deducted</string>
@@ -344,6 +344,12 @@
     <string name="new_credit_text">Your new balance is</string>
     <string name="daily_cedit">Daily credit</string>
     <string name="view_my_profile_text">View my profile</string>
+    <string name="promote_text">Promote post</string>
+    <string name="login_to_promote">Login to promote your posts</string>
+    <string name="insufficient_credit_message_for_promo_message">You have insufficient credit to get this promotion</string>
+    <string name="congratultions_text">Congratulations</string>
+    <string name="post_promoted_message">Your post has been submitted for review</string>
+    <string name="promote_post_text">Promote post</string>
     <!--<string name="com.pesapal.pesapalandroid.MERCHANT_ID">2</string>-->
 
 

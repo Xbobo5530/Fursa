@@ -494,7 +494,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void goToPromote() {
-        // TODO: 5/31/18 go to promote page
+        Intent intent = new Intent(this, PromotePostActivity.class);
+        intent.putExtra(POST_ID, postId);
+        startActivity(intent);
     }
 
     private void showPostStats() {
@@ -507,6 +509,22 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 getResources().getString(R.string.views_text) + ": " + post.getViews() + "\n" +
                                 getString(R.string.feed_views_text) + ": " + post.getFeed_views()
                 )
+                .setPositiveButton(getString(R.string.promote_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        goToPromote();
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel_text),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+
+                /*
                 .setPositiveButton(getResources().getString(R.string.ok_text),
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -514,6 +532,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                 dialog.dismiss();
                             }
                         })
+                */
                 .show();
     }
 

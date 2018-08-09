@@ -187,6 +187,10 @@ public class CoMeth{
     public static final int NOTIFICATION_STATUS_UNREAD = 0;
     public static final int NOTIFICATION_STATUS_READ = 1;
     public static final String CREDIT = "credit";
+    public static final String DURATION = "duration";
+    public static final String CREATED_AT = "created_at";
+    public static final String EXPIRES_AT = "expires_date";
+    public static final String SPONSORED = "Sponsored";
 
     public String[] getCatTitle(Context context){
         return new String[]{

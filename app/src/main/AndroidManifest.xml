@@ -59,8 +59,10 @@
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="fursa.nyayozangu.com"
                     android:pathPattern="/post/.*"
@@ -75,12 +77,16 @@
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
@@ -89,6 +95,7 @@
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
@@ -106,8 +113,10 @@
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="fursa.nyayozangu.com"
                     android:pathPattern="/category/.*"
@@ -119,6 +128,7 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_my_posts"
             android:theme="@style/AppTheme" />
+
         <service android:name=".services.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -129,6 +139,7 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_notification" />
@@ -147,8 +158,10 @@
         <activity android:name=".activities.UserPageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="fursa.nyayozangu.com"
                     android:pathPattern="/profile/.*"
@@ -167,6 +180,7 @@
                 android:name="com.pesapal.pesapalandroid.MERCHANT_ID"
                 android:value="2" />
         </activity>
+        <activity android:name=".activities.PromotePostActivity"></activity>
     </application>
 
 </manifest>
