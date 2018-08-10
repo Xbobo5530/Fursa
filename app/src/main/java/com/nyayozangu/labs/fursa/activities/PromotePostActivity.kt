@@ -45,7 +45,7 @@ class PromotePostActivity : AppCompatActivity() {
 
     private fun handleCreditCount() {
         val currentUserId = common.uid
-        common.db.collection(USERS).document(currentUserId).addSnapshotListener {
+        common.db.collection(USERS).document(currentUserId).addSnapshotListener (this){
             documentSnapshot, e ->
             if (e == null){
                 if (documentSnapshot != null && documentSnapshot.exists()) {

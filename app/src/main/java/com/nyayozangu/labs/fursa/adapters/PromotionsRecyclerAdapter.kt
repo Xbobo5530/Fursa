@@ -14,7 +14,7 @@ import android.widget.TextView
 import com.google.firebase.firestore.FieldValue
 import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.activities.LoginActivity
-import com.nyayozangu.labs.fursa.activities.MainActivity
+import com.nyayozangu.labs.fursa.activities.PromotePostActivity
 import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Promotion
@@ -43,8 +43,23 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
         val promotion = promotionsList[position]
         holder.setPromoDetails(promotion)
         holder.promoItemView.setOnClickListener{
-            handleBuyingPromotion(holder, promotion)
+            confirmPromotePost(holder, promotion)
         }
+    }
+
+    private fun confirmPromotePost(holder: ViewHolder, promotion: Promotion) {
+        val message = "This promotion costs ${promotion.cost}, and will run for ${promotion.duration}"
+        AlertDialog.Builder(context).setTitle(context.getString(R.string.promotion_text))
+                .setIcon(context.resources.getDrawable(R.drawable.ic_promote))
+                .setMessage(message)
+                .setPositiveButton(context.getString(R.string.proceed_text)){ dialog, _ ->
+                    dialog.dismiss()
+                    handleBuyingPromotion(holder, promotion)
+                }
+                .setNegativeButton(context.getString(R.string.cancel_text)){ dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
     }
 
     private fun showProgress(message: String) {
@@ -150,16 +165,16 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
     private fun showSuccessDialog(cost: Int, balanceCredit: Int, duration: Int) {
         common.stopLoading(progressDialog)
         val message = "${context.getString(R.string.post_promoted_message)}\n" +
-                "You have spent $cost credits\n" +
-                "You now have $balanceCredit credit(s) in your account\n" +
-                "Your post will be promoted for $duration day(s)"
+                "You have spent $cost credit(s).\n" +
+                "Your new balance is $balanceCredit credit(s).\n" +
+                "Your post will be promoted for $duration day(s)."
         AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.congratultions_text))
+                .setTitle(context.getString(R.string.congratulations_text))
                 .setMessage(message)
                 .setIcon(context.resources.getDrawable(R.drawable.ic_credit))
                 .setPositiveButton(context.getString(R.string.ok_text)){ dialog, _ ->
                     dialog.dismiss()
-                    context.startActivity<MainActivity>()
+                    (context as PromotePostActivity).finish()
                 }
                 .setCancelable(false)
                 .show()
