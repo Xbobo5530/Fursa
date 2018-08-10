@@ -18,18 +18,32 @@
         android:visibility="gone"
         app:srcCompat="@color/colorWhite" />
 
-    <TextView
-        android:id="@+id/navHeaderUsernameTextView"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:background="@color/black_transparent"
-        android:padding="8dp"
-        android:text="@string/username_text"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" >
+
+        <TextView
+            android:id="@+id/navHeaderUsernameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/username_text"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/navHeaderUserCreditBalanceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textColor="@android:color/white"
+            android:text="Balance: 10C"
+            android:textStyle="italic"/>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

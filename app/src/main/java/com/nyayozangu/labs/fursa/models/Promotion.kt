@@ -1,9 +1,6 @@
 package com.nyayozangu.labs.fursa.models
 
-import java.time.Duration
-
-class Promotion (val id: String,
-                 val title: String,
-                 val description: String,
-                 val duration: Int,
-                 val cost: Int)
+class Promotion (val title: String = "",
+                 val description: String = "",
+                 val duration: Int = 0,
+                 val cost: Int = 0)

@@ -67,6 +67,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_ID;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_TYPE_AD;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_TYPE_POST;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.POST_TYPE_SPONSORED;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_COL;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_POSTS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_POSTS_DOC;
@@ -98,8 +99,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     private static final String POPULAR_FRAGMENT = "PopularFragment";
 
     //member variables for storing posts
-    public List<Post> postsList;
-    public List<User> usersList;
+    private List<Post> postsList;
+    private List<User> usersList;
     public Context context;
     public Activity activity;
     public RequestManager glide;
@@ -145,7 +146,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         post = postsList.get(position);
         switch (holder.getItemViewType()){
             case VIEW_TYPE_POST:
-                ((PostViewHolder)holder).build(position, className);
+                ((PostViewHolder)holder).build(position, className, post.getPost_type());
                 break;
             case VIEW_TYPE_AD:
                 ((AdViewHolder)holder).build();
@@ -170,6 +171,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         int postType = post.getPost_type();
         switch (postType){
             case POST_TYPE_POST:
+            case POST_TYPE_SPONSORED:
                 return VIEW_TYPE_POST;
             case POST_TYPE_AD:
                 return VIEW_TYPE_AD;
@@ -180,19 +182,24 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     }
 
     static void updateFeedViews(Post post) {
-        Map<String, Object> feedViewMap = new HashMap<>();
-        int feedViews = post.getFeed_views() + 1;
-        feedViewMap.put("feed_views", feedViews);
-        FirebaseFirestore.getInstance().collection(POSTS)
-                .document(post.PostId)
-                .update(feedViewMap)
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: failed to update feed views\n" +
-                                e.getMessage());
-                    }
-                });
+        try {
+            Map<String, Object> feedViewMap = new HashMap<>();
+            int feedViews = post.getFeed_views() + 1;
+            feedViewMap.put("feed_views", feedViews);
+            FirebaseFirestore.getInstance().collection(POSTS)
+                    .document(post.PostId)
+                    .update(feedViewMap)
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to update feed views\n" +
+                                    e.getMessage());
+                        }
+                    });
+        }catch (NullPointerException nullPathException){
+            Log.w(TAG, "updateFeedViews: the provided path is null\n" +
+                    nullPathException.getMessage(), nullPathException);
+        }
     }
 
 
@@ -753,7 +760,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     class PostViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
-        private TextView postUsernameTextView;
+        private TextView postUsernameTextView, sponsoredTextView;
         private ImageView postUserImageView;
         private TextView postLikesCount, postCommentCount, postLocationTextView,
                 postDateTextView, descTextView, activityTextView;
@@ -789,7 +796,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
             followButton = mView.findViewById(R.id.postFollowButton);
             topLayout = mView.findViewById(R.id.postTopLayout);
             actionsLayout = mView.findViewById(R.id.postActionsLayout);
-
+            sponsoredTextView = mView.findViewById(R.id.postSponsoredTextView);
         }
         //retrieve the image
         void setPostImage(final String imageDownloadUrl, final String thumbDownloadUrl) {
@@ -814,7 +821,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
             }
         }
 
-        public void build(int position, String className) {
+        public void build(int position, String className, int postType) {
             //check class name
             switch (className){
                 case CLASS_NAME_VIEW_POST:
@@ -822,11 +829,11 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
                    break;
                default:
                    User user = usersList.get(position);
-                   handleNormalPost(post, user);
+                   handleNormalPost(post, user, postType);
             }
         }
 
-        private void handleNormalPost(Post post, User user) {
+        private void handleNormalPost(Post post, User user, int postType) {
 
             String title = post.getTitle();
             String desc = post.getDesc();
@@ -871,6 +878,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
                     openPost(postId);
                 }
             });
+
+            //handle sponsored
+            if (postType == POST_TYPE_SPONSORED){
+                sponsoredTextView.setVisibility(View.VISIBLE);
+            }else{
+                sponsoredTextView.setVisibility(View.GONE);
+            }
+
             new UpdatePostActivityTask().execute();
         }
 

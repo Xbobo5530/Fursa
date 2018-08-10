@@ -49,6 +49,19 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/postSponsoredTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:maxLength="50"
+                            android:maxLines="3"
+                            android:text="@string/sponsored_text"
+                            android:textStyle="italic"
+                            android:textColor="@color/primaryDarkColor"
+                            android:visibility="visible"/>
 
                         <TextView
                             android:id="@+id/postUsernameTextView"
@@ -62,7 +75,6 @@
                             android:text="@string/username_post_placeholder_text"
                             android:textStyle="bold" />
 
-
                         <TextView
                             android:id="@+id/postLocationTextView"
                             android:layout_width="match_parent"
@@ -72,12 +84,9 @@
                             android:layout_marginStart="8dp"
                             android:maxLength="50"
                             android:maxLines="3"
-                            android:text="@string/location__post_placeholder_text"
-                            android:textStyle="italic"
-                            app:layout_constraintBottom_toBottomOf="@+id/postUserImageCircleImageView"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/postUserImageCircleImageView"
-                            app:layout_constraintTop_toBottomOf="@+id/postUsernameTextView" />
+                            android:text="@string/location_text"
+                            android:textStyle="italic" />
+
                     </LinearLayout>
 
                     <Button

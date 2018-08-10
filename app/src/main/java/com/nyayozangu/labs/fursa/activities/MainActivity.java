@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements
     public String hasAcceptedTermsStatus, username;
     private ImageView userProfileImage;
     private TextView usernameField;
+    private TextView userCreditField;
     private User user;
     private ArrayList<String> catSubsArray;
     private String[] catsListItems;
@@ -303,6 +304,8 @@ public class MainActivity extends AppCompatActivity implements
         userProfileImage = navHeader.findViewById(R.id.navHeaderUserImageView);
         usernameField = navHeader.findViewById(R.id.navHeaderUsernameTextView);
         usernameField.setVisibility(View.VISIBLE);
+        userCreditField = navHeader.findViewById(R.id.navHeaderUserCreditBalanceTextView);
+        userCreditField.setVisibility(View.VISIBLE);
         if (coMeth.isLoggedIn()) {
             //set user data
             String userId = coMeth.getUid();
@@ -359,17 +362,20 @@ public class MainActivity extends AppCompatActivity implements
     private void setUserData(User user, ImageView userProfileImage, TextView usernameField) {
         userProfileImage.setVisibility(View.VISIBLE);
         if (user.getImage() != null) {
-            String userImageDownloadUri = user.getImage();
             username = user.getName();
-            //set image
-            coMeth.setImageWithTransition(R.drawable.appiconshadow,
-                    userImageDownloadUri,
-                    userProfileImage, this);
-            //set username
             usernameField.setText(username);
+            int userCredit = user.getCredit();
+            String creditInfo = getString(R.string.balance_text) + ": " + userCredit + " " + getString(R.string.credit_text);
+            userCreditField.setText(creditInfo);
+
+            //set image
+            String userImageUrl = user.getImage();
+            coMeth.setImageWithTransition(R.drawable.appiconshadow,
+                    userImageUrl,
+                    userProfileImage, this);
         } else {
             userProfileImage.setImageDrawable(
-                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                    getResources().getDrawable(R.drawable.appiconshadow));
         }
     }
 
@@ -460,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements
                         mainBottomNav.setSelectedItemId(R.id.bottomNavHomeItem);
                         setFragment(homeFragment);
                         showUpdateDialog();
-                        Log.d(TAG, "handleIntent: action is update");
+                        Log.d(TAG, "getPostId: action is update");
                         break;
                     case GOTO:
                         switch (intent.getStringExtra(DESTINATION)) {
@@ -491,7 +497,7 @@ public class MainActivity extends AppCompatActivity implements
                 setFragment(homeFragment);
             }
         } else {
-            Log.d(TAG, "handleIntent: intent is null");
+            Log.d(TAG, "getPostId: intent is null");
             setFragment(homeFragment);
         }
     }
@@ -885,7 +891,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void checkNotifications(){
         if (coMeth.isLoggedIn()){
-            CollectionReference userNotificationRef = coMeth.getDb().collection(coMeth.getUid() + "/" + NOTIFICATIONS);
+            CollectionReference userNotificationRef = coMeth.getDb().collection(USERS + "/" + coMeth.getUid() + "/" + NOTIFICATIONS);
             userNotificationRef.whereEqualTo(STATUS, NOTIFICATION_STATUS_UNREAD).addSnapshotListener(new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots,

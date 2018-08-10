@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,34 +38,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-
-
-
-/**
- * Created by Sean on 4/29/18.
- * commonly used methods throughout the app
- */
-/*[Firestore]: The behavior for java.util.Date objects stored in Firestore is going to change AND YOUR APP MAY BREAK.
-    To hide this warning and ensure your app does not break, you need to add the following code to your app before calling any other Cloud Firestore methods:
-
-    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-    FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-        .setTimestampsInSnapshotsEnabled(true)
-        .build();
-    firestore.setFirestoreSettings(settings);
-
-    With this change, timestamps stored in Cloud Firestore will be read back as com.google.firebase.Timestamp objects instead of as system java.util.Date objects. So you will also need to update code expecting a java.util.Date to instead expect a Timestamp. For example:
-
-    // Old:
-    java.util.Date date = snapshot.getDate("created_at");
-    // New:
-    Timestamp timestamp = snapshot.getTimestamp("created_at");
-    java.util.Date date = timestamp.toDate();
-
-    Please audit all existing usages of java.util.Date when you enable the new behavior. In a future release, the behavior will be changed to the new behavior, so if you do not follow these steps, YOUR APP MAY BREAK.*/
-
 
 public class CoMeth{
     public static final String TAG = "Sean";
@@ -184,13 +160,15 @@ public class CoMeth{
     public static final String USER_POSTS = "user_posts";
     public static final int POST_TYPE_POST = 0;
     public static final int POST_TYPE_AD = 1;
+    public static final int POST_TYPE_SPONSORED = 2;
     public static final int NOTIFICATION_STATUS_UNREAD = 0;
     public static final int NOTIFICATION_STATUS_READ = 1;
     public static final String CREDIT = "credit";
     public static final String DURATION = "duration";
     public static final String CREATED_AT = "created_at";
-    public static final String EXPIRES_AT = "expires_date";
+    public static final String EXPIRES_AT = "expires_at";
     public static final String SPONSORED = "Sponsored";
+    public static final String PROMOTIONS = "Promotions";
 
     public String[] getCatTitle(Context context){
         return new String[]{
@@ -564,8 +542,13 @@ public class CoMeth{
         }
     }
 
-    public int generateRandomInt() {
-        return new Random().nextInt(9);
+    public int generateRandomInt(int from, int to) {
+//        return new Random().nextInt(bound);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return  ThreadLocalRandom.current().nextInt(from, to + 1);
+        }else{
+            return new Random().nextInt((to - from) + 1) + from;
+        }
     }
 }
 

@@ -82,7 +82,7 @@
     <string name="title_view_post_text" translatable="false">Title</string>
     <string name="desc_text" translatable="false">Description</string>
     <string name="contact_view_post_text" translatable="false">Contact</string>
-    <string name="location_view_post_text" translatable="false">Location</string>
+    <string name="location_text" translatable="false">Location</string>
     <string name="event_date_view_post_text" translatable="false">Event Date</string>
     <string name="price_view_post_text" translatable="false">Price</string>
     <string name="time_view_post_text" translatable="false">Time</string>
@@ -350,6 +350,8 @@
     <string name="congratultions_text">Congratulations</string>
     <string name="post_promoted_message">Your post has been submitted for review</string>
     <string name="promote_post_text">Promote post</string>
+    <string name="balance_text">Balance</string>
+    <string name="credit_text">Credit(s)</string>
     <!--<string name="com.pesapal.pesapalandroid.MERCHANT_ID">2</string>-->
 
 

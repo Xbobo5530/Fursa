@@ -765,8 +765,8 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                             } else {
 
                                 Log.d(TAG, "onComplete: " + task.getException());
-                                String errorMassage = Objects.requireNonNull(task.getException()).getMessage();
-                                newPostNotif(false, errorMassage);
+//                                String errorMassage = Objects.requireNonNull(task.getException()).getMessage();
+//                                newPostNotif(false, errorMassage);
                             }
                         }
                     });
@@ -787,10 +787,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                 updateCatsOnDB(postId, postMap);
                                 newPostNotif(true, postId);
                                 notifyFollowers(postId);
-                            } else {
-                                String errorMessage =
-                                        Objects.requireNonNull(task.getException()).getMessage();
-                                newPostNotif(false, errorMessage);
                             }
                         }
                     });
@@ -974,13 +970,9 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                             notifyFollowers(postId);
 
                         } else {
-
                             //upload failed
                             Log.d(TAG, "Db Update failed: " +
                                     Objects.requireNonNull(task.getException()).getMessage());
-                            String errorMessage = Objects.requireNonNull(task.getException())
-                                    .getMessage();
-                            newPostNotif(false, errorMessage);
                         }
                     }
                 });
@@ -1012,7 +1004,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                             String errorMessage =
                                     Objects.requireNonNull(task.getException()).getMessage();
                             Log.d(TAG, "Db Update failed: " + errorMessage);
-                            newPostNotif(false, errorMessage);
+//                            newPostNotif(false, errorMessage);
                         }
                     }
                 });

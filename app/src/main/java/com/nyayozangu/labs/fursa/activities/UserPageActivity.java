@@ -69,10 +69,9 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     private static final String TAG = "UserPageActivity";
     private CoMeth coMeth = new CoMeth();
 
-    private TextView usernameField, userBioField, creditCountView;
+    private TextView usernameField, userBioField;
     private ImageView userImageView;
-    private Button postsButton, followButton, followersButton, followingButton;
-    private LinearLayout creditLayout;
+    private Button postsButton, followButton, followersButton, followingButton, creditButton;
     private String userId, userImageUrl, currentUserId;
     private ProgressDialog progressDialog;
     private Toolbar toolbar;
@@ -97,8 +96,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
         followersButton = findViewById(R.id.userPageFollowersButton);
         followingButton = findViewById(R.id.userPageFollowingButton);
         followButton = findViewById(R.id.userPageFollowButton);
-        creditLayout = findViewById(R.id.userPageCreditLayout);
-        creditCountView = findViewById(R.id.userPageCreditCountTextView);
+        creditButton = findViewById(R.id.userPageCreditCountButton);
         toolbar = findViewById(R.id.userPageToolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
@@ -171,12 +169,12 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void handleIntent() {
-        Log.d(TAG, "handleIntent: user page");
+        Log.d(TAG, "getPostId: user page");
         Intent intent = getIntent();
         if (intent != null) {
             if (intent.getStringExtra(USER_ID) != null) {
                 userId = intent.getStringExtra(USER_ID);
-                Log.d(TAG, "handleIntent: userId is " + userId);
+                Log.d(TAG, "getPostId: userId is " + userId);
                 populatePage();
                 handleItemVisibility(userId);
             } else if (intent.getAction() != null) {
@@ -248,10 +246,10 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
     private void handleItemVisibility(String userId) {
         if (coMeth.isLoggedIn() && userId.equals(currentUserId)) {
             followButton.setVisibility(View.GONE);
-            creditLayout.setVisibility(View.VISIBLE);
+            creditButton.setVisibility(View.VISIBLE);
         } else {
             followButton.setVisibility(View.VISIBLE);
-            creditLayout.setVisibility(View.GONE);
+            creditButton.setVisibility(View.GONE);
         }
     }
 
@@ -343,7 +341,9 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                                 handleFCounts(followersRef, followersButton, FOLLOWERS);
                                 handleFCounts(followingRef, followingButton, FOLLOWING);
                                 int credit = user.getCredit();
-                                creditCountView.setText(String.valueOf(credit));
+                                String creditInfo = getString(R.string.balance_text) + ": " +
+                                        credit + " " + getString(R.string.credit_text);
+                                creditButton.setText(creditInfo);
                                 coMeth.stopLoading(progressDialog);
                             }
                         } else {

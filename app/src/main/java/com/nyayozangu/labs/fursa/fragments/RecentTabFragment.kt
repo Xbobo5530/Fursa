@@ -13,6 +13,7 @@ import android.widget.ProgressBar
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.Query
 import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter
@@ -20,6 +21,9 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Post
 import com.nyayozangu.labs.fursa.models.User
+import kotlinx.android.synthetic.main.fragment_recent_tab.*
+import org.jetbrains.anko.doAsync
+import java.util.*
 
 private const val RECENT_FRAGMENT = "RecentFragment"
 private const val TAG = "RecentFragment"
@@ -33,7 +37,8 @@ class RecentTabFragment : Fragment() {
     private var isFirstPageFirstLoad = true
     private lateinit var lastVisiblePost: DocumentSnapshot
     private lateinit var adapter: PostsRecyclerAdapter
-    private var randomPosition = 0
+    private var randomPositionForAd = 0
+    private var randomPositionForSponsoredPost = 0
     private lateinit var mProgressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +51,7 @@ class RecentTabFragment : Fragment() {
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
         mProgressBar = view.findViewById(R.id.recentProgressBar)
-        coMeth.showProgress(mProgressBar)
+//        coMeth.showProgress(mProgressBar)
         handleScrolling(mRecyclerView)
         loadPosts()
         handleBottomNavReselect(mRecyclerView)
@@ -74,39 +79,44 @@ class RecentTabFragment : Fragment() {
     }
 
     private fun loadPosts() {
-        val firstQuery = coMeth.db.collection(POSTS)
-                .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .limit(10)
-        firstQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-            if (firebaseFirestoreException == null) {
-                if  (querySnapshot != null) {
-                    if (!querySnapshot.isEmpty) {
-                        if (isFirstPageFirstLoad) {
-                            lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
-                            postsList.clear()
-                            usersList.clear()
+        coMeth.showProgress(mProgressBar)
+        doAsync {
+            val firstQuery = coMeth.db.collection(POSTS)
+                    .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(10)
+            firstQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                if (firebaseFirestoreException == null) {
+                    if (querySnapshot != null) {
+                        if (!querySnapshot.isEmpty) {
+                            if (isFirstPageFirstLoad) {
+                                lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
+                                postsList.clear()
+                                usersList.clear()
 
-                            randomPosition = coMeth.generateRandomInt()
-                            Log.d(TAG, "random ad position is $randomPosition")
+                                randomPositionForAd = coMeth.generateRandomInt(0,9)
+                                randomPositionForSponsoredPost = coMeth.generateRandomInt(0,9)
+                                Log.d(TAG, "random ad position is $randomPositionForAd " +
+                                        "and for post is $randomPositionForSponsoredPost")
 
-                            for (document in querySnapshot.documentChanges) {
-                                if (document.type == DocumentChange.Type.ADDED) {
-                                    val postId = document.document.id
-                                    val post = document.document
-                                            .toObject(Post::class.java).withId<Post>(postId)
-                                    val postUserId = post.user_id
-                                    getUserData(postUserId, post)
+                                for (document in querySnapshot.documentChanges) {
+                                    if (document.type == DocumentChange.Type.ADDED) {
+                                        val postId = document.document.id
+                                        val post = document.document
+                                                .toObject(Post::class.java).withId<Post>(postId)
+                                        val postUserId = post.user_id
+                                        getUserData(postUserId, post, randomPositionForAd)
+                                    }
                                 }
                             }
+                            isFirstPageFirstLoad = false
                         }
-                        isFirstPageFirstLoad = false
+                    } else {
+                        Log.e(TAG, "returned null query")
                     }
-                }else{
-                    Log.e(TAG, "returned null query")
-                }
-            }else{
-                Log.e(TAG, "Failed to load posts: ${firebaseFirestoreException.message}")
+                } else {
+                    Log.e(TAG, "Failed to load posts: ${firebaseFirestoreException.message}")
 //                val errorMessage = "${resources.getString(R.string.error_text)}: ${firebaseFirestoreException.message}"
+                }
             }
         }
     }
@@ -120,7 +130,60 @@ class RecentTabFragment : Fragment() {
         Log.d(TAG, "ad post is added")
     }
 
-    private fun getUserData(postUserId: String, post: Post) {
+    private fun addSponsoredPost(){
+        Log.d(TAG, "adding sponsored post")
+        coMeth.db.collection(SPONSORED)//.whereGreaterThan(EXPIRES_AT, Date().time)
+                .get().addOnSuccessListener {
+                    if (!it.isEmpty){
+                        val numberOfSponsoredPosts = it.size()
+                        val randomPostPosition = coMeth.generateRandomInt(0,numberOfSponsoredPosts - 1)
+                        Log.d(TAG, "number of sponsored posts is $numberOfSponsoredPosts\nrandom post position is $randomPostPosition")
+                        val randomPostDoc = it.documentChanges[randomPostPosition]
+                        val postId = randomPostDoc.document.get(POST_ID_VAL).toString()
+                        getSponsoredPost(postId)
+                    }
+                }
+                .addOnFailureListener {
+                    Log.w(TAG, "failed to get sponsored post\n${it.message}", it)
+                }
+    }
+
+    private fun getSponsoredPost(postId: String){
+        Log.d(TAG, "at get sponsored post")
+        coMeth.db.collection(POSTS).document(postId).get().addOnSuccessListener {
+            if (it.exists()){
+                val post = it.toObject(Post::class.java)?.withId<Post>(postId)
+                if (post != null){
+                    post.post_type = POST_TYPE_SPONSORED
+                    getSponsoredPostUser(post)
+                }
+            }else {
+                Log.d(TAG, "post does not exist")
+            }
+        }
+                .addOnFailureListener {
+                    Log.w(TAG, "failed to get sponsored post user ${it.message}", it)
+                }
+    }
+
+    private fun getSponsoredPostUser(post: Post) {
+        Log.d(TAG, "at get sponsored post user")
+        val postUserId = post.user_id
+        coMeth.db.collection(USERS).document(postUserId).get().addOnSuccessListener {
+            if (it.exists()){
+                val user = it.toObject(User::class.java)?.withId<User>(postUserId)
+                if (user != null){
+                    postsList.add(post)
+                    usersList.add(user)
+                    adapter.notifyItemInserted(postsList.size - 1)
+                    coMeth.stopLoading(mProgressBar)
+                }
+            }
+        }
+    }
+
+
+    private fun getUserData(postUserId: String, post: Post, randomPositionForAd: Int) {
         coMeth.db.collection(USERS).document(postUserId).get()
                 .addOnSuccessListener {
                     if (it.exists()) {
@@ -138,8 +201,11 @@ class RecentTabFragment : Fragment() {
                                 adapter.notifyItemInserted(postsList.size - 1)
                             }
                         }
-                        if (randomPosition == postsList.size) {
+                        if (randomPositionForAd == postsList.size) {
                             addAd()
+                        }else if (randomPositionForSponsoredPost != randomPositionForAd &&
+                                randomPositionForSponsoredPost == postsList.size){
+                            addSponsoredPost()
                         }
                         mProgressBar.visibility = View.GONE
                     }
@@ -151,28 +217,34 @@ class RecentTabFragment : Fragment() {
 
     private fun loadMorePosts() {
         coMeth.showProgress(mProgressBar)
-        val nextQuery = coMeth.db.collection(POSTS)
-                .orderBy(TIMESTAMP, Query.Direction.DESCENDING).startAfter(lastVisiblePost)
-                .limit(10)
+        doAsync {
+            val nextQuery = coMeth.db.collection(POSTS)
+                    .orderBy(TIMESTAMP, Query.Direction.DESCENDING).startAfter(lastVisiblePost)
+                    .limit(10)
 
-        nextQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-            if (firebaseFirestoreException == null) {
-                if (!querySnapshot?.isEmpty!!) {
-                    lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
-                    randomPosition = coMeth.generateRandomInt()
+            nextQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                if (firebaseFirestoreException == null) {
+                    if (!querySnapshot?.isEmpty!!) {
+                        lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
 
-                    for (document in querySnapshot.documentChanges) {
-                        if (document.type == DocumentChange.Type.ADDED) {
-                            val postId = document.document.id
-                            val post = document.document
-                                    .toObject(Post::class.java).withId<Post>(postId)
-                            val postUserId = post.user_id
-                            getUserData(postUserId, post)
+                        randomPositionForAd = coMeth.generateRandomInt(postsList.size, postsList.size + 9)
+                        randomPositionForSponsoredPost = coMeth.generateRandomInt(postsList.size, postsList.size + 9)
+                        Log.d(TAG, "random ad position is $randomPositionForAd " +
+                                "and for post is $randomPositionForSponsoredPost")
+
+                        for (document in querySnapshot.documentChanges) {
+                            if (document.type == DocumentChange.Type.ADDED) {
+                                val postId = document.document.id
+                                val post = document.document
+                                        .toObject(Post::class.java).withId<Post>(postId)
+                                val postUserId = post.user_id
+                                getUserData(postUserId, post, randomPositionForAd)
+                            }
                         }
                     }
+                } else {
+                    Log.d(TAG, "error ${firebaseFirestoreException.message}")
                 }
-            } else {
-                Log.d(TAG, "error ${firebaseFirestoreException.message}")
             }
         }
     }

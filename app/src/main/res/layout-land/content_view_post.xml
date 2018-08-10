@@ -223,7 +223,7 @@
             android:drawableStart="@drawable/ic_action_location"
             android:gravity="start|center"
             android:padding="8dp"
-            android:text="@string/location_view_post_text"
+            android:text="@string/location_text"
             android:textAllCaps="false"
             android:textColor="@color/colorAccent" />
 

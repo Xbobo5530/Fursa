@@ -116,7 +116,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                 showProgress(getString(R.string.loading_text));
                 switch (destination){
                     case SAVED_VAL:
-                        Log.d(TAG, "handleIntent:  at saved val");
+                        Log.d(TAG, "getPostId:  at saved val");
                         processShowingFab();
                         Objects.requireNonNull(getSupportActionBar()).setTitle(getString(R.string.my_saved_posts_text));
                         loadSavedPosts();
@@ -142,7 +142,7 @@ public class UserPostsActivity extends AppCompatActivity implements View.OnClick
                         }
                         break;
                     default:
-                        Log.d(TAG, "handleIntent: get intent at default");
+                        Log.d(TAG, "getPostId: get intent at default");
 
                 }
             }

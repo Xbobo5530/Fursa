@@ -139,7 +139,7 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
         val message = "${context.getString(R.string.post_promoted_message)}\n" +
                 "You have spent $cost credits\n" +
                 "You now have $balanceCredit credit(s) in your account\n" +
-                "Your post will be promoted for $duration days"
+                "Your post will be promoted for $duration day(s)"
         AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.congratultions_text))
                 .setMessage(message)

@@ -6,7 +6,7 @@
 
     <android.support.v7.widget.CardView
         android:id="@+id/adCard"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
@@ -26,24 +26,19 @@
                 android:id="@+id/sponsoredTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
                 android:padding="4dp"
                 android:text="@string/sponsored_text"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold|italic"
+                android:textColor="@color/primaryDarkColor"
+                android:textStyle="italic"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            <com.google.android.gms.ads.AdView
+                xmlns:ads="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/adView"
                 android:layout_width="300dp"
                 android:layout_height="254dp"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="32dp"
                 ads:adSize="MEDIUM_RECTANGLE"
                 ads:adUnitId="ca-app-pub-6180360542591636/5341130287"
                 ads:layout_constraintTop_toBottomOf="@+id/sponsoredTextView"
@@ -52,10 +47,5 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
         </android.support.constraint.ConstraintLayout>
-
-        <!--test: ca-app-pub-3940256099942544/6300978111-->
-        <!--ca-app-pub-6180360542591636/5341130287-->
-
     </android.support.v7.widget.CardView>
-
 </android.support.constraint.ConstraintLayout>

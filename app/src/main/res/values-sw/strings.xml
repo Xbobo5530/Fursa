@@ -69,7 +69,7 @@
     <string name="title_view_post_text">Kichwa cha chapisho</string>
     <string name="desc_text">Maelezo</string>
     <string name="contact_view_post_text">Mawasiliano</string>
-    <string name="location_view_post_text">Eneo husika</string>
+    <string name="location_text">Eneo husika</string>
     <string name="event_date_view_post_text">Tarehe ya tukio</string>
     <string name="price_view_post_text">Bei na malipo</string>
     <string name="time_view_post_text">Muda</string>
