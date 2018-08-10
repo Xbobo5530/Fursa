@@ -61,7 +61,11 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Category;
 import com.nyayozangu.labs.fursa.models.User;
 
+import java.time.DayOfWeek;
+import java.time.Month;
+import java.time.Year;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -183,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements
         handleIntent();
         handleDrawerListeners(navigationView);
         handleBottomNavBar();
+        updateDailyCredit();
         newPostFab.setOnClickListener(this);
         if (!coMeth.isConnected(this)) {
             showSnack(getResources().getString(R.string.failed_to_connect_text));
@@ -916,7 +921,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    // TODO: 8/9/18 test credit
     private void updateDailyCredit(){
         //check if is logged in
         if (coMeth.isLoggedIn()){
@@ -928,35 +932,19 @@ public class MainActivity extends AppCompatActivity implements
                             if (documentSnapshot != null && documentSnapshot.exists()){
                                 User user = documentSnapshot.toObject(User.class);
                                 if (user != null){
-                                    Date lastCreditUpdate = user.getLast_daily_credit_update_at().toDate();
-                                    Date today = new Date();
-                                    boolean sholdUpdateCredit = true;
-                                    // TODO: 8/9/18 figure out how to check if the two dates are on the same day
-                                    if (sholdUpdateCredit){
-                                        Map<String, Object> creditMap = new HashMap<>();
-                                        creditMap.put(CREDIT, DAILY_VISIT_CREDIT);
-                                        creditMap.put(LAST_DAILY_CREDIT_UPDATE_AT, FieldValue.serverTimestamp());
-                                        currentUserRef.update(creditMap).addOnSuccessListener(
-                                                new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        showUpdateCreditSuccessDialog();
-                                                    }
-                                                }
-                                        )
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Log.w(TAG, "onFailure: failed t update daily credit\n" +
-                                                                e.getMessage(), e);
-                                                    }
-                                                });
+                                    if (user.getLast_daily_credit_update_at() != null) {
+                                        Date lastCreditUpdate = user.getLast_daily_credit_update_at().toDate();
+                                        Date today = new Date();
+                                        if (isNotSameDay(today, lastCreditUpdate)){
+                                            updateUserCredit(currentUserRef);
+                                        }
+                                    }else{
+                                        updateUserCredit(currentUserRef);
                                     }
                                 }
                             }
                         }
-                    }
-            )
+                    })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
@@ -964,16 +952,43 @@ public class MainActivity extends AppCompatActivity implements
                         }
                     });
         }
-        //check is has opened app today
-        //update credit
+    }
+
+    private void updateUserCredit(DocumentReference currentUserRef) {
+        Map<String, Object> creditMap = new HashMap<>();
+        creditMap.put(CREDIT, DAILY_VISIT_CREDIT);
+        creditMap.put(LAST_DAILY_CREDIT_UPDATE_AT, FieldValue.serverTimestamp());
+        currentUserRef.update(creditMap).addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        showUpdateCreditSuccessDialog();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "onFailure: failed t update daily credit\n" +
+                                e.getMessage(), e);
+                    }
+                });
+    }
+
+    private boolean isNotSameDay(Date today, Date lastCreditUpdate){
+        Calendar calLastCreditUpdate = Calendar.getInstance();
+        Calendar calToday = Calendar.getInstance();
+        calLastCreditUpdate.setTime(lastCreditUpdate);
+        calToday.setTime(today);
+        return !(calLastCreditUpdate.get(Calendar.YEAR) == calToday.get(Calendar.YEAR) &&
+                calLastCreditUpdate.get(Calendar.DAY_OF_YEAR) == calToday.get(Calendar.DAY_OF_YEAR));
     }
 
     private void showUpdateCreditSuccessDialog() {
         AlertDialog.Builder updateCreditBuilder = new AlertDialog.Builder(this);
         String message = "Congratulations, you just received" + " " +
-                DAILY_VISIT_CREDIT + " " + "credit(s) for visiting today\n" +
-                "You can use your credits to get more free posts and promote your posts" + "\n" +
-                "come again tomorrow for more";
+                DAILY_VISIT_CREDIT + " " + "credit(s) for visiting today.\n" +
+                "You can use your credits to get more free posts and promote your posts." + "\n" +
+                "Come again tomorrow for more";
         updateCreditBuilder.setTitle(R.string.daily_cedit)
                 .setMessage(message)
                 .setIcon(getResources().getDrawable(R.drawable.ic_credit))

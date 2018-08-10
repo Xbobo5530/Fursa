@@ -3,12 +3,15 @@ package com.nyayozangu.labs.fursa.activities
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.Query
 import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.adapters.PromotionsRecyclerAdapter
 import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Promotion
+import com.nyayozangu.labs.fursa.models.User
 import kotlinx.android.synthetic.main.activity_promote_post.*
 import kotlinx.android.synthetic.main.content_promote_post.*
 
@@ -25,16 +28,35 @@ class PromotePostActivity : AppCompatActivity() {
         //set up the toolbar
         setSupportActionBar(promotePostToolbar)
         val actionBar = supportActionBar
-        actionBar?.title = getString(R.string.promote_post_text)
+        actionBar?.title = getString(R.string.promotions_text)
         actionBar?.setDisplayHomeAsUpEnabled(true)
         promotePostToolbar.setNavigationOnClickListener { finish() }
 
         val postId = getPostId()
+
+        handleCreditCount()
+
         if (postId != null)
             mAdapter = PromotionsRecyclerAdapter(promotionsList, postId, this)
         common.handlePostsView(this, this, promotePostRecyclerView)
         promotePostRecyclerView.adapter = mAdapter
         loadPromotions()
+    }
+
+    private fun handleCreditCount() {
+        val currentUserId = common.uid
+        common.db.collection(USERS).document(currentUserId).addSnapshotListener {
+            documentSnapshot, e ->
+            if (e == null){
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    val user = documentSnapshot.toObject(User::class.java)
+                    val credit = user?.credit
+                    promotePostCreditTextView.text = credit.toString()
+                }
+            }else{
+                Log.w(TAG, "failed to check for use credit\n${e.message}", e)
+            }
+        }
     }
 
     private fun getPostId(): String? {
@@ -54,7 +76,7 @@ class PromotePostActivity : AppCompatActivity() {
 
     private fun loadPromotions(){
         common.showProgress(promotePostProgressBar)
-        common.db.collection(PROMOTIONS).get()
+        common.db.collection(PROMOTIONS).orderBy(COST, Query.Direction.ASCENDING).get()
                 .addOnSuccessListener {
                     if (!it.isEmpty){
                         promotionsList.clear()

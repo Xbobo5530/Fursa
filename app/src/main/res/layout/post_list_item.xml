@@ -238,20 +238,20 @@
                         android:padding="8dp">
 
                         <ImageView
-                            android:id="@+id/postActivityImageView"
+                            android:id="@+id/postPromoteImageView"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
-                            app:srcCompat="@drawable/ic_action_activity" />
+                            app:srcCompat="@drawable/ic_promote" />
 
                         <TextView
-                            android:id="@+id/postActivityTextView"
+                            android:id="@+id/postPromoteTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="@string/activity_text"
+                            android:text="@string/promote_text"
                             android:textAlignment="center"
-                            android:textColor="@color/views_color"
+                            android:textColor="@color/colorAccent"
                             android:textSize="12sp" />
                     </LinearLayout>
 

@@ -39,6 +39,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.nyayozangu.labs.fursa.R;
 import com.nyayozangu.labs.fursa.activities.CommentsActivity;
+import com.nyayozangu.labs.fursa.activities.PromotePostActivity;
 import com.nyayozangu.labs.fursa.activities.UserPageActivity;
 import com.nyayozangu.labs.fursa.activities.UserPostsActivity;
 import com.nyayozangu.labs.fursa.activities.ViewPostActivity;
@@ -93,10 +94,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     private static final String TAG = "PostsRecyclerAdapter";
     private static final int VIEW_TYPE_POST = 0;
     private static final int VIEW_TYPE_AD = 1;
-    private static final String VIEW_CAT_ACTIVITY = "ViewCategoryActivity";
     private static final String USER_POST_ACTIVITY = "UserPostsActivity";
-    private static final String RECENT_FRAGMENT = "RecentFragment";
-    private static final String POPULAR_FRAGMENT = "PopularFragment";
 
     //member variables for storing posts
     private List<Post> postsList;
@@ -524,15 +522,9 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
 
     private void handlePostActivity(final @NonNull PostViewHolder holder, Post post) {
         if (coMeth.isLoggedIn() && coMeth.getUid().equals(post.getUser_id())){
-            holder.activityLayout.setVisibility(View.VISIBLE);
-            int activityCount = post.getActivity();
-            if (activityCount > 0) {
-                holder.activityTextView.setText(String.valueOf(activityCount));
-            }else{
-                holder.activityTextView.setText(context.getResources().getString(R.string.activity_text));
-            }
+            holder.promoteLayout.setVisibility(View.VISIBLE);
         }else{
-            holder.activityLayout.setVisibility(View.GONE);
+            holder.promoteLayout.setVisibility(View.GONE);
         }
     }
 
@@ -757,6 +749,21 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         context.startActivity(goToLoginIntent);
     }
 
+    private void handlePromotePost(PostViewHolder holder, final String postId){
+        holder.promoteLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToPromotePost(postId);
+            }
+        });
+    }
+
+    private void goToPromotePost(String postId){
+        Intent intent = new Intent(context, PromotePostActivity.class);
+        intent.putExtra(POST_ID, postId);
+        context.startActivity(intent);
+    }
+
     class PostViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
@@ -766,7 +773,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
                 postDateTextView, descTextView, activityTextView;
         private ImageView postSaveButton, postImageView, postLikeButton;
         private CardView postCardView;
-        private LinearLayout activityLayout, likeLayout, saveLayout, commentLayout,
+        private LinearLayout promoteLayout, likeLayout, saveLayout, commentLayout,
                 shareLayout, topLayout, actionsLayout;
         private Button followButton;
 
@@ -790,8 +797,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
             postLocationTextView = mView.findViewById(R.id.postLocationTextView);
             descTextView = mView.findViewById(R.id.postDescTextView);
             postDateTextView = mView.findViewById(R.id.postDateTextView);
-            activityTextView = mView.findViewById(R.id.postActivityTextView);
-            activityLayout = mView.findViewById(R.id.postActivityLayout);
+            activityTextView = mView.findViewById(R.id.postPromoteTextView);
+            promoteLayout = mView.findViewById(R.id.postActivityLayout);
             postCardView = mView.findViewById(R.id.postCardView);
             followButton = mView.findViewById(R.id.postFollowButton);
             topLayout = mView.findViewById(R.id.postTopLayout);
@@ -852,8 +859,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
             String postUserId = post.getUser_id();
             handleFollowButton(this, postUserId);
             handlePostDate(this);
-
             final String postId = post.PostId;
+            handlePromotePost(this, postId);
             CollectionReference likesRef = coMeth.getDb().collection(
                     POSTS + "/" + postId + "/" + LIKES_COL);
             handleLikesCount(this, likesRef);

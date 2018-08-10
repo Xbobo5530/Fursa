@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.adapters
 
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.Context
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.CardView
@@ -27,6 +28,7 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
         RecyclerView.Adapter<PromotionsRecyclerAdapter.ViewHolder>() {
 
     private val common: CoMeth = CoMeth()
+    private lateinit var progressDialog: ProgressDialog
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PromotionsRecyclerAdapter.ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -45,7 +47,14 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
         }
     }
 
+    private fun showProgress(message: String) {
+        progressDialog = ProgressDialog(context)
+        progressDialog.setMessage(message)
+        progressDialog.show()
+    }
+
     private fun handleBuyingPromotion(holder: ViewHolder, promotion: Promotion) {
+        showProgress(context.getString(R.string.loading_text))
         val cost = promotion.cost
         if (common.isLoggedIn){
             val currentUserId = common.uid
@@ -80,6 +89,7 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
     }
 
     private fun showInsufficientCreditDialog() {
+        common.stopLoading(progressDialog)
         AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.insufficient_credit_text))
                 .setMessage(context.getString(R.string.insufficient_credit_message_for_promo_message))
@@ -101,6 +111,7 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
                 }
                 .addOnFailureListener {
                     Log.w(TAG, "failed to update user credit\n${it.message}", it)
+                    common.stopLoading(progressDialog)
                     val message = "${context.getString(R.string.error_text)}: ${it.message}"
                     Snackbar.make(holder.promoItemView, message, Snackbar.LENGTH_LONG)
                             .setAction(context.getString(R.string.retry_text)) { _ ->
@@ -126,6 +137,7 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
         }
                 .addOnFailureListener {
                     Log.w(TAG, "failed to add sponsored post\n${it.message}", it)
+                    common.stopLoading(progressDialog)
                     val message = "${context.getString(R.string.error_text)}: ${it.message}"
                     Snackbar.make(holder.promoItemView, message, Snackbar.LENGTH_LONG)
                             .setAction(context.getString(R.string.retry_text)) { _ ->
@@ -136,6 +148,7 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
     }
 
     private fun showSuccessDialog(cost: Int, balanceCredit: Int, duration: Int) {
+        common.stopLoading(progressDialog)
         val message = "${context.getString(R.string.post_promoted_message)}\n" +
                 "You have spent $cost credits\n" +
                 "You now have $balanceCredit credit(s) in your account\n" +
@@ -165,5 +178,4 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
             itemView.findViewById<TextView>(R.id.promoCreditAmountTextView).text = "$cost"
         }
     }
-
 }

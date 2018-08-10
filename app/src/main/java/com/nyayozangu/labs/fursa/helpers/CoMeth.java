@@ -169,6 +169,7 @@ public class CoMeth{
     public static final String EXPIRES_AT = "expires_at";
     public static final String SPONSORED = "Sponsored";
     public static final String PROMOTIONS = "Promotions";
+    public static final String COST = "cost";
 
     public String[] getCatTitle(Context context){
         return new String[]{

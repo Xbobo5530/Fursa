@@ -344,7 +344,7 @@
     <string name="new_credit_text">Your new balance is</string>
     <string name="daily_cedit">Daily credit</string>
     <string name="view_my_profile_text">View my profile</string>
-    <string name="promote_text">Promote post</string>
+    <string name="promote_text">Promote</string>
     <string name="login_to_promote">Login to promote your posts</string>
     <string name="insufficient_credit_message_for_promo_message">You have insufficient credit to get this promotion</string>
     <string name="congratultions_text">Congratulations</string>
@@ -352,6 +352,7 @@
     <string name="promote_post_text">Promote post</string>
     <string name="balance_text">Balance</string>
     <string name="credit_text">Credit(s)</string>
+    <string name="promotions_text">Promotions</string>
     <!--<string name="com.pesapal.pesapalandroid.MERCHANT_ID">2</string>-->
 
 
