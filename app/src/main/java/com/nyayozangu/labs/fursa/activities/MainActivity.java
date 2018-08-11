@@ -987,7 +987,7 @@ public class MainActivity extends AppCompatActivity implements
         AlertDialog.Builder updateCreditBuilder = new AlertDialog.Builder(this);
         String message = "Congratulations, you just received" + " " +
                 DAILY_VISIT_CREDIT + " " + "credit(s) for visiting today.\n" +
-                "You can use your credits to get more free posts and promote your posts." + "\n" +
+                "You can use your credits to get more free posts and to promote your posts." + "\n" +
                 "Come again tomorrow for more";
         updateCreditBuilder.setTitle(R.string.daily_cedit)
                 .setMessage(message)

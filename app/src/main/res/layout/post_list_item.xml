@@ -31,7 +31,9 @@
                     android:id="@+id/postTopLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_gravity="center"
+                    android:gravity="center">
 
                     <ImageView
                         android:id="@+id/postUserImageImageView"
@@ -53,7 +55,6 @@
                             android:id="@+id/postSponsoredTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
                             android:layout_marginEnd="8dp"
                             android:layout_marginStart="8dp"
                             android:maxLength="50"

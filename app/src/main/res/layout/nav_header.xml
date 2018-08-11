@@ -40,9 +40,10 @@
             android:id="@+id/navHeaderUserCreditBalanceTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
+            android:paddingStart="8dp"
+            android:paddingBottom="8dp"
             android:textColor="@android:color/white"
-            android:text="Balance: 10C"
+            android:text="@string/balance_text"
             android:textStyle="italic"/>
     </LinearLayout>
 

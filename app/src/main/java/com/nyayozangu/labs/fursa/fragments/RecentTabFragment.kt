@@ -80,44 +80,44 @@ class RecentTabFragment : Fragment() {
 
     private fun loadPosts() {
         coMeth.showProgress(mProgressBar)
-        doAsync {
-            val firstQuery = coMeth.db.collection(POSTS)
-                    .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
-                    .limit(10)
-            firstQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                if (firebaseFirestoreException == null) {
-                    if (querySnapshot != null) {
-                        if (!querySnapshot.isEmpty) {
-                            if (isFirstPageFirstLoad) {
-                                lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
-                                postsList.clear()
-                                usersList.clear()
+       
+        val firstQuery = coMeth.db.collection(POSTS)
+                .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(10)
+        firstQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            if (firebaseFirestoreException == null) {
+                if (querySnapshot != null) {
+                    if (!querySnapshot.isEmpty) {
+                        if (isFirstPageFirstLoad) {
+                            lastVisiblePost = querySnapshot.documents[querySnapshot.size() - 1]
+                            postsList.clear()
+                            usersList.clear()
 
-                                randomPositionForAd = coMeth.generateRandomInt(0,9)
-                                randomPositionForSponsoredPost = coMeth.generateRandomInt(0,9)
-                                Log.d(TAG, "random ad position is $randomPositionForAd " +
-                                        "and for post is $randomPositionForSponsoredPost")
+                            randomPositionForAd = coMeth.generateRandomInt(0,9)
+                            randomPositionForSponsoredPost = coMeth.generateRandomInt(0,9)
+                            Log.d(TAG, "random ad position is $randomPositionForAd " +
+                                    "and for post is $randomPositionForSponsoredPost")
 
-                                for (document in querySnapshot.documentChanges) {
-                                    if (document.type == DocumentChange.Type.ADDED) {
-                                        val postId = document.document.id
-                                        val post = document.document
-                                                .toObject(Post::class.java).withId<Post>(postId)
-                                        val postUserId = post.user_id
-                                        getUserData(postUserId, post, randomPositionForAd)
-                                    }
+                            for (document in querySnapshot.documentChanges) {
+                                if (document.type == DocumentChange.Type.ADDED) {
+                                    val postId = document.document.id
+                                    val post = document.document
+                                            .toObject(Post::class.java).withId<Post>(postId)
+                                    val postUserId = post.user_id
+                                    getUserData(postUserId, post, randomPositionForAd)
                                 }
                             }
-                            isFirstPageFirstLoad = false
                         }
-                    } else {
-                        Log.e(TAG, "returned null query")
+                        isFirstPageFirstLoad = false
                     }
                 } else {
-                    Log.e(TAG, "Failed to load posts: ${firebaseFirestoreException.message}")
-//                val errorMessage = "${resources.getString(R.string.error_text)}: ${firebaseFirestoreException.message}"
+                    Log.e(TAG, "returned null query")
                 }
+            } else {
+                Log.e(TAG, "Failed to load posts: ${firebaseFirestoreException.message}")
+//                val errorMessage = "${resources.getString(R.string.error_text)}: ${firebaseFirestoreException.message}"
             }
+
         }
     }
 
