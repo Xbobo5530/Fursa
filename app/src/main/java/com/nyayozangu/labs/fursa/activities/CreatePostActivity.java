@@ -601,7 +601,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                 new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                new SubmitPostTask().execute();
                                 coMeth.stopLoading(progressDialog);
                                 showCreditDeductedDialog(newCreditAmount);
                             }
@@ -671,7 +670,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
     private void showCreditDeductedDialog(int creditAmount) {
         AlertDialog.Builder creditDeductedBuilder = new AlertDialog.Builder(this);
         String message = POST_COST_CREDIT + getString(R.string.credit_deducted_message) +
-                "\n" + getString(R.string.new_credit_text) + " " + creditAmount;
+                "\n" + getString(R.string.new_credit_text) + " " + creditAmount + "credit(s)";
         creditDeductedBuilder.setTitle(R.string.credit_deducted_text)
                 .setMessage(message)
                 .setIcon(getResources().getDrawable(R.drawable.ic_action_info_grey))
@@ -680,6 +679,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        new SubmitPostTask().execute();
                         goToMain(getString(R.string.post_will_be_available_text));
                     }
                 })
