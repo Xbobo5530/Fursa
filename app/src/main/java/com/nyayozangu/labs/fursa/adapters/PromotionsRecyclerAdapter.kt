@@ -48,7 +48,7 @@ class PromotionsRecyclerAdapter(private val promotionsList :List<Promotion>, val
     }
 
     private fun confirmPromotePost(holder: ViewHolder, promotion: Promotion) {
-        val message = "This promotion costs ${promotion.cost}, and will run for ${promotion.duration}"
+        val message = "This promotion costs ${promotion.cost} credit(s), and will run for ${promotion.duration} day(s)."
         AlertDialog.Builder(context).setTitle(context.getString(R.string.promotion_text))
                 .setIcon(context.resources.getDrawable(R.drawable.ic_promote))
                 .setMessage(message)

@@ -551,5 +551,23 @@ public class CoMeth{
             return new Random().nextInt((to - from) + 1) + from;
         }
     }
+
+    public void updateUserCredit(String userId, final int credit){
+        Map<String, Object> creditMap = new HashMap<>();
+        creditMap.put(CREDIT, credit);
+        this.getDb().collection(USERS).document(userId).update(creditMap).addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: user credit updated\nnew credit is " + credit);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "onFailure: failed to update user credit\n" + e.getMessage(), e);
+                    }
+                });
+    }
 }
 
