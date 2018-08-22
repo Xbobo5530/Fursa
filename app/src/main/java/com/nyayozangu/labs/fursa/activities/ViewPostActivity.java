@@ -506,8 +506,10 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 .setMessage(
                         getResources().getString(R.string.likes_text) + ": " + post.getLikes() + "\n" +
                                 getResources().getString(R.string.comments_text) + ": " + post.getComments() + "\n" +
-                                getResources().getString(R.string.views_text) + ": " + post.getViews() + "\n" +
-                                getString(R.string.feed_views_text) + ": " + post.getFeed_views()
+                                getResources().getString(R.string.views_text) + ": " + post.getViews()
+                        // TODO: 8/23/18 feedviews are disabled until there's a better wasy of updating feedviews
+                        /* + "\n" +
+                                getString(R.string.feed_views_text) + ": " + post.getFeed_views()*/
                 )
                 .setPositiveButton(getString(R.string.promote_text), new DialogInterface.OnClickListener() {
                     @Override

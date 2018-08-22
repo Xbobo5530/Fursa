@@ -178,27 +178,27 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
                 return 0; //default stat
         }
     }
-
-    static void updateFeedViews(Post post) {
-        try {
-            Map<String, Object> feedViewMap = new HashMap<>();
-            int feedViews = post.getFeed_views() + 1;
-            feedViewMap.put("feed_views", feedViews);
-            FirebaseFirestore.getInstance().collection(POSTS)
-                    .document(post.PostId)
-                    .update(feedViewMap)
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: failed to update feed views\n" +
-                                    e.getMessage());
-                        }
-                    });
-        }catch (NullPointerException nullPathException){
-            Log.w(TAG, "updateFeedViews: the provided path is null\n" +
-                    nullPathException.getMessage(), nullPathException);
-        }
-    }
+    // TODO: 8/23/18 find a better way to track feedviews
+//    static void updateFeedViews(Post post) {
+//        try {
+//            Map<String, Object> feedViewMap = new HashMap<>();
+//            int feedViews = post.getFeed_views() + 1;
+//            feedViewMap.put("feed_views", feedViews);
+//            FirebaseFirestore.getInstance().collection(POSTS)
+//                    .document(post.PostId)
+//                    .update(feedViewMap)
+//                    .addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            Log.d(TAG, "onFailure: failed to update feed views\n" +
+//                                    e.getMessage());
+//                        }
+//                    });
+//        }catch (NullPointerException nullPathException){
+//            Log.w(TAG, "updateFeedViews: the provided path is null\n" +
+//                    nullPathException.getMessage(), nullPathException);
+//        }
+//    }
 
 
     @Override
@@ -893,7 +893,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
                 sponsoredTextView.setVisibility(View.GONE);
             }
 
-            new UpdatePostActivityTask().execute();
+//            new UpdatePostActivityTask().execute();
         }
 
         private void handlePostInViewPost(Post post) {
@@ -939,12 +939,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public static class UpdatePostActivityTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            updateFeedViews(post);
-            return null;
-        }
-    }
+//    public static class UpdatePostActivityTask extends AsyncTask<Void, Void, Void> {
+//
+//        @Override
+//        protected Void doInBackground(Void... voids) {
+//            updateFeedViews(post);
+//            return null;
+//        }
+//    }
 }

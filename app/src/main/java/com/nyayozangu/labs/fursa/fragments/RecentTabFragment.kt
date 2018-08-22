@@ -13,7 +13,6 @@ import android.widget.ProgressBar
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.Query
 import com.nyayozangu.labs.fursa.R
 import com.nyayozangu.labs.fursa.adapters.PostsRecyclerAdapter
@@ -21,7 +20,6 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth
 import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.Post
 import com.nyayozangu.labs.fursa.models.User
-import kotlinx.android.synthetic.main.fragment_recent_tab.*
 import org.jetbrains.anko.doAsync
 import java.util.*
 
@@ -40,6 +38,8 @@ class RecentTabFragment : Fragment() {
     private var randomPositionForAd = 0
     private var randomPositionForSponsoredPost = 0
     private lateinit var mProgressBar: ProgressBar
+    private lateinit var calToday: Calendar
+    private lateinit var calExpiryDate: Calendar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -51,12 +51,23 @@ class RecentTabFragment : Fragment() {
         coMeth.handlePostsView(context, activity, mRecyclerView)
         mRecyclerView.adapter = adapter
         mProgressBar = view.findViewById(R.id.recentProgressBar)
-//        coMeth.showProgress(mProgressBar)
+        calToday = getCalToday()
+        calExpiryDate = getCalExpiryDate()
         handleScrolling(mRecyclerView)
         loadPosts()
         handleBottomNavReselect(mRecyclerView)
 
         return view
+    }
+
+    private fun getCalToday(): Calendar {
+        return GregorianCalendar()
+    }
+
+    private fun getCalExpiryDate(): Calendar {
+        val calExpiryDate = GregorianCalendar() //Calendar.getInstance()
+        calExpiryDate.add(Calendar.MONTH, 1)
+        return calExpiryDate
     }
 
     private fun handleBottomNavReselect(mRecyclerView: RecyclerView) {
@@ -80,7 +91,6 @@ class RecentTabFragment : Fragment() {
 
     private fun loadPosts() {
         coMeth.showProgress(mProgressBar)
-       
         val firstQuery = coMeth.db.collection(POSTS)
                 .orderBy(TIMESTAMP, com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(10)
@@ -131,8 +141,12 @@ class RecentTabFragment : Fragment() {
     }
 
     private fun addSponsoredPost(){
-        Log.d(TAG, "adding sponsored post")
-        coMeth.db.collection(SPONSORED)//.whereGreaterThan(EXPIRES_AT, Date().time)
+        Log.d(TAG, "adding sponsored post\ncal today is $calToday")
+        coMeth.db.collection(SPONSORED)
+                .orderBy(EXPIRES_AT)
+                .startAfter(calToday.time)
+                .endAt(calExpiryDate.time)
+//                .whereLessThanOrEqualTo(EXPIRES_AT, calToday.time)
                 .get().addOnSuccessListener {
                     if (!it.isEmpty){
                         val numberOfSponsoredPosts = it.size()
@@ -141,6 +155,8 @@ class RecentTabFragment : Fragment() {
                         val randomPostDoc = it.documentChanges[randomPostPosition]
                         val postId = randomPostDoc.document.get(POST_ID_VAL).toString()
                         getSponsoredPost(postId)
+                    }else{
+                        Log.d(TAG, "live sponsored posts ais empty")
                     }
                 }
                 .addOnFailureListener {

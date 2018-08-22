@@ -939,6 +939,8 @@ public class MainActivity extends AppCompatActivity implements
                                             updateUserCredit(currentUserRef);
                                         }
                                     }else{
+                                        //this is the first time the user has entered after update
+                                        // TODO: 8/23/18 check then sometimes when user has credit, it comes back here
                                         updateUserCredit(currentUserRef);
                                     }
                                 }
@@ -1007,7 +1009,5 @@ public class MainActivity extends AppCompatActivity implements
                             }
                         })
                 .show();
-
     }
-
 }

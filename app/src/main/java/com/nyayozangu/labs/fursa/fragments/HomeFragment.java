@@ -1,6 +1,7 @@
 package com.nyayozangu.labs.fursa.fragments;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -24,12 +25,14 @@ import java.util.Objects;
  */
 public class HomeFragment extends Fragment {
 
+    // TODO: 8/23/18  the recommended tab has been disabled
+
     private static final String TAG = "HomeFragment";
     public TabLayout mTabsLayout;
     ViewPager mViewPager;
     private int[] tabIcons = {
             R.drawable.ic_recent,
-            R.drawable.ic_recomended_light,
+//            R.drawable.ic_recomended_light,
             R.drawable.ic_users_light
     };
 
@@ -47,14 +50,17 @@ public class HomeFragment extends Fragment {
         mTabsLayout.setupWithViewPager(mViewPager);
         setupTabIcons();
 
-        FloatingActionButton newPostFab = ((MainActivity) Objects.requireNonNull(getActivity())).getNewPostFab();
-        newPostFab.setImageResource(R.drawable.ic_action_add_white);
-        newPostFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity)getActivity()).handleNewPostFab();
-            }
-        });
+        final MainActivity mainActivity = (MainActivity)getActivity();
+        if (mainActivity != null) {
+            FloatingActionButton newPostFab = mainActivity.getNewPostFab();
+            newPostFab.setImageResource(R.drawable.ic_action_add_white);
+            newPostFab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mainActivity.handleNewPostFab();
+                }
+            });
+        }
 
         return view;
     }
@@ -62,7 +68,7 @@ public class HomeFragment extends Fragment {
     private void setupViewPager(ViewPager mViewPager) {
         ViewPagerAdapter mAdapter = new ViewPagerAdapter(getChildFragmentManager());
         mAdapter.addFragment(new RecentTabFragment(), getResources().getString(R.string.recent_text));
-        mAdapter.addFragment(new RecommendedTabFragment(), getResources().getString(R.string.recommended_text));
+//        mAdapter.addFragment(new RecommendedTabFragment(), getResources().getString(R.string.recommended_text));
         mAdapter.addFragment(new UsersTabFragment(), getResources().getString(R.string.people_text));
         mViewPager.setAdapter(mAdapter);
     }
@@ -70,8 +76,9 @@ public class HomeFragment extends Fragment {
     private void setupTabIcons() {
         try {
             Objects.requireNonNull(mTabsLayout.getTabAt(0)).setIcon(tabIcons[0]);
+//            Objects.requireNonNull(mTabsLayout.getTabAt(1)).setIcon(tabIcons[1]);
+//            Objects.requireNonNull(mTabsLayout.getTabAt(2)).setIcon(tabIcons[2]);
             Objects.requireNonNull(mTabsLayout.getTabAt(1)).setIcon(tabIcons[1]);
-            Objects.requireNonNull(mTabsLayout.getTabAt(2)).setIcon(tabIcons[2]);
         } catch (NullPointerException setIconNull) {
             Log.d(CoMeth.TAG, "setupTabIcons: failed to set tab icons\n" + setIconNull.getMessage());
         }
