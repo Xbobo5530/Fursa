@@ -115,7 +115,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         this.className = className;
         this.glide = glide;
         this.activity = activity;
-        Log.d(TAG, "PostsRecyclerAdapter: ");
     }
 
     @NonNull
@@ -199,7 +198,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
 //                    nullPathException.getMessage(), nullPathException);
 //        }
 //    }
-
 
     @Override
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {

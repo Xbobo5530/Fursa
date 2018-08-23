@@ -91,7 +91,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
 
     @Override
     public long getItemId(int position) {
-        return super.getItemId(position);
+        return position;
     }
 
     @Override
@@ -103,7 +103,6 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     public void setHasStableIds(boolean hasStableIds) {
         super.setHasStableIds(hasStableIds);
     }
-
 
     private void goToUserPage(String userId) {
         Intent intent = new Intent(context, UserPageActivity.class);
@@ -204,7 +203,8 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
                     mFollowButton.setVisibility(View.GONE);
                 }else{
                     DocumentReference userRef = coMeth.getDb()
-                            .collection(USERS + "/" + userId + "/" + FOLLOWERS).document(currentUserId);
+                            .collection(USERS + "/" + userId + "/" + FOLLOWERS)
+                            .document(currentUserId);
                     userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
                         public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
@@ -258,6 +258,4 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
             Snackbar.make(mView.findViewById(R.id.usersListLayout), message, Snackbar.LENGTH_LONG).show();
         }
     }
-
-
 }

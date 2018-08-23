@@ -1,7 +1,6 @@
 package com.nyayozangu.labs.fursa.fragments;
 
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -69,7 +68,7 @@ public class HomeFragment extends Fragment {
         ViewPagerAdapter mAdapter = new ViewPagerAdapter(getChildFragmentManager());
         mAdapter.addFragment(new RecentTabFragment(), getResources().getString(R.string.recent_text));
 //        mAdapter.addFragment(new RecommendedTabFragment(), getResources().getString(R.string.recommended_text));
-        mAdapter.addFragment(new UsersTabFragment(), getResources().getString(R.string.people_text));
+        mAdapter.addFragment(new PeopleTabFragment(), getResources().getString(R.string.people_text));
         mViewPager.setAdapter(mAdapter);
     }
 

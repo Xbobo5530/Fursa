@@ -77,6 +77,7 @@ class UsersActivity: AppCompatActivity() {
                 .addOnFailureListener{
                     Log.e(TAG, "failed to add user ${it.message}")
                     val errorMessage = "${resources.getString(R.string.error_text)}: ${it.message}"
+                    coMeth.stopLoading(usersProgressBar)
                     showSnack(errorMessage)
                 }
     }
@@ -86,11 +87,12 @@ class UsersActivity: AppCompatActivity() {
             if (isFirstPageFirstLoad){
                 usersList.add(0, user)
                 mAdapter.notifyItemInserted(usersList.size - 1)
+                coMeth.stopLoading(usersProgressBar)
             }else{
                 usersList.add(user)
                 mAdapter.notifyItemInserted(usersList.size - 1)
+                coMeth.stopLoading(usersProgressBar)
             }
-            coMeth.stopLoading(usersProgressBar)
         }
     }
 
@@ -107,19 +109,19 @@ class UsersActivity: AppCompatActivity() {
 
     private fun loadUsers() {
         coMeth.stopLoading(usersProgressBar)
-        followRef.limit(10).get().addOnSuccessListener {
-            if (!it.isEmpty){
+        followRef.limit(10).get().addOnSuccessListener { querySnapshot ->
+            if (!querySnapshot.isEmpty){
                 if (isFirstPageFirstLoad){
-                    lastVisiblePost = it.documents[it.documents.size - 1]
+                    lastVisiblePost = querySnapshot.documents[querySnapshot.documents.size - 1]
                     usersList.clear()
 
-                    for (mDocument in it.documentChanges){
+                    for (mDocument in querySnapshot.documentChanges){
                         if (mDocument.type == DocumentChange.Type.ADDED){
                             val userId = mDocument.document.id
                             val userRef = coMeth.db.collection(USERS).document(userId)
-                            userRef.get().addOnSuccessListener {
+                            userRef.get().addOnSuccessListener { it ->
                                 if (it.exists()){
-                                    val user = it.toObject(User::class.java)!!.withId<User>(userId)
+                                    val user = it.toObject(User::class.java)?.withId<User>(userId)
                                     addUser(user)
                                 }
                             }
