@@ -62,6 +62,7 @@ public class PeopleTabFragment extends Fragment {
         progressBar = view.findViewById(R.id.peopleProgressBar);
         usersList = new ArrayList<>();
         mAdapter = new UsersRecyclerAdapter(usersList, Glide.with(this));
+        mAdapter.setHasStableIds(true);
         coMeth.handlePostsView(getContext(), getActivity(), mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
         handleScrolling(mRecyclerView);
@@ -100,7 +101,6 @@ public class PeopleTabFragment extends Fragment {
                 }
             }
         });
-
     }
 
     private void loadMoreUsers() {
@@ -163,6 +163,7 @@ public class PeopleTabFragment extends Fragment {
                         for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()){
                             if (documentChange.getType() == DocumentChange.Type.ADDED){
                                 String userId = documentChange.getDocument().getId();
+                                Log.d(TAG, "onSuccess: userId at position " + (usersList.size() - 1) + " is " + userId);
                                 User user = documentChange.getDocument().toObject(User.class).withId(userId);
                                 addUser(user);
                             }

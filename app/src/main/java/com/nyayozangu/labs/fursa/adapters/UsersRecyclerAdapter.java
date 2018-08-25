@@ -44,7 +44,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID_VAL;
 
-public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.ViewHolder> implements View.OnClickListener{
+public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.ViewHolder> /*implements View.OnClickListener*/{
 
     private static final String TAG = "UsersRecyclerAdapter";
     private List<User> usersList;
@@ -70,17 +70,34 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UsersRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final UsersRecyclerAdapter.ViewHolder holder, int position) {
 
         User user = usersList.get(position);
         mHolder = holder;
         currentUserId = coMeth.getUid();
         if (user != null) {
             userId = usersList.get(position).UserId;
+            Log.d(TAG, "onBindViewHolder: userId at position " + position + " is " + userId);
             holder.setUserDetails(user);
             holder.handleFollowButtonVisibility();
-            holder.pageItemView.setOnClickListener(this);
-            holder.mFollowButton.setOnClickListener(this);
+//            holder.pageItemView.setOnClickListener(this);
+            holder.pageItemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToUserPage(userId);
+                }
+            });
+//            holder.mFollowButton.setOnClickListener(this);
+            holder.mFollowButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (coMeth.isLoggedIn()){
+                        followUser(userId, holder);
+                    }else{
+                        goToLogin(context.getResources().getString(R.string.login_to_follow));
+                    }
+                }
+            });
         }
     }
 
@@ -110,20 +127,20 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
         context.startActivity(intent);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.usersFollowButton:
-                if (coMeth.isLoggedIn()){
-                    followUser(userId, mHolder);
-                }else{
-                    goToLogin(context.getResources().getString(R.string.login_to_follow));
-                }
-                break;
-            case R.id.userListItemItemView:
-                goToUserPage(userId);
-        }
-    }
+//    @Override
+//    public void onClick(View v) {
+//        switch (v.getId()){
+//            case R.id.usersFollowButton:
+//                if (coMeth.isLoggedIn()){
+//                    followUser(userId, mHolder);
+//                }else{
+//                    goToLogin(context.getResources().getString(R.string.login_to_follow));
+//                }
+//                break;
+//            case R.id.userListItemItemView:
+//                goToUserPage(userId);
+//        }
+//    }
 
     private void followUser(final String userId, final ViewHolder holder) {
         holder.mFollowButton.setText(context.getResources().getString(R.string.loading_text));

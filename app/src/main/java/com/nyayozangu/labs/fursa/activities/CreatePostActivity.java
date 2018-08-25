@@ -747,7 +747,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
     private void handlePostWithoutImage() {
         final Map<String, Object> postMap = handleMap(downloadThumbUri, downloadUri);
-        if (!isEditPost()) {
+        if (!isEditPost()) { //new post
             coMeth.getDb().collection(POSTS).add(postMap)
                     .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                         @Override
@@ -760,13 +760,13 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                                 final String newPostId = task.getResult().getId();
                                 updateTagsOnDB(newPostId, postMap);
                                 updateCatsOnDB(newPostId, postMap);
-                                newPostNotif(true, newPostId);
+                                newPostNotification(newPostId);
                                 notifyFollowers(newPostId);
                             } else {
 
                                 Log.d(TAG, "onComplete: " + task.getException());
 //                                String errorMassage = Objects.requireNonNull(task.getException()).getMessage();
-//                                newPostNotif(false, errorMassage);
+//                                newPostNotification(false, errorMassage);
                             }
                         }
                     });
@@ -775,19 +775,23 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
             //for edit post
             coMeth.getDb().collection(POSTS).document(postId).update(postMap)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                notifyNewPostCatsUpdates(catsStringsArray);
-                                Log.d(TAG, "onComplete: posted post without image");
-                                FirebaseMessaging.getInstance().subscribeToTopic(postId);
-                                //update tags on db
-                                updateTagsOnDB(postId, postMap);
-                                updateCatsOnDB(postId, postMap);
-                                newPostNotif(true, postId);
-                                notifyFollowers(postId);
-                            }
+                        public void onSuccess(Void aVoid) {
+                            notifyNewPostCatsUpdates(catsStringsArray);
+                            Log.d(TAG, "onComplete: posted post without image");
+                            FirebaseMessaging.getInstance().subscribeToTopic(postId);
+                            //update tags on db
+                            updateTagsOnDB(postId, postMap);
+                            updateCatsOnDB(postId, postMap);
+                            newPostNotification(postId);
+                            notifyFollowers(postId);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "onFailure: failed to update post\n" + e.getMessage(), e);
                         }
                     });
         }
@@ -798,17 +802,11 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
         new Notify().execute(FOLLOWER_POST, mTopic, newPostId);
     }
 
-    private void newPostNotif(boolean isSuccess, String metaData) {
+    private void newPostNotification(String metaData) {
         String postReadyTopic = NEW_POST_UPDATES + currentUserId;
         FirebaseMessaging.getInstance().subscribeToTopic(postReadyTopic);
-        if (isSuccess) {
-            //notify user
-            new Notify().execute(NEW_POST_UPDATES, postReadyTopic, SUCCESS, metaData);
-        } else {
-            //failed to post
-            // TODO: 7/14/18 remove fails on posting
-            new Notify().execute(NEW_POST_UPDATES, postReadyTopic, FAIL, metaData);
-        }
+        //notify user
+        new Notify().execute(NEW_POST_UPDATES, postReadyTopic, SUCCESS, metaData);
     }
 
     private void updateTagsOnDB(final String newPostId, Map<String, Object> postMap) {
@@ -966,7 +964,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                             FirebaseMessaging.getInstance().subscribeToTopic(postId);
                             updateTagsOnDB(postId, postMap);
                             updateCatsOnDB(postId, postMap);
-                            newPostNotif(true, postId);
+                            newPostNotification(postId);
                             notifyFollowers(postId);
 
                         } else {
@@ -996,7 +994,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                             String newPostId = task.getResult().getId();
                             updateTagsOnDB(newPostId, postMap);
                             updateCatsOnDB(newPostId, postMap);
-                            newPostNotif(true, newPostId);
+                            newPostNotification(newPostId);
                             notifyFollowers(newPostId);
 
                         } else {
@@ -1004,7 +1002,7 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                             String errorMessage =
                                     Objects.requireNonNull(task.getException()).getMessage();
                             Log.d(TAG, "Db Update failed: " + errorMessage);
-//                            newPostNotif(false, errorMessage);
+//                            newPostNotification(false, errorMessage);
                         }
                     }
                 });
@@ -1262,11 +1260,9 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
             if (isEditPost()) {
                 //get the sent intent
                 Intent getEditPostIdIntent = getIntent();
-                String postId = getEditPostIdIntent.getStringExtra("editPost");
-                Log.d(TAG, "postId is: " + postId);
-                //populate data
+                String postId = getEditPostIdIntent.getStringExtra(EDIT_POST);
+                Log.d(TAG, "is edit post, postId is: " + postId);
                 populateEditPostData(postId);
-
             }
 
         }
@@ -1319,7 +1315,6 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
                 //check if result is successful
                 if (task.isSuccessful() && task.getResult().exists()) {
 
@@ -1328,7 +1323,14 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                     if  (post != null) {
                         String title = post.getTitle();
                         String desc = post.getDesc();
-                        String description = title + "\n" + desc;
+                        String description = "";
+                        if (title != null && !title.equals("null")){
+                            description = description.concat(title + "\n");
+                        }else if (desc != null && !desc.isEmpty()){
+                            description = description.concat(desc);
+                        }else{
+                            descButton.setVisibility(View.GONE);
+                        }
                         descButton.setText(description);
 
                         if (post.getImage_url() != null) {

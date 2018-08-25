@@ -1,5 +1,6 @@
 package com.nyayozangu.labs.fursa.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.ActionBar
@@ -17,6 +18,7 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.User
 import kotlinx.android.synthetic.main.activity_users.*
 import kotlinx.android.synthetic.main.content_users.*
+import org.jetbrains.anko.startActivity
 
 class UsersActivity: AppCompatActivity() {
 
@@ -148,9 +150,20 @@ class UsersActivity: AppCompatActivity() {
                         actionBar.title = FOLLOWING
                         destination = FOLLOWING
                     }
-                    else -> actionBar.title = USERS
+                    else -> {
+                        Log.d(TAG, "To Dev, $DESTINATION and $USER_ID is has issues")
+                        startActivity<MainActivity>()
+                        finish()
+                    }
                 }
+            }else{
+                startActivity<MainActivity>()
+                finish()
             }
+        }else{
+            startActivity<MainActivity>()
+            finish()
+
         }
     }
 
