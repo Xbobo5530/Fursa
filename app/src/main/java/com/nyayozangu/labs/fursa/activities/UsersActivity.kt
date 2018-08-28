@@ -18,6 +18,7 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth.*
 import com.nyayozangu.labs.fursa.models.User
 import kotlinx.android.synthetic.main.activity_users.*
 import kotlinx.android.synthetic.main.content_users.*
+import org.jetbrains.anko.progressDialog
 import org.jetbrains.anko.startActivity
 
 class UsersActivity: AppCompatActivity() {
@@ -58,59 +59,8 @@ class UsersActivity: AppCompatActivity() {
         })
     }
 
-    private fun loadMoreUsers() {
-        coMeth.showProgress(usersProgressBar)
-        followRef.startAfter(lastVisiblePost).limit(10).get()
-                .addOnSuccessListener {
-                    if (!it.isEmpty){
-                        if (isFirstPageFirstLoad){
-                            lastVisiblePost = it.documents[it.size() - 1]
-                            usersList.clear()
-                            for (document in it.documentChanges){
-                                if (document.type == DocumentChange.Type.ADDED){
-                                    val userId = document.document.id
-                                    val user = document.document.toObject(User::class.java).withId<User>(userId)
-                                    addUser(user)
-                                }
-                            }
-                        }
-                    }
-                }
-                .addOnFailureListener{
-                    Log.e(TAG, "failed to add user ${it.message}")
-                    val errorMessage = "${resources.getString(R.string.error_text)}: ${it.message}"
-                    coMeth.stopLoading(usersProgressBar)
-                    showSnack(errorMessage)
-                }
-    }
-
-    private fun addUser(user: User?) {
-        if (user != null){
-            if (isFirstPageFirstLoad){
-                usersList.add(0, user)
-                mAdapter.notifyItemInserted(usersList.size - 1)
-                coMeth.stopLoading(usersProgressBar)
-            }else{
-                usersList.add(user)
-                mAdapter.notifyItemInserted(usersList.size - 1)
-                coMeth.stopLoading(usersProgressBar)
-            }
-        }
-    }
-
-
-    private fun handleToolBar() {
-        setSupportActionBar(usersToolbar)
-        actionBar = this.supportActionBar!!
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        usersToolbar.setNavigationOnClickListener { finish() }
-        usersToolbar.setOnClickListener { _ ->
-            usersRecyclerView.smoothScrollToPosition(0)
-        }
-    }
-
     private fun loadUsers() {
-        coMeth.stopLoading(usersProgressBar)
+        coMeth.showProgress(usersProgressBar)
         followRef.limit(10).get().addOnSuccessListener { querySnapshot ->
             if (!querySnapshot.isEmpty){
                 if (isFirstPageFirstLoad){
@@ -131,7 +81,63 @@ class UsersActivity: AppCompatActivity() {
                     }
                 }
                 isFirstPageFirstLoad = false
+            }else{
+                Log.d(TAG, "the query for users is empty")
+                coMeth.stopLoading(usersProgressBar)
             }
+        }
+    }
+
+    private fun loadMoreUsers() {
+        coMeth.showProgress(usersProgressBar)
+        followRef.startAfter(lastVisiblePost).limit(10).get()
+                .addOnSuccessListener {
+                    if (!it.isEmpty){
+                        if (isFirstPageFirstLoad){
+                            lastVisiblePost = it.documents[it.size() - 1]
+                            usersList.clear()
+                            for (document in it.documentChanges){
+                                if (document.type == DocumentChange.Type.ADDED){
+                                    val userId = document.document.id
+                                    val user = document.document.toObject(User::class.java).withId<User>(userId)
+                                    addUser(user)
+                                }
+                            }
+                        }
+                    }else{
+                        Log.d(TAG, "the query for users is empty")
+                        coMeth.stopLoading(usersProgressBar)
+                    }
+                }
+                .addOnFailureListener{
+                    Log.e(TAG, "failed to add user ${it.message}")
+                    val errorMessage = "${resources.getString(R.string.error_text)}: ${it.message}"
+                    coMeth.stopLoading(usersProgressBar)
+                    showSnack(errorMessage)
+                }
+    }
+
+    private fun addUser(user: User?) {
+        if (user != null){
+            if (isFirstPageFirstLoad){
+                usersList.add(0, user)
+                mAdapter.notifyItemInserted(usersList.size - 1)
+            }else{
+                usersList.add(user)
+                mAdapter.notifyItemInserted(usersList.size - 1)
+            }
+            coMeth.stopLoading(usersProgressBar)
+        }
+    }
+
+
+    private fun handleToolBar() {
+        setSupportActionBar(usersToolbar)
+        actionBar = this.supportActionBar!!
+        actionBar.setDisplayHomeAsUpEnabled(true)
+        usersToolbar.setNavigationOnClickListener { finish() }
+        usersToolbar.setOnClickListener { _ ->
+            usersRecyclerView.smoothScrollToPosition(0)
         }
     }
 

@@ -287,6 +287,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 loadPosts(catPostsRef);
             }
         }else{
+            // TODO: 8/29/18 pass message to main
             goToMain();
         }
     }
