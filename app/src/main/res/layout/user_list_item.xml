@@ -69,18 +69,18 @@
                     android:text="@string/user_bio_sett_textview_hint" />
             </LinearLayout>
 
-            <Button
+            <TextView
                 android:id="@+id/usersFollowButton"
                 android:layout_width="wrap_content"
                 android:layout_height="25dp"
                 android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/follow_button_shape"
                 android:text="@string/follow_text"
                 android:textAllCaps="false"
-                android:textColor="@color/primaryTextColor"
-                android:visibility="gone"
+                android:textColor="@color/primaryDarkColor"
+                android:textStyle="bold|italic"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -62,7 +62,6 @@ public class PeopleTabFragment extends Fragment {
         progressBar = view.findViewById(R.id.peopleProgressBar);
         usersList = new ArrayList<>();
         mAdapter = new UsersRecyclerAdapter(usersList, Glide.with(this));
-        mAdapter.setHasStableIds(true);
         coMeth.handlePostsView(getContext(), getActivity(), mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
         handleScrolling(mRecyclerView);
@@ -73,8 +72,7 @@ public class PeopleTabFragment extends Fragment {
 
     private void handleBottomNavReSelect(final RecyclerView mRecyclerView) {
         if (getActivity() != null) {
-            ((MainActivity)(getActivity())).mainBottomNav
-                    .setOnNavigationItemReselectedListener(
+            ((MainActivity)(getActivity())).mainBottomNav.setOnNavigationItemReselectedListener(
                             new BottomNavigationView.OnNavigationItemReselectedListener() {
                                 @Override
                                 public void onNavigationItemReselected(@NonNull MenuItem item) {
@@ -105,7 +103,7 @@ public class PeopleTabFragment extends Fragment {
 
     private void loadMoreUsers() {
         coMeth.showProgress(progressBar);
-        Query nextQuery = coMeth.getDb().collection(USERS).orderBy(NAME).startAfter(lastVisibleUser).limit(20);
+        Query nextQuery = coMeth.getDb().collection(USERS).startAfter(lastVisibleUser).limit(20);
         nextQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -137,20 +135,17 @@ public class PeopleTabFragment extends Fragment {
             if (isFirstPageFirstLoad) {
                 usersList.add(0, user);
                 mAdapter.notifyItemInserted(usersList.size() - 1);
-//                mAdapter.notifyDataSetChanged();
-                coMeth.stopLoading(progressBar);
             }else{
                 usersList.add(user);
                 mAdapter.notifyItemInserted(usersList.size() - 1);
-//                mAdapter.notifyDataSetChanged();
-                coMeth.stopLoading(progressBar);
             }
+            coMeth.stopLoading(progressBar);
         }
     }
 
     private void loadUsers() {
         coMeth.showProgress(progressBar);
-        Query firstQuery = coMeth.getDb().collection(USERS).orderBy(NAME).limit(20);
+        Query firstQuery = coMeth.getDb().collection(USERS).limit(20);
         firstQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

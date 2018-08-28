@@ -90,19 +90,19 @@
 
                     </LinearLayout>
 
-                    <Button
+                    <TextView
                         android:id="@+id/postFollowButton"
                         android:layout_width="wrap_content"
                         android:layout_height="25dp"
                         android:layout_gravity="center"
                         android:layout_marginBottom="8dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="16dp"
                         android:layout_marginTop="8dp"
-                        android:background="@drawable/follow_button_shape"
                         android:text="@string/follow_text"
                         android:textAllCaps="false"
-                        android:textColor="@color/primaryTextColor"
-                        android:visibility="gone" />
+                        android:textColor="@color/primaryDarkColor"
+                        android:textStyle="bold|italic"
+                        android:visibility="visible" />
                 </LinearLayout>
 
                 <ImageView

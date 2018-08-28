@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -459,7 +458,7 @@ public class UserPageActivity extends AppCompatActivity implements View.OnClickL
                 if (coMeth.isLoggedIn()){
                     handleFollowAction();
                 }else{
-                    goToLogin(getString(R.string.login_to_follow));
+                    goToLogin(getString(R.string.login_to_follow_text));
                 }
                 break;
             case R.id.userPageFollowersButton:

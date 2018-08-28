@@ -1331,17 +1331,13 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
                         }else{
                             descButton.setVisibility(View.GONE);
                         }
-                        descButton.setText(description);
+                        descButton.setText(description.trim());
 
                         if (post.getImage_url() != null) {
                             String imageUrl = post.getImage_url();
                             String thumbUrl = post.getThumb_url();
-                            try {
-                                coMeth.setImage(R.drawable.appiconshadow, imageUrl, thumbUrl,
-                                        createPostImageView, Glide.with(CreatePostActivity.this));
-                            } catch (Exception e) {
-                                Log.d(TAG, "onComplete: failed to set create image");
-                            }
+                            coMeth.setImage(R.drawable.appiconshadow, imageUrl, thumbUrl,
+                                    createPostImageView, Glide.with(CreatePostActivity.this));
                             //update the imageUrl
                             downloadUri = imageUrl;
                             downloadThumbUri = thumbUrl;
@@ -1349,13 +1345,10 @@ public class CreatePostActivity extends AppCompatActivity implements View.OnClic
 
                         //set categories
                         if (post.getCategories() != null) {
-
-                            ArrayList catsArray = (ArrayList) task.getResult().get("categories");
-                            Log.d(TAG, "onComplete: \n catsArray on edit is: " + catsArray);
+                            ArrayList catsArray = post.getCategories();
                             String catsString = "";
                             for (int i = 0; i < catsArray.size(); i++) {
-                                catsString = catsString.concat(
-                                        coMeth.getCatValue(catsArray.get(i).toString(),
+                                catsString = catsString.concat(coMeth.getCatValue(catsArray.get(i).toString(),
                                                 CreatePostActivity.this) + "\n");
                             }
                             //set cat string

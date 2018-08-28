@@ -314,7 +314,7 @@
     <string name="reloading_text">Reloading…</string>
     <string name="reload_text">Reload</string>
     <string name="follow_text">Follow</string>
-    <string name="login_to_follow">Login to follow other users</string>
+    <string name="login_to_follow_text">Login to follow other users</string>
     <string name="following_text">Following</string>
     <string name="failed_to_follow_text">Failed to follow page</string>
     <string name="failed_to_unfollow_text">Failed to un-follow page</string>

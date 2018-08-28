@@ -172,23 +172,7 @@ ViewCategoryActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<ShortDynamicLink> task) {
                         if (task.isSuccessful()) {
-                            Uri shortLink = task.getResult().getShortLink();
-                            Log.d(TAG, "onComplete: short link is: " + shortLink);
-
-                            //show share dialog
-                            String catTitle = coMeth.getCatValue(currentCat,
-                                    ViewCategoryActivity.this);
-                            String fullShareMsg = getString(R.string.app_name) + "\n" +
-                                    catTitle + "\n" +
-                                    shortLink;
-                            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                            shareIntent.setType("text/plain");
-                            shareIntent.putExtra(Intent.EXTRA_SUBJECT,
-                                    getResources().getString(R.string.app_name));
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
-                            coMeth.stopLoading(progressDialog);
-                            startActivity(Intent.createChooser(
-                                    shareIntent, getString(R.string.share_with_text)));
+                            showShareDialog(task);
                         } else {
                             Log.d(TAG, "onComplete: " +
                                     "\ncreating short link task failed\n" +
@@ -198,6 +182,26 @@ ViewCategoryActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void showShareDialog(@NonNull Task<ShortDynamicLink> task) {
+        Uri shortLink = task.getResult().getShortLink();
+        Log.d(TAG, "onComplete: short link is: " + shortLink);
+
+        //show share dialog
+        String catTitle = coMeth.getCatValue(currentCat,
+                ViewCategoryActivity.this);
+        String fullShareMsg = getString(R.string.app_name) + "\n" +
+                catTitle + "\n" +
+                shortLink;
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+                getResources().getString(R.string.app_name));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, fullShareMsg);
+        coMeth.stopLoading(progressDialog);
+        startActivity(Intent.createChooser(
+                shareIntent, getString(R.string.share_with_text)));
     }
 
     @Override
@@ -212,7 +216,6 @@ ViewCategoryActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                goToMain();
                 finish();
             }
         });
@@ -248,49 +251,20 @@ ViewCategoryActivity extends AppCompatActivity {
                 Boolean reachedBottom = !mRecyclerView.canScrollVertically(1);
                 if (reachedBottom){
                     if (isCats) {
-                        loadMoreCatPosts();
+                        loadMorePosts(catPostsRef);
                     }
                     if (isTags){
-                        loadMoreTagPosts();
+//                        loadMoreTagPosts();
+                        loadMorePosts(tagPostRef);
                     }
                 }
             }
         });
     }
 
-    // TODO: 7/31/18 check why tags posts duplicate themselves
-    private void loadMoreTagPosts() {
+    private void loadMorePosts(final CollectionReference postsReference) {
         coMeth.showProgress(mProgressBar);
-        tagPostRef.orderBy(TIMESTAMP, Query.Direction.DESCENDING).startAfter(lastVisiblePost)
-                .limit(10).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if (!queryDocumentSnapshots.isEmpty()){
-                    lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() -1);
-                    for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()){
-                        if (documentChange.getType() == DocumentChange.Type.ADDED){
-                            String postId = documentChange.getDocument().getId();
-                            getPost(postId);
-                        }
-                    }
-                }
-            }
-        })
-        .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(TAG, "onFailure: failed to get tag posts\n" + e.getMessage());
-                String errorMessage = getResources().getString(R.string.error_text) + ": " + e.getMessage();
-                coMeth.stopLoading(mProgressBar);
-                showSnack(errorMessage);
-            }
-        });
-
-    }
-
-    private void loadMoreCatPosts() {
-        coMeth.showProgress(mProgressBar);
-        Query nextQuery = catPostsRef.orderBy(TIMESTAMP, Query.Direction.DESCENDING)
+        Query nextQuery = postsReference.orderBy(TIMESTAMP, Query.Direction.DESCENDING)
                 .startAfter(lastVisiblePost)
                 .limit(10);
         nextQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -479,57 +453,28 @@ ViewCategoryActivity extends AppCompatActivity {
                 isTags = false;
                 currentCat = intent.getStringExtra(CATEGORY);
                 catPostsRef = coMeth.getDb().collection(CATEGORIES + "/" + currentCat + "/" + POSTS);
-                loadCatPosts(catPostsRef);
+                loadPosts(catPostsRef);
                 setCurrentCat(currentCat);
             } else if (tag != null){
                 isTags = true;
                 isCats = false;
                 tagPostRef = coMeth.getDb().collection(TAGS).document(tag).collection(POSTS);
-                loadTagPosts(tagPostRef);
+                loadPosts(tagPostRef);
                 actionBar.setTitle("#" + tag);
             } else {
                 //intent is from deep link
                 currentCat = handleDeepLink();
                 setCurrentCat(currentCat);
                 catPostsRef = coMeth.getDb().collection(CATEGORIES + "/" + currentCat + "/" + POSTS);
-                loadCatPosts(catPostsRef);
+                loadPosts(catPostsRef);
             }
         }else{
             goToMain();
         }
     }
 
-    private void loadTagPosts(final CollectionReference tagRef) {
-        tagRef.orderBy(TIMESTAMP, Query.Direction.ASCENDING).limit(10)
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if (!queryDocumentSnapshots.isEmpty()){
-                                lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                                if (isFirstPageFirstLoad){
-                                    postsList.clear();
-                                    usersList.clear();
-
-                                    for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
-                                        if (document.getType() == DocumentChange.Type.ADDED){
-                                            String postId = document.getDocument().getId();
-                                            getPost(postId);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "onFailure: failed to get tag posts\n" + e.getMessage(), e);
-                    }
-                });
-    }
-
-    private void loadCatPosts(CollectionReference catPostsRef) {
-        catPostsRef.orderBy(TIMESTAMP, Query.Direction.ASCENDING).limit(10)
+    private void loadPosts(CollectionReference postReference) {
+        postReference.orderBy(TIMESTAMP, Query.Direction.ASCENDING).limit(10)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

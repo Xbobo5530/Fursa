@@ -3,14 +3,12 @@ package com.nyayozangu.labs.fursa.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,15 +42,14 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID_VAL;
 
-public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.ViewHolder> /*implements View.OnClickListener*/{
+public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.ViewHolder>{
 
     private static final String TAG = "UsersRecyclerAdapter";
     private List<User> usersList;
     public Context context;
     public RequestManager glide;
     private CoMeth coMeth = new CoMeth();
-    private String userId, currentUserId;
-    private ViewHolder mHolder;
+    private String currentUserId;
 
     public UsersRecyclerAdapter(List<User> usersList, RequestManager glide) {
         this.usersList = usersList;
@@ -62,6 +59,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     @NonNull
     @Override
     public UsersRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         //inflate the viewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.user_list_item, parent, false);
@@ -73,31 +71,18 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     public void onBindViewHolder(@NonNull final UsersRecyclerAdapter.ViewHolder holder, int position) {
 
         User user = usersList.get(position);
-        mHolder = holder;
         currentUserId = coMeth.getUid();
         if (user != null) {
-            userId = usersList.get(position).UserId;
-            Log.d(TAG, "onBindViewHolder: userId at position " + position + " is " + userId);
-            holder.setUserDetails(user);
-            holder.handleFollowButtonVisibility();
-//            holder.pageItemView.setOnClickListener(this);
-            holder.pageItemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    goToUserPage(userId);
-                }
-            });
-//            holder.mFollowButton.setOnClickListener(this);
-            holder.mFollowButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (coMeth.isLoggedIn()){
-                        followUser(userId, holder);
-                    }else{
-                        goToLogin(context.getResources().getString(R.string.login_to_follow));
-                    }
-                }
-            });
+            String username = user.getName();
+            String bio = user.getBio();
+            String imageUrl = user.getImage();
+            String thumbUrl = user.getThumb();
+            String userId = user.UserId;
+            setUserDetails(holder, username, bio, imageUrl, thumbUrl);
+            handleItemClick(holder, userId);
+            handleFollowButtonClick(holder, userId);
+            handleFollowButtonVisibility(holder, userId);
+//            setUserDetails(holder, user);
         }
     }
 
@@ -127,22 +112,49 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
         context.startActivity(intent);
     }
 
-//    @Override
-//    public void onClick(View v) {
-//        switch (v.getId()){
-//            case R.id.usersFollowButton:
-//                if (coMeth.isLoggedIn()){
-//                    followUser(userId, mHolder);
-//                }else{
-//                    goToLogin(context.getResources().getString(R.string.login_to_follow));
-//                }
-//                break;
-//            case R.id.userListItemItemView:
-//                goToUserPage(userId);
-//        }
-//    }
+    private void setUserDetails(final ViewHolder holder, String username, String bio, String imageUrl, String thumbUrl) {
 
-    private void followUser(final String userId, final ViewHolder holder) {
+        holder.usernameField.setText(username);
+        if (bio != null && !bio.isEmpty()){
+            holder.bioField.setText(bio);
+        }else{
+            holder.bioField.setVisibility(View.GONE);
+        }
+        if (thumbUrl != null){
+            coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, thumbUrl,
+                    holder.userImageView, context);
+        } else if (imageUrl != null){
+            coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, imageUrl,
+                    holder.userImageView,context);
+        }else{
+            holder.userImageView.setImageDrawable(
+                    context.getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+        }
+    }
+
+    private void handleFollowButtonClick(final ViewHolder holder, final String userId) {
+        holder.mFollowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (coMeth.isLoggedIn()) {
+                    followUser(holder, userId);
+                }else{
+                    goToLogin(context.getResources().getString(R.string.login_to_follow_text));
+                }
+            }
+        });
+    }
+
+    private void handleItemClick(ViewHolder holder, final String userId) {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToUserPage(userId);
+            }
+        });
+    }
+
+    private void followUser(final ViewHolder holder, final String userId) {
         holder.mFollowButton.setText(context.getResources().getString(R.string.loading_text));
         Map<String, Object> followersMap = new HashMap<>();
         followersMap.put(TIMESTAMP, FieldValue.serverTimestamp());
@@ -160,7 +172,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "onFailure: failed to add follower\n" + e.getMessage(), e);
                         String errorMessage = context.getResources().getString(R.string.error_text) + ": " + e.getMessage();
-                        holder.showSnack(errorMessage);
+                        showSnack(holder, errorMessage);
                     }
                 });
     }
@@ -182,9 +194,48 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG, "onFailure: failed to add following ref\n" + e.getMessage(), e);
                         String errorMessage = context.getResources().getString(R.string.error_text) + ": " + e.getMessage();
-                        holder.showSnack(errorMessage);
+                        showSnack(holder, errorMessage);
                     }
                 });
+    }
+
+    private void handleFollowButtonVisibility(final ViewHolder holder, String userId){
+        if (coMeth.isLoggedIn()){
+            // create a user reference,
+            currentUserId = coMeth.getUid();
+            if (currentUserId.equals(userId)){
+                holder.mFollowButton.setVisibility(View.GONE);
+            }else{
+                DocumentReference userRef = coMeth.getDb()
+                        .collection(USERS + "/" + userId + "/" + FOLLOWERS)
+                        .document(currentUserId);
+                userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e == null){
+                            if (documentSnapshot != null) {
+                                if (documentSnapshot.exists()) {
+                                    holder.mFollowButton.setVisibility(View.GONE);
+                                } else {
+                                    holder.mFollowButton.setVisibility(View.VISIBLE);
+                                }
+                            }else{
+                                holder.mFollowButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            Log.e(TAG, "onEvent: failed to get follower\n" + e.getMessage(), e);
+                        }
+                    }
+                });
+            }
+        }else{
+            holder.mFollowButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showSnack(ViewHolder holder, String message){
+        Snackbar.make(holder.mView.findViewById(R.id.usersListLayout), message, Snackbar.LENGTH_LONG).show();
     }
 
     private void goToLogin(String message) {
@@ -197,10 +248,8 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
 
         View mView;
         //initiate items on view holder
-        private TextView usernameField, bioField;
+        private TextView usernameField, bioField, mFollowButton;
         private ImageView userImageView;
-        private ConstraintLayout pageItemView;
-        private Button mFollowButton;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -208,71 +257,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
             usernameField = mView.findViewById(R.id.userListItemUsernameTextView);
             bioField = mView.findViewById(R.id.userListItemBioTextView);
             userImageView = mView.findViewById(R.id.userListItemUserImageView);
-            pageItemView = mView.findViewById(R.id.userListItemItemView);
             mFollowButton = mView.findViewById(R.id.usersFollowButton);
-        }
-
-        void handleFollowButtonVisibility(){
-            if (coMeth.isLoggedIn()){
-                // create a user reference,
-                currentUserId = coMeth.getUid();
-                if (currentUserId.equals(userId)){
-                    mFollowButton.setVisibility(View.GONE);
-                }else{
-                    DocumentReference userRef = coMeth.getDb()
-                            .collection(USERS + "/" + userId + "/" + FOLLOWERS)
-                            .document(currentUserId);
-                    userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
-                                            @Nullable FirebaseFirestoreException e) {
-                            if (e == null){
-                                if (documentSnapshot != null) {
-                                    if (documentSnapshot.exists()) {
-                                        mFollowButton.setVisibility(View.GONE);
-                                    } else {
-                                        mFollowButton.setVisibility(View.VISIBLE);
-                                    }
-                                }else{
-                                    mFollowButton.setVisibility(View.VISIBLE);
-                                }
-                            }else{
-                                Log.e(TAG, "onEvent: failed to get follower\n" + e.getMessage(), e);
-                            }
-                        }
-                    });
-                }
-            }else{
-                mFollowButton.setVisibility(View.VISIBLE);
-            }
-        }
-
-        void setUserDetails(User user) {
-            String username = user.getName();
-            String bio = user.getBio();
-            String imageUrl = user.getImage();
-            String thumbUrl = user.getThumb();
-
-            usernameField.setText(username);
-            if (bio != null && !bio.isEmpty()){
-                bioField.setText(bio);
-            }else{
-                bioField.setVisibility(View.GONE);
-            }
-            if (thumbUrl != null){
-                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, thumbUrl,
-                        userImageView, context);
-            } else if (imageUrl != null){
-                coMeth.setCircleImage(R.drawable.ic_action_person_placeholder, imageUrl,
-                        userImageView,context);
-            }else{
-                userImageView.setImageDrawable(
-                        context.getResources().getDrawable(R.drawable.ic_action_person_placeholder));
-            }
-        }
-
-        void showSnack(String message){
-            Snackbar.make(mView.findViewById(R.id.usersListLayout), message, Snackbar.LENGTH_LONG).show();
         }
     }
 }

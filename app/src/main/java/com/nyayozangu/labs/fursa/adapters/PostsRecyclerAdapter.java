@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
@@ -33,7 +32,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -400,7 +398,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     }
 
     private void handleFollowButton(final @NonNull PostViewHolder holder, final String postUserId) {
-        final Button mFollowButton = holder.followButton;
+        final TextView mFollowButton = holder.followButton;
         if (coMeth.isLoggedIn()){
             if (postUserId.equals(currentUserId)){
                 mFollowButton.setVisibility(View.GONE);
@@ -412,7 +410,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
             mFollowButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    goToLogin(context.getResources().getString(R.string.login_to_follow));
+                    goToLogin(context.getResources().getString(R.string.login_to_follow_text));
                 }
             });
         }
@@ -426,7 +424,7 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private void checkUserStatus(@NonNull final PostViewHolder holder, final String postUserId, final Button mFollowButton) {
+    private void checkUserStatus(@NonNull final PostViewHolder holder, final String postUserId, final TextView mFollowButton) {
         CollectionReference followingRef = coMeth.getDb().collection(
                 USERS + "/" + currentUserId + "/" + FOLLOWING);
         followingRef.document(postUserId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -765,15 +763,14 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
     class PostViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
-        private TextView postUsernameTextView, sponsoredTextView;
+        private TextView postUsernameTextView, sponsoredTextView, followButton;
         private ImageView postUserImageView;
         private TextView postLikesCount, postCommentCount, postLocationTextView,
-                postDateTextView, descTextView, activityTextView;
+                postDateTextView, descTextView, activityTextView; //todo figure this out
         private ImageView postSaveButton, postImageView, postLikeButton;
         private CardView postCardView;
         private LinearLayout promoteLayout, likeLayout, saveLayout, commentLayout,
                 shareLayout, topLayout, actionsLayout;
-        private Button followButton;
 
         PostViewHolder(View itemView) {
             super(itemView);
@@ -890,8 +887,6 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
             }else{
                 sponsoredTextView.setVisibility(View.GONE);
             }
-
-//            new UpdatePostActivityTask().execute();
         }
 
         private void handlePostInViewPost(Post post) {
@@ -937,12 +932,5 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-//    public static class UpdatePostActivityTask extends AsyncTask<Void, Void, Void> {
-//
-//        @Override
-//        protected Void doInBackground(Void... voids) {
-//            updateFeedViews(post);
-//            return null;
-//        }
-//    }
+
 }
