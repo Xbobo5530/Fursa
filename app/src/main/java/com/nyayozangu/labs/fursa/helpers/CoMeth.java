@@ -50,7 +50,7 @@ public class CoMeth{
     public static final String TWITTER_DOT_COM = "twitter.com";
 
     //collections
-    public static final String CATEGORIES = "Category";
+    public static final String CATEGORIES = "Categories";
     public static final String TAGS = "Tags";
     public static final String POSTS = "Posts";
     public static final String USERS = "Users";

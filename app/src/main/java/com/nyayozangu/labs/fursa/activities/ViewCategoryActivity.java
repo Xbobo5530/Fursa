@@ -254,7 +254,6 @@ ViewCategoryActivity extends AppCompatActivity {
                         loadMorePosts(catPostsRef);
                     }
                     if (isTags){
-//                        loadMoreTagPosts();
                         loadMorePosts(tagPostRef);
                     }
                 }
@@ -262,22 +261,92 @@ ViewCategoryActivity extends AppCompatActivity {
         });
     }
 
+    private void handleIntent() {
+        intent = getIntent();
+        if (intent != null) {
+            String category = intent.getStringExtra(CATEGORY);
+            String tag = intent.getStringExtra(TAG_VAL);
+            if (category != null) {
+                isCats = true;
+                isTags = false;
+                currentCat = intent.getStringExtra(CATEGORY);
+                catPostsRef = coMeth.getDb().collection(CATEGORIES + "/" + currentCat + "/" + POSTS);
+                loadPosts(catPostsRef);
+                setCurrentCat(currentCat);
+            } else if (tag != null){
+                isTags = true;
+                isCats = false;
+                tagPostRef = coMeth.getDb().collection(TAGS).document(tag).collection(POSTS);
+                loadPosts(tagPostRef);
+                actionBar.setTitle("#" + tag);
+            } else {
+                //intent is from deep link
+                currentCat = handleDeepLink();
+                setCurrentCat(currentCat);
+                catPostsRef = coMeth.getDb().collection(CATEGORIES + "/" + currentCat + "/" + POSTS);
+                loadPosts(catPostsRef);
+            }
+        }else{
+            goToMain();
+        }
+    }
+
+    private void loadPosts(CollectionReference postReference) {
+        postReference.orderBy(TIMESTAMP, Query.Direction.DESCENDING).limit(10).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                    if (isFirstPageFirstLoad) {
+                        postsList.clear();
+                        usersList.clear();
+
+                        for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
+                            if (document.getType() == DocumentChange.Type.ADDED) {
+                                String postId = document.getDocument().getId();
+                                getPost(postId);
+                            }
+                        }
+                    }
+                    isFirstPageFirstLoad = false;
+                }else{
+                    coMeth.stopLoading(mProgressBar);
+                    Log.w(TAG, "onSuccess: query is empty at load posts on view cat");
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        String errorMessage = getResources().getString(R.string.error_text) + ": " + e.getMessage();
+                        Log.d(TAG, "onFailure: failed to get post ids from cats\n" +
+                                e.getMessage());
+                        coMeth.stopLoading(mProgressBar);
+                        showSnack(errorMessage);
+                    }
+                });
+    }
+
     private void loadMorePosts(final CollectionReference postsReference) {
         coMeth.showProgress(mProgressBar);
-        Query nextQuery = postsReference.orderBy(TIMESTAMP, Query.Direction.DESCENDING)
-                .startAfter(lastVisiblePost)
-                .limit(10);
-        nextQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        postsReference.orderBy(TIMESTAMP, Query.Direction.DESCENDING).startAfter(lastVisiblePost)
+                .limit(10).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (!queryDocumentSnapshots.isEmpty()){
                     lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() -1);
+
                     for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()){
                         if (document.getType() == DocumentChange.Type.ADDED){
                             String postId = document.getDocument().getId();
                             getPost(postId);
                         }
                     }
+                }else{
+                    coMeth.stopLoading(mProgressBar);
+                    Log.w(TAG, "onSuccess: query is empty on load more posts");
                 }
             }
         })
@@ -306,6 +375,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        coMeth.stopLoading(mProgressBar);
                         Log.e(TAG, "onFailure: failed to get post\n" + e.getMessage(), e);
                     }
                 });
@@ -319,7 +389,6 @@ ViewCategoryActivity extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
                     User user = Objects.requireNonNull(documentSnapshot.toObject(User.class)).withId(userId);
-
                     if (isFirstPageFirstLoad) {
                         if (!postsList.contains(post)) {
                             postsList.add(0,post);
@@ -340,6 +409,7 @@ ViewCategoryActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        coMeth.stopLoading(mProgressBar);
                         Log.e(TAG, "onFailure: failed to get user details\n" + e.getMessage(), e);
                     }
                 });
@@ -443,69 +513,7 @@ ViewCategoryActivity extends AppCompatActivity {
     }
 
 
-    private void handleIntent() {
-        intent = getIntent();
-        if (intent != null) {
-            String category = intent.getStringExtra(CATEGORY);
-            String tag = intent.getStringExtra(TAG_VAL);
-            if (category != null) {
-                isCats = true;
-                isTags = false;
-                currentCat = intent.getStringExtra(CATEGORY);
-                catPostsRef = coMeth.getDb().collection(CATEGORIES + "/" + currentCat + "/" + POSTS);
-                loadPosts(catPostsRef);
-                setCurrentCat(currentCat);
-            } else if (tag != null){
-                isTags = true;
-                isCats = false;
-                tagPostRef = coMeth.getDb().collection(TAGS).document(tag).collection(POSTS);
-                loadPosts(tagPostRef);
-                actionBar.setTitle("#" + tag);
-            } else {
-                //intent is from deep link
-                currentCat = handleDeepLink();
-                setCurrentCat(currentCat);
-                catPostsRef = coMeth.getDb().collection(CATEGORIES + "/" + currentCat + "/" + POSTS);
-                loadPosts(catPostsRef);
-            }
-        }else{
-            goToMain();
-        }
-    }
 
-    private void loadPosts(CollectionReference postReference) {
-        postReference.orderBy(TIMESTAMP, Query.Direction.ASCENDING).limit(10)
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if (!queryDocumentSnapshots.isEmpty()) {
-                    lastVisiblePost = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                    if (isFirstPageFirstLoad) {
-                        postsList.clear();
-                        usersList.clear();
-
-                        for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
-                            if (document.getType() == DocumentChange.Type.ADDED) {
-                                String postId = document.getDocument().getId();
-                                getPost(postId);
-                            }
-                        }
-                    }
-                    isFirstPageFirstLoad = false;
-                }
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        String errorMessage = getResources().getString(R.string.error_text) + ": " + e.getMessage();
-                        Log.d(TAG, "onFailure: failed to get post ids from cats\n" +
-                                e.getMessage());
-                        coMeth.stopLoading(mProgressBar);
-                        showSnack(errorMessage);
-                    }
-                });
-    }
 
     private String handleDeepLink() {
         String appLinkAction = intent.getAction();

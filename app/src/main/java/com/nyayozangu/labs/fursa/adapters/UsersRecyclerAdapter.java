@@ -82,7 +82,6 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
             handleItemClick(holder, userId);
             handleFollowButtonClick(holder, userId);
             handleFollowButtonVisibility(holder, userId);
-//            setUserDetails(holder, user);
         }
     }
 
