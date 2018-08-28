@@ -222,11 +222,11 @@
     <string name="UPDATE_INFO">
         Thank you for updating.
         \nNew in this version:
-        \n- You can now follow other users and get updates on their posts
-        \n- Reduced the size of the download file
-        \n- You can now view more posts related to the one you are currently viewing
-        \n- A new post Recommendation and an Upcoming events section
-        \n- Faster load times and improved stability
+        \n- A new credit system, where you earn free credits everyday
+        \n- You can use your credit to post multiple posts a everyday
+        \n- Promote your post to get more views
+        \n- Use your credits to get post promotions
+        \n- Other minor bug fixes
         \nHope you enjoy your experience with Fursa!
     </string>
     <string name="close_text">Close</string>

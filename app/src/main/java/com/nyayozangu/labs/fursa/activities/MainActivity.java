@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements
             showSnack(getResources().getString(R.string.failed_to_connect_text));
         }
 
-        checkNotifications();
+//        checkNotifications();
     }
 
     @Override
@@ -894,32 +894,32 @@ public class MainActivity extends AppCompatActivity implements
     // check for unopened notifications,
     // chanve notification icon
 
-    private void checkNotifications(){
-        if (coMeth.isLoggedIn()){
-            CollectionReference userNotificationRef = coMeth.getDb().collection(USERS + "/" + coMeth.getUid() + "/" + NOTIFICATIONS);
-            userNotificationRef.whereEqualTo(STATUS, NOTIFICATION_STATUS_UNREAD).addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots,
-                                    @javax.annotation.Nullable FirebaseFirestoreException e) {
-                    if (e == null){
-                        Menu bottomNavMenu = mainBottomNav.getMenu();
-                        MenuItem notificationsMenuItem = bottomNavMenu.findItem(R.id.bottomNavNotificationsItem);
-                        if (queryDocumentSnapshots != null) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                //user has unread notifications
-                                notificationsMenuItem.setIcon(getResources().getDrawable(R.drawable.ic_notification_dot));
-                            } else {
-                                notificationsMenuItem.setIcon(getResources().getDrawable(R.drawable.ic_notifications_dark));
-                            }
-                        }
-                    }else{
-                        Log.w(TAG, "onFailure: failed to check user notifications\n" +
-                                e.getMessage(), e);
-                    }
-                }
-            });
-        }
-    }
+//    private void checkNotifications(){
+//        if (coMeth.isLoggedIn()){
+//            CollectionReference userNotificationRef = coMeth.getDb().collection(USERS + "/" + coMeth.getUid() + "/" + NOTIFICATIONS);
+//            userNotificationRef.whereEqualTo(STATUS, NOTIFICATION_STATUS_UNREAD).addSnapshotListener(new EventListener<QuerySnapshot>() {
+//                @Override
+//                public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots,
+//                                    @javax.annotation.Nullable FirebaseFirestoreException e) {
+//                    if (e == null){
+//                        Menu bottomNavMenu = mainBottomNav.getMenu();
+//                        MenuItem notificationsMenuItem = bottomNavMenu.findItem(R.id.bottomNavNotificationsItem);
+//                        if (queryDocumentSnapshots != null) {
+//                            if (!queryDocumentSnapshots.isEmpty()) {
+//                                //user has unread notifications
+//                                notificationsMenuItem.setIcon(getResources().getDrawable(R.drawable.ic_notification_dot));
+//                            } else {
+//                                notificationsMenuItem.setIcon(getResources().getDrawable(R.drawable.ic_notifications_dark));
+//                            }
+//                        }
+//                    }else{
+//                        Log.w(TAG, "onFailure: failed to check user notifications\n" +
+//                                e.getMessage(), e);
+//                    }
+//                }
+//            });
+//        }
+//    }
 
     private void updateDailyCredit(){
         //check if is logged in
