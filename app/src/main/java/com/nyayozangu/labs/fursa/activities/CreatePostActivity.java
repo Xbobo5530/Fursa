@@ -90,6 +90,7 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID_VAL;
 public class CreatePostActivity extends AppCompatActivity implements View.OnClickListener {
 
     // TODO: 6/14/18 add multiple images upload
+    // TODO: 8/29/18 isEdit post doest not auto populate the desc field
 
     private static final String TAG = "CreatePostActivity";
     private static final String EDIT_POST = "editPost";
