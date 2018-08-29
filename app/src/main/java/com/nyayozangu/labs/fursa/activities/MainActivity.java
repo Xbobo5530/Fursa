@@ -42,7 +42,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -61,13 +60,9 @@ import com.nyayozangu.labs.fursa.helpers.CoMeth;
 import com.nyayozangu.labs.fursa.models.Category;
 import com.nyayozangu.labs.fursa.models.User;
 
-import java.time.DayOfWeek;
-import java.time.Month;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,14 +74,11 @@ import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOOGLE_DOT_COM;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.GOTO;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.MESSAGE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NEW_FOLLOWERS_UPDATE;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATIONS_VAL;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFICATION_STATUS_UNREAD;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.NOTIFY;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.SAVED_VAL;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.STATUS;
-import static com.nyayozangu.labs.fursa.helpers.CoMeth.TRUE;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.UPDATE;
+import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERNAME;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USERS;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_ID;
 import static com.nyayozangu.labs.fursa.helpers.CoMeth.USER_POSTS;
@@ -120,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements
     private ImageView userProfileImage;
     private TextView usernameField;
     private TextView userCreditField;
-    private User user;
+    private User user = null;
     private ArrayList<String> catSubsArray;
     private String[] catsListItems;
 
@@ -182,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements
             handleNavViewHeader(navigationView);
         }
 
-        hasAcceptedTermsStatus = CoMeth.FALSE;
+        hasAcceptedTermsStatus = CoMeth.HAS_NOT_ACCEPTED_TERMS;
         checkHasAcceptedTerms();
         handleIntent();
         handleDrawerListeners(navigationView);
@@ -308,9 +300,12 @@ public class MainActivity extends AppCompatActivity implements
         ConstraintLayout navHeader = (ConstraintLayout) navigationView.getHeaderView(0);
         userProfileImage = navHeader.findViewById(R.id.navHeaderUserImageView);
         usernameField = navHeader.findViewById(R.id.navHeaderUsernameTextView);
-        usernameField.setVisibility(View.VISIBLE);
         userCreditField = navHeader.findViewById(R.id.navHeaderUserCreditBalanceTextView);
-        userCreditField.setVisibility(View.VISIBLE);
+        setViewHeaderClickListener(navHeader);
+        getUserData();
+    }
+
+    private void getUserData() {
         if (coMeth.isLoggedIn()) {
             //set user data
             String userId = coMeth.getUid();
@@ -320,10 +315,14 @@ public class MainActivity extends AppCompatActivity implements
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (documentSnapshot.exists()) {
                                 user = documentSnapshot.toObject(User.class);
-                                assert user != null;
-                                setUserData(user, userProfileImage, usernameField);
+                                if (user != null) {
+                                    setUserData(user, userProfileImage, usernameField);
+                                }else{
+                                    setUserData(null, userProfileImage, usernameField);
+                                }
                             } else {
                                 Log.d(TAG, "onSuccess: user does not exist");
+                                setUserData(user, userProfileImage, usernameField);
                             }
                         }
                     })
@@ -332,12 +331,16 @@ public class MainActivity extends AppCompatActivity implements
                         public void onFailure(@NonNull Exception e) {
                             Log.d(TAG, "onFailure: failed to load user image\n" +
                                     e.getMessage());
-                            userProfileImage.setImageDrawable(
-                                    getResources().getDrawable(R.drawable.ic_action_person_placeholder));
+                            setUserData(user, userProfileImage, usernameField);
                         }
                     });
+        } else {
+            setUserData(user, userProfileImage, usernameField);
+        }
+    }
 
-            //set click listener
+    private void setViewHeaderClickListener(ConstraintLayout navHeader) {
+        if (coMeth.isLoggedIn()){
             navHeader.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -345,11 +348,7 @@ public class MainActivity extends AppCompatActivity implements
                     mainDrawerLayout.closeDrawers();
                 }
             });
-        } else {
-            userProfileImage.setImageDrawable(
-                    getResources().getDrawable(R.drawable.appiconshadow));
-            usernameField.setVisibility(View.GONE);
-
+        }else{
             navHeader.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -364,23 +363,49 @@ public class MainActivity extends AppCompatActivity implements
         startActivity(new Intent(this, LoginActivity.class));
     }
 
-    private void setUserData(User user, ImageView userProfileImage, TextView usernameField) {
-        userProfileImage.setVisibility(View.VISIBLE);
-        if (user.getImage() != null) {
+    private void setUserData(User user, ImageView userProfileImageView, TextView usernameField) {
+        setUsername(user, usernameField);
+        setUserImage(user, userProfileImageView);
+        setUserCreditDetails(user);
+    }
+
+    private void setUsername(User user, TextView usernameField) {
+        if (coMeth.isLoggedIn()) {
+            usernameField.setVisibility(View.VISIBLE);
             username = user.getName();
             usernameField.setText(username);
-            int userCredit = user.getCredit();
-            String creditInfo = getString(R.string.balance_text) + ": " + userCredit + " " + getString(R.string.credit_text);
-            userCreditField.setText(creditInfo);
+        }else{
+            usernameField.setVisibility(View.GONE);
+        }
+    }
 
-            //set image
-            String userImageUrl = user.getImage();
-            coMeth.setImageWithTransition(R.drawable.appiconshadow,
-                    userImageUrl,
-                    userProfileImage, this);
-        } else {
-            userProfileImage.setImageDrawable(
-                    getResources().getDrawable(R.drawable.appiconshadow));
+    private void setUserImage(User user, ImageView userProfileImageView) {
+        userProfileImageView.setVisibility(View.VISIBLE);
+        if (coMeth.isLoggedIn()){
+            if (user.getImage() != null) {
+                String userImageUrl = user.getImage();
+                coMeth.setImageWithTransition(R.drawable.appiconshadow, userImageUrl,
+                        userProfileImageView, this);
+            } else {
+                userProfileImageView.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
+            }
+        }else{
+            userProfileImageView.setImageDrawable(getResources().getDrawable(R.drawable.appiconshadow));
+        }
+    }
+
+    private void setUserCreditDetails(User user) {
+        if (coMeth.isLoggedIn()) {
+            int userCredit = user.getCredit();
+            if (userCredit > 0) {
+                userCreditField.setVisibility(View.VISIBLE);
+                String creditInfo = getString(R.string.balance_text) + ": " + userCredit + " " + getString(R.string.credit_text);
+                userCreditField.setText(creditInfo);
+            } else {
+                userCreditField.setVisibility(View.GONE);
+            }
+        }else{
+            userCreditField.setVisibility(View.GONE);
         }
     }
 
@@ -390,7 +415,6 @@ public class MainActivity extends AppCompatActivity implements
                 getString(getResources().getString(R.string.has_accepted_terms),
                         hasAcceptedTermsStatus);
         Log.d(TAG, "onCreate: \nhasAcceptedTerms: " + hasAcceptedTerms);
-
         if (hasAcceptedTerms.equals(getResources().getString(R.string.false_value))) {
             handleTerms();
         }
@@ -409,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements
                         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString(getString(R.string.has_accepted_terms),
-                                getString(R.string.true_value));
+                                CoMeth.HAS_ACCEPTED_TERMS /*getString(R.string.true_value)*/);
                         editor.apply();
 
                         dialog.dismiss();
@@ -726,8 +750,8 @@ public class MainActivity extends AppCompatActivity implements
         Intent goToUserPostsIntent = new Intent(
                 MainActivity.this, UserPostsActivity.class);
         goToUserPostsIntent.putExtra(DESTINATION, USER_POSTS);
-        goToUserPostsIntent.putExtra(CoMeth.USER_ID, coMeth.getUid());
-        goToUserPostsIntent.putExtra(CoMeth.USERNAME, username);
+        goToUserPostsIntent.putExtra(USER_ID, coMeth.getUid());
+        goToUserPostsIntent.putExtra(USERNAME, username);
         startActivity(goToUserPostsIntent);
     }
 

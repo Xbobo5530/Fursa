@@ -100,7 +100,7 @@
                         android:layout_marginTop="8dp"
                         android:text="@string/follow_text"
                         android:textAllCaps="false"
-                        android:textColor="@color/primaryDarkColor"
+                        android:textColor="@color/primaryColor"
                         android:textStyle="bold|italic"
                         android:visibility="visible" />
                 </LinearLayout>

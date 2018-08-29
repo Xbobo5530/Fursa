@@ -35,16 +35,19 @@
             android:text="@string/username_text"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="gone"/>
         <TextView
             android:id="@+id/navHeaderUserCreditBalanceTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:paddingBottom="8dp"
             android:textColor="@android:color/white"
             android:text="@string/balance_text"
-            android:textStyle="italic"/>
+            android:textStyle="italic"
+            android:visibility="gone"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

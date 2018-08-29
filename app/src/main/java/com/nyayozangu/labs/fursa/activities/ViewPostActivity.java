@@ -29,7 +29,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
@@ -90,7 +89,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
     // TODO: 5/30/18 handle posts with multiple images
     // TODO: 6/7/18 when deleting a post with an image, delete the image as well
-    // TODO: 6/7/18 run an algorythim to delete all post photos that have no posts
+    // TODO: 6/7/18 run an algorhythim to delete all post photos that have no posts
     // TODO: 6/14/18 for view reward notifications use viewsRewardPostId as topic
 
 
@@ -103,12 +102,11 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     private android.support.v7.widget.Toolbar toolbar;
     private ExpandableTextView descTextView;
     private TextView mToTextView;
-    private String postUserId, currentUserId, postId, reportDetailsString, postImageUri,
-            description = "";
+    private String postUserId, currentUserId, postId, reportDetailsString, postImageUri, description = "";
     private ImageView postImage, userImage;
     private ProgressDialog progressDialog;
     private ArrayList<String> catArray, catKeys, reportedItems, flagsArray, tags, relatedConditions;
-    private LinearLayout mLikeButton, mSaveButton,  mCommentsButton, mShareButton, mActivityButton;
+    private LinearLayout mLikeButton, mSaveButton,  mCommentsButton, mShareButton, mPromoteButton;
     private Button mContactButton, mLocationButton, mEventDateButton, mEventEndDateButton, mCatsButton,
             mPriceButton, mTagsButton, mTimeButton, mUserButton;
     private int likes, comments;
@@ -126,7 +124,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         mSaveButton = findViewById(R.id.viewPostSaveLayout);
         mCommentsButton = findViewById(R.id.viewPostCommentLayout);
         mShareButton = findViewById(R.id.viewPostShareLayout);
-        mActivityButton = findViewById(R.id.viewPostActivityLayout);
+        mPromoteButton = findViewById(R.id.viewPostPromoteLayout);
 
         mContactButton = findViewById(R.id.viewPostContactButton);
         mLocationButton = findViewById(R.id.viewPostLocationButton);
@@ -158,7 +156,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         handleBackBehaviour();
 
         mTagsButton.setOnClickListener(this);
-        mActivityButton.setOnClickListener(this);
+        mPromoteButton.setOnClickListener(this);
         mLocationButton.setOnClickListener(this);
         mCatsButton.setOnClickListener(this);
         postImage.setOnClickListener(this);
@@ -370,8 +368,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
 
-            case R.id.viewPostActivityLayout:
-                showPostStats();
+            case R.id.viewPostPromoteLayout:
+                goToPromote();
                 break;
             case R.id.viewPostLocationButton:
                 openMap();
@@ -412,28 +410,27 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
 
         if (coMeth.isConnected(this)) {
             if (coMeth.isLoggedIn()) {
-                currentUserId = new CoMeth().getUid();
-
+                currentUserId = coMeth.getUid();
                 //check if current user is the post user
                 if (currentUserId.equals(postUserId)) {
-                    editPost.setVisible(true);
-                    deletePost.setVisible(true);
-                    postStats.setVisible(true);
-                    promotePost.setVisible(false); // TODO: 5/31/18 remove on launch
+                    showToolbarOptions(editPost, deletePost, postStats, promotePost, true);
                 } else {
-                    editPost.setVisible(false);
-                    deletePost.setVisible(false);
-                    postStats.setVisible(false);
-                    promotePost.setVisible(false); // TODO: 5/31/18 remove on launch
+                    showToolbarOptions(editPost, deletePost, postStats, promotePost, false);
                 }
+            }else{
+                showToolbarOptions(editPost, deletePost, postStats, promotePost, false);
             }
         } else {
-            editPost.setVisible(false);
-            deletePost.setVisible(false);
-            postStats.setVisible(false);
-            promotePost.setVisible(false); // TODO: 5/31/18 remove on launch
+            showToolbarOptions(editPost, deletePost, postStats, promotePost, false);
         }
         return true;
+    }
+
+    private void showToolbarOptions(MenuItem editPost, MenuItem deletePost, MenuItem postStats, MenuItem promotePost, boolean isVisible) {
+        editPost.setVisible(isVisible);
+        deletePost.setVisible(isVisible);
+        postStats.setVisible(isVisible);
+        promotePost.setVisible(isVisible);
     }
 
     @Override
@@ -507,7 +504,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                         getResources().getString(R.string.likes_text) + ": " + post.getLikes() + "\n" +
                                 getResources().getString(R.string.comments_text) + ": " + post.getComments() + "\n" +
                                 getResources().getString(R.string.views_text) + ": " + post.getViews()
-                        // TODO: 8/23/18 feedviews are disabled until there's a better wasy of updating feedviews
+                        // TODO: 8/23/18 feedViews are disabled until there's a better way of updating feedViews
                         /* + "\n" +
                                 getString(R.string.feed_views_text) + ": " + post.getFeed_views()*/
                 )
@@ -763,7 +760,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                                     documentSnapshot.toObject(Post.class)).withId(postId);
                             setDesc();
                             updateViews();
-                            handleActivityButtonVisibility();
+                            handlePromoteButtonVisibility();
                             setTags();
                             setContactInfo();
                             setLocation();
@@ -1002,14 +999,14 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private void handleActivityButtonVisibility() {
+    private void handlePromoteButtonVisibility() {
         if (coMeth.isLoggedIn() &&
                 coMeth.getUid().equals(post.getUser_id())) {
-            mActivityButton.setVisibility(View.VISIBLE);
+            mPromoteButton.setVisibility(View.VISIBLE);
         } else {
             //viewer has no credentials
             //hide activity button
-            mActivityButton.setVisibility(View.GONE);
+            mPromoteButton.setVisibility(View.GONE);
         }
     }
 
@@ -1415,8 +1412,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        TextView activityCountTextView = findViewById(R.id.viewPostActivityTextView);
-                        activityCountTextView.setText(String.valueOf(activity));
+//                        TextView activityCountTextView = findViewById(R.id.viewPostPromoteTextView);
+//                        activityCountTextView.setText(String.valueOf(activity));
+                        Log.d(TAG, "onSuccess: post views have been updated");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

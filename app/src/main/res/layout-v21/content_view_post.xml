@@ -117,7 +117,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/viewPostActivityLayout"
+                android:id="@+id/viewPostPromoteLayout"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -125,17 +125,17 @@
                 android:padding="12dp"
                 android:visibility="gone">
                 <ImageView
-                    android:id="@+id/viewPostActivityImageView"
+                    android:id="@+id/viewPostPromoteImageView"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_gravity="center"
-                    app:srcCompat="@drawable/ic_action_activity" />
+                    app:srcCompat="@drawable/ic_promote" />
                 <TextView
-                    android:id="@+id/viewPostActivityTextView"
+                    android:id="@+id/viewPostPromoteTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/activity_text"
-                    android:textColor="@color/views_color"
+                    android:text="@string/promote_text"
+                    android:textColor="@color/colorAccent"
                     android:textAlignment="center"
                     android:textSize="12sp"
                     android:layout_gravity="center"/>

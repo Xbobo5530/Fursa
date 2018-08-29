@@ -127,7 +127,7 @@ public class CoMeth{
     public static final String UPDATE = "update";
     public static final String TERMS = "terms";
     public static final String TERMS_URL = "http://fursa.nyayozangu.com/privacy_policy/";
-    public static final String FALSE = "false";
+    public static final String HAS_NOT_ACCEPTED_TERMS = "false";
     public static final String TRUE = "true";
     public static final String COMMENTS_COLL = "Comments";
     public static final String COMMENTS_DOC = "comments";
@@ -170,6 +170,7 @@ public class CoMeth{
     public static final String SPONSORED = "Sponsored";
     public static final String PROMOTIONS = "Promotions";
     public static final String COST = "cost";
+    public static final String HAS_ACCEPTED_TERMS = "true";
 
     public String[] getCatTitle(Context context){
         return new String[]{
